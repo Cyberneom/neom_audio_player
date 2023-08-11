@@ -17,12 +17,14 @@
  * Copyright (c) 2021-2023, Ankit Sangwan
  */
 
-import 'package:blackhole/CustomWidgets/image_card.dart';
-import 'package:blackhole/CustomWidgets/like_button.dart';
-import 'package:blackhole/CustomWidgets/on_hover.dart';
-import 'package:blackhole/CustomWidgets/song_tile_trailing_menu.dart';
-import 'package:blackhole/Models/image_quality.dart';
 import 'package:flutter/material.dart';
+import 'package:neom_commons/core/utils/app_color.dart';
+import 'package:neom_commons/core/utils/constants/app_assets.dart';
+import 'package:neom_music_player/CustomWidgets/image_card.dart';
+import 'package:neom_music_player/CustomWidgets/like_button.dart';
+import 'package:neom_music_player/CustomWidgets/on_hover.dart';
+import 'package:neom_music_player/CustomWidgets/song_tile_trailing_menu.dart';
+import 'package:neom_music_player/utils/enums/image_quality.dart';
 
 class HorizontalAlbumsList extends StatelessWidget {
   final List songsList;
@@ -95,7 +97,7 @@ class HorizontalAlbumsList extends StatelessWidget {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15.0),
                     ),
-                    backgroundColor: Colors.transparent,
+                    backgroundColor: AppColor.main75,
                     contentPadding: EdgeInsets.zero,
                     content: imageCard(
                       borderRadius:
@@ -106,14 +108,14 @@ class HorizontalAlbumsList extends StatelessWidget {
                       placeholderImage: (item['type'] == 'playlist' ||
                               item['type'] == 'album')
                           ? const AssetImage(
-                              'assets/album.png',
+                              AppAssets.musicPlayerAlbum,
                             )
                           : item['type'] == 'artist'
                               ? const AssetImage(
-                                  'assets/artist.png',
+                                  AppAssets.musicPlayerArtist,
                                 )
                               : const AssetImage(
-                                  'assets/cover.jpg',
+                                  AppAssets.musicPlayerCover,
                                 ),
                     ),
                   );
@@ -138,14 +140,14 @@ class HorizontalAlbumsList extends StatelessWidget {
                   placeholderImage:
                       (item['type'] == 'playlist' || item['type'] == 'album')
                           ? const AssetImage(
-                              'assets/album.png',
+                              AppAssets.musicPlayerAlbum,
                             )
                           : item['type'] == 'artist'
                               ? const AssetImage(
-                                  'assets/artist.png',
+                                  AppAssets.musicPlayerArtist,
                                 )
                               : const AssetImage(
-                                  'assets/cover.jpg',
+                                  AppAssets.musicPlayerCover,
                                 ),
                 ),
                 builder: ({

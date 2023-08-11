@@ -21,11 +21,11 @@ import 'dart:convert';
 
 import 'package:audiotagger/audiotagger.dart';
 import 'package:audiotagger/models/tag.dart';
-import 'package:blackhole/APIs/spotify_api.dart';
-import 'package:blackhole/Helpers/matcher.dart';
-import 'package:blackhole/Helpers/spotify_helper.dart';
 import 'package:http/http.dart';
 import 'package:logging/logging.dart';
+import 'package:neom_music_player/APIs/spotify_api.dart';
+import 'package:neom_music_player/Helpers/matcher.dart';
+import 'package:neom_music_player/Helpers/spotify_helper.dart';
 
 // ignore: avoid_classes_with_only_static_members
 class Lyrics {

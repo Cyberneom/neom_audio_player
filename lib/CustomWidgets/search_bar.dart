@@ -19,12 +19,13 @@
 
 import 'dart:math';
 
-import 'package:blackhole/Screens/YouTube/youtube_search.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:hive/hive.dart';
+import 'package:neom_commons/core/utils/app_theme.dart';
+import 'package:neom_music_player/ui/YouTube/youtube_search.dart';
 
 class SearchBar extends StatefulWidget {
   final bool isYt;
@@ -107,7 +108,8 @@ class _SearchBarState extends State<SearchBar> {
                 ),
               ),
               elevation: 8.0,
-              child: SizedBox(
+              child: Container(
+                decoration: AppTheme.appBoxDecoration,
                 height: 52.0,
                 child: Center(
                   child: TextField(

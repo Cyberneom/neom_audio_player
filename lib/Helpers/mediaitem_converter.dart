@@ -18,8 +18,8 @@
  */
 
 import 'package:audio_service/audio_service.dart';
-import 'package:blackhole/Models/song_item.dart';
-import 'package:blackhole/Models/url_image_generator.dart';
+import 'package:neom_music_player/domain/entities/song_item.dart';
+import 'package:neom_music_player/domain/entities/url_image_generator.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
 // ignore: avoid_classes_with_only_static_members

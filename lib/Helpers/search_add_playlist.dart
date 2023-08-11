@@ -19,15 +19,16 @@
 
 import 'dart:convert';
 
-import 'package:blackhole/APIs/api.dart';
-import 'package:blackhole/APIs/spotify_api.dart';
-import 'package:blackhole/CustomWidgets/gradient_containers.dart';
-import 'package:blackhole/Helpers/playlist.dart';
-import 'package:blackhole/Services/youtube_services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:http/http.dart';
 import 'package:logging/logging.dart';
+import 'package:neom_commons/core/utils/app_color.dart';
+import 'package:neom_music_player/APIs/api.dart';
+import 'package:neom_music_player/APIs/spotify_api.dart';
+import 'package:neom_music_player/CustomWidgets/gradient_containers.dart';
+import 'package:neom_music_player/Helpers/playlist.dart';
+import 'package:neom_music_player/Services/youtube_services.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
 // ignore: avoid_classes_with_only_static_members
@@ -221,7 +222,7 @@ class SearchAddPlaylist {
     if (total != 0) {
       await showModalBottomSheet(
         isDismissible: false,
-        backgroundColor: Colors.transparent,
+        backgroundColor: AppColor.main75,
         context: cxt,
         builder: (BuildContext context) {
           return StatefulBuilder(

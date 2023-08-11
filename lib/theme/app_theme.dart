@@ -17,10 +17,11 @@
  * Copyright (c) 2021-2023, Ankit Sangwan
  */
 
-import 'package:blackhole/Helpers/config.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
+import 'package:neom_commons/core/utils/app_color.dart';
+import 'package:neom_music_player/Helpers/config.dart';
 
 // ignore: avoid_classes_with_only_static_members
 class AppTheme {
@@ -92,7 +93,7 @@ class AppTheme {
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           foregroundColor: Colors.white,
-          backgroundColor: Colors.transparent,
+          backgroundColor: AppColor.main75,
           elevation: 0.0,
         ),
       ),

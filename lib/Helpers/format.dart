@@ -20,12 +20,12 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:blackhole/APIs/api.dart';
-import 'package:blackhole/Helpers/extensions.dart';
-import 'package:blackhole/Helpers/image_resolution_modifier.dart';
 import 'package:dart_des/dart_des.dart';
 import 'package:hive/hive.dart';
 import 'package:logging/logging.dart';
+import 'package:neom_music_player/APIs/api.dart';
+import 'package:neom_music_player/Helpers/extensions.dart';
+import 'package:neom_music_player/Helpers/image_resolution_modifier.dart';
 
 // ignore: avoid_classes_with_only_static_members
 class FormatResponse {
@@ -56,7 +56,6 @@ class FormatResponse {
         case 'show':
         case 'mix':
           response = await formatSingleSongResponse(responseList[i] as Map);
-          break;
         default:
           break;
       }
@@ -227,16 +226,12 @@ class FormatResponse {
       switch (type) {
         case 'album':
           response = await formatSingleAlbumResponse(responseList[i] as Map);
-          break;
         case 'artist':
           response = await formatSingleArtistResponse(responseList[i] as Map);
-          break;
         case 'playlist':
           response = await formatSinglePlaylistResponse(responseList[i] as Map);
-          break;
         case 'show':
           response = await formatSingleShowResponse(responseList[i] as Map);
-          break;
       }
       if (response!.containsKey('Error')) {
         Logger.root.severe(

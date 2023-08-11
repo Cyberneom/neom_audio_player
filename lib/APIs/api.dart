@@ -19,10 +19,10 @@
 
 import 'dart:convert';
 
-import 'package:blackhole/Helpers/format.dart';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart';
 import 'package:logging/logging.dart';
+import 'package:neom_music_player/Helpers/format.dart';
 
 class SaavnAPI {
   List preferredLanguages = Hive.box('settings')
@@ -383,15 +383,12 @@ class SaavnAPI {
           case 'artist':
             searchedTopQueryList =
                 await FormatResponse.formatAlbumResponse(topQuery, 'artist');
-            break;
           case 'album':
             searchedTopQueryList =
                 await FormatResponse.formatAlbumResponse(topQuery, 'album');
-            break;
           case 'playlist':
             searchedTopQueryList =
                 await FormatResponse.formatAlbumResponse(topQuery, 'playlist');
-            break;
           default:
             break;
         }

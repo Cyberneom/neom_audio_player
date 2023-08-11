@@ -17,10 +17,10 @@
  * Copyright (c) 2021-2023, Ankit Sangwan
  */
 
-import 'package:blackhole/CustomWidgets/snackbar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:neom_music_player/CustomWidgets/snackbar.dart';
 
 void copyToClipboard({
   required BuildContext context,

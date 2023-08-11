@@ -17,9 +17,9 @@
  * Copyright (c) 2021-2023, Ankit Sangwan
  */
 
-import 'package:blackhole/Services/player_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:neom_music_player/Services/player_service.dart';
 
 class PlaylistHead extends StatelessWidget {
   final List songsList;

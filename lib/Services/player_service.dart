@@ -20,13 +20,14 @@
 import 'dart:io';
 
 import 'package:audio_service/audio_service.dart';
-import 'package:blackhole/Helpers/mediaitem_converter.dart';
-import 'package:blackhole/Screens/Player/audioplayer.dart';
-import 'package:blackhole/Services/youtube_services.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:logging/logging.dart';
+import 'package:neom_commons/core/utils/constants/app_assets.dart';
+import 'package:neom_music_player/Helpers/mediaitem_converter.dart';
+import 'package:neom_music_player/Services/youtube_services.dart';
+import 'package:neom_music_player/ui/Player/audioplayer.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -49,7 +50,7 @@ class PlayerInvoke {
     final List finalList = songsList.toList();
     if (shuffle) finalList.shuffle();
     if (offline == null) {
-      if (audioHandler.mediaItem.value?.extras!['url'].startsWith('http')
+      if (audioHandler.mediaItem.valueWrapper?.value?.extras!['url'].startsWith('http')
           as bool) {
         offline = false;
       } else {
@@ -121,7 +122,7 @@ class PlayerInvoke {
     getTemporaryDirectory().then((tempDir) async {
       final File file = File('${tempDir.path}/cover.jpg');
       if (!await file.exists()) {
-        final byteData = await rootBundle.load('assets/cover.jpg');
+        final byteData = await rootBundle.load(AppAssets.musicPlayerCover);
         await file.writeAsBytes(
           byteData.buffer
               .asUint8List(byteData.offsetInBytes, byteData.lengthInBytes),
@@ -160,7 +161,7 @@ class PlayerInvoke {
     getTemporaryDirectory().then((tempDir) async {
       final File file = File('${tempDir.path}/cover.jpg');
       if (!await file.exists()) {
-        final byteData = await rootBundle.load('assets/cover.jpg');
+        final byteData = await rootBundle.load(AppAssets.musicPlayerCover);
         await file.writeAsBytes(
           byteData.buffer
               .asUint8List(byteData.offsetInBytes, byteData.lengthInBytes),
@@ -241,8 +242,7 @@ class PlayerInvoke {
   }) async {
     final List<MediaItem> queue = [];
     final Map playItem = response[index] as Map;
-    final Map? nextItem =
-        index == response.length - 1 ? null : response[index + 1] as Map;
+    final Map? nextItem = index == response.length - 1 ? null : response[index + 1] as Map;
     if (playItem['genre'] == 'YouTube') {
       await refreshYtLink(playItem);
     }
@@ -275,13 +275,10 @@ class PlayerInvoke {
       switch (repeatMode) {
         case 'None':
           audioHandler.setRepeatMode(AudioServiceRepeatMode.none);
-          break;
         case 'All':
           audioHandler.setRepeatMode(AudioServiceRepeatMode.all);
-          break;
         case 'One':
           audioHandler.setRepeatMode(AudioServiceRepeatMode.one);
-          break;
         default:
           break;
       }

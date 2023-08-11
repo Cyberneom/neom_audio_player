@@ -18,12 +18,13 @@
  */
 
 import 'package:audio_service/audio_service.dart';
-import 'package:blackhole/CustomWidgets/gradient_containers.dart';
-import 'package:blackhole/CustomWidgets/image_card.dart';
-import 'package:blackhole/Screens/Player/audioplayer.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:neom_commons/core/utils/app_color.dart';
+import 'package:neom_music_player/CustomWidgets/gradient_containers.dart';
+import 'package:neom_music_player/CustomWidgets/image_card.dart';
+import 'package:neom_music_player/ui/Player/audioplayer.dart';
 
 class MiniPlayer extends StatefulWidget {
   static const MiniPlayer _instance = MiniPlayer._internal();
@@ -91,13 +92,14 @@ class _MiniPlayerState extends State<MiniPlayer> {
                 return Future.value(false);
               },
               child: Card(
+                color: AppColor.cardColor,
                 margin: const EdgeInsets.symmetric(
                   horizontal: 2.0,
                   vertical: 1.0,
                 ),
                 elevation: 0,
                 child: SizedBox(
-                  height: 68.0,
+                  height: 78.0,
                   child: GradientContainer(
                     child: Column(
                       mainAxisSize: MainAxisSize.min,

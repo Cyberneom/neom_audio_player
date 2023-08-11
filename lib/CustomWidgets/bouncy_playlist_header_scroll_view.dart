@@ -22,6 +22,7 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:neom_commons/core/utils/constants/app_assets.dart';
 
 class BouncyPlaylistHeaderScrollView extends StatelessWidget {
   final ScrollController scrollController;
@@ -44,7 +45,7 @@ class BouncyPlaylistHeaderScrollView extends StatelessWidget {
     required this.title,
     this.subtitle,
     this.secondarySubtitle,
-    this.placeholderImage = 'assets/cover.jpg',
+    this.placeholderImage = AppAssets.musicPlayerCover,
     this.localImage = false,
     this.imageUrl,
     this.actions,
@@ -235,13 +236,11 @@ class BouncyPlaylistHeaderScrollView extends StatelessWidget {
                                                       : Colors.white,
                                                   size: 26.0,
                                                 ),
-                                                const SizedBox(width: 5.0),
                                                 Text(
-                                                  AppLocalizations.of(context)!
-                                                      .play,
+                                                  AppLocalizations.of(context)!.play,
                                                   style: TextStyle(
                                                     fontWeight: FontWeight.bold,
-                                                    fontSize: 18.0,
+                                                    fontSize: 15.0,
                                                     color: Theme.of(context)
                                                                 .colorScheme
                                                                 .secondary ==

@@ -18,11 +18,11 @@
  */
 
 import 'package:audio_service/audio_service.dart';
-import 'package:blackhole/CustomWidgets/snackbar.dart';
-import 'package:blackhole/Helpers/playlist.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:logging/logging.dart';
+import 'package:neom_music_player/CustomWidgets/snackbar.dart';
+import 'package:neom_music_player/Helpers/playlist.dart';
 
 class LikeButton extends StatefulWidget {
   final MediaItem? mediaItem;

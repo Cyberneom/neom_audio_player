@@ -22,6 +22,7 @@ import 'dart:math';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:neom_commons/core/utils/constants/app_assets.dart';
 
 class BouncyImageSliverScrollView extends StatelessWidget {
   final ScrollController scrollController;
@@ -39,7 +40,7 @@ class BouncyImageSliverScrollView extends StatelessWidget {
     this.shrinkWrap = false,
     required this.sliverList,
     required this.title,
-    this.placeholderImage = 'assets/cover.jpg',
+    this.placeholderImage = AppAssets.musicPlayerCover,
     this.localImage = false,
     this.fromYt = false,
     this.imageUrl,

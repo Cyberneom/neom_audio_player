@@ -18,11 +18,11 @@
  */
 
 import 'package:audio_service/audio_service.dart';
-import 'package:blackhole/CustomWidgets/snackbar.dart';
-import 'package:blackhole/Screens/Player/audioplayer.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:get_it/get_it.dart';
+import 'package:neom_music_player/CustomWidgets/snackbar.dart';
+import 'package:neom_music_player/ui/Player/audioplayer.dart';
 
 void addToNowPlaying({
   required BuildContext context,
@@ -30,10 +30,10 @@ void addToNowPlaying({
   bool showNotification = true,
 }) {
   final AudioPlayerHandler audioHandler = GetIt.I<AudioPlayerHandler>();
-  final MediaItem? currentMediaItem = audioHandler.mediaItem.value;
+  final MediaItem? currentMediaItem = audioHandler.mediaItem.valueWrapper!.value;
   if (currentMediaItem != null &&
       currentMediaItem.extras!['url'].toString().startsWith('http')) {
-    if (audioHandler.queue.value.contains(mediaItem) && showNotification) {
+    if (audioHandler.queue.valueWrapper!.value.contains(mediaItem) && showNotification) {
       ShowSnackBar().showSnackBar(
         context,
         AppLocalizations.of(context)!.alreadyInQueue,
@@ -65,19 +65,19 @@ void playNext(
   BuildContext context,
 ) {
   final AudioPlayerHandler audioHandler = GetIt.I<AudioPlayerHandler>();
-  final MediaItem? currentMediaItem = audioHandler.mediaItem.value;
+  final MediaItem? currentMediaItem = audioHandler.mediaItem.valueWrapper?.value;
   if (currentMediaItem != null &&
       currentMediaItem.extras!['url'].toString().startsWith('http')) {
-    final queue = audioHandler.queue.value;
-    if (queue.contains(mediaItem)) {
+    final queue = audioHandler.queue.valueWrapper?.value;
+    if (queue?.contains(mediaItem) ?? false) {
       audioHandler.moveQueueItem(
-        queue.indexOf(mediaItem),
+        queue!.indexOf(mediaItem),
         queue.indexOf(currentMediaItem) + 1,
       );
     } else {
       audioHandler.addQueueItem(mediaItem).then(
             (value) => audioHandler.moveQueueItem(
-              queue.length,
+              queue!.length,
               queue.indexOf(currentMediaItem) + 1,
             ),
           );

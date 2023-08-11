@@ -18,9 +18,9 @@
  */
 
 import 'package:audio_service/audio_service.dart';
-import 'package:blackhole/Screens/Player/audioplayer.dart';
-import 'package:blackhole/Services/audio_service.dart';
 import 'package:flutter/material.dart';
+import 'package:neom_music_player/Services/audio_service.dart';
+import 'package:neom_music_player/ui/Player/audioplayer.dart';
 
 class AudioHandlerHelper {
   static final AudioHandlerHelper _instance = AudioHandlerHelper._internal();
@@ -37,8 +37,9 @@ class AudioHandlerHelper {
     audioHandler = await AudioService.init(
       builder: () => AudioPlayerHandlerImpl(),
       config: AudioServiceConfig(
-        androidNotificationChannelId: 'com.shadow.blackhole.channel.audio',
-        androidNotificationChannelName: 'BlackHole',
+        // androidNotificationChannelId: 'com.gigmeout.letsgig.channel.audio',
+        androidNotificationChannelId: 'com.gigmeout.letsgig.channel.audio',
+        androidNotificationChannelName: 'Gigmeout',
         androidNotificationIcon: 'drawable/ic_stat_music_note',
         androidShowNotificationBadge: true,
         androidStopForegroundOnPause: false,

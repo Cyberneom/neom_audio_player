@@ -19,10 +19,10 @@
 
 import 'dart:math';
 
-import 'package:blackhole/Screens/Player/audioplayer.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:neom_music_player/ui/Player/audioplayer.dart';
 
 class SeekBar extends StatefulWidget {
   final AudioPlayerHandler audioHandler;
@@ -265,7 +265,7 @@ void showSliderDialog({
       content: StreamBuilder<double>(
         stream: audioHandler.speed,
         builder: (context, snapshot) {
-          double value = snapshot.data ?? audioHandler.speed.value;
+          double value = snapshot.data ?? audioHandler.speed.valueWrapper?.value ?? 0;
           if (value > max) {
             value = max;
           }
@@ -281,10 +281,10 @@ void showSliderDialog({
                   children: [
                     IconButton(
                       icon: const Icon(CupertinoIcons.minus),
-                      onPressed: audioHandler.speed.value > min
+                      onPressed: audioHandler.speed.valueWrapper!.value > min
                           ? () {
                               audioHandler
-                                  .setSpeed(audioHandler.speed.value - 0.1);
+                                  .setSpeed(audioHandler.speed.valueWrapper!.value - 0.1);
                             }
                           : null,
                     ),
@@ -298,10 +298,10 @@ void showSliderDialog({
                     ),
                     IconButton(
                       icon: const Icon(CupertinoIcons.plus),
-                      onPressed: audioHandler.speed.value < max
+                      onPressed: audioHandler.speed.valueWrapper!.value < max
                           ? () {
                               audioHandler
-                                  .setSpeed(audioHandler.speed.value + 0.1);
+                                  .setSpeed(audioHandler.speed.valueWrapper!.value + 0.1);
                             }
                           : null,
                     ),

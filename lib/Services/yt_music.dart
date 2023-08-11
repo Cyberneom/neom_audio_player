@@ -19,12 +19,12 @@
 
 import 'dart:convert';
 
-import 'package:blackhole/Helpers/extensions.dart';
-import 'package:blackhole/Models/song_item.dart';
-import 'package:blackhole/Services/ytmusic/nav.dart';
-import 'package:blackhole/Services/ytmusic/playlist.dart';
 import 'package:http/http.dart';
 import 'package:logging/logging.dart';
+import 'package:neom_music_player/Helpers/extensions.dart';
+import 'package:neom_music_player/Services/ytmusic/nav.dart';
+import 'package:neom_music_player/Services/ytmusic/playlist.dart';
+import 'package:neom_music_player/domain/entities/song_item.dart';
 
 class YtMusicService {
   static const ytmDomain = 'music.youtube.com';

@@ -22,6 +22,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart';
 import 'package:logging/logging.dart';
+import 'package:neom_commons/core/app_flavour.dart';
 
 class SpotifyApi {
   final List<String> _scopes = [
@@ -32,9 +33,7 @@ class SpotifyApi {
   ];
 
   /// You can signup for spotify developer account and get your own clientID and clientSecret incase you don't want to use these
-  final String clientID = '08de4eaf71904d1b95254fab3015d711';
-  final String clientSecret = '622b4fbad33947c59b95a6ae607de11d';
-  final String redirectUrl = 'blackhole://spotify/auth';
+  final String redirectUrl = 'https://www.gigmeout.io/spotify_auth.html';
   final String spotifyApiUrl = 'https://accounts.spotify.com/api';
   final String spotifyApiBaseUrl = 'https://api.spotify.com/v1';
   final String spotifyUserPlaylistEndpoint = '/me/playlists';
@@ -45,7 +44,7 @@ class SpotifyApi {
   final String requestToken = 'https://accounts.spotify.com/api/token';
 
   String requestAuthorization() =>
-      'https://accounts.spotify.com/authorize?client_id=$clientID&response_type=code&redirect_uri=$redirectUrl&scope=${_scopes.join('%20')}';
+      'https://accounts.spotify.com/authorize?client_id=${AppFlavour.getSpotifyClientId()}&response_type=code&redirect_uri=$redirectUrl&scope=${_scopes.join('%20')}';
 
   // Future<String> authenticate() async {
   //   final url = SpotifyApi().requestAuthorization();
@@ -67,9 +66,11 @@ class SpotifyApi {
     String? code,
     String? refreshToken,
   }) async {
+    final String clientID = AppFlavour.getSpotifyClientId();
+    final String clientSecret = AppFlavour.getSpotifyClientSecret();
+
     final Map<String, String> headers = {
-      'Authorization':
-          "Basic ${base64.encode(utf8.encode("$clientID:$clientSecret"))}",
+      'Authorization': "Basic ${base64.encode(utf8.encode("$clientID:$clientSecret"))}",
     };
 
     Map<String, String>? body;

@@ -17,9 +17,9 @@
  * Copyright (c) 2021-2023, Ankit Sangwan
  */
 
-import 'package:blackhole/Helpers/config.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:neom_music_player/Helpers/config.dart';
 
 class GradientContainer extends StatefulWidget {
   final Widget? child;

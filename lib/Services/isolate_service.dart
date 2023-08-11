@@ -1,10 +1,10 @@
 import 'dart:isolate';
 
-import 'package:blackhole/Screens/Player/audioplayer.dart';
-import 'package:blackhole/Services/youtube_services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:logging/logging.dart';
+import 'package:neom_music_player/Services/youtube_services.dart';
+import 'package:neom_music_player/ui/Player/audioplayer.dart';
 import 'package:path_provider/path_provider.dart';
 
 SendPort? isolateSendPort;

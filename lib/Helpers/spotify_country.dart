@@ -17,23 +17,23 @@
  * Copyright (c) 2021-2023, Ankit Sangwan
  */
 
-import 'package:blackhole/CustomWidgets/gradient_containers.dart';
-import 'package:blackhole/Screens/Top Charts/top.dart' as top_screen;
-import 'package:blackhole/constants/countrycodes.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:neom_commons/core/utils/app_color.dart';
+import 'package:neom_music_player/CustomWidgets/gradient_containers.dart';
+import 'package:neom_music_player/ui/Top Charts/top.dart' as top_screen;
+import 'package:neom_music_player/utils/constants/countrycodes.dart';
 
 class SpotifyCountry {
   Future<String> changeCountry({required BuildContext context}) async {
-    String region =
-        Hive.box('settings').get('region', defaultValue: 'India') as String;
+    String region = Hive.box('settings').get('region', defaultValue: 'México') as String;
     if (!CountryCodes.localChartCodes.containsKey(region)) {
-      region = 'India';
+      region = 'México';
     }
 
     await showModalBottomSheet(
       isDismissible: true,
-      backgroundColor: Colors.transparent,
+      backgroundColor: AppColor.main75,
       context: context,
       builder: (BuildContext context) {
         const Map<String, String> codes = CountryCodes.localChartCodes;

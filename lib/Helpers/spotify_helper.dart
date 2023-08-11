@@ -18,8 +18,8 @@
  */
 
 import 'package:app_links/app_links.dart';
-import 'package:blackhole/APIs/spotify_api.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:neom_music_player/APIs/spotify_api.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 Future<String?> retriveAccessToken() async {

@@ -19,10 +19,11 @@
 
 import 'dart:io';
 
-import 'package:blackhole/Models/image_quality.dart';
-import 'package:blackhole/Models/url_image_generator.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:neom_commons/core/utils/constants/app_assets.dart';
+import 'package:neom_music_player/domain/entities/url_image_generator.dart';
+import 'package:neom_music_player/utils/enums/image_quality.dart';
 
 Widget imageCard({
   required String imageUrl,
@@ -32,7 +33,7 @@ Widget imageCard({
   double borderRadius = 7.0,
   double? boxDimension = 55.0,
   ImageProvider placeholderImage = const AssetImage(
-    'assets/cover.jpg',
+    AppAssets.musicPlayerCover,
   ),
   bool selected = false,
   ImageQuality imageQuality = ImageQuality.low,

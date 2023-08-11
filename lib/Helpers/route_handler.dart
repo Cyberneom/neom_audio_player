@@ -17,18 +17,18 @@
  * Copyright (c) 2021-2023, Ankit Sangwan
  */
 
-import 'package:blackhole/APIs/api.dart';
-import 'package:blackhole/APIs/spotify_api.dart';
-import 'package:blackhole/Helpers/audio_query.dart';
-import 'package:blackhole/Helpers/spotify_helper.dart';
-import 'package:blackhole/Screens/Common/song_list.dart';
-import 'package:blackhole/Screens/Player/audioplayer.dart';
-import 'package:blackhole/Screens/Search/search.dart';
-import 'package:blackhole/Screens/YouTube/youtube_playlist.dart';
-import 'package:blackhole/Services/player_service.dart';
-import 'package:blackhole/Services/youtube_services.dart';
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
+import 'package:neom_music_player/APIs/api.dart';
+import 'package:neom_music_player/APIs/spotify_api.dart';
+import 'package:neom_music_player/Helpers/audio_query.dart';
+import 'package:neom_music_player/Helpers/spotify_helper.dart';
+import 'package:neom_music_player/Services/player_service.dart';
+import 'package:neom_music_player/Services/youtube_services.dart';
+import 'package:neom_music_player/ui/Common/song_list.dart';
+import 'package:neom_music_player/ui/Player/audioplayer.dart';
+import 'package:neom_music_player/ui/Search/search.dart';
+import 'package:neom_music_player/ui/YouTube/youtube_playlist.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 
 // ignore: avoid_classes_with_only_static_members

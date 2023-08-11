@@ -22,6 +22,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
+import 'package:neom_commons/core/utils/constants/app_assets.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 
 class OfflineAudioQuery {
@@ -213,7 +214,7 @@ class OfflineAudioQuery {
                       fit: BoxFit.cover,
                       height: height,
                       width: width,
-                      image: const AssetImage('assets/cover.jpg'),
+                      image: const AssetImage(AppAssets.musicPlayerCover),
                     );
               },
             ),
@@ -230,7 +231,7 @@ class OfflineAudioQuery {
                 fit: BoxFit.cover,
                 height: height,
                 width: width,
-                image: const AssetImage('assets/cover.jpg'),
+                image: const AssetImage(AppAssets.musicPlayerCover),
               ),
         );
       },

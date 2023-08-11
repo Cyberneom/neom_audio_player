@@ -19,11 +19,11 @@
 
 import 'dart:math';
 
-import 'package:blackhole/Screens/Player/audioplayer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
+import 'package:neom_music_player/ui/Player/audioplayer.dart';
 
 class Equalizer extends StatefulWidget {
   const Equalizer({super.key});

@@ -23,17 +23,17 @@ import 'dart:io';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:audio_session/audio_session.dart';
-import 'package:blackhole/APIs/api.dart';
-import 'package:blackhole/Helpers/mediaitem_converter.dart';
-import 'package:blackhole/Helpers/playlist.dart';
-import 'package:blackhole/Screens/Player/audioplayer.dart';
-import 'package:blackhole/Services/isolate_service.dart';
-import 'package:blackhole/Services/yt_music.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:logging/logging.dart';
+import 'package:neom_music_player/APIs/api.dart';
+import 'package:neom_music_player/Helpers/mediaitem_converter.dart';
+import 'package:neom_music_player/Helpers/playlist.dart';
+import 'package:neom_music_player/Services/isolate_service.dart';
+import 'package:neom_music_player/Services/yt_music.dart';
+import 'package:neom_music_player/ui/Player/audioplayer.dart';
 import 'package:rxdart/rxdart.dart';
 
 class AudioPlayerHandlerImpl extends BaseAudioHandler
@@ -146,7 +146,7 @@ class AudioPlayerHandlerImpl extends BaseAudioHandler
     await startBackgroundProcessing();
 
     speed.debounceTime(const Duration(milliseconds: 250)).listen((speed) {
-      playbackState.add(playbackState.value.copyWith(speed: speed));
+      playbackState.add(playbackState.value!.copyWith(speed: speed));
     });
 
     Logger.root.info('checking connectivity & setting quality');
@@ -207,7 +207,7 @@ class AudioPlayerHandlerImpl extends BaseAudioHandler
         _recentSubject.add([item]);
 
         if (recommend && item.extras!['autoplay'] as bool) {
-          final List<MediaItem> mediaQueue = queue.value;
+          final List<MediaItem> mediaQueue = queue.value!;
           final int index = mediaQueue.indexOf(item);
           final int queueLength = mediaQueue.length;
           if (queueLength - index < 5) {
@@ -524,9 +524,9 @@ class AudioPlayerHandlerImpl extends BaseAudioHandler
   ]) async {
     switch (parentMediaId) {
       case AudioService.recentRootId:
-        return _recentSubject.value;
+        return _recentSubject.value!;
       default:
-        return queue.value;
+        return queue.value!;
     }
   }
 
@@ -635,7 +635,7 @@ class AudioPlayerHandlerImpl extends BaseAudioHandler
   }
 
   Future<void> skipToMediaItem(String id) async {
-    final index = queue.value.indexWhere((item) => item.id == id);
+    final index = queue.value!.indexWhere((item) => item.id == id);
     _player!.seek(
       Duration.zero,
       index:
@@ -692,13 +692,13 @@ class AudioPlayerHandlerImpl extends BaseAudioHandler
 
   @override
   Future<void> updateMediaItem(MediaItem mediaItem) async {
-    final index = queue.value.indexWhere((item) => item.id == mediaItem.id);
+    final index = queue.value!.indexWhere((item) => item.id == mediaItem.id);
     _mediaItemExpando[_player!.sequence![index]] = mediaItem;
   }
 
   @override
   Future<void> removeQueueItem(MediaItem mediaItem) async {
-    final index = queue.value.indexOf(mediaItem);
+    final index = queue.value!.indexOf(mediaItem);
     await _playlist.removeAt(index);
   }
 
@@ -766,7 +766,7 @@ class AudioPlayerHandlerImpl extends BaseAudioHandler
     _player!.pause();
     await Hive.box('cache').put('lastIndex', _player!.currentIndex);
     await Hive.box('cache').put('lastPos', _player!.position.inSeconds);
-    await addLastQueue(queue.value);
+    await addLastQueue(queue.value!);
   }
 
   @override
@@ -782,7 +782,7 @@ class AudioPlayerHandlerImpl extends BaseAudioHandler
     Logger.root.info('caching last index and position');
     await Hive.box('cache').put('lastIndex', _player!.currentIndex);
     await Hive.box('cache').put('lastPos', _player!.position.inSeconds);
-    await addLastQueue(queue.value);
+    await addLastQueue(queue.valueWrapper!.value);
   }
 
   @override
@@ -881,13 +881,13 @@ class AudioPlayerHandlerImpl extends BaseAudioHandler
     if (enabled) {
       await _player!.shuffle();
     }
-    playbackState.add(playbackState.value.copyWith(shuffleMode: mode));
+    playbackState.add(playbackState.value!.copyWith(shuffleMode: mode));
     await _player!.setShuffleModeEnabled(enabled);
   }
 
   @override
   Future<void> setRepeatMode(AudioServiceRepeatMode repeatMode) async {
-    playbackState.add(playbackState.value.copyWith(repeatMode: repeatMode));
+    playbackState.add(playbackState.value!.copyWith(repeatMode: repeatMode));
     await _player!.setLoopMode(LoopMode.values[repeatMode.index]);
   }
 
@@ -908,13 +908,10 @@ class AudioPlayerHandlerImpl extends BaseAudioHandler
     switch (button) {
       case MediaButton.media:
         _handleMediaActionPressed();
-        break;
       case MediaButton.next:
         await skipToNext();
-        break;
       case MediaButton.previous:
         await skipToPrevious();
-        break;
     }
   }
 
@@ -928,18 +925,15 @@ class AudioPlayerHandlerImpl extends BaseAudioHandler
         final tappedNumber = _tappedMediaActionNumber.value;
         switch (tappedNumber) {
           case 1:
-            if (playbackState.value.playing) {
+            if (playbackState.value!.playing) {
               pause();
             } else {
               play();
             }
-            break;
           case 2:
             skipToNext();
-            break;
           case 3:
             skipToPrevious();
-            break;
           default:
             break;
         }
@@ -948,7 +942,7 @@ class AudioPlayerHandlerImpl extends BaseAudioHandler
         _timer = null;
       });
     } else {
-      final current = _tappedMediaActionNumber.value;
+      final current = _tappedMediaActionNumber.valueWrapper!.value;
       _tappedMediaActionNumber.add(current + 1);
     }
   }
@@ -966,7 +960,7 @@ class AudioPlayerHandlerImpl extends BaseAudioHandler
       shuffleModeEnabled: _player!.shuffleModeEnabled,
     );
     playbackState.add(
-      playbackState.value.copyWith(
+      playbackState.valueWrapper!.value.copyWith(
         controls: [
           if (liked) MediaControl.rewind else MediaControl.fastForward,
           MediaControl.skipToPrevious,

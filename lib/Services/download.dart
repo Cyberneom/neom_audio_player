@@ -21,9 +21,6 @@ import 'dart:io';
 
 import 'package:audiotagger/audiotagger.dart';
 import 'package:audiotagger/models/tag.dart';
-import 'package:blackhole/CustomWidgets/snackbar.dart';
-import 'package:blackhole/Helpers/lyrics.dart';
-import 'package:blackhole/Services/ext_storage_provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 // import 'package:flutter_downloader/flutter_downloader.dart';
@@ -32,6 +29,9 @@ import 'package:hive/hive.dart';
 import 'package:http/http.dart';
 import 'package:logging/logging.dart';
 import 'package:metadata_god/metadata_god.dart';
+import 'package:neom_music_player/CustomWidgets/snackbar.dart';
+import 'package:neom_music_player/Helpers/lyrics.dart';
+import 'package:neom_music_player/Services/ext_storage_provider.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -154,15 +154,12 @@ class Download with ChangeNotifier {
         switch (rememberOption) {
           case 0:
             lastDownloadId = data['id'].toString();
-            break;
           case 1:
             downloadSong(context, dlPath, filename, data);
-            break;
           case 2:
             while (await File('$dlPath/$filename').exists()) {
               filename = filename.replaceAll('.m4a', ' (1).m4a');
             }
-            break;
           default:
             lastDownloadId = data['id'].toString();
             break;

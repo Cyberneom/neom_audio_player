@@ -18,16 +18,16 @@
  */
 
 import 'package:audio_service/audio_service.dart';
-import 'package:blackhole/CustomWidgets/add_playlist.dart';
-import 'package:blackhole/Helpers/add_mediaitem_to_queue.dart';
-import 'package:blackhole/Helpers/mediaitem_converter.dart';
-import 'package:blackhole/Screens/Common/song_list.dart';
-import 'package:blackhole/Screens/Search/albums.dart';
-import 'package:blackhole/Screens/Search/search.dart';
-import 'package:blackhole/Services/youtube_services.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:neom_music_player/CustomWidgets/add_playlist.dart';
+import 'package:neom_music_player/Helpers/add_mediaitem_to_queue.dart';
+import 'package:neom_music_player/Helpers/mediaitem_converter.dart';
+import 'package:neom_music_player/Services/youtube_services.dart';
+import 'package:neom_music_player/ui/Common/song_list.dart';
+import 'package:neom_music_player/ui/Search/albums.dart';
+import 'package:neom_music_player/ui/Search/search.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -173,7 +173,6 @@ class _SongTileTrailingMenuState extends State<SongTileTrailingMenu> {
         switch (value) {
           case 3:
             Share.share(widget.data['perma_url'].toString());
-            break;
 
           case 4:
             Navigator.push(
@@ -190,19 +189,14 @@ class _SongTileTrailingMenuState extends State<SongTileTrailingMenu> {
                 ),
               ),
             );
-            break;
           case 6:
             widget.deleteLiked!(widget.data);
-            break;
           case 0:
             AddToPlaylist().addToPlaylist(context, mediaItem);
-            break;
           case 1:
             addToNowPlaying(context: context, mediaItem: mediaItem);
-            break;
           case 2:
             playNext(mediaItem, context);
-            break;
           default:
             Navigator.push(
               context,

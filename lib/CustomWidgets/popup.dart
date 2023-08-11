@@ -18,6 +18,7 @@
  */
 
 import 'package:flutter/material.dart';
+import 'package:neom_commons/core/utils/app_color.dart';
 
 class PopupDialog {
   void showPopup({
@@ -34,7 +35,7 @@ class PopupDialog {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15.0),
           ),
-          backgroundColor: Colors.transparent,
+          backgroundColor: AppColor.main75,
           content: Stack(
             children: [
               GestureDetector(onTap: () => Navigator.pop(context)),

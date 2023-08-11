@@ -18,15 +18,17 @@
  */
 
 import 'package:audio_service/audio_service.dart';
-import 'package:blackhole/CustomWidgets/collage.dart';
-import 'package:blackhole/CustomWidgets/gradient_containers.dart';
-import 'package:blackhole/CustomWidgets/snackbar.dart';
-import 'package:blackhole/CustomWidgets/textinput_dialog.dart';
-import 'package:blackhole/Helpers/audio_query.dart';
-import 'package:blackhole/Helpers/playlist.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:hive/hive.dart';
+import 'package:neom_commons/core/utils/app_color.dart';
+import 'package:neom_commons/core/utils/constants/app_assets.dart';
+import 'package:neom_music_player/CustomWidgets/collage.dart';
+import 'package:neom_music_player/CustomWidgets/gradient_containers.dart';
+import 'package:neom_music_player/CustomWidgets/snackbar.dart';
+import 'package:neom_music_player/CustomWidgets/textinput_dialog.dart';
+import 'package:neom_music_player/Helpers/audio_query.dart';
+import 'package:neom_music_player/Helpers/playlist.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 
 class AddToOffPlaylist {
@@ -37,7 +39,7 @@ class AddToOffPlaylist {
         await offlineAudioQuery.getPlaylists();
     showModalBottomSheet(
       isDismissible: true,
-      backgroundColor: Colors.transparent,
+      backgroundColor: AppColor.main75,
       context: context,
       builder: (BuildContext context) {
         return BottomGradientContainer(
@@ -103,7 +105,7 @@ class AddToOffPlaylist {
                                 fit: BoxFit.cover,
                                 height: 50.0,
                                 width: 50.0,
-                                image: AssetImage('assets/cover.jpg'),
+                                image: AssetImage(AppAssets.musicPlayerCover),
                               ),
                             ),
                           ),
@@ -147,7 +149,7 @@ class AddToPlaylist {
   void addToPlaylist(BuildContext context, MediaItem? mediaItem) {
     showModalBottomSheet(
       isDismissible: true,
-      backgroundColor: Colors.transparent,
+      backgroundColor: AppColor.main75,
       context: context,
       builder: (BuildContext context) {
         return BottomGradientContainer(
@@ -218,7 +220,7 @@ class AddToPlaylist {
                                   dimension: 50,
                                   child: Image(
                                     image: AssetImage(
-                                      'assets/album.png',
+                                      AppAssets.musicPlayerAlbum,
                                     ),
                                   ),
                                 ),
@@ -227,7 +229,7 @@ class AddToPlaylist {
                                 imageList: playlistDetails[playlistNames[index]]
                                     ['imagesList'] as List,
                                 showGrid: true,
-                                placeholderImage: 'assets/cover.jpg',
+                                placeholderImage: AppAssets.musicPlayerCover,
                               ),
                         title: Text(
                           '${playlistDetails.containsKey(playlistNames[index]) ? playlistDetails[playlistNames[index]]["name"] ?? playlistNames[index] : playlistNames[index]}',
