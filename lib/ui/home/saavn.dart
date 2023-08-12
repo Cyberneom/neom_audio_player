@@ -20,32 +20,36 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:get/get.dart';
+
+
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
-import 'package:neom_music_player/APIs/api.dart';
-import 'package:neom_music_player/CustomWidgets/collage.dart';
-import 'package:neom_music_player/CustomWidgets/horizontal_albumlist.dart';
-import 'package:neom_music_player/CustomWidgets/horizontal_albumlist_separated.dart';
-import 'package:neom_music_player/CustomWidgets/image_card.dart';
-import 'package:neom_music_player/CustomWidgets/like_button.dart';
-import 'package:neom_music_player/CustomWidgets/on_hover.dart';
-import 'package:neom_music_player/CustomWidgets/snackbar.dart';
-import 'package:neom_music_player/CustomWidgets/song_tile_trailing_menu.dart';
-import 'package:neom_music_player/Helpers/extensions.dart';
-import 'package:neom_music_player/Helpers/format.dart';
-import 'package:neom_music_player/Services/player_service.dart';
-import 'package:neom_music_player/ui/Common/song_list.dart';
-import 'package:neom_music_player/ui/Library/liked.dart';
-import 'package:neom_music_player/ui/Search/artists.dart';
+import 'package:neom_music_player/data/api_services/APIs/api.dart';
+import 'package:neom_music_player/ui/widgets/collage.dart';
+import 'package:neom_music_player/ui/widgets/horizontal_albumlist.dart';
+import 'package:neom_music_player/ui/widgets/horizontal_albumlist_separated.dart';
+import 'package:neom_music_player/ui/widgets/image_card.dart';
+import 'package:neom_music_player/ui/widgets/like_button.dart';
+import 'package:neom_music_player/ui/widgets/on_hover.dart';
+import 'package:neom_music_player/ui/widgets/snackbar.dart';
+import 'package:neom_music_player/ui/widgets/song_tile_trailing_menu.dart';
+import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
+import 'package:neom_music_player/utils/helpers/extensions.dart';
+import 'package:neom_music_player/utils/helpers/format.dart';
+import 'package:neom_music_player/domain/use_cases/player_service.dart';
+import 'package:neom_music_player/ui/widgets/song_list.dart';
+import 'package:neom_music_player/ui/drawer/library/liked.dart';
+import 'package:neom_music_player/ui/Search/artist_search_page.dart';
+import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
 import 'package:neom_music_player/utils/enums/image_quality.dart';
 
 bool fetched = false;
 List preferredLanguage = Hive.box('settings')
     .get('preferredLanguage', defaultValue: ['Hindi']) as List;
 List likedRadio =
-    Hive.box('settings').get('likedRadio', defaultValue: []) as List;
-Map data = Hive.box('cache').get('homepage', defaultValue: {}) as Map;
+    Hive.box(AppHiveConstants.settings).get('likedRadio', defaultValue: []) as List;
+Map data = Hive.box(AppHiveConstants.cache).get('homepage', defaultValue: {}) as Map;
 List lists = ['recent', 'playlist', ...?data['collections'] as List?];
 
 class SaavnHomePage extends StatefulWidget {
@@ -56,23 +60,23 @@ class SaavnHomePage extends StatefulWidget {
 class _SaavnHomePageState extends State<SaavnHomePage>
     with AutomaticKeepAliveClientMixin<SaavnHomePage> {
   List recentList =
-      Hive.box('cache').get('recentSongs', defaultValue: []) as List;
+      Hive.box(AppHiveConstants.cache).get('recentSongs', defaultValue: []) as List;
   Map likedArtists =
-      Hive.box('settings').get('likedArtists', defaultValue: {}) as Map;
+      Hive.box(AppHiveConstants.settings).get('likedArtists', defaultValue: {}) as Map;
   List blacklistedHomeSections = Hive.box('settings')
       .get('blacklistedHomeSections', defaultValue: []) as List;
   List playlistNames =
-      Hive.box('settings').get('playlistNames')?.toList() as List? ??
+      Hive.box(AppHiveConstants.settings).get('playlistNames')?.toList() as List? ??
           ['Favorite Songs'];
   Map playlistDetails =
-      Hive.box('settings').get('playlistDetails', defaultValue: {}) as Map;
+      Hive.box(AppHiveConstants.settings).get('playlistDetails', defaultValue: {}) as Map;
   int recentIndex = 0;
   int playlistIndex = 1;
 
   Future<void> getHomePageData() async {
     Map recievedData = await SaavnAPI().fetchHomePageData();
     if (recievedData.isNotEmpty) {
-      Hive.box('cache').put('homepage', recievedData);
+      Hive.box(AppHiveConstants.cache).put('homepage', recievedData);
       data = recievedData;
       lists = ['recent', 'playlist', ...?data['collections'] as List?];
       lists.insert((lists.length / 2).round(), 'likedArtists');
@@ -80,7 +84,7 @@ class _SaavnHomePageState extends State<SaavnHomePage>
     setState(() {});
     recievedData = await FormatResponse.formatPromoLists(data);
     if (recievedData.isNotEmpty) {
-      Hive.box('cache').put('homepage', recievedData);
+      Hive.box(AppHiveConstants.cache).put('homepage', recievedData);
       data = recievedData;
       lists = ['recent', 'playlist', ...?data['collections'] as List?];
       lists.insert((lists.length / 2).round(), 'likedArtists');
@@ -122,7 +126,7 @@ class _SaavnHomePageState extends State<SaavnHomePage>
   }
 
   int likedCount() {
-    return Hive.box('Favorite Songs').length;
+    return Hive.box(AppHiveConstants.favoriteSongs).length;
   }
 
   @override
@@ -159,7 +163,7 @@ class _SaavnHomePageState extends State<SaavnHomePage>
             itemBuilder: (context, idx) {
               if (idx == recentIndex) {
                 return ValueListenableBuilder(
-                  valueListenable: Hive.box('settings').listenable(),
+                  valueListenable: Hive.box(AppHiveConstants.settings).listenable(),
                   child: Column(
                     children: [
                       GestureDetector(
@@ -168,7 +172,7 @@ class _SaavnHomePageState extends State<SaavnHomePage>
                             Padding(
                               padding: const EdgeInsets.fromLTRB(15, 10, 0, 5),
                               child: Text(
-                                AppLocalizations.of(context)!.lastSession,
+                                PlayerTranslationConstants.lastSession.tr,
                                 style: TextStyle(
                                   color:
                                       Theme.of(context).colorScheme.secondary,
@@ -206,7 +210,7 @@ class _SaavnHomePageState extends State<SaavnHomePage>
               }
               if (idx == playlistIndex) {
                 return ValueListenableBuilder(
-                  valueListenable: Hive.box('settings').listenable(),
+                  valueListenable: Hive.box(AppHiveConstants.settings).listenable(),
                   child: Column(
                     children: [
                       GestureDetector(
@@ -215,7 +219,7 @@ class _SaavnHomePageState extends State<SaavnHomePage>
                             Padding(
                               padding: const EdgeInsets.fromLTRB(15, 10, 15, 5),
                               child: Text(
-                                AppLocalizations.of(context)!.yourPlaylists,
+                                PlayerTranslationConstants.yourPlaylists.tr,
                                 style: TextStyle(
                                   color:
                                       Theme.of(context).colorScheme.secondary,
@@ -249,7 +253,7 @@ class _SaavnHomePageState extends State<SaavnHomePage>
                                     playlistDetails[name]['count'] == null ||
                                     playlistDetails[name]['count'] == 0
                                 ? null
-                                : '${playlistDetails[name]['count']} ${AppLocalizations.of(context)!.songs}';
+                                : '${playlistDetails[name]['count']} ${PlayerTranslationConstants.songs.tr}';
                             return GestureDetector(
                               child: SizedBox(
                                 width: boxSize - 20,
@@ -474,16 +478,10 @@ class _SaavnHomePageState extends State<SaavnHomePage>
                                               BorderRadius.circular(15.0),
                                         ),
                                         title: Text(
-                                          AppLocalizations.of(
-                                            context,
-                                          )!
-                                              .blacklistHomeSections,
+                                          PlayerTranslationConstants.blacklistHomeSections.tr,
                                         ),
                                         content: Text(
-                                          AppLocalizations.of(
-                                            context,
-                                          )!
-                                              .blacklistHomeSectionsConfirm,
+                                          PlayerTranslationConstants.blacklistHomeSectionsConfirm.tr,
                                         ),
                                         actions: [
                                           TextButton(
@@ -496,10 +494,7 @@ class _SaavnHomePageState extends State<SaavnHomePage>
                                               Navigator.pop(context);
                                             },
                                             child: Text(
-                                              AppLocalizations.of(
-                                                context,
-                                              )!
-                                                  .no,
+                                              PlayerTranslationConstants.no.tr,
                                             ),
                                           ),
                                           TextButton(
@@ -517,17 +512,14 @@ class _SaavnHomePageState extends State<SaavnHomePage>
                                                     ?.toString()
                                                     .toLowerCase(),
                                               );
-                                              Hive.box('settings').put(
+                                              Hive.box(AppHiveConstants.settings).put(
                                                 'blacklistedHomeSections',
                                                 blacklistedHomeSections,
                                               );
                                               setState(() {});
                                             },
                                             child: Text(
-                                              AppLocalizations.of(
-                                                context,
-                                              )!
-                                                  .yes,
+                                              PlayerTranslationConstants.yes.tr,
                                               style: TextStyle(
                                                 color: Theme.of(context)
                                                             .colorScheme
@@ -635,8 +627,7 @@ class _SaavnHomePageState extends State<SaavnHomePage>
                                   if (item['type'] == 'radio_station') {
                                     ShowSnackBar().showSnackBar(
                                       context,
-                                      AppLocalizations.of(context)!
-                                          .connectingRadio,
+                                      PlayerTranslationConstants.connectingRadio.tr,
                                       duration: const Duration(seconds: 2),
                                     );
                                     SaavnAPI()
@@ -810,14 +801,8 @@ class _SaavnHomePageState extends State<SaavnHomePage>
                                                             ),
                                                       tooltip: likedRadio
                                                               .contains(item)
-                                                          ? AppLocalizations.of(
-                                                              context,
-                                                            )!
-                                                              .unlike
-                                                          : AppLocalizations.of(
-                                                              context,
-                                                            )!
-                                                              .like,
+                                                          ? PlayerTranslationConstants.unlike.tr
+                                                          : PlayerTranslationConstants.like.tr,
                                                       onPressed: () {
                                                         likedRadio
                                                                 .contains(item)

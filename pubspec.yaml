@@ -22,10 +22,7 @@ dependencies:
       ref: 90f2db5
   audio_service: ^0.18.10
   app_links: ^3.4.3
-  cached_network_image: ^3.2.3
-  carousel_slider: ^4.2.1
   connectivity_plus: ^4.0.1
-  cupertino_icons: ^1.0.5
   dart_des: ^1.0.2
   device_info_plus: ^9.0.2
   file_picker: ^5.3.2
@@ -51,7 +48,6 @@ dependencies:
   material_design_icons_flutter: 5.0.5955-rc.1
   metadata_god: ^0.5.0
   on_audio_query: ^2.9.0
-  package_info_plus: ^4.0.2
   palette_generator: ^0.3.3+2
   path_provider: ^2.0.15
   permission_handler: ^10.3.0
@@ -60,7 +56,6 @@ dependencies:
       url: https://github.com/Sangwan5688/PersistentBottomNavBar
       ref: ecdadb0
   receive_sharing_intent: ^1.4.5
-  share_plus: ^7.0.2
   sizer: ^2.0.15
   sliding_up_panel: ^2.0.0+1
   url_launcher: ^6.1.12

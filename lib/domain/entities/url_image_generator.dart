@@ -1,9 +1,10 @@
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
 import 'package:neom_music_player/utils/enums/image_quality.dart';
 
 class UrlImageGetter {
   final List<String?> _imageUrls;
-  final _enableImageOptimization = Hive.box('settings').get(
+  final _enableImageOptimization = Hive.box(AppHiveConstants.settings).get(
     'enableImageOptimization',
     defaultValue: false,
   ) as bool;

@@ -93,26 +93,26 @@ packages:
     dependency: transitive
     description:
       name: audioplayers
-      sha256: "2f4c0da9b483b45695d01dc738e1597d7137ae40fc2fa702f13ccc10efc706a2"
+      sha256: "8e94499b5c123df14cf17c16639de5ff3373e57e537f727e367487fbb7491363"
       url: "https://pub.dev"
     source: hosted
-    version: "5.0.0"
+    version: "5.1.0"
   audioplayers_android:
     dependency: transitive
     description:
       name: audioplayers_android
-      sha256: "7f18bb6c7de01684444e8cba577e3c3aee0ec379897f62ad4b8259d1e22f8c61"
+      sha256: "1c12b60cc10a3b8617ca3f88b927e7e03768f470d9b4f747efd3d58a8a07ee1b"
       url: "https://pub.dev"
     source: hosted
-    version: "4.0.0"
+    version: "4.0.1"
   audioplayers_darwin:
     dependency: transitive
     description:
       name: audioplayers_darwin
-      sha256: "80e341e6b2b364420516f2707271ec47f63b9b22766aa7f7d484601190c316a7"
+      sha256: "2fb6133ffcf28fb3f9d3e11f8a3ef190e5fedb2b7b95ea865b56a21d1163e670"
       url: "https://pub.dev"
     source: hosted
-    version: "5.0.0"
+    version: "5.0.1"
   audioplayers_linux:
     dependency: transitive
     description:
@@ -195,7 +195,7 @@ packages:
     source: hosted
     version: "2.1.0"
   cached_network_image:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: cached_network_image
       sha256: fd3d0dc1d451f9a252b32d95d3f0c3c487bc41a75eba2e6097cb0b9c71491b15
@@ -219,7 +219,7 @@ packages:
     source: hosted
     version: "1.0.2"
   carousel_slider:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: carousel_slider
       sha256: "9c695cc963bf1d04a47bd6021f68befce8970bcd61d24938e1fb0918cf5d9c42"
@@ -339,7 +339,7 @@ packages:
     source: hosted
     version: "1.0.0"
   cupertino_icons:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: cupertino_icons
       sha256: e35129dc44c9118cee2a5603506d823bab99c68393879edb440e0090d07586be
@@ -850,10 +850,10 @@ packages:
     dependency: transitive
     description:
       name: geolocator_windows
-      sha256: f5911c88e23f48b598dd506c7c19eff0e001645bdc03bb6fecb9f4549208354d
+      sha256: "242a35938cbe81dd169c9c72fc53e8183c4447bfa998b5df56b6725796591951"
       url: "https://pub.dev"
     source: hosted
-    version: "0.1.1"
+    version: "0.1.2"
   get:
     dependency: transitive
     description:
@@ -914,10 +914,10 @@ packages:
     dependency: transitive
     description:
       name: google_maps_flutter_android
-      sha256: "9512c862df77c1f0fa5f445513dd3c57f5996f0a809dccb74e54b690ee4e3a0f"
+      sha256: fb3e52f94d0736f6ee8bcdef290f8eab9325376d676f61303347c10ccf15379c
       url: "https://pub.dev"
     source: hosted
-    version: "2.4.15"
+    version: "2.4.16"
   google_maps_flutter_ios:
     dependency: transitive
     description:
@@ -1170,10 +1170,10 @@ packages:
     dependency: transitive
     description:
       name: in_app_purchase_android
-      sha256: d710989d0408ee57cfa618de98aded5b59fc2272577a409775fd06a2c15e308c
+      sha256: "8326f68ee8c286f207570ee6150a918ef413fdaaf8e653bf58bbdc01e1474ead"
       url: "https://pub.dev"
     source: hosted
-    version: "0.3.0+10"
+    version: "0.3.0+11"
   in_app_purchase_platform_interface:
     dependency: transitive
     description:
@@ -1186,10 +1186,10 @@ packages:
     dependency: transitive
     description:
       name: in_app_purchase_storekit
-      sha256: f598169999604d9c40c28bb6f47b58e03c8c498e344cdc015f937a1f528982ab
+      sha256: b5e34ac2037d68ff3606877974147a6936ab4e9c8faa9986eca08f21d1f167e7
       url: "https://pub.dev"
     source: hosted
-    version: "0.3.6+4"
+    version: "0.3.6+5"
   in_app_review:
     dependency: transitive
     description:
@@ -1580,7 +1580,7 @@ packages:
     source: hosted
     version: "2.1.0"
   package_info_plus:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: package_info_plus
       sha256: "6ff267fcd9d48cb61c8df74a82680e8b82e940231bb5f68356672fde0397334a"
@@ -1853,7 +1853,7 @@ packages:
     source: hosted
     version: "2.0.0"
   share_plus:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: share_plus
       sha256: "6cec740fa0943a826951223e76218df002804adb588235a8910dc3d6b0654e11"
@@ -1888,10 +1888,10 @@ packages:
     dependency: transitive
     description:
       name: shared_preferences_foundation
-      sha256: f39696b83e844923b642ce9dd4bd31736c17e697f6731a5adf445b1274cf3cd4
+      sha256: d29753996d8eb8f7619a1f13df6ce65e34bc107bef6330739ed76f18b22310ef
       url: "https://pub.dev"
     source: hosted
-    version: "2.3.2"
+    version: "2.3.3"
   shared_preferences_linux:
     dependency: transitive
     description:
@@ -2173,10 +2173,10 @@ packages:
     dependency: transitive
     description:
       name: url_launcher_android
-      sha256: "78cb6dea3e93148615109e58e42c35d1ffbf5ef66c44add673d0ab75f12ff3af"
+      sha256: "3dd2388cc0c42912eee04434531a26a82512b9cb1827e0214430c9bcbddfe025"
       url: "https://pub.dev"
     source: hosted
-    version: "6.0.37"
+    version: "6.0.38"
   url_launcher_ios:
     dependency: transitive
     description:
@@ -2317,10 +2317,10 @@ packages:
     dependency: transitive
     description:
       name: webview_flutter_android
-      sha256: d936a09fbfd08cb78f7329e0bbacf6158fbdfe24ffc908b22444c07d295eb193
+      sha256: bca797abba472868655b5f1a6029c1132385685ee9db4713cb0e7f33076210c6
       url: "https://pub.dev"
     source: hosted
-    version: "3.9.2"
+    version: "3.9.3"
   webview_flutter_platform_interface:
     dependency: transitive
     description:
@@ -2333,10 +2333,10 @@ packages:
     dependency: transitive
     description:
       name: webview_flutter_wkwebview
-      sha256: "5fa098f28b606f699e8ca52d9e4e11edbbfef65189f5f77ae92703ba5408fd25"
+      sha256: ed749f94ac9e814d04a258a9255cf69cfa4cc6006ff59542aea7fb4590144972
       url: "https://pub.dev"
     source: hosted
-    version: "3.7.2"
+    version: "3.7.3"
   win32:
     dependency: transitive
     description:

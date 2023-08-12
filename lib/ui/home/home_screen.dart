@@ -21,13 +21,17 @@ import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
-import 'package:neom_music_player/CustomWidgets/drawer.dart';
-import 'package:neom_music_player/CustomWidgets/textinput_dialog.dart';
+import 'package:neom_commons/core/utils/constants/app_assets.dart';
+import 'package:neom_music_player/ui/widgets/drawer.dart';
+import 'package:neom_music_player/ui/widgets/textinput_dialog.dart';
 import 'package:neom_music_player/ui/Home/saavn.dart';
-import 'package:neom_music_player/ui/Search/search.dart';
+import 'package:neom_music_player/ui/Search/search_page.dart';
+import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
+import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
+import 'package:get/get.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({
@@ -54,7 +58,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    String name = Hive.box('settings').get('name', defaultValue: 'Guest') as String;
+    String name = Hive.box(AppHiveConstants.settings).get('name', defaultValue: 'Guest') as String;
     final double screenWidth = MediaQuery.of(context).size.width;
     final bool rotated = MediaQuery.of(context).size.height < screenWidth;
     return Stack(
@@ -68,12 +72,10 @@ class _HomeScreenState extends State<HomeScreen> {
           ) {
             return <Widget>[
               SliverAppBar(
-                expandedHeight: 135,
+                expandedHeight: 35,
                 backgroundColor: AppColor.main75,
-                elevation: 0,
-                // pinned: true,
-                toolbarHeight: 65,
-                // floating: true,
+                elevation: 10,
+                toolbarHeight: 70,
                 automaticallyImplyLeading: false,
                 flexibleSpace: LayoutBuilder(
                   builder: (
@@ -82,94 +84,19 @@ class _HomeScreenState extends State<HomeScreen> {
                   ) {
                     return FlexibleSpaceBar(
                       // collapseMode: CollapseMode.parallax,
-                      background: GestureDetector(
-                        onTap: () async {
-                          showTextInputDialog(
-                            context: context,
-                            title: 'Name',
-                            initialText: name,
-                            keyboardType: TextInputType.name,
-                            onSubmitted: (String value, BuildContext context) {
-                              Hive.box('settings').put(
-                                'name',
-                                value.trim(),
-                              );
-                              name = value.trim();
-                              Navigator.pop(context);
-                            },
-                          );
-                          // setState(() {});
-                        },
-                        child: Column(
+                      background: Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
                           mainAxisSize: MainAxisSize.min,
                           children: <Widget>[
-                            const SizedBox(
-                              height: 60,
+                            Container(
+                            child: Image.asset(
+                              AppAssets.logoCompanyWhite,
+                              height: 70,
+                              width: 150,
                             ),
-                            Row(
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.only(
-                                    left: 15.0,
-                                  ),
-                                  child: Text(
-                                    AppLocalizations.of(
-                                      context,
-                                    )!
-                                        .homeGreet,
-                                    style: TextStyle(
-                                      letterSpacing: 2,
-                                      color: Theme.of(
-                                        context,
-                                      ).colorScheme.secondary,
-                                      fontSize: 30,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                left: 15.0,
-                              ),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  ValueListenableBuilder(
-                                    valueListenable: Hive.box(
-                                      'settings',
-                                    ).listenable(),
-                                    builder: (
-                                      BuildContext context,
-                                      Box box,
-                                      Widget? child,
-                                    ) {
-                                      return Text(
-                                        (box.get('name') == null ||
-                                                box.get('name') == '')
-                                            ? 'Guest'
-                                            : box
-                                                .get(
-                                                  'name',
-                                                )
-                                                .split(
-                                                  ' ',
-                                                )[0]
-                                                .toString(),
-                                        style: const TextStyle(
-                                          letterSpacing: 2,
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                ],
-                              ),
-                            ),
+                            padding: EdgeInsets.symmetric(horizontal: 20),
+                            )
                           ],
-                        ),
                       ),
                     );
                   },
@@ -199,15 +126,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                       (rotated ? 0 : 75),
                                 ),
                           height: 55.0,
-                          duration: const Duration(
-                            milliseconds: 150,
-                          ),
+                          duration: const Duration(milliseconds: 150,),
                           padding: const EdgeInsets.all(2.0),
                           // margin: EdgeInsets.zero,
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(
-                              10.0,
-                            ),
+                            borderRadius: BorderRadius.circular(10.0,),
                             color: AppColor.main75,
                             boxShadow: const [
                               BoxShadow(
@@ -220,21 +143,14 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                           child: Row(
                             children: [
-                              const SizedBox(
-                                width: 10.0,
-                              ),
+                              const SizedBox(width: 10.0,),
                               Icon(
                                 CupertinoIcons.search,
                                 color: Theme.of(context).colorScheme.secondary,
                               ),
-                              const SizedBox(
-                                width: 10.0,
-                              ),
+                              const SizedBox(width: 10.0,),
                               Text(
-                                AppLocalizations.of(
-                                  context,
-                                )!
-                                    .searchText,
+                                PlayerTranslationConstants.searchText.tr,
                                 style: TextStyle(
                                   fontSize: 16.0,
                                   color: Theme.of(context)

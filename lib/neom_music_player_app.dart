@@ -23,90 +23,27 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_displaymode/flutter_displaymode.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:get/get.dart';
+
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:home_widget/home_widget.dart';
 import 'package:logging/logging.dart';
 import 'package:metadata_god/metadata_god.dart';
-import 'package:neom_music_player/Helpers/config.dart';
-import 'package:neom_music_player/Helpers/handle_native.dart';
-import 'package:neom_music_player/Helpers/import_export_playlist.dart';
-import 'package:neom_music_player/Helpers/logging.dart';
-import 'package:neom_music_player/Helpers/route_handler.dart';
-import 'package:neom_music_player/providers/audio_service_provider.dart';
-import 'package:neom_music_player/theme/app_theme.dart';
-import 'package:neom_music_player/ui/Common/routes.dart';
+import 'package:neom_commons/core/app_flavour.dart';
+import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
+import 'package:neom_music_player/utils/helpers/handle_native.dart';
+import 'package:neom_music_player/utils/helpers/import_export_playlist.dart';
+import 'package:neom_music_player/utils/helpers/route_handler.dart';
+import 'package:neom_music_player/data/providers/audio_service_provider.dart';
+import 'package:neom_music_player/utils/theme/app_theme.dart';
+import 'package:neom_music_player/ui/music_player_routes.dart';
 import 'package:neom_music_player/ui/Player/audioplayer.dart';
 import 'package:neom_music_player/utils/constants/languagecodes.dart';
-import 'package:neom_music_player/utils/constants/neom_music_player_constants.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 import 'package:sizer/sizer.dart';
-
-
-Future<void> setOptimalDisplayMode() async {
-  await FlutterDisplayMode.setHighRefreshRate();
-}
-
-Future<void> startService() async {
-  await initializeLogging();
-  MetadataGod.initialize();
-  final audioHandlerHelper = AudioHandlerHelper();
-  final AudioPlayerHandler audioHandler = await audioHandlerHelper.getAudioHandler();
-  GetIt.I.registerSingleton<AudioPlayerHandler>(audioHandler);
-  GetIt.I.registerSingleton<MyTheme>(MyTheme());
-}
-
-Future<void> openHiveBox(String boxName, {bool limit = false}) async {
-  final box = await Hive.openBox(boxName).onError((error, stackTrace) async {
-    Logger.root.severe('Failed to open $boxName Box', error, stackTrace);
-    final Directory dir = await getApplicationDocumentsDirectory();
-    final String dirPath = dir.path;
-    File dbFile = File('$dirPath/$boxName.hive');
-    File lockFile = File('$dirPath/$boxName.lock');
-    if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
-      dbFile = File('$dirPath/BlackHole/$boxName.hive');
-      lockFile = File('$dirPath/BlackHole/$boxName.lock');
-    }
-    await dbFile.delete();
-    await lockFile.delete();
-    await Hive.openBox(boxName);
-    throw 'Failed to open $boxName Box\nError: $error';
-  });
-  // clear box if it grows large
-  if (limit && box.length > 500) {
-    box.clear();
-  }
-}
-
-/// Called when Doing Background Work initiated from Widget
-@pragma('vm:entry-point')
-Future<void> backgroundCallback(Uri? data) async {
-  if (data?.host == 'controls') {
-    final audioHandler = await AudioHandlerHelper().getAudioHandler();
-    if (data?.path == '/play') {
-      audioHandler.play();
-    } else if (data?.path == '/pause') {
-      audioHandler.pause();
-    } else if (data?.path == '/skipNext') {
-      audioHandler.skipToNext();
-    } else if (data?.path == '/skipPrevious') {
-      audioHandler.skipToPrevious();
-    }
-
-    // await HomeWidget.saveWidgetData<String>(
-    //   'title',
-    //   audioHandler?.mediaItem.value?.title,
-    // );
-    // await HomeWidget.saveWidgetData<String>(
-    //   'subtitle',
-    //   audioHandler?.mediaItem.value?.displaySubtitle,
-    // );
-    // await HomeWidget.updateWidget(name: 'BlackHoleMusicWidget');
-  }
-}
 
 class NeomMusicPlayerApp extends StatefulWidget {
 
@@ -116,10 +53,32 @@ class NeomMusicPlayerApp extends StatefulWidget {
   // ignore: unreachable_from_main
   static _NeomMusicPlayerAppState of(BuildContext context) =>
       context.findAncestorStateOfType<_NeomMusicPlayerAppState>()!;
+
+  static Future<void> setOptimalDisplayMode() async {
+    await FlutterDisplayMode.setHighRefreshRate();
+  }
+
+  /// Called when Doing Background Work initiated from Widget
+  @pragma('vm:entry-point')
+  static Future<void> backgroundCallback(Uri? data) async {
+    if (data?.host == 'controls') {
+      final audioHandler = await AudioHandlerHelper().getAudioHandler();
+      if (data?.path == '/play') {
+        audioHandler.play();
+      } else if (data?.path == '/pause') {
+        audioHandler.pause();
+      } else if (data?.path == '/skipNext') {
+        audioHandler.skipToNext();
+      } else if (data?.path == '/skipPrevious') {
+        audioHandler.skipToPrevious();
+      }
+    }
+  }
+
 }
 
 class _NeomMusicPlayerAppState extends State<NeomMusicPlayerApp> {
-  Locale _locale = const Locale('en', '');
+
   late StreamSubscription _intentTextStreamSubscription;
   late StreamSubscription _intentDataStreamSubscription;
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -138,25 +97,12 @@ class _NeomMusicPlayerAppState extends State<NeomMusicPlayerApp> {
     WidgetsFlutterBinding.ensureInitialized();
     Paint.enableDithering = true;
 
-    Future.delayed(Duration.zero, () async {
-      // await initMusicPlayer();
-      // Set state if needed
-      setState(() {
-        // Update state based on async result
-      });
-    });
-
-
-    HomeWidget.setAppGroupId('com.gigmeout.io');
-    HomeWidget.registerBackgroundCallback(backgroundCallback);
-    final String systemLangCode = Platform.localeName.substring(0, 2);
-    if (LanguageCodes.languageCodes.values.contains(systemLangCode)) {
-      _locale = Locale(systemLangCode);
-    } else {
-      final String lang = Hive.box('settings').get('lang', defaultValue: 'English') as String;
-      _locale = Locale(LanguageCodes.languageCodes[lang] ?? 'en');
+    if (Platform.isAndroid) {
+      NeomMusicPlayerApp.setOptimalDisplayMode();
     }
 
+    HomeWidget.setAppGroupId('com.gigmeout.io');
+    HomeWidget.registerBackgroundCallback(NeomMusicPlayerApp.backgroundCallback);
     AppTheme.currentTheme.addListener(() {
       setState(() {});
     });
@@ -191,13 +137,8 @@ class _NeomMusicPlayerAppState extends State<NeomMusicPlayerApp> {
           if (value.isNotEmpty) {
             for (final file in value) {
               if (file.path.endsWith('.json')) {
-                final List playlistNames = Hive.box('settings')
-                        .get('playlistNames')
-                        ?.toList() as List? ??
-                    ['Favorite Songs'];
-                importFilePlaylist(
-                  null,
-                  playlistNames,
+                final List playlistNames = Hive.box(AppHiveConstants.settings).get('playlistNames')?.toList() as List? ?? ['Favorite Songs'];
+                importFilePlaylist(null, playlistNames,
                   path: file.path,
                   pickFile: false,
                 ).then(
@@ -217,13 +158,9 @@ class _NeomMusicPlayerAppState extends State<NeomMusicPlayerApp> {
         if (value.isNotEmpty) {
           for (final file in value) {
             if (file.path.endsWith('.json')) {
-              final List playlistNames = Hive.box('settings')
-                      .get('playlistNames')
-                      ?.toList() as List? ??
-                  ['Favorite Songs'];
+              final List playlistNames = Hive.box(AppHiveConstants.settings).get('playlistNames')?.toList() as List? ?? ['Favorite Songs'];
               importFilePlaylist(
-                null,
-                playlistNames,
+                null, playlistNames,
                 path: file.path,
                 pickFile: false,
               ).then(
@@ -234,30 +171,6 @@ class _NeomMusicPlayerAppState extends State<NeomMusicPlayerApp> {
         }
       });
     }
-  }
-
-  void setLocale(Locale value) {
-    setState(() {
-      _locale = value;
-    });
-  }
-
-  Future<void> initMusicPlayer() async {
-    if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
-      await Hive.initFlutter('BlackHole');
-    } else {
-      await Hive.initFlutter();
-    }
-    for (final box in NeomMusicPlayerConstants.hiveBoxes) {
-      await openHiveBox(
-        box['name'].toString(),
-        limit: box['limit'] as bool? ?? false,
-      );
-    }
-    if (Platform.isAndroid) {
-      setOptimalDisplayMode();
-    }
-    await startService();
   }
 
   @override
@@ -295,28 +208,26 @@ class _NeomMusicPlayerAppState extends State<NeomMusicPlayerApp> {
             builder: (context, orientation) {
               SizerUtil.setScreenSize(constraints, orientation);
               return MaterialApp(
-                title: 'Gigmeout',
-                restorationScopeId: 'gigmeout',
-                debugShowCheckedModeBanner: false,
+                navigatorKey: navigatorKey,
+                title: AppFlavour.appInUse.name,
+                restorationScopeId: AppFlavour.appInUse.name,
                 themeMode: AppTheme.themeMode,
-                theme: AppTheme.lightTheme(
-                  context: context,
-                ),
                 darkTheme: AppTheme.darkTheme(
                   context: context,
                 ),
-                locale: _locale,
                 localizationsDelegates: const [
-                  AppLocalizations.delegate,
                   GlobalMaterialLocalizations.delegate,
                   GlobalWidgetsLocalizations.delegate,
                   GlobalCupertinoLocalizations.delegate,
                 ],
-                supportedLocales: LanguageCodes.languageCodes.entries
-                    .map((languageCode) => Locale(languageCode.value, ''))
-                    .toList(),
-                routes: namedRoutes,
-                navigatorKey: navigatorKey,
+                locale: Get.deviceLocale,
+                supportedLocales: const [
+                  Locale('es'), // Spanish, Mexico
+                  Locale('en'), // English, United States
+                  Locale('fr'), // French, France
+                  Locale('de'), // German, Germany
+                ],
+                routes: MusicPlayerRoutes.namedRoutes,
                 onGenerateRoute: (RouteSettings settings) {
                   if (settings.name == '/player') {
                     return PageRouteBuilder(

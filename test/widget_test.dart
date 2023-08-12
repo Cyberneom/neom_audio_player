@@ -6,16 +6,16 @@
 // tree, read text, and verify that the values of widget properties are correct.
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:neom_music_player/Helpers/update.dart';
+import 'package:neom_music_player/utils/helpers/update.dart';
 
 void main() {
   group('update check tests', () {
     test('compareVersion should return true if update is available', () {
       // Arrange: Set up the necessary variables and inputs
       const String currentVersion = '1.1.2';
-      const String latestVerion = '1.1.3';
+      const String latestVersion = '1.1.3';
 
-      final result = compareVersion(latestVerion, currentVersion);
+      final result = compareVersion(latestVersion, currentVersion);
 
       expect(result, equals(true));
     });

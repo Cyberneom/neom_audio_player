@@ -19,23 +19,28 @@
 
 
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
-import 'package:neom_music_player/CustomWidgets/bottom_nav_bar.dart';
-import 'package:neom_music_player/CustomWidgets/drawer.dart';
-import 'package:neom_music_player/CustomWidgets/gradient_containers.dart';
-import 'package:neom_music_player/CustomWidgets/miniplayer.dart';
-import 'package:neom_music_player/Helpers/route_handler.dart';
-import 'package:neom_music_player/ui/Common/routes.dart';
+import 'package:neom_music_player/ui/spotify/spotify_top_page.dart';
+import 'package:neom_music_player/ui/widgets/bottom_nav_bar.dart';
+import 'package:neom_music_player/ui/widgets/drawer.dart';
+import 'package:neom_music_player/ui/widgets/gradient_containers.dart';
+import 'package:neom_music_player/ui/widgets/miniplayer.dart';
+import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
+import 'package:neom_music_player/utils/constants/music_player_route_constants.dart';
+import 'package:neom_music_player/utils/helpers/route_handler.dart';
+import 'package:neom_music_player/ui/music_player_routes.dart';
 import 'package:neom_music_player/ui/Home/home_screen.dart';
 import 'package:neom_music_player/ui/Player/audioplayer.dart';
-import 'package:neom_music_player/ui/Settings/new_settings_page.dart';
-import 'package:neom_music_player/ui/Top Charts/top.dart';
+import 'package:neom_music_player/ui/drawer/settings/new_settings_page.dart';
+import 'package:neom_music_player/ui/spotify/spotify_top_page.dart' as top_screen;
 import 'package:neom_music_player/ui/YouTube/youtube_home.dart';
 import 'package:neom_music_player/ui/drawer/music_player_drawer.dart';
+import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
+import 'package:get/get.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -45,19 +50,19 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final ValueNotifier<int> _selectedIndex = ValueNotifier<int>(0);
   String name =
-      Hive.box('settings').get('name', defaultValue: 'Guest') as String;
+      Hive.box(AppHiveConstants.settings).get('name', defaultValue: 'Guest') as String;
   bool checkUpdate =
-      Hive.box('settings').get('checkUpdate', defaultValue: false) as bool;
+      Hive.box(AppHiveConstants.settings).get('checkUpdate', defaultValue: false) as bool;
   bool autoBackup =
-      Hive.box('settings').get('autoBackup', defaultValue: false) as bool;
-  List sectionsToShow = Hive.box('settings').get('sectionsToShow',
+      Hive.box(AppHiveConstants.settings).get('autoBackup', defaultValue: false) as bool;
+  List sectionsToShow = Hive.box(AppHiveConstants.settings).get('sectionsToShow',
     defaultValue: ['Home', 'Top Charts', 'YouTube'],
   ) as List;
   DateTime? backButtonPressTime;
   final bool useDense = false;
 
   void callback() {
-    sectionsToShow = Hive.box('settings').get(
+    sectionsToShow = Hive.box(AppHiveConstants.settings).get(
       'sectionsToShow',
       defaultValue: ['Home', 'Top Charts', 'YouTube'],
     ) as List;
@@ -83,7 +88,7 @@ class _HomePageState extends State<HomePage> {
   //     backButtonPressTime = now;
   //     ShowSnackBar().showSnackBar(
   //       context,
-  //       AppLocalizations.of(context)!.exitConfirm,
+  //       PlayerTranslationConstants.exitConfirm.tr,
   //       duration: const Duration(seconds: 2),
   //       noAction: true,
   //     );
@@ -162,26 +167,26 @@ class _HomePageState extends State<HomePage> {
                           case 'Home':
                             return NavigationRailDestination(
                               icon: const Icon(Icons.home_rounded),
-                              label: Text(AppLocalizations.of(context)!.home),
+                              label: Text(PlayerTranslationConstants.home.tr),
                             );
                           case 'Top Charts':
                             return NavigationRailDestination(
                               icon: const Icon(Icons.trending_up_rounded),
                               label: Text(
-                                AppLocalizations.of(context)!.topCharts,
+                                PlayerTranslationConstants.topCharts.tr,
                               ),
                             );
                           case 'YouTube':
                             return NavigationRailDestination(
                               icon: const Icon(MdiIcons.youtube),
                               label:
-                                  Text(AppLocalizations.of(context)!.youTube),
+                                  Text(PlayerTranslationConstants.youTube.tr),
                             );
                           default:
                             return NavigationRailDestination(
                               icon: const Icon(Icons.settings_rounded),
                               label: Text(
-                                AppLocalizations.of(context)!.settings,
+                                PlayerTranslationConstants.settings.tr,
                               ),
                             );
                         }
@@ -200,9 +205,9 @@ class _HomePageState extends State<HomePage> {
                 onItemTapped: onItemTapped,
                 routeAndNavigatorSettings:
                     CustomWidgetRouteAndNavigatorSettings(
-                  routes: namedRoutes,
+                  routes: MusicPlayerRoutes.namedRoutes,
                   onGenerateRoute: (RouteSettings settings) {
-                    if (settings.name == '/player') {
+                    if (settings.name == MusicPlayerRouteConstants.player) {
                       return PageRouteBuilder(
                         opaque: false,
                         pageBuilder: (_, __, ___) => const PlayScreen(),
@@ -248,7 +253,7 @@ class _HomePageState extends State<HomePage> {
                       return const SafeArea(child: HomeScreen());
                     case 'Top Charts':
                       return SafeArea(
-                        child: TopCharts(
+                        child: SpotifyTopPage(
                           pageController: _pageController,
                         ),
                       );
@@ -272,25 +277,25 @@ class _HomePageState extends State<HomePage> {
         case 'Home':
           return CustomBottomNavBarItem(
             icon: const Icon(Icons.home_rounded),
-            title: Text(AppLocalizations.of(context)!.home),
+            title: Text(PlayerTranslationConstants.home.tr),
             selectedColor: Theme.of(context).colorScheme.secondary,
           );
         case 'Top Charts':
           return CustomBottomNavBarItem(
             icon: const Icon(Icons.trending_up_rounded),
-            title: Text(AppLocalizations.of(context)!.topCharts),
+            title: Text(PlayerTranslationConstants.topCharts.tr),
             selectedColor: Theme.of(context).colorScheme.secondary,
           );
         case 'YouTube':
           return CustomBottomNavBarItem(
             icon: const Icon(MdiIcons.youtube),
-            title: Text(AppLocalizations.of(context)!.youTube),
+            title: Text(PlayerTranslationConstants.youTube.tr),
             selectedColor: Theme.of(context).colorScheme.secondary,
           );
         default:
           return CustomBottomNavBarItem(
             icon: const Icon(Icons.settings_rounded),
-            title: Text(AppLocalizations.of(context)!.settings),
+            title: Text(PlayerTranslationConstants.settings.tr),
             selectedColor: Theme.of(context).colorScheme.secondary,
           );
       }

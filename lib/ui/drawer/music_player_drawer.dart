@@ -1,6 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
@@ -12,15 +12,33 @@ import 'package:neom_commons/core/utils/app_theme.dart';
 import 'package:neom_commons/core/utils/constants/app_constants.dart';
 import 'package:neom_commons/core/utils/constants/app_page_id_constants.dart';
 import 'package:neom_commons/core/utils/constants/app_route_constants.dart';
-import 'package:neom_commons/core/utils/constants/app_translation_constants.dart';
-import 'package:neom_music_player/ui/Library/liked.dart';
-import 'package:neom_music_player/ui/LocalMusic/downed_songs.dart';
-import 'package:neom_music_player/ui/Settings/new_settings_page.dart';
+import 'package:neom_music_player/ui/drawer/library/liked.dart';
+import 'package:neom_music_player/ui/drawer/local_music/downed_songs.dart';
+import 'package:neom_music_player/ui/drawer/settings/new_settings_page.dart';
+import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
 import 'package:neom_music_player/utils/enums/music_player_drawer_menu.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 
 class MusicPlayerDrawer extends StatelessWidget {
   MusicPlayerDrawer({Key? key}) : super(key: key);
+
+
+  final ValueNotifier<int> _selectedIndex = ValueNotifier<int>(0);
+
+  List sectionsToShow = ['Home', 'Top Charts', 'YouTube'];
+  final PersistentTabController _controller = PersistentTabController();
+
+  void callback() {
+    sectionsToShow = ['Home', 'Top Charts', 'YouTube'];
+    onItemTapped(0);
+  }
+
+  void onItemTapped(int index) {
+    _selectedIndex.value = index;
+    _controller.jumpToTab(
+      index,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +89,7 @@ class MusicPlayerDrawer extends StatelessWidget {
           constraints: const BoxConstraints(minWidth: 200, minHeight: 100),
           child: Center(
             child: Text(
-              AppTranslationConstants.loginToContinue.tr,
+              PlayerTranslationConstants.loginToContinue.tr,
               style: AppTheme.primaryTitleText,
             ),
           ),
@@ -143,7 +161,7 @@ class MusicPlayerDrawer extends StatelessWidget {
                 MaterialPageRoute(
                   builder: (context) => LikedSongs(
                     playlistName: 'Favorite Songs',
-                    showName: AppLocalizations.of(context)!.favSongs,
+                    showName: PlayerTranslationConstants.favSongs.tr,
                   ),
                 ),
               );
@@ -194,28 +212,6 @@ class MusicPlayerDrawer extends StatelessWidget {
           color: isEnabled ? AppColor.lightGrey : AppColor.secondary,
         ), context: context,
       ),
-    );
-  }
-
-
-  final ValueNotifier<int> _selectedIndex = ValueNotifier<int>(0);
-  List sectionsToShow = Hive.box('settings').get('sectionsToShow',
-    defaultValue: ['Home', 'Top Charts', 'YouTube'],
-  ) as List;
-  final PersistentTabController _controller = PersistentTabController();
-
-  void callback() {
-    sectionsToShow = Hive.box('settings').get(
-      'sectionsToShow',
-      defaultValue: ['Home', 'Top Charts', 'YouTube'],
-    ) as List;
-    onItemTapped(0);
-  }
-
-  void onItemTapped(int index) {
-    _selectedIndex.value = index;
-    _controller.jumpToTab(
-      index,
     );
   }
 
