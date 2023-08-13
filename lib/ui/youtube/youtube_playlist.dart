@@ -168,8 +168,7 @@ class _YouTubePlaylistState extends State<YouTubePlaylist> {
                     done = false;
                   });
 
-                  final Map? response =
-                      await YouTubeServices().formatVideoFromId(
+                  final Map? response = await YouTubeServices().formatVideoFromId(
                     id: searchedList.first['id'].toString(),
                     data: searchedList.first,
                   );
@@ -280,7 +279,7 @@ class _YouTubePlaylistState extends State<YouTubePlaylist> {
                                 //   YouTubeServices()
                                 //       .formatVideo(
                                 //     video: searchedList[i],
-                                //     quality: Hive.box('settings')
+                                //     quality: Hive.box(AppHiveConstants.settings)
                                 //         .get(
                                 //           'ytQuality',
                                 //           defaultValue: 'Low',

@@ -22,6 +22,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
+import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 
@@ -40,7 +41,7 @@ class OfflineAudioQuery {
     OrderType? orderType,
     String? path,
   }) async {
-    Logger.root.info(
+    AppUtilities.logger.i(
       'Getting songs with path: $path, sortType: $sortType, orderType: $orderType',
     );
     return audioQuery.querySongs(

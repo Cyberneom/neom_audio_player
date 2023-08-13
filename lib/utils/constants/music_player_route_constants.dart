@@ -1,9 +1,3 @@
-import 'package:neom_booking/booking/ui/booking_home_page.dart';
-import 'package:neom_events/events/ui/events_page.dart';
-import 'package:neom_inbox/inbox/ui/inbox_page.dart';
-import 'package:neom_itemlists/itemlists/ui/itemlist_page.dart';
-import 'package:neom_posts/blog/ui/blog_page.dart';
-import 'package:neom_timeline/neom_timeline.dart';
 
 class MusicPlayerRouteConstants {
 

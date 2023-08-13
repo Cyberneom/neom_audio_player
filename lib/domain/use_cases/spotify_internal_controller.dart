@@ -4,12 +4,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:neom_commons/core/app_flavour.dart';
 
-import 'package:neom_commons/core/data/firestore/profile_firestore.dart';
 import 'package:neom_commons/core/data/firestore/user_firestore.dart';
 import 'package:neom_commons/core/domain/model/app_item.dart';
 import 'package:neom_commons/core/domain/model/app_profile.dart';
 import 'package:neom_commons/core/domain/model/item_list.dart';
-import 'package:neom_commons/core/domain/use_cases/itemlist_service.dart';
 import 'package:neom_commons/core/data/implementations/user_controller.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/constants/app_page_id_constants.dart';

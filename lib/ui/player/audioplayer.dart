@@ -38,6 +38,7 @@ import 'package:hive/hive.dart';
 import 'package:logging/logging.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
+import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
 import 'package:neom_music_player/ui/Search/album_search_page.dart';
 import 'package:neom_music_player/ui/widgets/add_playlist.dart';
@@ -71,7 +72,7 @@ class PlayScreen extends StatefulWidget {
 }
 
 class _PlayScreenState extends State<PlayScreen> {
-  final String gradientType = Hive.box('settings')
+  final String gradientType = Hive.box(AppHiveConstants.settings)
       .get('gradientType', defaultValue: 'halfDark')
       .toString();
   final bool getLyricsOnline =
@@ -1262,7 +1263,7 @@ class _ArtWorkWidgetState extends State<ArtWorkWidget> {
   bool flipped = false;
 
   void fetchLyrics() {
-    Logger.root.info('Fetching lyrics for ${widget.mediaItem.title}');
+    AppUtilities.logger.i('Fetching lyrics for ${widget.mediaItem.title}');
     done.value = false;
     lyricsSource.value = '';
     if (widget.offline) {
@@ -1287,7 +1288,7 @@ class _ArtWorkWidgetState extends State<ArtWorkWidget> {
                 .getModel();
           });
         } else {
-          Logger.root.info('Lyrics found offline');
+          AppUtilities.logger.i('Lyrics found offline');
           lyrics['lyrics'] = value;
           lyrics['type'] = value.startsWith('[00') ? 'lrc' : 'text';
           lyrics['source'] = 'Local';
@@ -1487,7 +1488,7 @@ class _ArtWorkWidgetState extends State<ArtWorkWidget> {
             builder: (context, snapshot) {
               final queueState = snapshot.data ?? QueueState.empty;
 
-              final bool enabled = Hive.box('settings')
+              final bool enabled = Hive.box(AppHiveConstants.settings)
                   .get('enableGesture', defaultValue: true) as bool;
               return GestureDetector(
                 onTap: !enabled
@@ -1991,7 +1992,7 @@ class NameNControls extends StatelessWidget {
     final double nowplayingBoxHeight = min(70, height * 0.15);
     // height > 500 ? height * 0.4 : height * 0.15;
     // final double minNowplayingBoxHeight = height * 0.15;
-    final String gradientType = Hive.box('settings')
+    final String gradientType = Hive.box(AppHiveConstants.settings)
         .get('gradientType', defaultValue: 'halfDark')
         .toString();
     final List<String> artists = mediaItem.artist.toString().split(', ');

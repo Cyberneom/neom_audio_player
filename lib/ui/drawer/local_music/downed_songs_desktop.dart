@@ -81,7 +81,7 @@ class _DownloadedSongsDesktopState extends State<DownloadedSongsDesktop>
       Hive.box(AppHiveConstants.settings).get('minDuration', defaultValue: 10) as int;
   bool includeOrExclude =
       Hive.box(AppHiveConstants.settings).get('includeOrExclude', defaultValue: false) as bool;
-  List includedExcludedPaths = Hive.box('settings')
+  List includedExcludedPaths = Hive.box(AppHiveConstants.settings)
       .get('includedExcludedPaths', defaultValue: []) as List;
   TabController? _tcontroller;
   OfflineAudioQuery offlineAudioQuery = OfflineAudioQuery();

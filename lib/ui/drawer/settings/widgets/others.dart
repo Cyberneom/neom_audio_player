@@ -11,11 +11,7 @@ import 'package:neom_music_player/ui/widgets/snackbar.dart';
 import 'package:neom_music_player/ui/widgets/textinput_dialog.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
 import 'package:neom_music_player/utils/helpers/picker.dart';
-import 'package:neom_music_player/neom_music_player_app.dart';
-import 'package:neom_music_player/utils/constants/languagecodes.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:share_plus/share_plus.dart';
 import 'package:get/get.dart';
 
 class OthersPage extends StatefulWidget {
@@ -26,11 +22,11 @@ class OthersPage extends StatefulWidget {
 }
 
 class _OthersPageState extends State<OthersPage> {
-  final Box settingsBox = Hive.box('settings');
+  final Box settingsBox = Hive.box(AppHiveConstants.settings);
   final ValueNotifier<bool> includeOrExclude = ValueNotifier<bool>(
     Hive.box(AppHiveConstants.settings).get('includeOrExclude', defaultValue: false) as bool,
   );
-  List includedExcludedPaths = Hive.box('settings')
+  List includedExcludedPaths = Hive.box(AppHiveConstants.settings)
       .get('includedExcludedPaths', defaultValue: []) as List;
   String lang =
       Hive.box(AppHiveConstants.settings).get('lang', defaultValue: 'English') as String;
@@ -61,6 +57,58 @@ class _OthersPageState extends State<OthersPage> {
           physics: const BouncingScrollPhysics(),
           padding: const EdgeInsets.all(10.0),
           children: [
+            BoxSwitchTile(
+              title: Text(
+                PlayerTranslationConstants.liveSearch.tr,
+              ),
+              subtitle: Text(
+                PlayerTranslationConstants.liveSearchSub.tr,
+              ),
+              keyName: 'liveSearch',
+              isThreeLine: false,
+              defaultValue: true,
+            ),
+            BoxSwitchTile(
+              title: Text(
+                PlayerTranslationConstants.useDown.tr,
+              ),
+              subtitle: Text(
+                PlayerTranslationConstants.useDownSub.tr,
+              ),
+              keyName: 'useDown',
+              isThreeLine: true,
+              defaultValue: true,
+            ),
+            BoxSwitchTile(
+              title: Text(
+                PlayerTranslationConstants.getLyricsOnline.tr,
+              ),
+              subtitle: Text(
+                PlayerTranslationConstants.getLyricsOnlineSub.tr,
+              ),
+              keyName: 'getLyricsOnline',
+              isThreeLine: true,
+              defaultValue: true,
+            ),
+            BoxSwitchTile(
+              title: Text(
+                PlayerTranslationConstants.stopOnClose.tr,
+              ),
+              subtitle: Text(
+                PlayerTranslationConstants.stopOnCloseSub.tr,
+              ),
+              isThreeLine: true,
+              keyName: 'stopForegroundService',
+              defaultValue: false,
+            ),
+            const BoxSwitchTile(
+              title: Text('Remove Service from foreground when paused'),
+              subtitle: Text(
+                  "If turned on, you can slide notification when paused to stop the service. But Service can also be stopped by android to release memory. If you don't want android to stop service while paused, turn it off\nDefault: On\n"),
+              isThreeLine: true,
+              keyName: 'stopServiceOnPause',
+              defaultValue: false,
+            ),
             ListTile(
               title: Text(
                 PlayerTranslationConstants.includeExcludeFolder.tr,
@@ -71,7 +119,7 @@ class _OthersPageState extends State<OthersPage> {
               dense: true,
               onTap: () {
                 final GlobalKey<AnimatedListState> listKey =
-                    GlobalKey<AnimatedListState>();
+                GlobalKey<AnimatedListState>();
                 showModalBottomSheet(
                   isDismissible: true,
                   backgroundColor: AppColor.main75,
@@ -97,10 +145,10 @@ class _OthersPageState extends State<OthersPage> {
                             return ValueListenableBuilder(
                               valueListenable: includeOrExclude,
                               builder: (
-                                BuildContext context,
-                                bool value,
-                                Widget? widget,
-                              ) {
+                                  BuildContext context,
+                                  bool value,
+                                  Widget? widget,
+                                  ) {
                                 return Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
@@ -117,12 +165,12 @@ class _OthersPageState extends State<OthersPage> {
                                           labelStyle: TextStyle(
                                             color: !value
                                                 ? Theme.of(context)
-                                                    .colorScheme
-                                                    .secondary
+                                                .colorScheme
+                                                .secondary
                                                 : Theme.of(context)
-                                                    .textTheme
-                                                    .bodyLarge!
-                                                    .color,
+                                                .textTheme
+                                                .bodyLarge!
+                                                .color,
                                             fontWeight: !value
                                                 ? FontWeight.w600
                                                 : FontWeight.normal,
@@ -150,12 +198,12 @@ class _OthersPageState extends State<OthersPage> {
                                           labelStyle: TextStyle(
                                             color: value
                                                 ? Theme.of(context)
-                                                    .colorScheme
-                                                    .secondary
+                                                .colorScheme
+                                                .secondary
                                                 : Theme.of(context)
-                                                    .textTheme
-                                                    .bodyLarge!
-                                                    .color,
+                                                .textTheme
+                                                .bodyLarge!
+                                                .color,
                                             fontWeight: value
                                                 ? FontWeight.w600
                                                 : FontWeight.normal,
@@ -249,7 +297,7 @@ class _OthersPageState extends State<OthersPage> {
                                   );
                                   listKey.currentState!.removeItem(
                                     idx,
-                                    (context, animation) => Container(),
+                                        (context, animation) => Container(),
                                   );
                                 },
                               ),
@@ -274,8 +322,7 @@ class _OthersPageState extends State<OthersPage> {
                 showTextInputDialog(
                   context: context,
                   title: PlayerTranslationConstants.minAudioAlert.tr,
-                  initialText: (Hive.box('settings')
-                          .get('minDuration', defaultValue: 10) as int)
+                  initialText: (Hive.box(AppHiveConstants.settings).get('minDuration', defaultValue: 30) as int)
                       .toString(),
                   keyboardType: TextInputType.number,
                   onSubmitted: (String value, BuildContext context) {
@@ -287,224 +334,6 @@ class _OthersPageState extends State<OthersPage> {
                   },
                 );
               },
-            ),
-            BoxSwitchTile(
-              title: Text(
-                PlayerTranslationConstants.liveSearch.tr,
-              ),
-              subtitle: Text(
-                PlayerTranslationConstants.liveSearchSub.tr,
-              ),
-              keyName: 'liveSearch',
-              isThreeLine: false,
-              defaultValue: true,
-            ),
-            BoxSwitchTile(
-              title: Text(
-                PlayerTranslationConstants.useDown.tr,
-              ),
-              subtitle: Text(
-                PlayerTranslationConstants.useDownSub.tr,
-              ),
-              keyName: 'useDown',
-              isThreeLine: true,
-              defaultValue: true,
-            ),
-            BoxSwitchTile(
-              title: Text(
-                PlayerTranslationConstants.getLyricsOnline.tr,
-              ),
-              subtitle: Text(
-                PlayerTranslationConstants.getLyricsOnlineSub.tr,
-              ),
-              keyName: 'getLyricsOnline',
-              isThreeLine: true,
-              defaultValue: true,
-            ),
-            BoxSwitchTile(
-              title: Text(
-                PlayerTranslationConstants.supportEq.tr,
-              ),
-              subtitle: Text(
-                PlayerTranslationConstants.supportEqSub.tr,
-              ),
-              keyName: 'supportEq',
-              isThreeLine: true,
-              defaultValue: false,
-            ),
-            BoxSwitchTile(
-              title: Text(
-                PlayerTranslationConstants.stopOnClose.tr,
-              ),
-              subtitle: Text(
-                PlayerTranslationConstants.stopOnCloseSub.tr,
-              ),
-              isThreeLine: true,
-              keyName: 'stopForegroundService',
-              defaultValue: true,
-            ),
-            // const BoxSwitchTile(
-            //   title: Text('Remove Service from foreground when paused'),
-            //   subtitle: Text(
-            //       "If turned on, you can slide notification when paused to stop the service. But Service can also be stopped by android to release memory. If you don't want android to stop service while paused, turn it off\nDefault: On\n"),
-            //   isThreeLine: true,
-            //   keyName: 'stopServiceOnPause',
-            //   defaultValue: true,
-            // ),
-            BoxSwitchTile(
-              title: Text(
-                PlayerTranslationConstants.checkUpdate.tr,
-              ),
-              subtitle: Text(
-                PlayerTranslationConstants.checkUpdateSub.tr,
-              ),
-              keyName: 'checkUpdate',
-              isThreeLine: true,
-              defaultValue: false,
-            ),
-            BoxSwitchTile(
-              title: Text(
-                PlayerTranslationConstants.useProxy.tr,
-              ),
-              subtitle: Text(
-                PlayerTranslationConstants.useProxySub.tr,
-              ),
-              keyName: 'useProxy',
-              defaultValue: false,
-              isThreeLine: true,
-              onChanged: ({required bool val, required Box box}) {
-                useProxy = val;
-                setState(
-                  () {},
-                );
-              },
-            ),
-            Visibility(
-              visible: useProxy,
-              child: ListTile(
-                title: Text(
-                  PlayerTranslationConstants.proxySet.tr,
-                ),
-                subtitle: Text(
-                  PlayerTranslationConstants.proxySetSub.tr,
-                ),
-                dense: true,
-                trailing: Text(
-                  '${Hive.box(AppHiveConstants.settings).get("proxyIp", defaultValue: "103.47.67.134")}:${Hive.box(AppHiveConstants.settings).get("proxyPort", defaultValue: 8080)}',
-                  style: const TextStyle(fontSize: 12),
-                ),
-                onTap: () {
-                  showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      final controller = TextEditingController(
-                        text: settingsBox
-                            .get('proxyIp', defaultValue: '103.47.67.134')
-                            .toString(),
-                      );
-                      final controller2 = TextEditingController(
-                        text: settingsBox
-                            .get('proxyPort', defaultValue: 8080)
-                            .toString(),
-                      );
-                      return AlertDialog(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(
-                            10.0,
-                          ),
-                        ),
-                        content: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Row(
-                              children: [
-                                Text(
-                                  PlayerTranslationConstants.ipAdd.tr,
-                                  style: TextStyle(
-                                    color:
-                                        Theme.of(context).colorScheme.secondary,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            TextField(
-                              autofocus: true,
-                              controller: controller,
-                            ),
-                            const SizedBox(
-                              height: 30,
-                            ),
-                            Row(
-                              children: [
-                                Text(
-                                  PlayerTranslationConstants.port.tr,
-                                  style: TextStyle(
-                                    color:
-                                        Theme.of(context).colorScheme.secondary,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            TextField(
-                              autofocus: true,
-                              controller: controller2,
-                            ),
-                          ],
-                        ),
-                        actions: [
-                          TextButton(
-                            style: TextButton.styleFrom(
-                              foregroundColor: Theme.of(context).brightness ==
-                                      Brightness.dark
-                                  ? Colors.white
-                                  : Colors.grey[700],
-                            ),
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
-                            child: Text(
-                              PlayerTranslationConstants.cancel.tr,
-                            ),
-                          ),
-                          TextButton(
-                            style: TextButton.styleFrom(
-                              foregroundColor:
-                                  Theme.of(context).colorScheme.secondary ==
-                                          Colors.white
-                                      ? Colors.black
-                                      : null,
-                              backgroundColor:
-                                  Theme.of(context).colorScheme.secondary,
-                            ),
-                            onPressed: () {
-                              settingsBox.put(
-                                'proxyIp',
-                                controller.text.trim(),
-                              );
-                              settingsBox.put(
-                                'proxyPort',
-                                int.parse(
-                                  controller2.text.trim(),
-                                ),
-                              );
-                              Navigator.pop(context);
-                              setState(
-                                () {},
-                              );
-                            },
-                            child: Text(
-                              PlayerTranslationConstants.ok.tr,
-                            ),
-                          ),
-                          const SizedBox(
-                            width: 5,
-                          ),
-                        ],
-                      );
-                    },
-                  );
-                },
-              ),
             ),
             ListTile(
               title: Text(
@@ -541,21 +370,6 @@ class _OthersPageState extends State<OthersPage> {
                   () {},
                 );
               },
-            ),
-            ListTile(
-              title: Text(
-                PlayerTranslationConstants.shareLogs.tr,
-              ),
-              subtitle: Text(
-                PlayerTranslationConstants.shareLogsSub.tr,
-              ),
-              onTap: () async {
-                final Directory tempDir = await getTemporaryDirectory();
-                final files = <XFile>[XFile('${tempDir.path}/logs/logs.txt')];
-                Share.shareXFiles(files);
-              },
-              dense: true,
-              isThreeLine: true,
             ),
           ],
         ),

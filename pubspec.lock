@@ -1327,7 +1327,7 @@ packages:
     source: hosted
     version: "0.2.0"
   material_design_icons_flutter:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: material_design_icons_flutter
       sha256: "06e34d0d6da622faa900cf59801f10c89787014a834ab391e9fad0895e6f0baf"

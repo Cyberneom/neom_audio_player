@@ -28,42 +28,40 @@ import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:logging/logging.dart';
-import 'package:neom_music_player/data/api_services/APIs/api.dart';
+import 'package:neom_commons/core/utils/app_utilities.dart';
+import 'package:neom_music_player/data/api_services/APIs/saavn_api.dart';
+import 'package:neom_music_player/data/implementations/app_hive_controller.dart';
+import 'package:neom_music_player/data/implementations/playlist_hive_controller.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
 import 'package:neom_music_player/utils/helpers/mediaitem_converter.dart';
-import 'package:neom_music_player/utils/helpers/playlist.dart';
 import 'package:neom_music_player/domain/use_cases/isolate_service.dart';
 import 'package:neom_music_player/domain/use_cases/yt_music.dart';
-import 'package:neom_music_player/ui/Player/audioplayer.dart';
+import 'package:neom_music_player/ui/player/audioplayer.dart';
 import 'package:rxdart/rxdart.dart';
 
-class AudioPlayerHandlerImpl extends BaseAudioHandler
-    with QueueHandler, SeekHandler
+class AudioPlayerHandlerImpl extends BaseAudioHandler with QueueHandler, SeekHandler
     implements AudioPlayerHandler {
+
   int? count;
   Timer? _sleepTimer;
-  bool recommend = true;
-  bool loadStart = true;
-  bool useDown = true;
-  AndroidEqualizerParameters? _equalizerParams;
 
   late AudioPlayer? _player;
   late String connectionType = 'mobile';
-  late String preferredQuality;
-  late String preferredWifiQuality;
-  late String preferredMobileQuality;
-  late List<int> preferredCompactNotificationButtons = [1, 2, 3];
-  late bool resetOnSkip;
-  // late String? stationId = '';
-  // late List<String> stationNames = [];
-  // late String stationType = 'entity';
-  late bool cacheSong;
-  final _equalizer = AndroidEqualizer();
 
-  Box? downloadsBox =
-      Hive.isBoxOpen('downloads') ? Hive.box('downloads') : null;
+  Box? downloadsBox = AppHiveController().getBox(AppHiveConstants.downloads);
   final List<String> refreshLinks = [];
   bool jobRunning = false;
+
+  String preferredQuality = '';
+  String preferredWifiQuality = '';
+  String preferredMobileQuality = '';
+  List<int> preferredCompactNotificationButtons = [1, 2, 3];
+  bool resetOnSkip = true;
+  bool cacheSong = true;
+  bool recommend = true;
+  bool loadStart = true;
+  bool useDownload = true;
+  bool stopForegroundService = true;
 
   final BehaviorSubject<List<MediaItem>> _recentSubject =
       BehaviorSubject.seeded(<MediaItem>[]);
@@ -129,39 +127,35 @@ class AudioPlayerHandlerImpl extends BaseAudioHandler
   }
 
   Future<void> _init() async {
-    Logger.root.info('starting audio service');
-    if (Hive.isBoxOpen('settings')) {
-      preferredCompactNotificationButtons = Hive.box(AppHiveConstants.settings).get(
-        'preferredCompactNotificationButtons',
-        defaultValue: [1, 2, 3],
-      ) as List<int>;
-      if (preferredCompactNotificationButtons.length > 3) {
-        preferredCompactNotificationButtons = [1, 2, 3];
-      }
-    }
+    AppUtilities.logger.i('starting audio service');
+    preferredCompactNotificationButtons = AppHiveController().preferredCompactNotificationButtons;
+    preferredMobileQuality = AppHiveController().preferredMobileQuality;
+    preferredWifiQuality = AppHiveController().preferredWifiQuality;
+    preferredQuality = connectionType == 'wifi' ? preferredWifiQuality : preferredMobileQuality;
+    cacheSong = AppHiveController().cacheSong;
+    useDownload = AppHiveController().useDownload;
     final session = await AudioSession.instance;
     await session.configure(const AudioSessionConfiguration.music());
 
     await startService();
-
     await startBackgroundProcessing();
 
     speed.debounceTime(const Duration(milliseconds: 250)).listen((speed) {
       playbackState.add(playbackState.value!.copyWith(speed: speed));
     });
 
-    Logger.root.info('checking connectivity & setting quality');
+    AppUtilities.logger.i('checking connectivity & setting quality');
 
     Connectivity().onConnectivityChanged.listen((ConnectivityResult result) {
       if (result == ConnectivityResult.mobile) {
         connectionType = 'mobile';
-        Logger.root.info(
+        AppUtilities.logger.i(
           'player | switched to mobile data, changing quality to $preferredMobileQuality',
         );
         preferredQuality = preferredMobileQuality;
       } else if (result == ConnectivityResult.wifi) {
         connectionType = 'wifi';
-        Logger.root.info(
+        AppUtilities.logger.i(
           'player | wifi connected, changing quality to $preferredWifiQuality',
         );
         preferredQuality = preferredWifiQuality;
@@ -170,29 +164,15 @@ class AudioPlayerHandlerImpl extends BaseAudioHandler
           'player | internet connection not available',
         );
       } else {
-        Logger.root.info(
+        AppUtilities.logger.i(
           'player | unidentified network connection',
         );
       }
     });
 
-    preferredMobileQuality = Hive.box('settings')
-        .get('streamingQuality', defaultValue: '96 kbps')
-        .toString();
-    preferredWifiQuality = Hive.box('settings')
-        .get('streamingWifiQuality', defaultValue: '320 kbps')
-        .toString();
-    preferredQuality = connectionType == 'wifi'
-        ? preferredWifiQuality
-        : preferredMobileQuality;
-    resetOnSkip =
-        Hive.box(AppHiveConstants.settings).get('resetOnSkip', defaultValue: false) as bool;
-    cacheSong =
-        Hive.box(AppHiveConstants.settings).get('cacheSong', defaultValue: true) as bool;
-    recommend =
-        Hive.box(AppHiveConstants.settings).get('autoplay', defaultValue: true) as bool;
-    loadStart =
-        Hive.box(AppHiveConstants.settings).get('loadStart', defaultValue: true) as bool;
+
+
+    preferredQuality = connectionType == 'wifi' ? preferredWifiQuality : preferredMobileQuality;
 
     mediaItem.whereType<MediaItem>().listen((item) {
       if (count != null) {
@@ -212,7 +192,7 @@ class AudioPlayerHandlerImpl extends BaseAudioHandler
           final int index = mediaQueue.indexOf(item);
           final int queueLength = mediaQueue.length;
           if (queueLength - index < 5) {
-            Logger.root.info('less than 5 songs remaining, adding more songs');
+            AppUtilities.logger.i('less than 5 songs remaining, adding more songs');
             Future.delayed(const Duration(seconds: 1), () async {
               if (item == mediaItem.value) {
                 if (item.genre != 'YouTube') {
@@ -233,7 +213,7 @@ class AudioPlayerHandlerImpl extends BaseAudioHandler
                 } else {
                   final res = await YtMusicService()
                       .getWatchPlaylist(videoId: item.id, limit: 5);
-                  Logger.root.info('Recieved recommendations: $res');
+                  AppUtilities.logger.i('Recieved recommendations: $res');
                   refreshLinks.addAll(res);
                   if (!jobRunning) {
                     refreshJob();
@@ -264,12 +244,8 @@ class AudioPlayerHandlerImpl extends BaseAudioHandler
 
     // Propagate all events from the audio player to AudioService clients.
     _player!.playbackEventStream.listen(_broadcastState);
-
-    _player!.shuffleModeEnabledStream
-        .listen((enabled) => _broadcastState(_player!.playbackEvent));
-
-    _player!.loopModeStream
-        .listen((event) => _broadcastState(_player!.playbackEvent));
+    _player!.shuffleModeEnabledStream.listen((enabled) => _broadcastState(_player!.playbackEvent));
+    _player!.loopModeStream.listen((event) => _broadcastState(_player!.playbackEvent));
 
     _player!.processingStateStream.listen((state) {
       if (state == ProcessingState.completed) {
@@ -286,14 +262,10 @@ class AudioPlayerHandlerImpl extends BaseAudioHandler
         .pipe(queue);
     try {
       if (loadStart) {
-        final List lastQueueList = await Hive.box('cache')
-            .get('lastQueue', defaultValue: [])?.toList() as List;
+        final List lastQueueList = AppHiveController().lastQueueList;
 
-        final int lastIndex =
-            await Hive.box(AppHiveConstants.cache).get('lastIndex', defaultValue: 0) as int;
-
-        final int lastPos =
-            await Hive.box(AppHiveConstants.cache).get('lastPos', defaultValue: 0) as int;
+        final int lastIndex = AppHiveController().lastIndex;
+        final int lastPos = AppHiveController().lastPos;
 
         if (lastQueueList.isNotEmpty &&
             lastQueueList.first['genre'] != 'YouTube') {
@@ -305,17 +277,9 @@ class AudioPlayerHandlerImpl extends BaseAudioHandler
           } else {
             await _playlist.addAll(_itemsToSources(lastQueue));
             try {
-              await _player!.setAudioSource(
-                _playlist,
-                // commented out due to some bug in audio_service which causes app to freeze
-                // instead manually seeking after audiosource initialised
-
-                // initialIndex: lastIndex,
-                // initialPosition: Duration(seconds: lastPos),
-              );
+              await _player!.setAudioSource(_playlist,);
               if (lastIndex != 0 || lastPos > 0) {
-                await _player!
-                    .seek(Duration(seconds: lastPos), index: lastIndex);
+                await _player!.seek(Duration(seconds: lastPos), index: lastIndex);
               }
             } catch (e) {
               Logger.root.severe('Error while setting last audiosource', e);
@@ -346,14 +310,14 @@ class AudioPlayerHandlerImpl extends BaseAudioHandler
   }
 
   Future<void> refreshLink(Map newData) async {
-    Logger.root.info('player | received new link for ${newData['title']}');
+    AppUtilities.logger.i('player | received new link for ${newData['title']}');
     final MediaItem newItem = MediaItemConverter.mapToMediaItem(newData);
     // final String? boxName = mediaItem.extras!['playlistBox']?.toString();
     // if (boxName != null) {
-    //   Logger.root.info('linked with playlist $boxName');
+    //   AppUtilities.logger.i('linked with playlist $boxName');
     //   if (Hive.box(mediaItem.extras!['playlistBox'].toString())
     //       .containsKey(mediaItem.id)) {
-    //     Logger.root.info('updating item in playlist $boxName');
+    //     AppUtilities.logger.i('updating item in playlist $boxName');
     //     Hive.box(mediaItem.extras!['playlistBox'].toString()).put(
     //       mediaItem.id,
     //       MediaItemConverter.mediaItemToMap(newItem),
@@ -364,7 +328,7 @@ class AudioPlayerHandlerImpl extends BaseAudioHandler
     //     // );
     //   }
     // }
-    // Logger.root.info('player | inserting refreshed item');
+    // AppUtilities.logger.i('player | inserting refreshed item');
     // late AudioSource audioSource;
     // if (cacheSong) {
     //   audioSource = LockCachingAudioSource(
@@ -388,19 +352,14 @@ class AudioPlayerHandlerImpl extends BaseAudioHandler
     addQueueItem(newItem);
   }
 
-  AudioSource? _itemToSource(MediaItem mediaItem) {
+  Future<AudioSource?> _itemToSource(MediaItem mediaItem) async {
     AudioSource? audioSource;
     if (mediaItem.artUri.toString().startsWith('file:')) {
-      audioSource =
-          AudioSource.uri(Uri.file(mediaItem.extras!['url'].toString()));
+      audioSource = AudioSource.uri(Uri.file(mediaItem.extras!['url'].toString()));
     } else {
-      if (downloadsBox != null &&
-          downloadsBox!.containsKey(mediaItem.id) &&
-          useDown) {
+      if (downloadsBox != null && downloadsBox!.containsKey(mediaItem.id) && useDownload) {
         audioSource = AudioSource.uri(
-          Uri.file(
-            (downloadsBox!.get(mediaItem.id) as Map)['path'].toString(),
-          ),
+          Uri.file((downloadsBox!.get(mediaItem.id) as Map)['path'].toString(),),
           tag: mediaItem.id,
         );
       } else {
@@ -408,18 +367,14 @@ class AudioPlayerHandlerImpl extends BaseAudioHandler
           final int expiredAt =
               int.parse((mediaItem.extras!['expire_at'] ?? '0').toString());
           if ((DateTime.now().millisecondsSinceEpoch ~/ 1000) + 350 >
-              expiredAt) {
-            // Logger.root.info(
-            //   'player | youtube link expired for ${mediaItem.title}, searching cache',
-            // );
+              expiredAt) {            
             if (Hive.box(AppHiveConstants.ytLinkCache).containsKey(mediaItem.id)) {
-              final Map cachedData =
-                  Hive.box(AppHiveConstants.ytLinkCache).get(mediaItem.id) as Map;
+              final Map cachedData = await AppHiveController().getYouTubeCache(mediaItem.id);
               final int cachedExpiredAt =
                   int.parse(cachedData['expire_at'].toString());
               if ((DateTime.now().millisecondsSinceEpoch ~/ 1000) + 350 >
                   cachedExpiredAt) {
-                Logger.root.info(
+                AppUtilities.logger.i(
                   'youtube link expired for ${mediaItem.title}, refreshing',
                 );
                 refreshLinks.add(mediaItem.id);
@@ -427,8 +382,7 @@ class AudioPlayerHandlerImpl extends BaseAudioHandler
                   refreshJob();
                 }
               } else {
-                Logger.root.info(
-                  'youtube link found in cache for ${mediaItem.title}',
+                AppUtilities.logger.i('youtube link found in cache for ${mediaItem.title}',
                 );
                 if (cacheSong) {
                   audioSource = LockCachingAudioSource(
@@ -443,7 +397,7 @@ class AudioPlayerHandlerImpl extends BaseAudioHandler
                 return audioSource;
               }
             } else {
-              Logger.root.info(
+              AppUtilities.logger.i(
                 'youtube link not found in cache for ${mediaItem.title}, refreshing',
               );
               refreshLinks.add(mediaItem.id);
@@ -465,24 +419,18 @@ class AudioPlayerHandlerImpl extends BaseAudioHandler
             return audioSource;
           }
         } else {
+          String audioUrl = '';
+
+          if(mediaItem.extras!['url'] != null
+              && mediaItem.extras!['url'].toString().isNotEmpty) {
+            audioUrl = mediaItem.extras!['url'].toString();
+            audioUrl = audioUrl.replaceAll('_96.', "_${preferredQuality.replaceAll(' kbps', '')}.");
+          }
+
           if (cacheSong) {
-            audioSource = LockCachingAudioSource(
-              Uri.parse(
-                mediaItem.extras!['url'].toString().replaceAll(
-                      '_96.',
-                      "_${preferredQuality.replaceAll(' kbps', '')}.",
-                    ),
-              ),
-            );
+            audioSource = LockCachingAudioSource(Uri.parse(audioUrl));
           } else {
-            audioSource = AudioSource.uri(
-              Uri.parse(
-                mediaItem.extras!['url'].toString().replaceAll(
-                      '_96.',
-                      "_${preferredQuality.replaceAll(' kbps', '')}.",
-                    ),
-              ),
-            );
+            audioSource = AudioSource.uri(Uri.parse(audioUrl));
           }
         }
       }
@@ -494,25 +442,12 @@ class AudioPlayerHandlerImpl extends BaseAudioHandler
   }
 
   List<AudioSource> _itemsToSources(List<MediaItem> mediaItems) {
-    preferredMobileQuality = Hive.box('settings')
-        .get('streamingQuality', defaultValue: '96 kbps')
-        .toString();
-    preferredWifiQuality = Hive.box('settings')
-        .get('streamingWifiQuality', defaultValue: '320 kbps')
-        .toString();
-    preferredQuality = connectionType == 'wifi'
-        ? preferredWifiQuality
-        : preferredMobileQuality;
-    cacheSong =
-        Hive.box(AppHiveConstants.settings).get('cacheSong', defaultValue: true) as bool;
-    useDown = Hive.box(AppHiveConstants.settings).get('useDown', defaultValue: true) as bool;
     return mediaItems.map(_itemToSource).whereType<AudioSource>().toList();
   }
 
   @override
   Future<void> onTaskRemoved() async {
-    final bool stopForegroundService = Hive.box('settings')
-        .get('stopForegroundService', defaultValue: true) as bool;
+    final bool stopForegroundService = AppHiveController().stopForegroundService;
     if (stopForegroundService) {
       await stop();
     }
@@ -547,49 +482,13 @@ class AudioPlayerHandlerImpl extends BaseAudioHandler
   }
 
   Future<void> startService() async {
-    bool withPipeline = false;
-    if (Hive.isBoxOpen('settings')) {
-      withPipeline =
-          Hive.box(AppHiveConstants.settings).get('supportEq', defaultValue: false) as bool;
-    }
-    if (withPipeline && Platform.isAndroid) {
-      Logger.root.info('starting with eq pipeline');
-      final AudioPipeline pipeline = AudioPipeline(
-        androidAudioEffects: [
-          _equalizer,
-        ],
-      );
-      _player = AudioPlayer(audioPipeline: pipeline);
-
-      // Enable equalizer if used earlier
-      Logger.root.info('setting eq enabled');
-      final eqValue =
-          Hive.box(AppHiveConstants.settings).get('setEqualizer', defaultValue: false) as bool;
-      _equalizer.setEnabled(eqValue);
-
-      // set equalizer params & bands
-      _equalizer.parameters.then((value) {
-        Logger.root.info('setting eq params');
-        _equalizerParams ??= value;
-
-        final List<AndroidEqualizerBand> bands = _equalizerParams!.bands;
-        bands.map(
-          (e) {
-            final gain = Hive.box('settings')
-                .get('equalizerBand${e.index}', defaultValue: 0.5) as double;
-            _equalizerParams!.bands[e.index].setGain(gain);
-          },
-        );
-      });
-    } else {
-      Logger.root.info('starting without eq pipeline');
-      _player = AudioPlayer();
-    }
+    AppUtilities.logger.i('Starting AudioPlayer Service');
+    _player = AudioPlayer();
   }
 
   Future<void> addRecentlyPlayed(MediaItem mediaitem) async {
-    Logger.root.info('adding ${mediaitem.id} to recently played');
-    List recentList = await Hive.box('cache')
+    AppUtilities.logger.i('adding ${mediaitem.id} to recently played');
+    List recentList = await Hive.box(AppHiveConstants.cache)
         .get('recentSongs', defaultValue: [])?.toList() as List;
 
     final Map songStats =
@@ -611,7 +510,7 @@ class AudioPlayerHandlerImpl extends BaseAudioHandler
         (mostPlayed['playCount'] as int? ?? 0)) {
       Hive.box(AppHiveConstants.stats).put('mostPlayed', songStats);
     }
-    Logger.root.info('adding ${mediaitem.id} data to stats');
+    AppUtilities.logger.i('adding ${mediaitem.id} data to stats');
 
     final Map item = MediaItemConverter.mediaItemToMap(mediaitem);
     recentList.insert(0, item);
@@ -628,7 +527,7 @@ class AudioPlayerHandlerImpl extends BaseAudioHandler
 
   Future<void> addLastQueue(List<MediaItem> queue) async {
     if (queue.isNotEmpty && queue.first.genre != 'YouTube') {
-      Logger.root.info('saving last queue');
+      AppUtilities.logger.i('saving last queue');
       final lastQueue =
           queue.map((item) => MediaItemConverter.mediaItemToMap(item)).toList();
       Hive.box(AppHiveConstants.cache).put('lastQueue', lastQueue);
@@ -646,7 +545,7 @@ class AudioPlayerHandlerImpl extends BaseAudioHandler
 
   @override
   Future<void> addQueueItem(MediaItem mediaItem) async {
-    final res = _itemToSource(mediaItem);
+    final res = await _itemToSource(mediaItem);
     if (res != null) {
       await _playlist.add(res);
     }
@@ -659,7 +558,7 @@ class AudioPlayerHandlerImpl extends BaseAudioHandler
 
   @override
   Future<void> insertQueueItem(int index, MediaItem mediaItem) async {
-    final res = _itemToSource(mediaItem);
+    final res = await _itemToSource(mediaItem);
     if (res != null) {
       await _playlist.insert(index, res);
     }
@@ -720,7 +619,7 @@ class AudioPlayerHandlerImpl extends BaseAudioHandler
   @override
   Future<void> fastForward() async {
     if (mediaItem.value?.id != null) {
-      addItemToPlaylist('Favorite Songs', mediaItem.value!);
+      PlaylistHiveController().addItemToPlaylist(AppHiveConstants.favoriteSongs, mediaItem.value!);
       _broadcastState(_player!.playbackEvent);
     }
   }
@@ -728,7 +627,7 @@ class AudioPlayerHandlerImpl extends BaseAudioHandler
   @override
   Future<void> rewind() async {
     if (mediaItem.value?.id != null) {
-      removeLiked(mediaItem.value!.id);
+      PlaylistHiveController().removeLiked(mediaItem.value!.id);
       _broadcastState(_player!.playbackEvent);
     }
   }
@@ -751,11 +650,7 @@ class AudioPlayerHandlerImpl extends BaseAudioHandler
   @override
   Future<void> skipToQueueItem(int index) async {
     if (index < 0 || index >= _playlist.children.length) return;
-
-    _player!.seek(
-      Duration.zero,
-      index:
-          _player!.shuffleModeEnabled ? _player!.shuffleIndices![index] : index,
+    _player!.seek(Duration.zero, index: _player!.shuffleModeEnabled ? _player!.shuffleIndices![index] : index,
     );
   }
 
@@ -775,12 +670,12 @@ class AudioPlayerHandlerImpl extends BaseAudioHandler
 
   @override
   Future<void> stop() async {
-    Logger.root.info('stopping player');
+    AppUtilities.logger.i('stopping player');
     await _player!.stop();
     await playbackState.firstWhere(
       (state) => state.processingState == AudioProcessingState.idle,
     );
-    Logger.root.info('caching last index and position');
+    AppUtilities.logger.i('caching last index and position');
     await Hive.box(AppHiveConstants.cache).put('lastIndex', _player!.currentIndex);
     await Hive.box(AppHiveConstants.cache).put('lastPos', _player!.position.inSeconds);
     await addLastQueue(queue.valueWrapper!.value);
@@ -804,16 +699,6 @@ class AudioPlayerHandlerImpl extends BaseAudioHandler
           extras['count'] > 0 as bool) {
         count = extras['count'] as int;
       }
-    }
-
-    if (name == 'setBandGain') {
-      final bandIdx = extras!['band'] as int;
-      final gain = extras['gain'] as double;
-      _equalizerParams!.bands[bandIdx].setGain(gain);
-    }
-
-    if (name == 'setEqualizer') {
-      _equalizer.setEnabled(extras!['value'] as bool);
     }
 
     if (name == 'fastForward') {
@@ -840,10 +725,6 @@ class AudioPlayerHandlerImpl extends BaseAudioHandler
       }
     }
 
-    if (name == 'getEqualizerParams') {
-      return getEqParms();
-    }
-
     if (name == 'refreshLink') {
       if (extras?['newData'] != null) {
         refreshLink(extras!['newData'] as Map);
@@ -854,26 +735,6 @@ class AudioPlayerHandlerImpl extends BaseAudioHandler
       skipToMediaItem(extras!['id'].toString());
     }
     return super.customAction(name, extras);
-  }
-
-  Future<Map> getEqParms() async {
-    _equalizerParams ??= await _equalizer.parameters;
-    final List<AndroidEqualizerBand> bands = _equalizerParams!.bands;
-    final List<Map> bandList = bands
-        .map(
-          (e) => {
-            'centerFrequency': e.centerFrequency,
-            'gain': e.gain,
-            'index': e.index
-          },
-        )
-        .toList();
-
-    return {
-      'maxDecibels': _equalizerParams!.maxDecibels,
-      'minDecibels': _equalizerParams!.minDecibels,
-      'bands': bandList
-    };
   }
 
   @override
@@ -953,7 +814,7 @@ class AudioPlayerHandlerImpl extends BaseAudioHandler
     final playing = _player!.playing;
     bool liked = false;
     if (mediaItem.value != null) {
-      liked = checkPlaylist('Favorite Songs', mediaItem.value!.id);
+      liked = PlaylistHiveController().checkPlaylist(AppHiveConstants.favoriteSongs, mediaItem.value!.id);
     }
     final queueIndex = getQueueIndex(
       event.currentIndex,

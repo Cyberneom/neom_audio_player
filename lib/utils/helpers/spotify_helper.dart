@@ -19,18 +19,32 @@
 
 import 'package:app_links/app_links.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:neom_music_player/data/api_services/APIs/spotify_api.dart';
+import 'package:neom_music_player/data/api_services/spotify/spotify_api_calls.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+
+Future<String> getSpotifyToken() async {
+  String spotifyAccessToken = await SpotifyApiCalls.getSpotifyToken();
+
+  if(spotifyAccessToken.isNotEmpty) {
+    Hive.box(AppHiveConstants.settings).put('spotifyAccessToken', spotifyAccessToken);
+    Hive.box(AppHiveConstants.settings).put('spotifySigned', true);
+    // userController.user!.spotifyAccessToken = spotifyAccessToken;
+    // await UserFirestore().updateSpotifyToken(userController.user!.id, spotifyAccessToken);
+  }
+
+  return spotifyAccessToken;
+}
+
 Future<String?> retriveAccessToken() async {
-  String? accessToken = Hive.box('settings')
+  String? accessToken = Hive.box(AppHiveConstants.settings)
       .get('spotifyAccessToken', defaultValue: null)
       ?.toString();
-  String? refreshToken = Hive.box('settings')
+  String? refreshToken = Hive.box(AppHiveConstants.settings)
       .get('spotifyRefreshToken', defaultValue: null)
       ?.toString();
-  final double expiredAt = Hive.box('settings')
+  final double expiredAt = Hive.box(AppHiveConstants.settings)
       .get('spotifyTokenExpireAt', defaultValue: 0.0) as double;
 
   if (accessToken == null || refreshToken == null) {
@@ -38,8 +52,8 @@ Future<String?> retriveAccessToken() async {
   } else {
     final currentTime = DateTime.now().millisecondsSinceEpoch / 1000;
     if ((currentTime + 60) >= expiredAt) {
-      final List<String> data =
-          await SpotifyApi().getAccessToken(refreshToken: refreshToken);
+      final List<String> data = await SpotifyApiCalls().getAccessToken(refreshToken: refreshToken);
+
       if (data.isNotEmpty) {
         Hive.box(AppHiveConstants.settings).put('spotifySigned', true);
         accessToken = data[0];
@@ -48,8 +62,7 @@ Future<String?> retriveAccessToken() async {
           refreshToken = data[1];
           Hive.box(AppHiveConstants.settings).put('spotifyRefreshToken', data[1]);
         }
-        Hive.box('settings')
-            .put('spotifyTokenExpireAt', currentTime + double.parse(data[2]));
+        Hive.box(AppHiveConstants.settings).put('spotifyTokenExpireAt', currentTime + double.parse(data[2]));
       }
     }
     return accessToken;
@@ -67,7 +80,7 @@ Future<void> callSpotifyFunction({
   if (accessToken == null && forceSign) {
     launchUrl(
       Uri.parse(
-        SpotifyApi().requestAuthorization(),
+        SpotifyApiCalls().requestAuthorization(),
       ),
       mode: LaunchMode.externalApplication,
     );
@@ -80,7 +93,7 @@ Future<void> callSpotifyFunction({
           Hive.box(AppHiveConstants.settings).put('spotifyAppCode', code);
           final currentTime = DateTime.now().millisecondsSinceEpoch / 1000;
           final List<String> data =
-              await SpotifyApi().getAccessToken(code: code);
+              await SpotifyApiCalls().getAccessToken(code: code);
           if (data.isNotEmpty) {
             Hive.box(AppHiveConstants.settings).put('spotifyAccessToken', data[0]);
             Hive.box(AppHiveConstants.settings).put('spotifyRefreshToken', data[1]);

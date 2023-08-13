@@ -23,13 +23,13 @@ import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
+import 'package:neom_music_player/data/implementations/playlist_hive_controller.dart';
 import 'package:neom_music_player/ui/widgets/collage.dart';
 import 'package:neom_music_player/ui/widgets/gradient_containers.dart';
 import 'package:neom_music_player/ui/widgets/snackbar.dart';
 import 'package:neom_music_player/ui/widgets/textinput_dialog.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
 import 'package:neom_music_player/utils/helpers/audio_query.dart';
-import 'package:neom_music_player/utils/helpers/playlist.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 import 'package:get/get.dart';
@@ -141,9 +141,9 @@ class AddToOffPlaylist {
 }
 
 class AddToPlaylist {
-  Box settingsBox = Hive.box('settings');
-  List playlistNames = Hive.box('settings')
-      .get('playlistNames', defaultValue: ['Favorite Songs']) as List;
+  Box settingsBox = Hive.box(AppHiveConstants.settings);
+  List playlistNames = Hive.box(AppHiveConstants.settings)
+      .get('playlistNames', defaultValue: [AppHiveConstants.favoriteSongs]) as List;
   Map playlistDetails =
       Hive.box(AppHiveConstants.settings).get('playlistDetails', defaultValue: {}) as Map;
 
@@ -236,7 +236,7 @@ class AddToPlaylist {
                         onTap: () {
                           Navigator.pop(context);
                           if (mediaItem != null) {
-                            addItemToPlaylist(
+                            PlaylistHiveController().addItemToPlaylist(
                               playlistNames[index].toString(),
                               mediaItem,
                             );

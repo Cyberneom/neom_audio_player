@@ -211,7 +211,7 @@ class _SearchBarState extends State<SearchBar> {
                       if (submittedQuery.trim() != '') {
                         query = submittedQuery.trim();
                         widget.onSubmitted(submittedQuery);
-                        List searchQueries = Hive.box('settings')
+                        List searchQueries = Hive.box(AppHiveConstants.settings)
                             .get('search', defaultValue: []) as List;
                         if (searchQueries.contains(query)) {
                           searchQueries.remove(query);
@@ -342,7 +342,7 @@ class _SearchBarState extends State<SearchBar> {
                                           searchQueries =
                                               searchQueries.sublist(0, 10);
                                         }
-                                        Hive.box('settings')
+                                        Hive.box(AppHiveConstants.settings)
                                             .put('search', searchQueries);
                                       },
                                     );

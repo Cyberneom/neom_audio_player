@@ -23,7 +23,8 @@ import 'dart:typed_data';
 import 'package:dart_des/dart_des.dart';
 import 'package:hive/hive.dart';
 import 'package:logging/logging.dart';
-import 'package:neom_music_player/data/api_services/APIs/api.dart';
+import 'package:neom_music_player/data/api_services/APIs/saavn_api.dart';
+import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
 import 'package:neom_music_player/utils/helpers/extensions.dart';
 import 'package:neom_music_player/utils/helpers/image_resolution_modifier.dart';
 
@@ -551,12 +552,12 @@ class FormatResponse {
         final Map item = list[i] as Map;
         if (item['type'] == 'song') {
           if (item['mini_obj'] as bool? ?? false) {
-            Map cachedDetails = Hive.box('cache')
+            Map cachedDetails = Hive.box(AppHiveConstants.cache)
                 .get(item['id'].toString(), defaultValue: {}) as Map;
             if (cachedDetails.isEmpty) {
               cachedDetails =
                   await SaavnAPI().fetchSongDetails(item['id'].toString());
-              Hive.box('cache')
+              Hive.box(AppHiveConstants.cache)
                   .put(cachedDetails['id'].toString(), cachedDetails);
             }
             list[i] = cachedDetails;

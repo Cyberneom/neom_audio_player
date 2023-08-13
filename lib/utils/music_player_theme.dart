@@ -22,12 +22,9 @@ import 'package:hive/hive.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
 
 class MusicPlayerTheme with ChangeNotifier {
-  bool _isDark =
-      Hive.box(AppHiveConstants.settings).get('darkMode', defaultValue: true) as bool;
 
   bool _useSystemTheme =
       Hive.box(AppHiveConstants.settings).get('useSystemTheme', defaultValue: false) as bool;
-
   String accentColor =
       Hive.box(AppHiveConstants.settings).get('themeColor', defaultValue: 'Teal') as String;
   String canvasColor =
@@ -135,16 +132,12 @@ class MusicPlayerTheme with ChangeNotifier {
 
   void refresh() {
     final Box settingsBox = Hive.box(AppHiveConstants.settings);
-    _isDark = settingsBox.get('darkMode', defaultValue: true) as bool;
 
-    _useSystemTheme =
-        settingsBox.get('useSystemTheme', defaultValue: false) as bool;
+    _useSystemTheme = settingsBox.get('useSystemTheme', defaultValue: false) as bool;
 
     accentColor = settingsBox.get('themeColor', defaultValue: 'Teal') as String;
-    canvasColor =
-        settingsBox.get('canvasColor', defaultValue: 'Grey') as String;
+    canvasColor = settingsBox.get('canvasColor', defaultValue: 'Grey') as String;
     cardColor = settingsBox.get('cardColor', defaultValue: 'Grey900') as String;
-
     backGrad = settingsBox.get('backGrad', defaultValue: 2) as int;
     cardGrad = settingsBox.get('cardGrad', defaultValue: 4) as int;
     bottomGrad = settingsBox.get('bottomGrad', defaultValue: 3) as int;
@@ -153,14 +146,11 @@ class MusicPlayerTheme with ChangeNotifier {
     notifyListeners();
   }
 
-  void switchTheme({bool? useSystemTheme, bool? isDark, bool notify = true}) {
-    if (isDark != null) {
-      _isDark = isDark;
-    }
+  void switchTheme({bool? useSystemTheme, bool notify = true}) {
     if (useSystemTheme != null) {
       _useSystemTheme = useSystemTheme;
     }
-    Hive.box(AppHiveConstants.settings).put('darkMode', _isDark);
+
     Hive.box(AppHiveConstants.settings).put('useSystemTheme', _useSystemTheme);
     if (notify) notifyListeners();
   }
@@ -177,7 +167,7 @@ class MusicPlayerTheme with ChangeNotifier {
     if (_useSystemTheme == true) {
       return ThemeMode.system;
     } else {
-      return _isDark ? ThemeMode.dark : ThemeMode.light;
+      return ThemeMode.dark;
     }
   }
 
@@ -223,7 +213,7 @@ class MusicPlayerTheme with ChangeNotifier {
         return Colors.white;
 
       default:
-        return _isDark ? Colors.tealAccent[400]! : Colors.lightBlueAccent[400]!;
+        return Colors.tealAccent[400]!;
     }
   }
 
@@ -311,7 +301,7 @@ class MusicPlayerTheme with ChangeNotifier {
         return Colors.white;
 
       default:
-        return _isDark ? Colors.tealAccent[400]! : Colors.lightBlueAccent[400]!;
+        return Colors.tealAccent[400]!;
     }
   }
 
@@ -321,7 +311,7 @@ class MusicPlayerTheme with ChangeNotifier {
     Hive.box(AppHiveConstants.settings).put('userThemes', {
       ...userThemes,
       themeName: {
-        'isDark': _isDark,
+        'isDark': true,
         'useSystemTheme': _useSystemTheme,
         'accentColor': accentColor,
         'canvasColor': canvasColor,

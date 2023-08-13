@@ -20,7 +20,6 @@
 import 'package:flutter/material.dart';
 
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:logging/logging.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
@@ -41,16 +40,16 @@ class PlaylistPage extends StatefulWidget {
 }
 
 class _PlaylistPageState extends State<PlaylistPage> {
-  final Box settingsBox = Hive.box('settings');
+  final Box settingsBox = Hive.box(AppHiveConstants.settings);
   final List playlistNames =
       Hive.box(AppHiveConstants.settings).get('playlistNames')?.toList() as List? ??
-          ['Favorite Songs'];
+          [AppHiveConstants.favoriteSongs];
   Map playlistDetails =
       Hive.box(AppHiveConstants.settings).get('playlistDetails', defaultValue: {}) as Map;
   @override
   Widget build(BuildContext context) {
-    if (!playlistNames.contains('Favorite Songs')) {
-      playlistNames.insert(0, 'Favorite Songs');
+    if (!playlistNames.contains(AppHiveConstants.favoriteSongs)) {
+      playlistNames.insert(0, AppHiveConstants.favoriteSongs);
       settingsBox.put('playlistNames', playlistNames);
     }
 
@@ -135,9 +134,9 @@ class _PlaylistPageState extends State<PlaylistPage> {
                 ) {
                   final List playlistNamesValue = box.get(
                         'playlistNames',
-                        defaultValue: ['Favorite Songs'],
+                        defaultValue: [AppHiveConstants.favoriteSongs],
                       )?.toList() as List? ??
-                      ['Favorite Songs'];
+                      [AppHiveConstants.favoriteSongs];
                   return ListView.builder(
                     physics: const NeverScrollableScrollPhysics(),
                     shrinkWrap: true,
@@ -162,7 +161,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
                                 child: SizedBox(
                                   height: 50,
                                   width: 50,
-                                  child: name == 'Favorite Songs'
+                                  child: name == AppHiveConstants.favoriteSongs
                                       ? const Image(
                                           image: AssetImage(
                                             AppAssets.musicPlayerCover,
@@ -349,7 +348,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
                             }
                           },
                           itemBuilder: (context) => [
-                            if (name != 'Favorite Songs')
+                            if (name != AppHiveConstants.favoriteSongs)
                               PopupMenuItem(
                                 value: 3,
                                 child: Row(
@@ -362,7 +361,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
                                   ],
                                 ),
                               ),
-                            if (name != 'Favorite Songs')
+                            if (name != AppHiveConstants.favoriteSongs)
                               PopupMenuItem(
                                 value: 0,
                                 child: Row(

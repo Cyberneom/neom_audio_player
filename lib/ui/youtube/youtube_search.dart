@@ -22,6 +22,7 @@ import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:logging/logging.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
+import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_music_player/ui/widgets/empty_screen.dart';
 import 'package:neom_music_player/ui/widgets/gradient_containers.dart';
 import 'package:neom_music_player/ui/widgets/image_card.dart';
@@ -92,7 +93,7 @@ class _YouTubeSearchPageState extends State<YouTubeSearchPage> {
         fetched = true;
       } else {
         if (searchYtMusic) {
-          Logger.root.info('calling yt music search');
+          AppUtilities.logger.i('calling yt music search');
           YtMusicService()
               .search(query == '' ? widget.query : query)
               .then((value) {
@@ -102,7 +103,7 @@ class _YouTubeSearchPageState extends State<YouTubeSearchPage> {
             });
           });
         } else {
-          Logger.root.info('calling youtube search');
+          AppUtilities.logger.i('calling youtube search');
           YouTubeServices()
               .fetchSearchResults(query == '' ? widget.query : query)
               .then((value) {

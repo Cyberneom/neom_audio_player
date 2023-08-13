@@ -1,22 +1,3 @@
-/*
- *  This file is part of BlackHole (https://github.com/Sangwan5688/BlackHole).
- * 
- * BlackHole is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * BlackHole is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with BlackHole.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * Copyright (c) 2021-2023, Ankit Sangwan
- */
-
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -25,7 +6,7 @@ import 'package:get/get.dart';
 
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
-import 'package:neom_music_player/data/api_services/APIs/api.dart';
+import 'package:neom_music_player/data/api_services/APIs/saavn_api.dart';
 import 'package:neom_music_player/ui/widgets/collage.dart';
 import 'package:neom_music_player/ui/widgets/horizontal_albumlist.dart';
 import 'package:neom_music_player/ui/widgets/horizontal_albumlist_separated.dart';
@@ -45,7 +26,7 @@ import 'package:neom_music_player/utils/constants/player_translation_constants.d
 import 'package:neom_music_player/utils/enums/image_quality.dart';
 
 bool fetched = false;
-List preferredLanguage = Hive.box('settings')
+List preferredLanguage = Hive.box(AppHiveConstants.settings)
     .get('preferredLanguage', defaultValue: ['Hindi']) as List;
 List likedRadio =
     Hive.box(AppHiveConstants.settings).get('likedRadio', defaultValue: []) as List;
@@ -59,17 +40,10 @@ class SaavnHomePage extends StatefulWidget {
 
 class _SaavnHomePageState extends State<SaavnHomePage>
     with AutomaticKeepAliveClientMixin<SaavnHomePage> {
-  List recentList =
-      Hive.box(AppHiveConstants.cache).get('recentSongs', defaultValue: []) as List;
-  Map likedArtists =
-      Hive.box(AppHiveConstants.settings).get('likedArtists', defaultValue: {}) as Map;
-  List blacklistedHomeSections = Hive.box('settings')
-      .get('blacklistedHomeSections', defaultValue: []) as List;
-  List playlistNames =
-      Hive.box(AppHiveConstants.settings).get('playlistNames')?.toList() as List? ??
-          ['Favorite Songs'];
-  Map playlistDetails =
-      Hive.box(AppHiveConstants.settings).get('playlistDetails', defaultValue: {}) as Map;
+  List recentList = Hive.box(AppHiveConstants.cache).get('recentSongs', defaultValue: []) as List;
+  Map likedArtists = Hive.box(AppHiveConstants.settings).get('likedArtists', defaultValue: {}) as Map;
+  List playlistNames = Hive.box(AppHiveConstants.settings).get('playlistNames')?.toList() as List? ?? [AppHiveConstants.favoriteSongs];
+  Map playlistDetails = Hive.box(AppHiveConstants.settings).get('playlistDetails', defaultValue: {}) as Map;
   int recentIndex = 0;
   int playlistIndex = 1;
 
@@ -139,10 +113,10 @@ class _SaavnHomePageState extends State<SaavnHomePage>
       getHomePageData();
       fetched = true;
     }
-    double boxSize =
-        MediaQuery.of(context).size.height > MediaQuery.of(context).size.width
-            ? MediaQuery.of(context).size.width / 2
-            : MediaQuery.of(context).size.height / 2.5;
+    double boxSize = MediaQuery.of(context).size.height
+        > MediaQuery.of(context).size.width
+        ? MediaQuery.of(context).size.width / 2
+        : MediaQuery.of(context).size.height / 2.5;
     if (boxSize > 250) boxSize = 250;
     if (playlistNames.length >= 3) {
       recentIndex = 0;
@@ -273,7 +247,7 @@ class _SaavnHomePageState extends State<SaavnHomePage>
                                             ),
                                           ),
                                           clipBehavior: Clip.antiAlias,
-                                          child: name == 'Favorite Songs'
+                                          child: name == AppHiveConstants.favoriteSongs
                                               ? const Image(
                                                   image: AssetImage(
                                                     AppAssets.musicPlayerCover,
@@ -386,7 +360,7 @@ class _SaavnHomePageState extends State<SaavnHomePage>
                             !(box.get('showPlaylist', defaultValue: true)
                                 as bool) ||
                             (playlistNames.length == 1 &&
-                                playlistNames.first == 'Favorite Songs' &&
+                                playlistNames.first == AppHiveConstants.favoriteSongs &&
                                 likedCount() == 0))
                         ? const SizedBox()
                         : child!;
@@ -433,12 +407,7 @@ class _SaavnHomePageState extends State<SaavnHomePage>
                         ],
                       );
               }
-              return (data[lists[idx]] == null ||
-                      blacklistedHomeSections.contains(
-                        data['modules'][lists[idx]]?['title']
-                            ?.toString()
-                            .toLowerCase(),
-                      ))
+              return (data[lists[idx]] == null)
                   ? const SizedBox()
                   : Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -506,16 +475,6 @@ class _SaavnHomePageState extends State<SaavnHomePage>
                                             ),
                                             onPressed: () async {
                                               Navigator.pop(context);
-                                              blacklistedHomeSections.add(
-                                                data['modules'][lists[idx]]
-                                                        ?['title']
-                                                    ?.toString()
-                                                    .toLowerCase(),
-                                              );
-                                              Hive.box(AppHiveConstants.settings).put(
-                                                'blacklistedHomeSections',
-                                                blacklistedHomeSections,
-                                              );
                                               setState(() {});
                                             },
                                             child: Text(
@@ -810,7 +769,7 @@ class _SaavnHomePageState extends State<SaavnHomePage>
                                                                 .remove(item)
                                                             : likedRadio
                                                                 .add(item);
-                                                        Hive.box('settings')
+                                                        Hive.box(AppHiveConstants.settings)
                                                             .put(
                                                           'likedRadio',
                                                           likedRadio,

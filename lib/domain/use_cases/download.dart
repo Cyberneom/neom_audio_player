@@ -23,20 +23,21 @@ import 'package:audiotagger/audiotagger.dart';
 import 'package:audiotagger/models/tag.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 // import 'package:flutter_downloader/flutter_downloader.dart';
 
 import 'package:hive/hive.dart';
 import 'package:http/http.dart';
 import 'package:logging/logging.dart';
 import 'package:metadata_god/metadata_god.dart';
+import 'package:neom_commons/core/utils/app_utilities.dart';
+import 'package:neom_music_player/domain/use_cases/ext_storage_provider.dart';
 import 'package:neom_music_player/ui/widgets/snackbar.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
-import 'package:neom_music_player/utils/helpers/lyrics.dart';
-import 'package:neom_music_player/domain/use_cases/ext_storage_provider.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
+import 'package:neom_music_player/utils/helpers/lyrics.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:get/get.dart';
 
 class Download with ChangeNotifier {
   static final Map<String, Download> _instances = {};
@@ -56,16 +57,16 @@ class Download with ChangeNotifier {
 
   int? rememberOption;
   final ValueNotifier<bool> remember = ValueNotifier<bool>(false);
-  String preferredDownloadQuality = Hive.box('settings')
+  String preferredDownloadQuality = Hive.box(AppHiveConstants.settings)
       .get('downloadQuality', defaultValue: '320 kbps') as String;
-  String preferredYtDownloadQuality = Hive.box('settings')
+  String preferredYtDownloadQuality = Hive.box(AppHiveConstants.settings)
       .get('ytDownloadQuality', defaultValue: 'High') as String;
-  String downloadFormat = Hive.box('settings')
+  String downloadFormat = Hive.box(AppHiveConstants.settings)
       .get('downloadFormat', defaultValue: 'm4a')
       .toString();
-  bool createDownloadFolder = Hive.box('settings')
+  bool createDownloadFolder = Hive.box(AppHiveConstants.settings)
       .get('createDownloadFolder', defaultValue: false) as bool;
-  bool createYoutubeFolder = Hive.box('settings')
+  bool createYoutubeFolder = Hive.box(AppHiveConstants.settings)
       .get('createYoutubeFolder', defaultValue: false) as bool;
   double? progress = 0.0;
   String lastDownloadId = '';
@@ -79,13 +80,13 @@ class Download with ChangeNotifier {
     bool createFolder = false,
     String? folderName,
   }) async {
-    Logger.root.info('Preparing download for ${data['title']}');
+    AppUtilities.logger.i('Preparing download for ${data['title']}');
     download = true;
     if (Platform.isAndroid || Platform.isIOS) {
-      Logger.root.info('Requesting storage permission');
+      AppUtilities.logger.i('Requesting storage permission');
       PermissionStatus status = await Permission.storage.status;
       if (status.isDenied) {
-        Logger.root.info('Request denied');
+        AppUtilities.logger.i('Request denied');
         await [
           Permission.storage,
           Permission.accessMediaLocation,
@@ -94,7 +95,7 @@ class Download with ChangeNotifier {
       }
       status = await Permission.storage.status;
       if (status.isPermanentlyDenied) {
-        Logger.root.info('Request permanently denied');
+        AppUtilities.logger.i('Request permanently denied');
         await openAppSettings();
       }
     }
@@ -114,7 +115,7 @@ class Download with ChangeNotifier {
     // String filename = '${data["title"]} - ${data["artist"]}';
     String dlPath =
         Hive.box(AppHiveConstants.settings).get('downloadPath', defaultValue: '') as String;
-    Logger.root.info('Cached Download path: $dlPath');
+    AppUtilities.logger.i('Cached Download path: $dlPath');
     if (filename.length > 200) {
       final String temp = filename.substring(0, 200);
       final List tempList = temp.split(', ');
@@ -124,19 +125,19 @@ class Download with ChangeNotifier {
 
     filename = '${filename.replaceAll(avoid, "").replaceAll("  ", " ")}.m4a';
     if (dlPath == '') {
-      Logger.root.info('Cached Download path is empty, getting new path');
+      AppUtilities.logger.i('Cached Download path is empty, getting new path');
       final String? temp = await ExtStorageProvider.getExtStorage(
         dirName: 'Music',
         writeAccess: true,
       );
       dlPath = temp!;
     }
-    Logger.root.info('New Download path: $dlPath');
+    AppUtilities.logger.i('New Download path: $dlPath');
     if (data['url'].toString().contains('google') && createYoutubeFolder) {
-      Logger.root.info('Youtube audio detected, creating Youtube folder');
+      AppUtilities.logger.i('Youtube audio detected, creating Youtube folder');
       dlPath = '$dlPath/YouTube';
       if (!await Directory(dlPath).exists()) {
-        Logger.root.info('Creating Youtube folder');
+        AppUtilities.logger.i('Creating Youtube folder');
         await Directory(dlPath).create();
       }
     }
@@ -145,14 +146,14 @@ class Download with ChangeNotifier {
       final String foldername = folderName.replaceAll(avoid, '');
       dlPath = '$dlPath/$foldername';
       if (!await Directory(dlPath).exists()) {
-        Logger.root.info('Creating folder $foldername');
+        AppUtilities.logger.i('Creating folder $foldername');
         await Directory(dlPath).create();
       }
     }
 
     final bool exists = await File('$dlPath/$filename').exists();
     if (exists) {
-      Logger.root.info('File already exists');
+      AppUtilities.logger.i('File already exists');
       if (remember.value == true && rememberOption != null) {
         switch (rememberOption) {
           case 0:
@@ -309,7 +310,7 @@ class Download with ChangeNotifier {
     String fileName,
     Map data,
   ) async {
-    Logger.root.info('processing download');
+    AppUtilities.logger.i('processing download');
     progress = null;
     notifyListeners();
     String? filepath;
@@ -319,7 +320,7 @@ class Download with ChangeNotifier {
     String lyrics = '';
     final artname = fileName.replaceAll('.m4a', '.jpg');
     if (!Platform.isWindows) {
-      Logger.root.info('Getting App Path for storing image');
+      AppUtilities.logger.i('Getting App Path for storing image');
       appPath = Hive.box(AppHiveConstants.settings).get('tempDirPath')?.toString();
       appPath ??= (await getTemporaryDirectory()).path;
     } else {
@@ -328,11 +329,11 @@ class Download with ChangeNotifier {
     }
 
     try {
-      Logger.root.info('Creating audio file $dlPath/$fileName');
+      AppUtilities.logger.i('Creating audio file $dlPath/$fileName');
       await File('$dlPath/$fileName')
           .create(recursive: true)
           .then((value) => filepath = value.path);
-      Logger.root.info('Creating image file $appPath/$artname');
+      AppUtilities.logger.i('Creating image file $appPath/$artname');
       await File('$appPath/$artname')
           .create(recursive: true)
           .then((value) => filepath2 = value.path);
@@ -342,7 +343,7 @@ class Download with ChangeNotifier {
       if (Platform.isAndroid) {
         PermissionStatus status = await Permission.manageExternalStorage.status;
         if (status.isDenied) {
-          Logger.root.info(
+          AppUtilities.logger.i(
             'ManageExternalStorage permission is denied, requesting permission',
           );
           await [
@@ -351,19 +352,19 @@ class Download with ChangeNotifier {
         }
         status = await Permission.manageExternalStorage.status;
         if (status.isPermanentlyDenied) {
-          Logger.root.info(
+          AppUtilities.logger.i(
             'ManageExternalStorage Request is permanently denied, opening settings',
           );
           await openAppSettings();
         }
       }
 
-      Logger.root.info('Retrying to create audio file');
+      AppUtilities.logger.i('Retrying to create audio file');
       await File('$dlPath/$fileName')
           .create(recursive: true)
           .then((value) => filepath = value.path);
 
-      Logger.root.info('Retrying to create image file');
+      AppUtilities.logger.i('Retrying to create image file');
       await File('$appPath/$artname')
           .create(recursive: true)
           .then((value) => filepath2 = value.path);
@@ -371,7 +372,7 @@ class Download with ChangeNotifier {
     String kUrl = data['url'].toString();
 
     if (data['url'].toString().contains('google')) {
-      Logger.root.info('Fetching youtube download url with preferred quality');
+      AppUtilities.logger.i('Fetching youtube download url with preferred quality');
       // filename = filename.replaceAll('.m4a', '.opus');
 
       kUrl = preferredYtDownloadQuality == 'High'
@@ -381,21 +382,21 @@ class Download with ChangeNotifier {
         kUrl = data['url'].toString();
       }
     } else {
-      Logger.root.info('Fetching jiosaavn download url with preferred quality');
+      AppUtilities.logger.i('Fetching jiosaavn download url with preferred quality');
       kUrl = kUrl.replaceAll(
         '_96.',
         "_${preferredDownloadQuality.replaceAll(' kbps', '')}.",
       );
     }
 
-    Logger.root.info('Connecting to Client');
+    AppUtilities.logger.i('Connecting to Client');
     final client = Client();
     final response = await client.send(Request('GET', Uri.parse(kUrl)));
     final int total = response.contentLength ?? 0;
     int recieved = 0;
-    Logger.root.info('Client connected, Starting download');
+    AppUtilities.logger.i('Client connected, Starting download');
     response.stream.asBroadcastStream();
-    Logger.root.info('broadcasting download state');
+    AppUtilities.logger.i('broadcasting download state');
     response.stream.listen((value) {
       bytes.addAll(value);
       try {
@@ -410,7 +411,7 @@ class Download with ChangeNotifier {
       }
     }).onDone(() async {
       if (download) {
-        Logger.root.info('Download complete, modifying file');
+        AppUtilities.logger.i('Download complete, modifying file');
         final file = File(filepath!);
         await file.writeAsBytes(bytes);
 
@@ -423,9 +424,9 @@ class Download with ChangeNotifier {
 
         await file2.writeAsBytes(bytes2);
         try {
-          Logger.root.info('Checking if lyrics required');
+          AppUtilities.logger.i('Checking if lyrics required');
           if (downloadLyrics) {
-            Logger.root.info('downloading lyrics');
+            AppUtilities.logger.i('downloading lyrics');
             final Map res = await Lyrics.getLyrics(
               id: data['id'].toString(),
               title: data['title'].toString(),
@@ -474,7 +475,7 @@ class Download with ChangeNotifier {
         //   // await File(filepath!).delete();
         //   // filepath = filepath!.replaceAll('.m4a', '.$downloadFormat');
         // }
-        Logger.root.info('Getting audio tags');
+        AppUtilities.logger.i('Getting audio tags');
         if (Platform.isAndroid) {
           try {
             final Tag tag = Tag(
@@ -490,7 +491,7 @@ class Download with ChangeNotifier {
               lyrics: lyrics,
               comment: 'Gigmeout',
             );
-            Logger.root.info('Started tag editing');
+            AppUtilities.logger.i('Started tag editing');
             final tagger = Audiotagger();
             await tagger.writeTags(
               path: filepath!,
@@ -532,13 +533,13 @@ class Download with ChangeNotifier {
             ),
           );
         }
-        Logger.root.info('Closing connection & notifying listeners');
+        AppUtilities.logger.i('Closing connection & notifying listeners');
         client.close();
         lastDownloadId = data['id'].toString();
         progress = 0.0;
         notifyListeners();
 
-        Logger.root.info('Putting data to downloads database');
+        AppUtilities.logger.i('Putting data to downloads database');
         final songData = {
           'id': data['id'].toString(),
           'title': data['title'].toString(),
@@ -563,7 +564,7 @@ class Download with ChangeNotifier {
         };
         Hive.box(AppHiveConstants.downloads).put(songData['id'].toString(), songData);
 
-        Logger.root.info('Everything done, showing snackbar');
+        AppUtilities.logger.i('Everything done, showing snackbar');
         ShowSnackBar().showSnackBar(
           context,
           '"${data['title']}" ${PlayerTranslationConstants.downed.tr}',

@@ -24,14 +24,14 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:logging/logging.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
-import 'package:neom_music_player/data/api_services/APIs/spotify_api.dart';
+import 'package:neom_music_player/data/api_services/spotify/spotify_api_calls.dart';
+import 'package:neom_music_player/data/implementations/playlist_hive_controller.dart';
 import 'package:neom_music_player/ui/widgets/gradient_containers.dart';
 import 'package:neom_music_player/ui/widgets/image_card.dart';
 import 'package:neom_music_player/ui/widgets/snackbar.dart';
 import 'package:neom_music_player/ui/widgets/textinput_dialog.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
 import 'package:neom_music_player/utils/helpers/import_export_playlist.dart';
-import 'package:neom_music_player/utils/helpers/playlist.dart';
 import 'package:neom_music_player/utils/helpers/search_add_playlist.dart';
 import 'package:neom_music_player/utils/helpers/spotify_helper.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
@@ -41,10 +41,10 @@ import 'package:get/get.dart';
 class ImportPlaylist extends StatelessWidget {
   ImportPlaylist({super.key});
 
-  final Box settingsBox = Hive.box('settings');
+  final Box settingsBox = Hive.box(AppHiveConstants.settings);
   final List playlistNames =
       Hive.box(AppHiveConstants.settings).get('playlistNames')?.toList() as List? ??
-          ['Favorite Songs'];
+          [AppHiveConstants.favoriteSongs];
 
   @override
   Widget build(BuildContext context) {
@@ -142,7 +142,7 @@ Future<void> connectToSpotify(
   if (accessToken == null) {
     launchUrl(
       Uri.parse(
-        SpotifyApi().requestAuthorization(),
+        SpotifyApiCalls().requestAuthorization(),
       ),
       mode: LaunchMode.externalApplication,
     );
@@ -155,7 +155,7 @@ Future<void> connectToSpotify(
           settingsBox.put('spotifyAppCode', code);
           final currentTime = DateTime.now().millisecondsSinceEpoch / 1000;
           final List<String> data =
-              await SpotifyApi().getAccessToken(code: code);
+              await SpotifyApiCalls().getAccessToken(code: code);
           if (data.isNotEmpty) {
             settingsBox.put('spotifyAccessToken', data[0]);
             settingsBox.put('spotifyRefreshToken', data[1]);
@@ -376,7 +376,7 @@ Future<void> importJioSaavn(
 
       if (data.isNotEmpty) {
         final String playName = data['title'].toString();
-        addPlaylist(playName, data['tracks'] as List);
+        PlaylistHiveController().addPlaylist(playName, data['tracks'] as List);
         playlistNames.add(playName);
       } else {
         Logger.root.severe('Failed to import JioSaavn playlist. data is empty');
@@ -396,7 +396,7 @@ Future<void> fetchPlaylists(
   Box settingsBox,
 ) async {
   final List spotifyPlaylists =
-      await SpotifyApi().getUserPlaylists(accessToken);
+      await SpotifyApiCalls().getUserPlaylistsV2(accessToken);
   showModalBottomSheet(
     isDismissible: true,
     backgroundColor: AppColor.main75,

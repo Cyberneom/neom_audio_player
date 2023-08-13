@@ -21,6 +21,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart';
 import 'package:logging/logging.dart';
+import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_music_player/utils/helpers/extensions.dart';
 import 'package:neom_music_player/domain/use_cases/ytmusic/nav.dart';
 import 'package:neom_music_player/domain/use_cases/ytmusic/playlist.dart';
@@ -131,7 +132,7 @@ class YtMusicService {
     } else {
       Logger.root
           .severe('YtMusic returned ${response.statusCode}', response.body);
-      Logger.root.info('Requested endpoint: $uri');
+      AppUtilities.logger.i('Requested endpoint: $uri');
       return {};
     }
   }
@@ -255,7 +256,7 @@ class YtMusicService {
       final List<Map> searchResults = [];
       final res = await sendRequest(endpoints['search']!, body, headers);
       if (!res.containsKey('contents')) {
-        Logger.root.info('YtMusic returned no contents');
+        AppUtilities.logger.i('YtMusic returned no contents');
         return List.empty();
       }
 
@@ -273,7 +274,7 @@ class YtMusicService {
           'content'
         ]) as Map<String, dynamic>;
       } else {
-        Logger.root.info('tabbedSearchResultsRenderer not found');
+        AppUtilities.logger.i('tabbedSearchResultsRenderer not found');
         results = res['contents'] as Map<String, dynamic>;
       }
 
@@ -319,7 +320,7 @@ class YtMusicService {
             'text',
             'runs'
           ]) as List;
-          // Logger.root.info('Looping child elements of "$title"');
+          // AppUtilities.logger.i('Looping child elements of "$title"');
           int count = 0;
           String type = '';
           String album = '';
@@ -948,7 +949,7 @@ class YtMusicService {
         'type': 'artist',
       };
     } catch (e) {
-      Logger.root.info('Error in ytmusic getArtistDetails', e);
+      AppUtilities.logger.i('Error in ytmusic getArtistDetails', e);
       return {};
     }
   }

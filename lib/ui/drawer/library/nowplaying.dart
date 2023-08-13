@@ -25,7 +25,7 @@ import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_music_player/ui/widgets/bouncy_sliver_scroll_view.dart';
 import 'package:neom_music_player/ui/widgets/empty_screen.dart';
 import 'package:neom_music_player/ui/widgets/gradient_containers.dart';
-import 'package:neom_music_player/ui/Player/audioplayer.dart';
+import 'package:neom_music_player/ui/player/audioplayer.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
 import 'package:get/get.dart';
 

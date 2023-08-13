@@ -2,7 +2,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
-import 'package:hive/hive.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:neom_commons/core/app_flavour.dart';
 import 'package:neom_commons/core/data/implementations/app_drawer_controller.dart';
@@ -14,7 +13,9 @@ import 'package:neom_commons/core/utils/constants/app_page_id_constants.dart';
 import 'package:neom_commons/core/utils/constants/app_route_constants.dart';
 import 'package:neom_music_player/ui/drawer/library/liked.dart';
 import 'package:neom_music_player/ui/drawer/local_music/downed_songs.dart';
-import 'package:neom_music_player/ui/drawer/settings/new_settings_page.dart';
+import 'package:neom_music_player/ui/drawer/settings/widgets/music_player_settings_page.dart';
+import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
+import 'package:neom_music_player/utils/constants/music_player_route_constants.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
 import 'package:neom_music_player/utils/enums/music_player_drawer_menu.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
@@ -25,11 +26,11 @@ class MusicPlayerDrawer extends StatelessWidget {
 
   final ValueNotifier<int> _selectedIndex = ValueNotifier<int>(0);
 
-  List sectionsToShow = ['Home', 'Top Charts', 'YouTube'];
+  List sectionsToShow = ['Home', 'Spotify', 'YouTube'];
   final PersistentTabController _controller = PersistentTabController();
 
   void callback() {
-    sectionsToShow = ['Home', 'Top Charts', 'YouTube'];
+    sectionsToShow = ['Home', 'Spotify', 'YouTube'];
     onItemTapped(0);
   }
 
@@ -60,12 +61,12 @@ class MusicPlayerDrawer extends StatelessWidget {
                       Obx(()=>_menuHeader(context, _)),
                       const Divider(),
                       drawerRowOption(MusicPlayerDrawerMenu.nowPlaying,  const Icon(Icons.queue_music_rounded,), context),
+                      drawerRowOption(MusicPlayerDrawerMenu.playlists, const Icon(Icons.playlist_play_rounded,), context),
                       drawerRowOption(MusicPlayerDrawerMenu.lastSession, const Icon(Icons.history_rounded), context),
                       drawerRowOption(MusicPlayerDrawerMenu.favorites, const Icon(Icons.favorite_rounded), context),
                       drawerRowOption(MusicPlayerDrawerMenu.myMusic, const Icon(MdiIcons.folderMusic,), context),
-                      drawerRowOption(MusicPlayerDrawerMenu.downloads, const Icon(Icons.download_done_rounded,), context),
-                      drawerRowOption(MusicPlayerDrawerMenu.playlists, const Icon(Icons.playlist_play_rounded,), context),
                       drawerRowOption(MusicPlayerDrawerMenu.stats, const Icon(Icons.download_done_rounded,), context),
+                      drawerRowOption(MusicPlayerDrawerMenu.downloads, const Icon(Icons.download_done_rounded,), context),
                       drawerRowOption(MusicPlayerDrawerMenu.settings, const Icon(Icons.playlist_play_rounded,), context),
                     ],
                   ),
@@ -152,7 +153,7 @@ class MusicPlayerDrawer extends StatelessWidget {
         if(isEnabled) {
           switch(selectedMenu) {
             case MusicPlayerDrawerMenu.nowPlaying:
-              Navigator.pushNamed(context, '/nowplaying');
+              Navigator.pushNamed(context, MusicPlayerRouteConstants.nowPlaying);
             case MusicPlayerDrawerMenu.lastSession:
               Navigator.pushNamed(context, '/recent');
             case MusicPlayerDrawerMenu.favorites:
@@ -160,7 +161,7 @@ class MusicPlayerDrawer extends StatelessWidget {
                 context,
                 MaterialPageRoute(
                   builder: (context) => LikedSongs(
-                    playlistName: 'Favorite Songs',
+                    playlistName: AppHiveConstants.favoriteSongs,
                     showName: PlayerTranslationConstants.favSongs.tr,
                   ),
                 ),
@@ -174,14 +175,14 @@ class MusicPlayerDrawer extends StatelessWidget {
                 ),
               );
             case MusicPlayerDrawerMenu.downloads:
-              Navigator.pushNamed(context, '/downloads');
+              Navigator.pushNamed(context, MusicPlayerRouteConstants.downloads);
             case MusicPlayerDrawerMenu.playlists:
-              Navigator.pushNamed(context, '/playlists');
+              Navigator.pushNamed(context, MusicPlayerRouteConstants.playlists);
             case MusicPlayerDrawerMenu.stats:
-              Navigator.pushNamed(context, '/stats');
+              Navigator.pushNamed(context, MusicPlayerRouteConstants.stats);
             case MusicPlayerDrawerMenu.settings:
               final idx =
-              sectionsToShow.indexOf('Settings');
+              sectionsToShow.indexOf(MusicPlayerRouteConstants.setting);
               if (idx != -1) {
                 if (_selectedIndex.value != idx) {
                   onItemTapped(idx);
@@ -191,7 +192,7 @@ class MusicPlayerDrawer extends StatelessWidget {
                   context,
                   MaterialPageRoute(
                     builder: (context) =>
-                        NewSettingsPage(callback: callback),
+                        MusicPlayerSettingsPage(callback: callback),
                   ),
                 );
               }

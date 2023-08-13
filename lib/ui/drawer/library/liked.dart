@@ -735,7 +735,7 @@ class _SongsTabState extends State<SongsTab>
                           trailing: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              if (widget.playlistName != 'Favorite Songs')
+                              if (widget.playlistName != AppHiveConstants.favoriteSongs)
                                 LikeButton(
                                   mediaItem: null,
                                   data: widget.songs[index] as Map,

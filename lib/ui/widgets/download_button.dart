@@ -22,7 +22,7 @@ import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:neom_music_player/ui/widgets/snackbar.dart';
 import 'package:neom_music_player/domain/use_cases/download.dart';
-import 'package:neom_music_player/data/api_services/APIs/api.dart';
+import 'package:neom_music_player/data/api_services/APIs/saavn_api.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
 import 'package:get/get.dart';
 

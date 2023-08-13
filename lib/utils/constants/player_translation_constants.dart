@@ -164,7 +164,6 @@ class PlayerTranslationConstants {
   static const String importSuccess = 'importSuccess';
   static const String inc = 'inc';
   static const String insta = 'insta';
-  static const String joinTgSub = 'joinTgSub';
   static const String lang = 'lang';
   static const String lastAdded = 'lastAdded';
   static const String lastModified = 'lastModified';
@@ -192,7 +191,8 @@ class PlayerTranslationConstants {
   static const String importSpotify = 'importSpotify';
   static const String importYt = 'importYt';
   static const String ipAdd = 'ipAdd';
-  static const String joinTg = 'joinTg';
+  static const String joinWhats = 'joinWhats';
+  static const String joinWhatsSub = 'joinWhatsSub';
   static const String langQue = 'langQue';
   static const String lastSession = 'lastSession';
   static const String latest = 'latest';

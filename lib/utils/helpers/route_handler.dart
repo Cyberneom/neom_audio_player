@@ -19,14 +19,15 @@
 
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
-import 'package:neom_music_player/data/api_services/APIs/api.dart';
-import 'package:neom_music_player/data/api_services/APIs/spotify_api.dart';
+import 'package:neom_commons/core/utils/app_utilities.dart';
+import 'package:neom_music_player/data/api_services/APIs/saavn_api.dart';
+import 'package:neom_music_player/data/api_services/spotify/spotify_api_calls.dart';
 import 'package:neom_music_player/utils/helpers/audio_query.dart';
 import 'package:neom_music_player/utils/helpers/spotify_helper.dart';
 import 'package:neom_music_player/domain/use_cases/player_service.dart';
 import 'package:neom_music_player/domain/use_cases/youtube_services.dart';
 import 'package:neom_music_player/ui/widgets/song_list.dart';
-import 'package:neom_music_player/ui/Player/audioplayer.dart';
+import 'package:neom_music_player/ui/player/audioplayer.dart';
 import 'package:neom_music_player/ui/Search/search_page.dart';
 import 'package:neom_music_player/ui/YouTube/youtube_playlist.dart';
 import 'package:on_audio_query/on_audio_query.dart';
@@ -34,7 +35,7 @@ import 'package:on_audio_query/on_audio_query.dart';
 // ignore: avoid_classes_with_only_static_members
 class HandleRoute {
   static Route? handleRoute(String? url) {
-    Logger.root.info('received route url: $url');
+    AppUtilities.logger.i('received route url: $url');
     if (url == null) return null;
     if (url.contains('saavn')) {
       final RegExpMatch? songResult =
@@ -63,7 +64,7 @@ class HandleRoute {
       }
     } else if (url.contains('spotify')) {
       // TODO: Add support for spotify links
-      Logger.root.info('received spotify link');
+      AppUtilities.logger.i('received spotify link');
       final RegExpMatch? songResult =
           RegExp(r'.*spotify.com.*?\/(track)\/(.*?)[/?]').firstMatch('$url/');
       if (songResult != null) {
@@ -77,7 +78,7 @@ class HandleRoute {
       }
     } else if (url.contains('youtube') || url.contains('youtu.be')) {
       // TODO: Add support for youtube links
-      Logger.root.info('received youtube link');
+      AppUtilities.logger.i('received youtube link');
       final RegExpMatch? videoId =
           RegExp(r'.*[\?\/](v|list)[=\/](.*?)[\/\?&#]').firstMatch('$url/');
       if (videoId != null) {
@@ -153,7 +154,7 @@ class SpotifyUrlHandler extends StatelessWidget {
     if (type == 'track') {
       callSpotifyFunction(
         function: (String accessToken) {
-          SpotifyApi().getTrackDetails(accessToken, id).then((value) {
+          SpotifyApiCalls().getTrackDetails(accessToken, id).then((value) {
             Navigator.pushReplacement(
               context,
               PageRouteBuilder(

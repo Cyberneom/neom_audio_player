@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 
 import 'package:hive/hive.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
+import 'package:neom_music_player/data/implementations/spotify_hive_controller.dart';
 import 'package:neom_music_player/ui/widgets/box_switch_tile.dart';
 import 'package:neom_music_player/ui/widgets/gradient_containers.dart';
 import 'package:neom_music_player/ui/widgets/snackbar.dart';
 import 'package:neom_music_player/ui/home/saavn.dart' as home_screen;
-import 'package:neom_music_player/ui/spotify/spotify_top_page.dart' as top_screen;
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
-import 'package:neom_music_player/utils/constants/countrycodes.dart';
+import 'package:neom_music_player/utils/constants/music_player_constants.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
 import 'package:get/get.dart';
 
@@ -21,33 +21,16 @@ class MusicPlaybackPage extends StatefulWidget {
 }
 
 class _MusicPlaybackPageState extends State<MusicPlaybackPage> {
-  String streamingMobileQuality = Hive.box('settings')
+  String streamingMobileQuality = Hive.box(AppHiveConstants.settings)
       .get('streamingQuality', defaultValue: '96 kbps') as String;
-  String streamingWifiQuality = Hive.box('settings')
+  String streamingWifiQuality = Hive.box(AppHiveConstants.settings)
       .get('streamingWifiQuality', defaultValue: '320 kbps') as String;
   String ytQuality =
       Hive.box(AppHiveConstants.settings).get('ytQuality', defaultValue: 'Low') as String;
   String region =
       Hive.box(AppHiveConstants.settings).get('region', defaultValue: 'México') as String;
-  List<String> languages = [
-    'Hindi',
-    'English',
-    'Punjabi',
-    'Tamil',
-    'Telugu',
-    'Marathi',
-    'Gujarati',
-    'Bengali',
-    'Kannada',
-    'Bhojpuri',
-    'Malayalam',
-    'Urdu',
-    'Haryanvi',
-    'Rajasthani',
-    'Odia',
-    'Assamese'
-  ];
-  List preferredLanguage = Hive.box('settings')
+
+  List preferredLanguage = Hive.box(AppHiveConstants.settings)
       .get('preferredLanguage', defaultValue: ['Hindi'])?.toList() as List;
 
   @override
@@ -109,6 +92,7 @@ class _MusicPlaybackPageState extends State<MusicPlaybackPage> {
                           borderRadius: BorderRadius.circular(
                             20.0,
                           ),
+                          hasOpacity: true,
                           child: Column(
                             children: [
                               Expanded(
@@ -121,7 +105,7 @@ class _MusicPlaybackPageState extends State<MusicPlaybackPage> {
                                     0,
                                     10,
                                   ),
-                                  itemCount: languages.length,
+                                  itemCount: MusicPlayerConstants.musicLanguages.length,
                                   itemBuilder: (context, idx) {
                                     return CheckboxListTile(
                                       activeColor: Theme.of(context)
@@ -134,16 +118,16 @@ class _MusicPlaybackPageState extends State<MusicPlaybackPage> {
                                           ? Colors.black
                                           : null,
                                       value: checked.contains(
-                                        languages[idx],
+                                        MusicPlayerConstants.musicLanguages[idx],
                                       ),
                                       title: Text(
-                                        languages[idx],
+                                        MusicPlayerConstants.musicLanguages[idx],
                                       ),
                                       onChanged: (bool? value) {
                                         value!
-                                            ? checked.add(languages[idx])
+                                            ? checked.add(MusicPlayerConstants.musicLanguages[idx])
                                             : checked.remove(
-                                                languages[idx],
+                                          MusicPlayerConstants.musicLanguages[idx],
                                               );
                                         setStt(
                                           () {},
@@ -231,7 +215,7 @@ class _MusicPlaybackPageState extends State<MusicPlaybackPage> {
               ),
               dense: true,
               onTap: () async {
-                region = await SpotifyCountry().changeCountry(context: context);
+                region = await SpotifyHiveController().changeCountry(context: context);
                 setState(
                   () {},
                 );
@@ -292,7 +276,7 @@ class _MusicPlaybackPageState extends State<MusicPlaybackPage> {
                     setState(
                       () {
                         streamingWifiQuality = newValue;
-                        Hive.box('settings')
+                        Hive.box(AppHiveConstants.settings)
                             .put('streamingWifiQuality', newValue);
                       },
                     );
@@ -398,72 +382,5 @@ class _MusicPlaybackPageState extends State<MusicPlaybackPage> {
         ),
       ),
     );
-  }
-}
-
-class SpotifyCountry {
-  Future<String> changeCountry({required BuildContext context}) async {
-    String region =
-        Hive.box(AppHiveConstants.settings).get('region', defaultValue: 'México') as String;
-    if (!CountryCodes.localChartCodes.containsKey(region)) {
-      region = 'India';
-    }
-
-    await showModalBottomSheet(
-      isDismissible: true,
-      backgroundColor: AppColor.main75,
-      context: context,
-      builder: (BuildContext context) {
-        const Map<String, String> codes = CountryCodes.localChartCodes;
-        final List<String> countries = codes.keys.toList();
-        return BottomGradientContainer(
-          borderRadius: BorderRadius.circular(
-            20.0,
-          ),
-          child: ListView.builder(
-            physics: const BouncingScrollPhysics(),
-            shrinkWrap: true,
-            padding: const EdgeInsets.fromLTRB(
-              0,
-              10,
-              0,
-              10,
-            ),
-            itemCount: countries.length,
-            itemBuilder: (context, idx) {
-              return ListTileTheme(
-                selectedColor: Theme.of(context).colorScheme.secondary,
-                child: ListTile(
-                  title: Text(
-                    countries[idx],
-                  ),
-                  leading: Radio(
-                    value: countries[idx],
-                    groupValue: region,
-                    onChanged: (value) {
-                      top_screen.localSongs = [];
-                      region = countries[idx];
-                      top_screen.localFetched = false;
-                      top_screen.localFetchFinished.value = false;
-                      Hive.box(AppHiveConstants.settings).put('region', region);
-                      Navigator.pop(context);
-                    },
-                  ),
-                  selected: region == countries[idx],
-                  onTap: () {
-                    top_screen.localSongs = [];
-                    region = countries[idx];
-                    top_screen.localFetchFinished.value = false;
-                    Hive.box(AppHiveConstants.settings).put('region', region);
-                    Navigator.pop(context);
-                  },
-                ),
-              );
-            },
-          ),
-        );
-      },
-    );
-    return region;
   }
 }

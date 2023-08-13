@@ -24,11 +24,13 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:logging/logging.dart';
+import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
+import 'package:neom_music_player/data/implementations/app_hive_controller.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
 import 'package:neom_music_player/utils/helpers/mediaitem_converter.dart';
 import 'package:neom_music_player/domain/use_cases/youtube_services.dart';
-import 'package:neom_music_player/ui/Player/audioplayer.dart';
+import 'package:neom_music_player/ui/player/audioplayer.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -154,7 +156,7 @@ class PlayerInvoke {
           ),
         ),
       );
-      updateNplay(queue, index);
+      updateNowPlaying(queue, index);
     });
   }
 
@@ -174,7 +176,7 @@ class PlayerInvoke {
           await setTags(response[i] as SongModel, tempDir),
         );
       }
-      updateNplay(queue, index);
+      updateNowPlaying(queue, index);
     });
   }
 
@@ -185,7 +187,7 @@ class PlayerInvoke {
         (song) => MediaItemConverter.downMapToMediaItem(song as Map),
       ),
     );
-    updateNplay(queue, index);
+    updateNowPlaying(queue, index);
   }
 
   static Future<void> refreshYtLink(Map playItem) async {
@@ -193,7 +195,7 @@ class PlayerInvoke {
     // Hive.box(AppHiveConstants.settings).get('cacheSong', defaultValue: true) as bool;
     final int expiredAt = int.parse((playItem['expire_at'] ?? '0').toString());
     if ((DateTime.now().millisecondsSinceEpoch ~/ 1000) + 350 > expiredAt) {
-      Logger.root.info(
+      AppUtilities.logger.i(
         'before service | youtube link expired for ${playItem["title"]}',
       );
       if (Hive.box(AppHiveConstants.ytLinkCache).containsKey(playItem['id'])) {
@@ -206,7 +208,7 @@ class PlayerInvoke {
               .info('youtube link expired in cache for ${playItem["title"]}');
           final newData =
               await YouTubeServices().refreshLink(playItem['id'].toString());
-          Logger.root.info(
+          AppUtilities.logger.i(
             'before service | received new link for ${playItem["title"]}',
           );
           if (newData != null) {
@@ -215,15 +217,14 @@ class PlayerInvoke {
             playItem['expire_at'] = newData['expire_at'];
           }
         } else {
-          Logger.root
-              .info('youtube link found in cache for ${playItem["title"]}');
+          AppUtilities.logger.i('youtube link found in cache for ${playItem["title"]}');
           playItem['url'] = cache['url'];
           playItem['expire_at'] = cache['expire_at'];
         }
       } else {
         final newData =
             await YouTubeServices().refreshLink(playItem['id'].toString());
-        Logger.root.info(
+        AppUtilities.logger.i(
           'before service | received new link for ${playItem["title"]}',
         );
         if (newData != null) {
@@ -260,32 +261,30 @@ class PlayerInvoke {
         ),
       ),
     );
-    await updateNplay(queue, index);
+    await updateNowPlaying(queue, index);
   }
 
-  static Future<void> updateNplay(List<MediaItem> queue, int index) async {
+  static Future<void> updateNowPlaying(List<MediaItem> queue, int index) async {
     await audioHandler.setShuffleMode(AudioServiceShuffleMode.none);
     await audioHandler.updateQueue(queue);
     await audioHandler.customAction('skipToMediaItem', {'id': queue[index].id});
     await audioHandler.play();
-    final String repeatMode =
-        Hive.box(AppHiveConstants.settings).get('repeatMode', defaultValue: 'None').toString();
-    final bool enforceRepeat =
-        Hive.box(AppHiveConstants.settings).get('enforceRepeat', defaultValue: false) as bool;
+    final AudioServiceRepeatMode repeatMode = AppHiveController().repeatMode;
+    final bool enforceRepeat = AppHiveController().enforceRepeat;
     if (enforceRepeat) {
       switch (repeatMode) {
-        case 'None':
+        case AudioServiceRepeatMode.none:
           audioHandler.setRepeatMode(AudioServiceRepeatMode.none);
-        case 'All':
+        case AudioServiceRepeatMode.all:
           audioHandler.setRepeatMode(AudioServiceRepeatMode.all);
-        case 'One':
+        case AudioServiceRepeatMode.one:
           audioHandler.setRepeatMode(AudioServiceRepeatMode.one);
         default:
           break;
       }
     } else {
       audioHandler.setRepeatMode(AudioServiceRepeatMode.none);
-      Hive.box(AppHiveConstants.settings).put('repeatMode', 'None');
+      AppHiveController().updateRepeatMode(AudioServiceRepeatMode.none);
     }
   }
 }

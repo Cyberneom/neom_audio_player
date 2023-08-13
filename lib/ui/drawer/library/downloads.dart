@@ -384,7 +384,7 @@ class _DownloadsState extends State<Downloads>
                     //   }
                     // : (int value) {
                     //     albumSortValue = value;
-                    //     Hive.box('settings')
+                    //     Hive.box(AppHiveConstants.settings)
                     //         .put('albumSortValue', value);
                     //     sortAlbums();
                     //     setState(() {});

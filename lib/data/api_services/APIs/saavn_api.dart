@@ -22,15 +22,16 @@ import 'dart:convert';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart';
 import 'package:logging/logging.dart';
+import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
 import 'package:neom_music_player/utils/helpers/format.dart';
 
 class SaavnAPI {
-  List preferredLanguages = Hive.box('settings')
+  List preferredLanguages = Hive.box(AppHiveConstants.settings)
       .get('preferredLanguage', defaultValue: ['Hindi']) as List;
   Map<String, String> headers = {};
   String baseUrl = 'www.jiosaavn.com';
   String apiStr = '/api.php?_format=json&_marker=0&api_version=4&ctx=web6dot0';
-  Box settingsBox = Hive.box('settings');
+  Box settingsBox = Hive.box(AppHiveConstants.settings);
   Map<String, String> endpoints = {
     'homeData': '__call=webapi.getLaunchData',
     'topSearches': '__call=content.getTopSearches',

@@ -24,7 +24,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_music_player/ui/widgets/gradient_containers.dart';
 import 'package:neom_music_player/ui/widgets/image_card.dart';
-import 'package:neom_music_player/ui/Player/audioplayer.dart';
+import 'package:neom_music_player/ui/player/audioplayer.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
 
 class MiniPlayer extends StatefulWidget {
@@ -93,7 +93,7 @@ class _MiniPlayerState extends State<MiniPlayer> {
                 return Future.value(false);
               },
               child: Card(
-                color: AppColor.cardColor,
+                color: AppColor.main75,
                 margin: const EdgeInsets.symmetric(
                   horizontal: 2.0,
                   vertical: 1.0,
@@ -102,6 +102,7 @@ class _MiniPlayerState extends State<MiniPlayer> {
                 child: SizedBox(
                   height: 78.0,
                   child: GradientContainer(
+                    hasOpacity: false,
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -145,6 +146,7 @@ class _MiniPlayerState extends State<MiniPlayer> {
   }) {
     return ListTile(
       dense: useDense,
+      tileColor: AppColor.main75,
       onTap: isDummy
           ? null
           : () {

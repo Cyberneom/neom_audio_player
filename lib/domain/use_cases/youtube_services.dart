@@ -24,6 +24,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:html_unescape/html_unescape_small.dart';
 import 'package:http/http.dart';
 import 'package:logging/logging.dart';
+import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
@@ -36,8 +37,7 @@ class YouTubeServices {
     'playlist': '/playlist'
   };
   static const Map<String, String> headers = {
-    'User-Agent':
-        'Mozilla/5.0 (Windows NT 10.0; rv:96.0) Gecko/20100101 Firefox/96.0'
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; rv:96.0) Gecko/20100101 Firefox/96.0'
   };
   final YoutubeExplode yt = YoutubeExplode();
 
@@ -67,7 +67,7 @@ class YouTubeServices {
     }
     final Map? response = await formatVideo(
       video: vid,
-      quality: Hive.box('settings')
+      quality: Hive.box(AppHiveConstants.settings)
           .get(
             'ytQuality',
             defaultValue: 'Low',
@@ -364,7 +364,7 @@ class YouTubeServices {
           urls = await getUri(video);
         } else {
           // giving cache link
-          Logger.root.info('cache found for ${video.id.value}');
+          AppUtilities.logger.i('cache found for ${video.id.value}');
           urls = [cachedData['url'].toString()];
         }
       } else {

@@ -183,7 +183,7 @@ class _YouTubeArtistState extends State<YouTubeArtist> {
                                 //   YouTubeServices()
                                 //       .formatVideo(
                                 //     video: searchedList[i],
-                                //     quality: Hive.box('settings')
+                                //     quality: Hive.box(AppHiveConstants.settings)
                                 //         .get(
                                 //           'ytQuality',
                                 //           defaultValue: 'Low',

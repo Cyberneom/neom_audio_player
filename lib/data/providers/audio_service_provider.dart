@@ -20,7 +20,7 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:neom_music_player/domain/use_cases/audio_service.dart';
-import 'package:neom_music_player/ui/Player/audioplayer.dart';
+import 'package:neom_music_player/ui/player/audioplayer.dart';
 
 class AudioHandlerHelper {
   static final AudioHandlerHelper _instance = AudioHandlerHelper._internal();

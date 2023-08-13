@@ -19,12 +19,12 @@ class DownloadPage extends StatefulWidget {
 }
 
 class _DownloadPageState extends State<DownloadPage> {
-  final Box settingsBox = Hive.box('settings');
-  String downloadPath = Hive.box('settings')
+  final Box settingsBox = Hive.box(AppHiveConstants.settings);
+  String downloadPath = Hive.box(AppHiveConstants.settings)
       .get('downloadPath', defaultValue: '/storage/emulated/0/Music') as String;
-  String downloadQuality = Hive.box('settings')
+  String downloadQuality = Hive.box(AppHiveConstants.settings)
       .get('downloadQuality', defaultValue: '320 kbps') as String;
-  String ytDownloadQuality = Hive.box('settings')
+  String ytDownloadQuality = Hive.box(AppHiveConstants.settings)
       .get('ytDownloadQuality', defaultValue: 'High') as String;
   int downFilename =
       Hive.box(AppHiveConstants.settings).get('downFilename', defaultValue: 0) as int;
@@ -200,8 +200,7 @@ class _DownloadPageState extends State<DownloadPage> {
                         ),
                         children: [
                           CheckboxListTile(
-                            activeColor:
-                                Theme.of(context).colorScheme.secondary,
+                            activeColor: Theme.of(context).colorScheme.secondary,
                             title: Text(
                               '${PlayerTranslationConstants.title.tr} - ${PlayerTranslationConstants.artist.tr}',
                             ),
@@ -216,8 +215,7 @@ class _DownloadPageState extends State<DownloadPage> {
                             },
                           ),
                           CheckboxListTile(
-                            activeColor:
-                                Theme.of(context).colorScheme.secondary,
+                            activeColor: Theme.of(context).colorScheme.secondary,
                             title: Text(
                               '${PlayerTranslationConstants.artist.tr} - ${PlayerTranslationConstants.title.tr}',
                             ),
@@ -232,11 +230,8 @@ class _DownloadPageState extends State<DownloadPage> {
                             },
                           ),
                           CheckboxListTile(
-                            activeColor:
-                                Theme.of(context).colorScheme.secondary,
-                            title: Text(
-                              PlayerTranslationConstants.title.tr,
-                            ),
+                            activeColor: Theme.of(context).colorScheme.secondary,
+                            title: Text(PlayerTranslationConstants.title.tr,),
                             value: downFilename == 2,
                             selected: downFilename == 2,
                             onChanged: (val) {
@@ -275,17 +270,6 @@ class _DownloadPageState extends State<DownloadPage> {
               keyName: 'createYoutubeFolder',
               isThreeLine: true,
               defaultValue: false,
-            ),
-            BoxSwitchTile(
-              title: Text(
-                PlayerTranslationConstants.downLyrics.tr,
-              ),
-              subtitle: Text(
-                PlayerTranslationConstants.downLyricsSub.tr,
-              ),
-              keyName: 'downloadLyrics',
-              defaultValue: false,
-              isThreeLine: true,
             ),
           ],
         ),

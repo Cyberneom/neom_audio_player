@@ -18,6 +18,7 @@
  */
 
 import 'package:logging/logging.dart';
+import 'package:neom_commons/core/utils/app_utilities.dart';
 
 bool matchSongs({
   required String title,
@@ -28,7 +29,7 @@ bool matchSongs({
   double titleFlexibility = 0.7,
   bool allowTitleToArtistMatch = true,
 }) {
-  Logger.root.info('Matching $title by $artist with $title2 by $artist2');
+  AppUtilities.logger.i('Matching $title by $artist with $title2 by $artist2');
   final names1 = artist.replaceAll('&', ',').replaceAll('-', ',').split(',');
   final names2 = artist2.replaceAll('&', ',').replaceAll('-', ',').split(',');
   bool artistMatched = false;

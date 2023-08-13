@@ -23,7 +23,9 @@ import 'package:flutter/material.dart';
 
 import 'package:hive/hive.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
+import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
+import 'package:neom_music_player/data/implementations/app_hive_controller.dart';
 import 'package:neom_music_player/ui/widgets/drawer.dart';
 import 'package:neom_music_player/ui/widgets/on_hover.dart';
 import 'package:neom_music_player/domain/use_cases/youtube_services.dart';
@@ -33,9 +35,7 @@ import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
 import 'package:get/get.dart';
 
-bool status = false;
-List searchedList = Hive.box(AppHiveConstants.cache).get('ytHome', defaultValue: []) as List;
-List headList = Hive.box(AppHiveConstants.cache).get('ytHomeHead', defaultValue: []) as List;
+
 
 class YouTube extends StatefulWidget {
   const YouTube({super.key});
@@ -46,24 +46,23 @@ class YouTube extends StatefulWidget {
 
 class _YouTubeState extends State<YouTube>
     with AutomaticKeepAliveClientMixin<YouTube> {
-  // List ytSearch =
-  // Hive.box(AppHiveConstants.settings).get('ytSearch', defaultValue: []) as List;
-  // bool showHistory =
-  // Hive.box(AppHiveConstants.settings).get('showHistory', defaultValue: true) as bool;
+
   final TextEditingController _controller = TextEditingController();
-  // int _currentPage = 0;
-  // final PageController _pageController = PageController(
-  // viewportFraction:
-  //     (Platform.isWindows || Platform.isLinux || Platform.isMacOS)
-  //         ? 0.385
-  //         : 1.0,
-  // );
 
   @override
   bool get wantKeepAlive => true;
 
+  bool status = false;
+  late List searchedList;
+  late List headList;
+
   @override
   void initState() {
+
+    AppUtilities.logger.i("Initializing Youtube Feature");
+    searchedList = AppHiveController().searchedList;
+    headList = AppHiveController().headList;
+
     if (!status) {
       YouTubeServices().getMusicHome().then((value) {
         status = true;
@@ -71,31 +70,16 @@ class _YouTubeState extends State<YouTube>
           setState(() {
             searchedList = value['body'] ?? [];
             headList = value['head'] ?? [];
-
-            Hive.box(AppHiveConstants.cache).put('ytHome', value['body']);
-            Hive.box(AppHiveConstants.cache).put('ytHomeHead', value['head']);
+            AppHiveController().updateCache(
+              searchedList: searchedList,
+              headList: headList,
+            );
           });
         } else {
           status = false;
         }
       });
     }
-    // if (headList.isNotEmpty) {
-    // Timer.periodic(const Duration(seconds: 4), (Timer timer) {
-    //   if (_currentPage < headList.length - 1) {
-    //     _currentPage++;
-    //   } else {
-    //     _currentPage = 0;
-    //   }
-    //   if (_pageController.hasClients) {
-    //     _pageController.animateToPage(
-    //       _currentPage,
-    //       duration: const Duration(milliseconds: 350),
-    //       curve: Curves.easeIn,
-    //     );
-    //   }
-    // });
-    // }
     super.initState();
   }
 

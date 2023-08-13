@@ -1,34 +1,26 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:hive_flutter/adapters.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
-import 'package:neom_music_player/ui/widgets/drawer.dart';
+import 'package:neom_commons/core/utils/app_theme.dart';
+import 'package:neom_music_player/ui/drawer/settings/widgets/music_playback.dart';
+import 'package:neom_music_player/ui/drawer/settings/widgets/music_player_interface_page.dart';
 import 'package:neom_music_player/ui/widgets/gradient_containers.dart';
-import 'package:neom_music_player/ui/drawer/settings/about.dart';
-import 'package:neom_music_player/ui/drawer/settings/app_ui.dart';
-import 'package:neom_music_player/ui/drawer/settings/download.dart';
-import 'package:neom_music_player/ui/drawer/settings/music_playback.dart';
-import 'package:neom_music_player/ui/drawer/settings/others.dart';
-import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
+import 'package:neom_music_player/ui/drawer/settings/widgets/download.dart';
+import 'package:neom_music_player/ui/drawer/settings/widgets/others.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
 
-class NewSettingsPage extends StatefulWidget {
+class MusicPlayerSettingsPage extends StatefulWidget {
   final Function? callback;
-  const NewSettingsPage({this.callback});
+  const MusicPlayerSettingsPage({this.callback});
 
   @override
-  State<NewSettingsPage> createState() => _NewSettingsPageState();
+  State<MusicPlayerSettingsPage> createState() => _MusicPlayerSettingsPageState();
 }
 
-class _NewSettingsPageState extends State<NewSettingsPage>
-    with AutomaticKeepAliveClientMixin<NewSettingsPage> {
+class _MusicPlayerSettingsPageState extends State<MusicPlayerSettingsPage> {
   final TextEditingController controller = TextEditingController();
   final ValueNotifier<String> searchQuery = ValueNotifier<String>('');
-  final List sectionsToShow = Hive.box(AppHiveConstants.settings).get(
-    'sectionsToShow',
-    defaultValue: ['Home', 'Top Charts', 'YouTube', 'Library'],
-  ) as List;
 
   @override
   void dispose() {
@@ -38,34 +30,20 @@ class _NewSettingsPageState extends State<NewSettingsPage>
   }
 
   @override
-  bool get wantKeepAlive => sectionsToShow.contains('Settings');
-
-  @override
   Widget build(BuildContext context) {
-    super.build(context);
+
     return GradientContainer(
       child: Scaffold(
         backgroundColor: AppColor.main75,
         resizeToAvoidBottomInset: false,
+
         appBar: AppBar(
-          elevation: 0,
-          backgroundColor: AppColor.main75,
-          centerTitle: true,
-          leading: sectionsToShow.contains('Settings')
-              ? homeDrawer(
-                  context: context,
-                  padding: const EdgeInsets.only(left: 15.0),
-                )
-              : null,
           title: Text(
             PlayerTranslationConstants.settings.tr,
-            style: TextStyle(
-              color: Theme.of(context).iconTheme.color,
-            ),
           ),
-          iconTheme: IconThemeData(
-            color: Theme.of(context).iconTheme.color,
-          ),
+          centerTitle: true,
+          backgroundColor: Colors.transparent,
+          elevation: 0,
         ),
         body: Column(
           children: [
@@ -79,6 +57,7 @@ class _NewSettingsPageState extends State<NewSettingsPage>
 
   Widget _searchBar(BuildContext context) {
     return Card(
+      color: AppTheme.canvasColor50(context),
       margin: const EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 0.0),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(
@@ -106,11 +85,11 @@ class _NewSettingsPageState extends State<NewSettingsPage>
                   prefixIcon: const Icon(CupertinoIcons.search),
                   suffixIcon: query.trim() != ''
                       ? IconButton(
+                          icon: const Icon(Icons.close_rounded),
                           onPressed: () {
                             controller.clear();
                             searchQuery.value = '';
                           },
-                          icon: const Icon(Icons.close_rounded),
                         )
                       : null,
                   border: InputBorder.none,
@@ -134,20 +113,16 @@ class _NewSettingsPageState extends State<NewSettingsPage>
       {
         'title': PlayerTranslationConstants.ui.tr,
         'icon': Icons.design_services_rounded,
-        'onTap': AppUIPage(
+        'onTap': MusicPlayerInterfacePage(
           callback: widget.callback,
         ),
         'isThreeLine': true,
         'items': [
-          PlayerTranslationConstants.playerScreenBackground.tr,
           PlayerTranslationConstants.miniButtons.tr,
-          // PlayerTranslationConstants.useDenseMini.tr,
-          PlayerTranslationConstants.blacklistedHomeSections.tr,
           PlayerTranslationConstants.changeOrder.tr,
           PlayerTranslationConstants.compactNotificationButtons.tr,
           PlayerTranslationConstants.showPlaylists.tr,
           PlayerTranslationConstants.showLast.tr,
-          PlayerTranslationConstants.navTabs.tr,
           PlayerTranslationConstants.enableGesture.tr,
           PlayerTranslationConstants.useLessDataImage.tr,
         ]
@@ -184,7 +159,6 @@ class _NewSettingsPageState extends State<NewSettingsPage>
           PlayerTranslationConstants.ytDownQuality.tr,
           PlayerTranslationConstants.createAlbumFold.tr,
           PlayerTranslationConstants.createYtFold.tr,
-          PlayerTranslationConstants.downLyrics.tr,
         ]
       },
       {
@@ -193,7 +167,6 @@ class _NewSettingsPageState extends State<NewSettingsPage>
         'onTap': const OthersPage(),
         'isThreeLine': true,
         'items': [
-          PlayerTranslationConstants.lang.tr,
           PlayerTranslationConstants.includeExcludeFolder.tr,
           PlayerTranslationConstants.minAudioLen.tr,
           PlayerTranslationConstants.liveSearch.tr,
@@ -202,25 +175,8 @@ class _NewSettingsPageState extends State<NewSettingsPage>
           PlayerTranslationConstants.supportEq.tr,
           PlayerTranslationConstants.stopOnClose.tr,
           PlayerTranslationConstants.checkUpdate.tr,
-          PlayerTranslationConstants.useProxy.tr,
-          PlayerTranslationConstants.proxySet.tr,
           PlayerTranslationConstants.clearCache.tr,
           PlayerTranslationConstants.shareLogs.tr,
-        ]
-      },
-      {
-        'title': PlayerTranslationConstants.about.tr,
-        'icon': Icons.info_outline_rounded,
-        'onTap': const AboutPage(),
-        'isThreeLine': false,
-        'items': [
-          PlayerTranslationConstants.version.tr,
-          PlayerTranslationConstants.shareApp.tr,
-          PlayerTranslationConstants.contactUs.tr,
-          PlayerTranslationConstants.likedWork.tr,
-          PlayerTranslationConstants.donateGpay.tr,
-          PlayerTranslationConstants.joinTg.tr,
-          PlayerTranslationConstants.moreInfo.tr,
         ]
       },
     ];

@@ -21,6 +21,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart';
 import 'package:logging/logging.dart';
+import 'package:neom_commons/core/utils/app_utilities.dart';
 
 class GitHub {
   static String repo = 'Sangwan5688/BlackHole';
@@ -71,9 +72,9 @@ class GitHub {
   }
 
   static Future<String> getLatestVersion() async {
-    Logger.root.info('Getting Latest Version');
+    AppUtilities.logger.i('Getting Latest Version');
     final Map latestRelease = await fetchReleases();
-    Logger.root.info(
+    AppUtilities.logger.i(
       'Latest release: ${(latestRelease["tag_name"] as String?) ?? "v0.0.0"}',
     );
     return ((latestRelease['tag_name'] as String?) ?? 'v0.0.0')

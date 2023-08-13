@@ -25,6 +25,7 @@ import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:logging/logging.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
+import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_music_player/ui/widgets/add_playlist.dart';
 import 'package:neom_music_player/ui/widgets/custom_physics.dart';
 import 'package:neom_music_player/ui/widgets/data_search.dart';
@@ -85,7 +86,7 @@ class _DownloadedSongsState extends State<DownloadedSongs>
       Hive.box(AppHiveConstants.settings).get('minDuration', defaultValue: 10) as int;
   bool includeOrExclude =
       Hive.box(AppHiveConstants.settings).get('includeOrExclude', defaultValue: false) as bool;
-  List includedExcludedPaths = Hive.box('settings')
+  List includedExcludedPaths = Hive.box(AppHiveConstants.settings)
       .get('includedExcludedPaths', defaultValue: []) as List;
   TabController? _tcontroller;
   int _currentTabIndex = 0;
@@ -135,20 +136,20 @@ class _DownloadedSongsState extends State<DownloadedSongs>
 
   Future<void> getData() async {
     try {
-      Logger.root.info('Requesting permission to access local songs');
+      AppUtilities.logger.i('Requesting permission to access local songs');
       await offlineAudioQuery.requestPermission();
       tempPath ??= (await getTemporaryDirectory()).path;
       if (Platform.isAndroid) {
-        Logger.root.info('Getting local playlists');
+        AppUtilities.logger.i('Getting local playlists');
         playlistDetails = await offlineAudioQuery.getPlaylists();
       }
       if (widget.cachedSongs == null) {
-        Logger.root.info('Cache empty, calling audioQuery');
+        AppUtilities.logger.i('Cache empty, calling audioQuery');
         final receivedSongs = await offlineAudioQuery.getSongs(
           sortType: songSortTypes[sortValue],
           orderType: songOrderTypes[orderValue],
         );
-        Logger.root.info('Received ${receivedSongs.length} songs, filtering');
+        AppUtilities.logger.i('Received ${receivedSongs.length} songs, filtering');
         _songs = receivedSongs
             .where(
               (i) =>
@@ -160,13 +161,13 @@ class _DownloadedSongsState extends State<DownloadedSongs>
             )
             .toList();
       } else {
-        Logger.root.info('Setting songs to cached songs');
+        AppUtilities.logger.i('Setting songs to cached songs');
         _songs = widget.cachedSongs!;
       }
       added = true;
-      Logger.root.info('got ${_songs.length} songs');
+      AppUtilities.logger.i('got ${_songs.length} songs');
       setState(() {});
-      Logger.root.info('setting albums and artists');
+      AppUtilities.logger.i('setting albums and artists');
       for (int i = 0; i < _songs.length; i++) {
         try {
           if (_albums.containsKey(_songs[i].album ?? 'Unknown')) {
@@ -204,7 +205,7 @@ class _DownloadedSongsState extends State<DownloadedSongs>
           Logger.root.severe('Error in sorting songs', e);
         }
       }
-      Logger.root.info('albums, artists, genre & folders set');
+      AppUtilities.logger.i('albums, artists, genre & folders set');
     } catch (e) {
       Logger.root.severe('Error in getData', e);
       added = true;
@@ -212,7 +213,7 @@ class _DownloadedSongsState extends State<DownloadedSongs>
   }
 
   Future<void> sortSongs(int sortVal, int order) async {
-    Logger.root.info('Sorting songs');
+    AppUtilities.logger.i('Sorting songs');
     switch (sortVal) {
       case 0:
         _songs.sort(
@@ -248,7 +249,7 @@ class _DownloadedSongsState extends State<DownloadedSongs>
     if (order == 1) {
       _songs = _songs.reversed.toList();
     }
-    Logger.root.info('Done Sorting songs');
+    AppUtilities.logger.i('Done Sorting songs');
   }
 
   Future<void> deleteSong(SongModel song) async {

@@ -26,12 +26,11 @@ import 'package:flutter_displaymode/flutter_displaymode.dart';
 import 'package:get/get.dart';
 
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:home_widget/home_widget.dart';
 import 'package:logging/logging.dart';
-import 'package:metadata_god/metadata_god.dart';
 import 'package:neom_commons/core/app_flavour.dart';
+import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
 import 'package:neom_music_player/utils/helpers/handle_native.dart';
 import 'package:neom_music_player/utils/helpers/import_export_playlist.dart';
@@ -39,9 +38,7 @@ import 'package:neom_music_player/utils/helpers/route_handler.dart';
 import 'package:neom_music_player/data/providers/audio_service_provider.dart';
 import 'package:neom_music_player/utils/theme/app_theme.dart';
 import 'package:neom_music_player/ui/music_player_routes.dart';
-import 'package:neom_music_player/ui/Player/audioplayer.dart';
-import 'package:neom_music_player/utils/constants/languagecodes.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:neom_music_player/ui/player/audioplayer.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 import 'package:sizer/sizer.dart';
 
@@ -112,7 +109,7 @@ class _NeomMusicPlayerAppState extends State<NeomMusicPlayerApp> {
       _intentTextStreamSubscription =
           ReceiveSharingIntent.getTextStream().listen(
         (String value) {
-          Logger.root.info('Received intent on stream: $value');
+          AppUtilities.logger.i('Received intent on stream: $value');
           handleSharedText(value, navigatorKey);
         },
         onError: (err) {
@@ -123,7 +120,7 @@ class _NeomMusicPlayerAppState extends State<NeomMusicPlayerApp> {
       // For sharing or opening urls/text coming from outside the app while the app is closed
       ReceiveSharingIntent.getInitialText().then(
         (String? value) {
-          Logger.root.info('Received Intent initially: $value');
+          AppUtilities.logger.i('Received Intent initially: $value');
           if (value != null) handleSharedText(value, navigatorKey);
         },
         onError: (err) {
@@ -137,7 +134,7 @@ class _NeomMusicPlayerAppState extends State<NeomMusicPlayerApp> {
           if (value.isNotEmpty) {
             for (final file in value) {
               if (file.path.endsWith('.json')) {
-                final List playlistNames = Hive.box(AppHiveConstants.settings).get('playlistNames')?.toList() as List? ?? ['Favorite Songs'];
+                final List playlistNames = Hive.box(AppHiveConstants.settings).get('playlistNames')?.toList() as List? ?? [AppHiveConstants.favoriteSongs];
                 importFilePlaylist(null, playlistNames,
                   path: file.path,
                   pickFile: false,
@@ -158,7 +155,7 @@ class _NeomMusicPlayerAppState extends State<NeomMusicPlayerApp> {
         if (value.isNotEmpty) {
           for (final file in value) {
             if (file.path.endsWith('.json')) {
-              final List playlistNames = Hive.box(AppHiveConstants.settings).get('playlistNames')?.toList() as List? ?? ['Favorite Songs'];
+              final List playlistNames = Hive.box(AppHiveConstants.settings).get('playlistNames')?.toList() as List? ?? [AppHiveConstants.favoriteSongs];
               importFilePlaylist(
                 null, playlistNames,
                 path: file.path,

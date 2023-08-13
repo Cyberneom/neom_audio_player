@@ -42,7 +42,7 @@ class _WelcomePreferencePageState extends State<WelcomePreferencePage> {
 
 
   List<bool> isSelected = [true, false];
-  List preferredLanguage = Hive.box('settings')
+  List preferredLanguage = Hive.box(AppHiveConstants.settings)
       .get('preferredLanguage', defaultValue: ['Hindi'])?.toList() as List;
   String region =
       Hive.box(AppHiveConstants.settings).get('region', defaultValue: 'México') as String;

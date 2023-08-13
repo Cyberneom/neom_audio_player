@@ -22,27 +22,24 @@ import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
 import 'package:neom_music_player/ui/widgets/drawer.dart';
-import 'package:neom_music_player/ui/widgets/textinput_dialog.dart';
-import 'package:neom_music_player/ui/Home/saavn.dart';
+import 'package:neom_music_player/ui/home/saavn.dart';
 import 'package:neom_music_player/ui/Search/search_page.dart';
-import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
 import 'package:get/get.dart';
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({
+class MusicPlayerHomePage extends StatefulWidget {
+  const MusicPlayerHomePage({
     super.key,
   });
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<MusicPlayerHomePage> createState() => _MusicPlayerHomePageState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _MusicPlayerHomePageState extends State<MusicPlayerHomePage> {
   final ScrollController _scrollController = ScrollController();
 
   @override
@@ -58,7 +55,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    String name = Hive.box(AppHiveConstants.settings).get('name', defaultValue: 'Guest') as String;
     final double screenWidth = MediaQuery.of(context).size.width;
     final bool rotated = MediaQuery.of(context).size.height < screenWidth;
     return Stack(

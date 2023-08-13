@@ -23,8 +23,8 @@ import 'package:neom_music_player/utils/music_player_theme.dart';
 
 class GradientContainer extends StatefulWidget {
   final Widget? child;
-  final bool? opacity;
-  const GradientContainer({required this.child, this.opacity});
+  final bool hasOpacity;
+  const GradientContainer({required this.child, this.hasOpacity = true,});
   @override
   _GradientContainerState createState() => _GradientContainerState();
 }
@@ -36,13 +36,14 @@ class _GradientContainerState extends State<GradientContainer> {
     // ignore: use_decorated_box
     return Container(
       decoration: BoxDecoration(
-        gradient: LinearGradient(
+        gradient: widget.hasOpacity ? LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: widget.opacity == true
-              ? currentTheme.getTransBackGradient()
-              : currentTheme.getBackGradient(),
-        ),
+          colors: [
+            AppColor.getMain(),
+            Colors.black45,
+          ],
+        ) : null,
       ),
       child: widget.child,
     );
@@ -82,7 +83,7 @@ class _BottomGradientContainerState extends State<BottomGradientContainer> {
           end: Alignment.bottomRight,
           colors: [
             AppColor.getMain(),
-            Colors.black,
+            Colors.black45,
           ],
         ) : null,
       ),

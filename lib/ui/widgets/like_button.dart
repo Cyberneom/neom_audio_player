@@ -21,8 +21,9 @@ import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 
 import 'package:logging/logging.dart';
+import 'package:neom_music_player/data/implementations/playlist_hive_controller.dart';
 import 'package:neom_music_player/ui/widgets/snackbar.dart';
-import 'package:neom_music_player/utils/helpers/playlist.dart';
+import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
 import 'package:get/get.dart';
 
@@ -83,9 +84,9 @@ class _LikeButtonState extends State<LikeButton>
   Widget build(BuildContext context) {
     try {
       if (widget.mediaItem != null) {
-        liked = checkPlaylist('Favorite Songs', widget.mediaItem!.id);
+        liked = PlaylistHiveController().checkPlaylist(AppHiveConstants.favoriteSongs, widget.mediaItem!.id);
       } else {
-        liked = checkPlaylist('Favorite Songs', widget.data!['id'].toString());
+        liked = PlaylistHiveController().checkPlaylist(AppHiveConstants.favoriteSongs, widget.data!['id'].toString());
       }
     } catch (e) {
       Logger.root.severe('Error in likeButton: $e');
@@ -103,14 +104,14 @@ class _LikeButtonState extends State<LikeButton>
             : PlayerTranslationConstants.like.tr,
         onPressed: () async {
           liked
-              ? removeLiked(
+              ? PlaylistHiveController().removeLiked(
                   widget.mediaItem == null
                       ? widget.data!['id'].toString()
                       : widget.mediaItem!.id,
                 )
               : widget.mediaItem == null
-                  ? addMapToPlaylist('Favorite Songs', widget.data!)
-                  : addItemToPlaylist('Favorite Songs', widget.mediaItem!);
+                  ? PlaylistHiveController().addMapToPlaylist(AppHiveConstants.favoriteSongs, widget.data!)
+                  : PlaylistHiveController().addItemToPlaylist(AppHiveConstants.favoriteSongs, widget.mediaItem!);
 
           if (!liked) {
             _controller.forward();
@@ -131,15 +132,15 @@ class _LikeButtonState extends State<LikeButton>
                 label: PlayerTranslationConstants.undo.tr,
                 onPressed: () {
                   liked
-                      ? removeLiked(
+                      ? PlaylistHiveController().removeLiked(
                           widget.mediaItem == null
                               ? widget.data!['id'].toString()
                               : widget.mediaItem!.id,
                         )
                       : widget.mediaItem == null
-                          ? addMapToPlaylist('Favorite Songs', widget.data!)
-                          : addItemToPlaylist(
-                              'Favorite Songs',
+                          ? PlaylistHiveController().addMapToPlaylist(AppHiveConstants.favoriteSongs, widget.data!)
+                          : PlaylistHiveController().addItemToPlaylist(
+                              AppHiveConstants.favoriteSongs,
                               widget.mediaItem!,
                             );
 

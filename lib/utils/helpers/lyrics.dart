@@ -23,7 +23,8 @@ import 'package:audiotagger/audiotagger.dart';
 import 'package:audiotagger/models/tag.dart';
 import 'package:http/http.dart';
 import 'package:logging/logging.dart';
-import 'package:neom_music_player/data/api_services/APIs/spotify_api.dart';
+import 'package:neom_commons/core/utils/app_utilities.dart';
+import 'package:neom_music_player/data/api_services/spotify/spotify_api_calls.dart';
 import 'package:neom_music_player/utils/helpers/matcher.dart';
 import 'package:neom_music_player/utils/helpers/spotify_helper.dart';
 
@@ -42,15 +43,15 @@ class Lyrics {
       'id': id,
     };
 
-    Logger.root.info('Getting Synced Lyrics');
+    AppUtilities.logger.i('Getting Synced Lyrics');
     final res = await getSpotifyLyrics(title, artist);
     result['lyrics'] = res['lyrics']!;
     result['type'] = res['type']!;
     result['source'] = res['source']!;
     if (result['lyrics'] == '') {
-      Logger.root.info('Synced Lyrics, not found. Getting text lyrics');
+      AppUtilities.logger.i('Synced Lyrics, not found. Getting text lyrics');
       if (saavnHas) {
-        Logger.root.info('Getting Lyrics from Saavn');
+        AppUtilities.logger.i('Getting Lyrics from Saavn');
         result['lyrics'] = await getSaavnLyrics(id);
         result['type'] = 'text';
         result['source'] = 'Jiosaavn';
@@ -121,15 +122,15 @@ class Lyrics {
     };
     await callSpotifyFunction(
       function: (String accessToken) async {
-        final value = await SpotifyApi().searchTrack(
+        final value = await SpotifyApiCalls().searchTrack(
           accessToken: accessToken,
           query: '$title - $artist',
           limit: 1,
         );
         try {
-          // Logger.root.info(jsonEncode(value['tracks']['items'][0]));
+          // AppUtilities.logger.i(jsonEncode(value['tracks']['items'][0]));
           if (value['tracks']['items'].length == 0) {
-            Logger.root.info('No song found');
+            AppUtilities.logger.i('No song found');
             return result;
           }
           String title2 = '';
@@ -157,7 +158,7 @@ class Lyrics {
             result['type'] = res['type']!;
             result['source'] = res['source']!;
           } else {
-            Logger.root.info('Song not matched');
+            AppUtilities.logger.i('Song not matched');
           }
         } catch (e) {
           Logger.root.severe('Error in getSpotifyLyrics', e);
@@ -284,7 +285,7 @@ class Lyrics {
   }
 
   static Future<String> scrapLink(String unencodedPath) async {
-    Logger.root.info('Trying to scrap lyrics from $unencodedPath');
+    AppUtilities.logger.i('Trying to scrap lyrics from $unencodedPath');
     const String authority = 'www.musixmatch.com';
     final Response res = await get(Uri.https(authority, unencodedPath));
     if (res.statusCode != 200) return '';
@@ -302,7 +303,7 @@ class Lyrics {
   }) async {
     try {
       final String link = await getLyricsLink(title, artist);
-      Logger.root.info('Found Musixmatch Lyrics Link: $link');
+      AppUtilities.logger.i('Found Musixmatch Lyrics Link: $link');
       final String lyrics = await scrapLink(link);
       return lyrics;
     } catch (e) {

@@ -19,14 +19,13 @@
 
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
-
-import 'package:get_it/get_it.dart';
-import 'package:neom_music_player/ui/widgets/snackbar.dart';
-import 'package:neom_music_player/utils/helpers/mediaitem_converter.dart';
-import 'package:neom_music_player/utils/helpers/playlist.dart';
-import 'package:neom_music_player/ui/Player/audioplayer.dart';
-import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
 import 'package:get/get.dart';
+import 'package:get_it/get_it.dart';
+import 'package:neom_music_player/data/implementations/playlist_hive_controller.dart';
+import 'package:neom_music_player/ui/player/audioplayer.dart';
+import 'package:neom_music_player/ui/widgets/snackbar.dart';
+import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
+import 'package:neom_music_player/utils/helpers/mediaitem_converter.dart';
 
 class PlaylistPopupMenu extends StatefulWidget {
   final List data;
@@ -81,7 +80,7 @@ class _PlaylistPopupMenuState extends State<PlaylistPopupMenu> {
       ],
       onSelected: (int? value) {
         if (value == 1) {
-          addPlaylist(widget.title, widget.data).then(
+          PlaylistHiveController().addPlaylist(widget.title, widget.data).then(
             (value) => ShowSnackBar().showSnackBar(
               context,
               '"${widget.title}" ${PlayerTranslationConstants.addedToPlaylists.tr}',

@@ -24,10 +24,10 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:logging/logging.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
-import 'package:neom_music_player/data/api_services/APIs/api.dart';
-import 'package:neom_music_player/data/api_services/APIs/spotify_api.dart';
+import 'package:neom_music_player/data/api_services/APIs/saavn_api.dart';
+import 'package:neom_music_player/data/api_services/spotify/spotify_api_calls.dart';
+import 'package:neom_music_player/data/implementations/playlist_hive_controller.dart';
 import 'package:neom_music_player/ui/widgets/gradient_containers.dart';
-import 'package:neom_music_player/utils/helpers/playlist.dart';
 import 'package:neom_music_player/domain/use_cases/youtube_services.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
@@ -68,7 +68,7 @@ class SearchAddPlaylist {
   ) async {
     try {
       final List tracks =
-          await SpotifyApi().getAllTracksOfPlaylist(accessToken, playlistId);
+          await SpotifyApiCalls().getAllTracksOfPlaylist(accessToken, playlistId);
       return {
         'title': title,
         'count': tracks.length,
@@ -159,7 +159,7 @@ class SearchAddPlaylist {
       try {
         final List result =
             await SaavnAPI().fetchTopSearchResult(trackName!.split('|')[0]);
-        addMapToPlaylist(playName, result[0] as Map);
+        PlaylistHiveController().addMapToPlaylist(playName, result[0] as Map);
       } catch (e) {
         Logger.root.severe('Error in $done: $e');
       }
@@ -184,7 +184,7 @@ class SearchAddPlaylist {
       try {
         final List result =
             await SaavnAPI().fetchTopSearchResult('$trackName by $artistName');
-        addMapToPlaylist(playName, result[0] as Map);
+        PlaylistHiveController().addMapToPlaylist(playName, result[0] as Map);
       } catch (e) {
         Logger.root.severe('Error in $done: $e');
       }
@@ -210,7 +210,7 @@ class SearchAddPlaylist {
       try {
         final List result =
             await SaavnAPI().fetchTopSearchResult('$trackName by $artistName');
-        addMapToPlaylist(playName, result[0] as Map);
+        PlaylistHiveController().addMapToPlaylist(playName, result[0] as Map);
       } catch (e) {
         Logger.root.severe('Error in $done: $e');
       }
