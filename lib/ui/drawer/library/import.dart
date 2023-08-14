@@ -24,6 +24,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:logging/logging.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
+import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_music_player/data/api_services/spotify/spotify_api_calls.dart';
 import 'package:neom_music_player/data/implementations/playlist_hive_controller.dart';
 import 'package:neom_music_player/ui/widgets/gradient_containers.dart';
@@ -199,7 +200,7 @@ Future<void> importYt(
       final Map data = await SearchAddPlaylist.addYtPlaylist(link);
       if (data.isNotEmpty) {
         if (data['title'] == '' && data['count'] == 0) {
-          Logger.root.severe(
+          AppUtilities.logger.e(
             'Failed to import YT playlist. Data not empty but title or the count is empty.',
           );
           ShowSnackBar().showSnackBar(
@@ -226,7 +227,7 @@ Future<void> importYt(
           );
         }
       } else {
-        Logger.root.severe(
+        AppUtilities.logger.e(
           'Failed to import YT playlist. Data is empty.',
         );
         ShowSnackBar().showSnackBar(
@@ -274,7 +275,7 @@ Future<void> importResso(
           ),
         );
       } else {
-        Logger.root.severe(
+        AppUtilities.logger.e(
           'Failed to import Resso playlist. Data is empty.',
         );
         ShowSnackBar().showSnackBar(
@@ -320,7 +321,7 @@ Future<void> importSpotify(
       ),
     );
   } else {
-    Logger.root.severe(
+    AppUtilities.logger.e(
       'Failed to import Spotify playlist. Data is empty.',
     );
     ShowSnackBar().showSnackBar(
@@ -379,7 +380,7 @@ Future<void> importJioSaavn(
         PlaylistHiveController().addPlaylist(playName, data['tracks'] as List);
         playlistNames.add(playName);
       } else {
-        Logger.root.severe('Failed to import JioSaavn playlist. data is empty');
+        AppUtilities.logger.e('Failed to import JioSaavn playlist. data is empty');
         ShowSnackBar().showSnackBar(
           context,
           PlayerTranslationConstants.failedImport.tr,

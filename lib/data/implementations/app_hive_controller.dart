@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:neom_commons/core/data/implementations/user_controller.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/constants/app_shared_preference_constants.dart';
+import 'package:neom_music_player/domain/entities/playlist_section.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:enum_to_string/enum_to_string.dart';
@@ -24,6 +25,7 @@ class AppHiveController extends GetxController {
 
   //Music Player Cache
   List searchedList = [];
+  List searchQueries = [];
   List headList = [];
   List lastQueueList = [];
   int lastIndex = 0;
@@ -43,6 +45,11 @@ class AppHiveController extends GetxController {
   AudioServiceRepeatMode repeatMode = AudioServiceRepeatMode.none;
   bool enforceRepeat = false;
 
+  bool liveSearch = true;
+  bool searchYtMusic = true;
+  bool showHistory = true;
+  List searchHistory = [];
+
 
   @override
   void onInit() async {
@@ -59,7 +66,7 @@ class AppHiveController extends GetxController {
   }
   static Future<void> openHiveBox(String boxName, {bool limit = false}) async {
     final box = await Hive.openBox(boxName).onError((error, stackTrace) async {
-      Logger.root.severe('Failed to open $boxName Box', error, stackTrace);
+      AppUtilities.logger.e('Failed to open $boxName Box', error, stackTrace);
       final Directory dir = await getApplicationDocumentsDirectory();
       final String dirPath = dir.path;
       File dbFile = File('$dirPath/$boxName.hive');
@@ -76,15 +83,17 @@ class AppHiveController extends GetxController {
     }
   }
 
-  Future<void> updateCache({List? searchedList, List? headList}) async {
+  Future<void> updateCache({PlaylistSection? headList, List<PlaylistSection>? searchedList}) async {
+
+    if(headList != null) {
+      Hive.box(AppHiveConstants.cache).put('ytHomeHead', headList);
+    }
 
     if(searchedList != null) {
       Hive.box(AppHiveConstants.cache).put('ytHome', searchedList);
     }
 
-    if(headList != null) {
-      Hive.box(AppHiveConstants.cache).put('ytHomeHead', headList);
-    }
+
   }
 
   Future<void> fetchCachedData() async {
@@ -109,6 +118,11 @@ class AppHiveController extends GetxController {
         Hive.box(AppHiveConstants.settings).get('repeatMode',
             defaultValue: AudioServiceRepeatMode.none.name).toString()) ?? AudioServiceRepeatMode.none;
     enforceRepeat = Hive.box(AppHiveConstants.settings).get('enforceRepeat', defaultValue: false) as bool;
+    searchQueries = Hive.box(AppHiveConstants.settings).get('searchQueries', defaultValue: []) as List;
+    liveSearch = Hive.box(AppHiveConstants.settings).get('liveSearch', defaultValue: true) as bool;
+    searchYtMusic = Hive.box(AppHiveConstants.settings).get('searchYtMusic', defaultValue: true) as bool;
+    showHistory = Hive.box(AppHiveConstants.settings).get('showHistory', defaultValue: true) as bool;
+    searchHistory = Hive.box(AppHiveConstants.settings).get('searchHistory', defaultValue: []) as List;
   }
 
   Future<List> getCachedSearchList() async {
@@ -129,6 +143,10 @@ class AppHiveController extends GetxController {
 
   Future<void> updateRepeatMode(AudioServiceRepeatMode mode) async {
     await Hive.box(AppHiveConstants.settings).put('repeatMode', mode.name);
+  }
+
+  Future<void> setSearchQueries(List searchQueries) async {
+    Hive.box(AppHiveConstants.settings).put('searchQueries', searchQueries);
   }
 
 

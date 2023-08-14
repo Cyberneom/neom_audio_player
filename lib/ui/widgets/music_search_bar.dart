@@ -25,12 +25,14 @@ import 'package:flutter/material.dart';
 
 import 'package:hive/hive.dart';
 import 'package:neom_commons/core/utils/app_theme.dart';
+import 'package:neom_music_player/data/implementations/app_hive_controller.dart';
 import 'package:neom_music_player/ui/YouTube/youtube_search.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
 import 'package:get/get.dart';
 
-class SearchBar extends StatefulWidget {
+class MusicSearchBar extends StatefulWidget {
+
   final bool isYt;
   final Widget body;
   final bool autofocus;
@@ -42,7 +44,8 @@ class SearchBar extends StatefulWidget {
   final Function(String)? onQueryChanged;
   final Function()? onQueryCleared;
   final Function(String) onSubmitted;
-  const SearchBar({
+
+  const MusicSearchBar({
     super.key,
     this.leading,
     this.hintText,
@@ -58,10 +61,10 @@ class SearchBar extends StatefulWidget {
   });
 
   @override
-  State<SearchBar> createState() => _SearchBarState();
+  State<MusicSearchBar> createState() => _MusicSearchBarState();
 }
 
-class _SearchBarState extends State<SearchBar> {
+class _MusicSearchBarState extends State<MusicSearchBar> {
   String tempQuery = '';
   String query = '';
   final ValueNotifier<bool> hide = ValueNotifier<bool>(true);
@@ -99,16 +102,9 @@ class _SearchBarState extends State<SearchBar> {
         Column(
           children: [
             Card(
-              margin: const EdgeInsets.fromLTRB(
-                18.0,
-                10.0,
-                18.0,
-                15.0,
-              ),
+              margin: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(
-                  10.0,
-                ),
+                borderRadius: BorderRadius.circular(10.0,),
               ),
               elevation: 8.0,
               child: Container(
@@ -170,35 +166,26 @@ class _SearchBarState extends State<SearchBar> {
                       if (widget.liveSearch && val.trim() != '') {
                         hide.value = false;
                         if (widget.isYt) {
-                          Future.delayed(
-                            const Duration(
-                              milliseconds: 600,
-                            ),
+                          Future.delayed(const Duration(milliseconds: 600,),
                             () async {
-                              if (tempQuery == val &&
-                                  tempQuery.trim() != '' &&
-                                  tempQuery != query) {
+                              if (tempQuery == val && tempQuery.trim() != ''
+                                  && tempQuery != query) {
                                 query = tempQuery;
                                 suggestionsList.value =
-                                    await widget.onQueryChanged!(tempQuery)
-                                        as List;
+                                await widget.onQueryChanged!(tempQuery) as List;
                               }
                             },
                           );
                         } else {
-                          Future.delayed(
-                            const Duration(
-                              milliseconds: 600,
-                            ),
+                          Future.delayed(const Duration(milliseconds: 600,),
                             () async {
-                              if (tempQuery == val &&
-                                  tempQuery.trim() != '' &&
-                                  tempQuery != query) {
+                              if (tempQuery == val && tempQuery.trim() != ''
+                                  && tempQuery != query) {
                                 query = tempQuery;
                                 if (widget.onQueryChanged == null) {
                                   widget.onSubmitted(tempQuery);
                                 } else {
-                                  widget.onQueryChanged!(tempQuery);
+                                  await widget.onQueryChanged!(tempQuery);
                                 }
                               }
                             },
@@ -206,13 +193,12 @@ class _SearchBarState extends State<SearchBar> {
                         }
                       }
                     },
-                    onSubmitted: (submittedQuery) {
+                    onSubmitted: (submittedQuery) async {
                       if (!hide.value) hide.value = true;
                       if (submittedQuery.trim() != '') {
                         query = submittedQuery.trim();
                         widget.onSubmitted(submittedQuery);
-                        List searchQueries = Hive.box(AppHiveConstants.settings)
-                            .get('search', defaultValue: []) as List;
+                        List searchQueries = AppHiveController().searchQueries;
                         if (searchQueries.contains(query)) {
                           searchQueries.remove(query);
                         }
@@ -220,7 +206,7 @@ class _SearchBarState extends State<SearchBar> {
                         if (searchQueries.length > 10) {
                           searchQueries = searchQueries.sublist(0, 10);
                         }
-                        Hive.box(AppHiveConstants.settings).put('search', searchQueries);
+                        await AppHiveController().setSearchQueries(searchQueries);
                       }
                     },
                   ),
@@ -289,7 +275,8 @@ class _SearchBarState extends State<SearchBar> {
                                 ),
                               ),
                               elevation: 8.0,
-                              child: SizedBox(
+                              child: Container(
+                                decoration: AppTheme.appBoxDecoration,
                                 height: min(
                                   MediaQuery.of(context).size.height / 1.75,
                                   70.0 * suggestedList.length,
@@ -305,8 +292,7 @@ class _SearchBarState extends State<SearchBar> {
                                   itemCount: suggestedList.length,
                                   itemBuilder: (context, index) {
                                     return ListTile(
-                                      leading:
-                                          const Icon(CupertinoIcons.search),
+                                      leading: const Icon(CupertinoIcons.search),
                                       title: Text(
                                         suggestedList[index].toString(),
                                         overflow: TextOverflow.ellipsis,
@@ -316,34 +302,18 @@ class _SearchBarState extends State<SearchBar> {
                                           suggestedList[index].toString(),
                                         );
                                         hide.value = true;
-                                        List searchQueries =
-                                            Hive.box(AppHiveConstants.settings).get(
-                                          'search',
-                                          defaultValue: [],
-                                        ) as List;
+                                        List searchQueries = Hive.box(AppHiveConstants.settings).get('searchQueries', defaultValue: [],) as List;
                                         if (searchQueries.contains(
-                                          suggestedList[index]
-                                              .toString()
-                                              .trim(),
+                                          suggestedList[index].toString().trim(),
                                         )) {
-                                          searchQueries.remove(
-                                            suggestedList[index]
-                                                .toString()
-                                                .trim(),
-                                          );
+                                          searchQueries.remove(suggestedList[index].toString().trim(),);
                                         }
-                                        searchQueries.insert(
-                                          0,
-                                          suggestedList[index]
-                                              .toString()
-                                              .trim(),
+                                        searchQueries.insert(0, suggestedList[index].toString().trim(),
                                         );
                                         if (searchQueries.length > 10) {
-                                          searchQueries =
-                                              searchQueries.sublist(0, 10);
+                                          searchQueries = searchQueries.sublist(0, 10);
                                         }
-                                        Hive.box(AppHiveConstants.settings)
-                                            .put('search', searchQueries);
+                                        AppHiveController().setSearchQueries(searchQueries);
                                       },
                                     );
                                   },

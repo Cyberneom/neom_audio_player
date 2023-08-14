@@ -24,6 +24,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:logging/logging.dart';
+import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_music_player/ui/widgets/snackbar.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
 import 'package:neom_music_player/utils/helpers/picker.dart';
@@ -58,7 +59,7 @@ Future<void> exportPlaylist(
     try {
       file = await File('$dirPath/$showName.json').create(recursive: true);
     } catch (e) {
-      Logger.root.severe(
+      AppUtilities.logger.e(
         'Error creating export playlist file. Retrying with file access permission',
       );
       await [
@@ -72,7 +73,7 @@ Future<void> exportPlaylist(
       '${PlayerTranslationConstants.exported.tr} "$showName"',
     );
   } catch (e) {
-    Logger.root.severe('Error while exporting playlist', e);
+    AppUtilities.logger.e('Error while exporting playlist', e);
     ShowSnackBar().showSnackBar(
       context,
       PlayerTranslationConstants.failedExport.tr,
@@ -132,7 +133,7 @@ Future<List> importFilePlaylist(
       }
     }
     if (temp == '') {
-      Logger.root.severe('Error while importing playlist', 'path is empty');
+      AppUtilities.logger.e('Error while importing playlist', 'path is empty');
       if (context != null) {
         ShowSnackBar().showSnackBar(
           context,
@@ -142,7 +143,7 @@ Future<List> importFilePlaylist(
       return playlistNames;
     }
 
-    Logger.root.severe('Got playlist path', temp);
+    AppUtilities.logger.e('Got playlist path', temp);
     final RegExp avoid = RegExp(r'[\.\\\*\:\"\?#/;\|]');
     String playlistName = temp
         .split('/')
@@ -185,7 +186,7 @@ Future<List> importFilePlaylist(
     }
     return playlistNames;
   } catch (e) {
-    Logger.root.severe('Error while importing playlist', e);
+    AppUtilities.logger.e('Error while importing playlist', e);
     if (context != null) {
       ShowSnackBar().showSnackBar(
         context,

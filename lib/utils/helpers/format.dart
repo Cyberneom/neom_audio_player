@@ -23,6 +23,7 @@ import 'dart:typed_data';
 import 'package:dart_des/dart_des.dart';
 import 'package:hive/hive.dart';
 import 'package:logging/logging.dart';
+import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_music_player/data/api_services/APIs/saavn_api.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
 import 'package:neom_music_player/utils/helpers/extensions.dart';
@@ -62,7 +63,7 @@ class FormatResponse {
       }
 
       if (response != null && response.containsKey('Error')) {
-        Logger.root.severe(
+        AppUtilities.logger.e(
           'Error at index $i inside FormatSongsResponse: ${response["Error"]}',
         );
       } else {
@@ -147,7 +148,7 @@ class FormatResponse {
       };
       // Hive.box(AppHiveConstants.cache).put(response['id'].toString(), info);
     } catch (e) {
-      Logger.root.severe('Error inside FormatSingleSongResponse: $e');
+      AppUtilities.logger.e('Error inside FormatSingleSongResponse: $e');
       return {'Error': e};
     }
   }
@@ -212,7 +213,7 @@ class FormatResponse {
         'url': decode(response['encrypted_media_url'].toString())
       };
     } catch (e) {
-      Logger.root.severe('Error inside FormatSingleAlbumSongResponse: $e');
+      AppUtilities.logger.e('Error inside FormatSingleAlbumSongResponse: $e');
       return {'Error': e};
     }
   }
@@ -235,7 +236,7 @@ class FormatResponse {
           response = await formatSingleShowResponse(responseList[i] as Map);
       }
       if (response!.containsKey('Error')) {
-        Logger.root.severe(
+        AppUtilities.logger.e(
           'Error at index $i inside FormatAlbumResponse: ${response["Error"]}',
         );
       } else {
@@ -288,7 +289,7 @@ class FormatResponse {
         'perma_url': response['url'].toString(),
       };
     } catch (e) {
-      Logger.root.severe('Error inside formatSingleAlbumResponse: $e');
+      AppUtilities.logger.e('Error inside formatSingleAlbumResponse: $e');
       return {'Error': e};
     }
   }
@@ -318,7 +319,7 @@ class FormatResponse {
         'perma_url': response['url'].toString(),
       };
     } catch (e) {
-      Logger.root.severe('Error inside formatSinglePlaylistResponse: $e');
+      AppUtilities.logger.e('Error inside formatSinglePlaylistResponse: $e');
       return {'Error': e};
     }
   }
@@ -353,7 +354,7 @@ class FormatResponse {
         'image': getImageUrl(response['image'].toString()),
       };
     } catch (e) {
-      Logger.root.severe('Error inside formatSingleArtistResponse: $e');
+      AppUtilities.logger.e('Error inside formatSingleArtistResponse: $e');
       return {'Error': e};
     }
   }
@@ -364,7 +365,7 @@ class FormatResponse {
       final Map response =
           await formatSingleArtistTopAlbumSongResponse(responseList[i] as Map);
       if (response.containsKey('Error')) {
-        Logger.root.severe(
+        AppUtilities.logger.e(
           'Error at index $i inside FormatArtistTopAlbumsResponse: ${response["Error"]}',
         );
       } else {
@@ -426,8 +427,7 @@ class FormatResponse {
         'image': getImageUrl(response['image'].toString()),
       };
     } catch (e) {
-      Logger.root
-          .severe('Error inside formatSingleArtistTopAlbumSongResponse: $e');
+      AppUtilities.logger.e('Error inside formatSingleArtistTopAlbumSongResponse: $e');
       return {'Error': e};
     }
   }
@@ -438,7 +438,7 @@ class FormatResponse {
       final Map response =
           await formatSingleSimilarArtistResponse(responseList[i] as Map);
       if (response.containsKey('Error')) {
-        Logger.root.severe(
+        AppUtilities.logger.e(
           'Error at index $i inside FormatSimilarArtistsResponse: ${response["Error"]}',
         );
       } else {
@@ -461,7 +461,7 @@ class FormatResponse {
         'perma_url': response['perma_url'].toString(),
       };
     } catch (e) {
-      Logger.root.severe('Error inside formatSingleSimilarArtistResponse: $e');
+      AppUtilities.logger.e('Error inside formatSingleSimilarArtistResponse: $e');
       return {'Error': e};
     }
   }
@@ -479,7 +479,7 @@ class FormatResponse {
         'image': getImageUrl(response['image'].toString()),
       };
     } catch (e) {
-      Logger.root.severe('Error inside formatSingleShowResponse: $e');
+      AppUtilities.logger.e('Error inside formatSingleShowResponse: $e');
       return {'Error': e};
     }
   }
@@ -526,7 +526,7 @@ class FormatResponse {
       ];
       data['collections_temp'] = promoListTemp;
     } catch (e) {
-      Logger.root.severe('Error inside formatHomePageData: $e');
+      AppUtilities.logger.e('Error inside formatHomePageData: $e');
     }
     return data;
   }
@@ -541,7 +541,7 @@ class FormatResponse {
       data['collections'].addAll(promoList);
       data['collections_temp'] = [];
     } catch (e) {
-      Logger.root.severe('Error inside formatPromoLists: $e');
+      AppUtilities.logger.e('Error inside formatPromoLists: $e');
     }
     return data;
   }

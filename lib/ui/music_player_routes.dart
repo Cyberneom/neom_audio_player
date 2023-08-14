@@ -21,7 +21,7 @@ import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:neom_music_player/ui/home/music_player_root_page.dart';
 import 'package:neom_music_player/ui/drawer/library/downloads.dart';
-import 'package:neom_music_player/ui/drawer/library/nowplaying.dart';
+import 'package:neom_music_player/ui/drawer/library/now_playing_page.dart';
 import 'package:neom_music_player/ui/drawer/library/playlists.dart';
 import 'package:neom_music_player/ui/drawer/library/recent.dart';
 import 'package:neom_music_player/ui/drawer/library/stats.dart';
@@ -41,7 +41,7 @@ class MusicPlayerRoutes {
     MusicPlayerRouteConstants.pref: (context) => const WelcomePreferencePage(),
     MusicPlayerRouteConstants.setting: (context) => const MusicPlayerSettingsPage(),
     MusicPlayerRouteConstants.playlists: (context) => PlaylistPage(),
-    MusicPlayerRouteConstants.nowPlaying: (context) => NowPlaying(),
+    MusicPlayerRouteConstants.nowPlaying: (context) => NowPlayingPage(),
     MusicPlayerRouteConstants.recent: (context) => RecentlyPlayed(),
     MusicPlayerRouteConstants.downloads: (context) => const Downloads(),
     MusicPlayerRouteConstants.stats: (context) => const Stats(),

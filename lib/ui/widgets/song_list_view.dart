@@ -85,7 +85,7 @@ class _SongsListViewPageState extends State<SongsListViewPage> {
     if (widget.loadMoreFunction != null) {
       _scrollController.addListener(() {
         if (_scrollController.position.pixels >=
-                _scrollController.position.maxScrollExtent &&
+            _scrollController.position.maxScrollExtent &&
             !loading) {
           page += 1;
           _loadMore();
@@ -121,7 +121,7 @@ class _SongsListViewPageState extends State<SongsListViewPage> {
         fetched = true;
         loading = false;
       });
-      Logger.root.severe(
+      AppUtilities.logger.e(
         'Error in song_list_view loadInitial: $e',
       );
     }
@@ -143,7 +143,7 @@ class _SongsListViewPageState extends State<SongsListViewPage> {
         fetched = true;
         loading = false;
       });
-      Logger.root.severe(
+      AppUtilities.logger.e(
         'Error in song_list_view loadMore: $e',
       );
     }
@@ -166,9 +166,8 @@ class _SongsListViewPageState extends State<SongsListViewPage> {
                 secondarySubtitle: widget.secondarySubtitle,
                 onPlayTap: widget.onPlay,
                 onShuffleTap: widget.onShuffle,
-                placeholderImage:
-                    widget.placeholderImageUrl ?? AppAssets.musicPlayerCover,
-                imageUrl: UrlImageGetter([widget.imageUrl]).mediumQuality,
+                placeholderImage: widget.placeholderImageUrl ?? AppAssets.musicPlayerCover,
+                imageUrl: widget.imageUrl != null ? UrlImageGetter([widget.imageUrl]).mediumQuality : AppFlavour.getAppLogoUrl(),
                 sliverList: SliverList(
                   delegate: SliverChildListDelegate([
                     if (itemsList.isNotEmpty && widget.listItemsTitle != null)
@@ -189,14 +188,18 @@ class _SongsListViewPageState extends State<SongsListViewPage> {
                       ),
                     ...itemsList.map((entry) {
                       return ListTile(
-                        contentPadding: widget.listItemsPadding ??
-                            const EdgeInsets.symmetric(horizontal: 20.0),
-                        title: Text(
-                          entry.title,
+                        contentPadding: widget.listItemsPadding ?? const EdgeInsets.symmetric(horizontal: 20.0),
+                        title: Text(entry.title,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
                             fontWeight: FontWeight.w500,
                           ),
+                        ),
+                        subtitle: entry.subtitle != null ? Text(entry.subtitle!,
+                          overflow: TextOverflow.ellipsis,) : null,
+                        leading: imageCard(
+                          elevation: 8,
+                          imageUrl: entry.image,
                         ),
                         onLongPress: () {
                           copyToClipboard(
@@ -204,16 +207,6 @@ class _SongsListViewPageState extends State<SongsListViewPage> {
                             text: entry.title,
                           );
                         },
-                        subtitle: entry.subtitle != null
-                            ? Text(
-                                entry.subtitle!,
-                                overflow: TextOverflow.ellipsis,
-                              )
-                            : null,
-                        leading: imageCard(
-                          elevation: 8,
-                          imageUrl: entry.image,
-                        ),
                         // trailing: Row(
                         //   mainAxisSize: MainAxisSize.min,
                         //   children: [

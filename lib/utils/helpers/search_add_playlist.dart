@@ -24,6 +24,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:logging/logging.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
+import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_music_player/data/api_services/APIs/saavn_api.dart';
 import 'package:neom_music_player/data/api_services/spotify/spotify_api_calls.dart';
 import 'package:neom_music_player/data/implementations/playlist_hive_controller.dart';
@@ -56,7 +57,7 @@ class SearchAddPlaylist {
       }
       return {};
     } catch (e) {
-      Logger.root.severe('Error while adding YT playlist: $e');
+      AppUtilities.logger.e('Error while adding YT playlist: $e');
       return {};
     }
   }
@@ -75,7 +76,7 @@ class SearchAddPlaylist {
         'tracks': tracks,
       };
     } catch (e) {
-      Logger.root.severe('Error while adding Spotify playlist: $e');
+      AppUtilities.logger.e('Error while adding Spotify playlist: $e');
       return {};
     }
   }
@@ -111,7 +112,7 @@ class SearchAddPlaylist {
       }
       return {};
     } catch (e) {
-      Logger.root.severe('Error while adding Resso playlist: $e');
+      AppUtilities.logger.e('Error while adding Resso playlist: $e');
       return {};
     }
   }
@@ -141,7 +142,7 @@ class SearchAddPlaylist {
       }
       return {};
     } catch (e) {
-      Logger.root.severe('Error while adding JioSaavn playlist: $e');
+      AppUtilities.logger.e('Error while adding JioSaavn playlist: $e');
       return {};
     }
   }
@@ -161,7 +162,7 @@ class SearchAddPlaylist {
             await SaavnAPI().fetchTopSearchResult(trackName!.split('|')[0]);
         PlaylistHiveController().addMapToPlaylist(playName, result[0] as Map);
       } catch (e) {
-        Logger.root.severe('Error in $done: $e');
+        AppUtilities.logger.e('Error in $done: $e');
       }
     }
   }
@@ -186,7 +187,7 @@ class SearchAddPlaylist {
             await SaavnAPI().fetchTopSearchResult('$trackName by $artistName');
         PlaylistHiveController().addMapToPlaylist(playName, result[0] as Map);
       } catch (e) {
-        Logger.root.severe('Error in $done: $e');
+        AppUtilities.logger.e('Error in $done: $e');
       }
     }
   }
@@ -212,7 +213,7 @@ class SearchAddPlaylist {
             await SaavnAPI().fetchTopSearchResult('$trackName by $artistName');
         PlaylistHiveController().addMapToPlaylist(playName, result[0] as Map);
       } catch (e) {
-        Logger.root.severe('Error in $done: $e');
+        AppUtilities.logger.e('Error in $done: $e');
       }
     }
   }

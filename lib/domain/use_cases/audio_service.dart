@@ -32,8 +32,8 @@ import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_music_player/data/api_services/APIs/saavn_api.dart';
 import 'package:neom_music_player/data/implementations/app_hive_controller.dart';
 import 'package:neom_music_player/data/implementations/playlist_hive_controller.dart';
+import 'package:neom_music_player/domain/entities/app_media_item.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
-import 'package:neom_music_player/utils/helpers/mediaitem_converter.dart';
 import 'package:neom_music_player/domain/use_cases/isolate_service.dart';
 import 'package:neom_music_player/domain/use_cases/yt_music.dart';
 import 'package:neom_music_player/ui/player/audioplayer.dart';
@@ -105,9 +105,7 @@ class AudioPlayerHandlerImpl extends BaseAudioHandler with QueueHandler, SeekHan
   @override
   Stream<QueueState> get queueState =>
       Rx.combineLatest3<List<MediaItem>, PlaybackState, List<int>, QueueState>(
-        queue,
-        playbackState,
-        _player!.shuffleIndicesStream.whereType<List<int>>(),
+        queue, playbackState, _player!.shuffleIndicesStream.whereType<List<int>>(),
         (queue, playbackState, shuffleIndices) => QueueState(
           queue,
           playbackState.queueIndex,
@@ -160,7 +158,7 @@ class AudioPlayerHandlerImpl extends BaseAudioHandler with QueueHandler, SeekHan
         );
         preferredQuality = preferredWifiQuality;
       } else if (result == ConnectivityResult.none) {
-        Logger.root.severe(
+        AppUtilities.logger.e(
           'player | internet connection not available',
         );
       } else {
@@ -202,7 +200,7 @@ class AudioPlayerHandlerImpl extends BaseAudioHandler with QueueHandler, SeekHan
                   //     stationId: stationId!, count: queueLength - index - 20);
 
                   for (int i = 0; i < value.length; i++) {
-                    final element = MediaItemConverter.mapToMediaItem(
+                    final element = MediaItemFormatter.fromJSON(
                       value[i] as Map,
                       addedByAutoplay: true,
                     );
@@ -255,11 +253,9 @@ class AudioPlayerHandlerImpl extends BaseAudioHandler with QueueHandler, SeekHan
     });
     // Broadcast the current queue.
     _effectiveSequence
-        .map(
-          (sequence) =>
-              sequence.map((source) => _mediaItemExpando[source]!).toList(),
-        )
-        .pipe(queue);
+        .map((sequence) =>
+        sequence.map((source) => _mediaItemExpando[source]!).toList(),
+    ).pipe(queue);
     try {
       if (loadStart) {
         final List lastQueueList = AppHiveController().lastQueueList;
@@ -269,9 +265,8 @@ class AudioPlayerHandlerImpl extends BaseAudioHandler with QueueHandler, SeekHan
 
         if (lastQueueList.isNotEmpty &&
             lastQueueList.first['genre'] != 'YouTube') {
-          final List<MediaItem> lastQueue = lastQueueList
-              .map((e) => MediaItemConverter.mapToMediaItem(e as Map))
-              .toList();
+          final List<MediaItem> lastQueue = lastQueueList.map(
+                  (e) => MediaItemFormatter.fromJSON(e as Map)).toList();
           if (lastQueue.isEmpty) {
             await _player!.setAudioSource(_playlist, preload: false);
           } else {
@@ -282,7 +277,7 @@ class AudioPlayerHandlerImpl extends BaseAudioHandler with QueueHandler, SeekHan
                 await _player!.seek(Duration(seconds: lastPos), index: lastIndex);
               }
             } catch (e) {
-              Logger.root.severe('Error while setting last audiosource', e);
+              AppUtilities.logger.e('Error while setting last audiosource', e);
               await _player!.setAudioSource(_playlist, preload: false);
             }
           }
@@ -293,7 +288,7 @@ class AudioPlayerHandlerImpl extends BaseAudioHandler with QueueHandler, SeekHan
         await _player!.setAudioSource(_playlist, preload: false);
       }
     } catch (e) {
-      Logger.root.severe('Error while loading last queue', e);
+      AppUtilities.logger.e('Error while loading last queue', e);
       await _player!.setAudioSource(_playlist, preload: false);
     }
     if (!jobRunning) {
@@ -311,7 +306,7 @@ class AudioPlayerHandlerImpl extends BaseAudioHandler with QueueHandler, SeekHan
 
   Future<void> refreshLink(Map newData) async {
     AppUtilities.logger.i('player | received new link for ${newData['title']}');
-    final MediaItem newItem = MediaItemConverter.mapToMediaItem(newData);
+    final MediaItem newItem = MediaItemFormatter.fromJSON(newData);
     // final String? boxName = mediaItem.extras!['playlistBox']?.toString();
     // if (boxName != null) {
     //   AppUtilities.logger.i('linked with playlist $boxName');
@@ -397,9 +392,7 @@ class AudioPlayerHandlerImpl extends BaseAudioHandler with QueueHandler, SeekHan
                 return audioSource;
               }
             } else {
-              AppUtilities.logger.i(
-                'youtube link not found in cache for ${mediaItem.title}, refreshing',
-              );
+              AppUtilities.logger.d('youtube link not found in cache for ${mediaItem.title}, refreshing',);
               refreshLinks.add(mediaItem.id);
               if (!jobRunning) {
                 refreshJob();
@@ -512,7 +505,7 @@ class AudioPlayerHandlerImpl extends BaseAudioHandler with QueueHandler, SeekHan
     }
     AppUtilities.logger.i('adding ${mediaitem.id} data to stats');
 
-    final Map item = MediaItemConverter.mediaItemToMap(mediaitem);
+    final Map item = MediaItemFormatter.toJSON(mediaitem);
     recentList.insert(0, item);
 
     final jsonList = recentList.map((item) => jsonEncode(item)).toList();
@@ -528,25 +521,29 @@ class AudioPlayerHandlerImpl extends BaseAudioHandler with QueueHandler, SeekHan
   Future<void> addLastQueue(List<MediaItem> queue) async {
     if (queue.isNotEmpty && queue.first.genre != 'YouTube') {
       AppUtilities.logger.i('saving last queue');
-      final lastQueue =
-          queue.map((item) => MediaItemConverter.mediaItemToMap(item)).toList();
+      final lastQueue = queue.map((item) {
+        return MediaItemFormatter.toJSON(item);
+      }).toList();
       Hive.box(AppHiveConstants.cache).put('lastQueue', lastQueue);
     }
   }
 
   Future<void> skipToMediaItem(String id) async {
-    final index = queue.value!.indexWhere((item) => item.id == id);
-    _player!.seek(
-      Duration.zero,
-      index:
-          _player!.shuffleModeEnabled ? _player!.shuffleIndices![index] : index,
+    AppUtilities.logger.d('');
+    int? index;
+    if(queue.value!.indexWhere((item) => item.id == id) >= 0) {
+      index = queue.value!.indexWhere((item) => item.id == id);
+      AppUtilities.logger.d("MediaItem found in Queue with Index $index");
+    }
+
+    _player!.seek(Duration.zero, index: _player!.shuffleModeEnabled && index != null ? _player!.shuffleIndices![index] : index,
     );
   }
 
   @override
   Future<void> addQueueItem(MediaItem mediaItem) async {
     final res = await _itemToSource(mediaItem);
-    if (res != null) {
+    if (res   != null) {
       await _playlist.add(res);
     }
   }
@@ -670,12 +667,12 @@ class AudioPlayerHandlerImpl extends BaseAudioHandler with QueueHandler, SeekHan
 
   @override
   Future<void> stop() async {
-    AppUtilities.logger.i('stopping player');
+    AppUtilities.logger.d('stopping player');
     await _player!.stop();
     await playbackState.firstWhere(
       (state) => state.processingState == AudioProcessingState.idle,
     );
-    AppUtilities.logger.i('caching last index and position');
+    AppUtilities.logger.v('Caching last index ${_player!.currentIndex} and position ${_player!.position.inSeconds}');
     await Hive.box(AppHiveConstants.cache).put('lastIndex', _player!.currentIndex);
     await Hive.box(AppHiveConstants.cache).put('lastPos', _player!.position.inSeconds);
     await addLastQueue(queue.valueWrapper!.value);
@@ -709,7 +706,7 @@ class AudioPlayerHandlerImpl extends BaseAudioHandler with QueueHandler, SeekHan
         if (newPosition > _player!.duration!) newPosition = _player!.duration!;
         _player!.seek(newPosition);
       } catch (e) {
-        Logger.root.severe('Error in fastForward', e);
+        AppUtilities.logger.e('Error in fastForward', e);
       }
     }
 
@@ -721,7 +718,7 @@ class AudioPlayerHandlerImpl extends BaseAudioHandler with QueueHandler, SeekHan
         if (newPosition > _player!.duration!) newPosition = _player!.duration!;
         _player!.seek(newPosition);
       } catch (e) {
-        Logger.root.severe('Error in rewind', e);
+        AppUtilities.logger.e('Error in rewind', e);
       }
     }
 

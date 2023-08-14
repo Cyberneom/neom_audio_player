@@ -63,10 +63,10 @@ class GitHub {
       if (resp is List) {
         return resp[0] as Map;
       } else if (resp is Map) {
-        Logger.root.severe('Failed to fetch releases', resp['message']);
+        AppUtilities.logger.e('Failed to fetch releases', resp['message']);
       }
     } else {
-      Logger.root.severe('Failed to fetch releases', res.body);
+      AppUtilities.logger.e('Failed to fetch releases', res.body);
     }
     return {};
   }

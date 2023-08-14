@@ -76,18 +76,12 @@ class _DownloadedSongsState extends State<DownloadedSongs>
 
   bool added = false;
   int sortValue = Hive.box(AppHiveConstants.settings).get('sortValue', defaultValue: 1) as int;
-  int orderValue =
-      Hive.box(AppHiveConstants.settings).get('orderValue', defaultValue: 1) as int;
-  int albumSortValue =
-      Hive.box(AppHiveConstants.settings).get('albumSortValue', defaultValue: 2) as int;
-  List dirPaths =
-      Hive.box(AppHiveConstants.settings).get('searchPaths', defaultValue: []) as List;
-  int minDuration =
-      Hive.box(AppHiveConstants.settings).get('minDuration', defaultValue: 10) as int;
-  bool includeOrExclude =
-      Hive.box(AppHiveConstants.settings).get('includeOrExclude', defaultValue: false) as bool;
-  List includedExcludedPaths = Hive.box(AppHiveConstants.settings)
-      .get('includedExcludedPaths', defaultValue: []) as List;
+  int orderValue = Hive.box(AppHiveConstants.settings).get('orderValue', defaultValue: 1) as int;
+  int albumSortValue = Hive.box(AppHiveConstants.settings).get('albumSortValue', defaultValue: 2) as int;
+  List dirPaths = Hive.box(AppHiveConstants.settings).get('searchPaths', defaultValue: []) as List;
+  int minDuration = Hive.box(AppHiveConstants.settings).get('minDuration', defaultValue: 10) as int;
+  bool includeOrExclude = Hive.box(AppHiveConstants.settings).get('includeOrExclude', defaultValue: false) as bool;
+  List includedExcludedPaths = Hive.box(AppHiveConstants.settings).get('includedExcludedPaths', defaultValue: []) as List;
   TabController? _tcontroller;
   int _currentTabIndex = 0;
   OfflineAudioQuery offlineAudioQuery = OfflineAudioQuery();
@@ -202,12 +196,12 @@ class _DownloadedSongsState extends State<DownloadedSongs>
             _sortedFolderKeysList.add(dirPath);
           }
         } catch (e) {
-          Logger.root.severe('Error in sorting songs', e);
+          AppUtilities.logger.e('Error in sorting songs', e);
         }
       }
       AppUtilities.logger.i('albums, artists, genre & folders set');
     } catch (e) {
-      Logger.root.severe('Error in getData', e);
+      AppUtilities.logger.e('Error in getData', e);
       added = true;
     }
   }
@@ -282,7 +276,7 @@ class _DownloadedSongsState extends State<DownloadedSongs>
         '${PlayerTranslationConstants.deleted.tr} ${song.title}',
       );
     } catch (e) {
-      Logger.root.severe('Failed to delete $audioFile.path', e);
+      AppUtilities.logger.e('Failed to delete $audioFile.path', e);
       ShowSnackBar().showSnackBar(
         context,
         duration: const Duration(seconds: 5),

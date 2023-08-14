@@ -24,6 +24,7 @@ import 'package:hive/hive.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
 import 'package:neom_music_player/data/implementations/playlist_hive_controller.dart';
+import 'package:neom_music_player/domain/entities/app_media_item.dart';
 import 'package:neom_music_player/ui/widgets/collage.dart';
 import 'package:neom_music_player/ui/widgets/gradient_containers.dart';
 import 'package:neom_music_player/ui/widgets/snackbar.dart';

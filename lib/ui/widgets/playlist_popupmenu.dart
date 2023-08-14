@@ -25,7 +25,7 @@ import 'package:neom_music_player/data/implementations/playlist_hive_controller.
 import 'package:neom_music_player/ui/player/audioplayer.dart';
 import 'package:neom_music_player/ui/widgets/snackbar.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
-import 'package:neom_music_player/utils/helpers/mediaitem_converter.dart';
+import 'package:neom_music_player/domain/entities/app_media_item.dart';
 
 class PlaylistPopupMenu extends StatefulWidget {
   final List data;
@@ -95,7 +95,7 @@ class _PlaylistPopupMenuState extends State<PlaylistPopupMenu> {
             // TODO: make sure to check if song is already in queue
             final queue = audioHandler.queue.valueWrapper?.value;
             widget.data.map((e) {
-              final element = MediaItemConverter.mapToMediaItem(e as Map);
+              final element = MediaItemFormatter.fromJSON(e as Map);
               if (!queue!.contains(element)) {
                 audioHandler.addQueueItem(element);
               }

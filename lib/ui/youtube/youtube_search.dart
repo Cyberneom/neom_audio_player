@@ -20,13 +20,13 @@
 import 'package:flutter/material.dart';
 
 import 'package:hive/hive.dart';
-import 'package:logging/logging.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
+import 'package:neom_commons/core/utils/constants/app_translation_constants.dart';
 import 'package:neom_music_player/ui/widgets/empty_screen.dart';
 import 'package:neom_music_player/ui/widgets/gradient_containers.dart';
 import 'package:neom_music_player/ui/widgets/image_card.dart';
-import 'package:neom_music_player/ui/widgets/search_bar.dart' as searchbar;
+import 'package:neom_music_player/ui/widgets/music_search_bar.dart' as searchbar;
 import 'package:neom_music_player/ui/widgets/snackbar.dart';
 import 'package:neom_music_player/ui/widgets/song_tile_trailing_menu.dart';
 import 'package:neom_music_player/domain/use_cases/player_service.dart';
@@ -38,6 +38,8 @@ import 'package:neom_music_player/ui/YouTube/youtube_playlist.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
 import 'package:get/get.dart';
+import 'package:neom_music_player/utils/enums/youtube_item_type.dart';
+import 'package:enum_to_string/enum_to_string.dart';
 
 class YouTubeSearchPage extends StatefulWidget {
   final String query;
@@ -52,19 +54,18 @@ class YouTubeSearchPage extends StatefulWidget {
 }
 
 class _YouTubeSearchPageState extends State<YouTubeSearchPage> {
+
   String query = '';
   bool status = false;
   List<Map> searchedList = [];
   bool fetched = false;
   bool done = true;
-  bool liveSearch =
-      Hive.box(AppHiveConstants.settings).get('liveSearch', defaultValue: true) as bool;
-  List searchHistory =
-      Hive.box(AppHiveConstants.settings).get('search', defaultValue: []) as List;
-  bool searchYtMusic =
-      Hive.box(AppHiveConstants.settings).get('searchYtMusic', defaultValue: true) as bool;
-  // bool showHistory =
-  // Hive.box(AppHiveConstants.settings).get('showHistory', defaultValue: true) as bool;
+
+  //TODO Get Values from AppHiveController
+  bool liveSearch = Hive.box(AppHiveConstants.settings).get('liveSearch', defaultValue: true) as bool;
+  List searchHistory = Hive.box(AppHiveConstants.settings).get('search', defaultValue: []) as List;
+  bool searchYtMusic = Hive.box(AppHiveConstants.settings).get('searchYtMusic', defaultValue: true) as bool;
+  bool showHistory = Hive.box(AppHiveConstants.settings).get('showHistory', defaultValue: true) as bool;
   final TextEditingController _controller = TextEditingController();
 
   @override
@@ -81,8 +82,7 @@ class _YouTubeSearchPageState extends State<YouTubeSearchPage> {
 
   @override
   Widget build(BuildContext context) {
-    final bool rotated =
-        MediaQuery.of(context).size.height < MediaQuery.of(context).size.width;
+    final bool rotated = MediaQuery.of(context).size.height < MediaQuery.of(context).size.width;
     double boxSize = !rotated
         ? MediaQuery.of(context).size.width / 2
         : MediaQuery.of(context).size.height / 2.5;
@@ -120,7 +120,7 @@ class _YouTubeSearchPageState extends State<YouTubeSearchPage> {
         child: Scaffold(
           resizeToAvoidBottomInset: false,
           backgroundColor: AppColor.main75,
-          body: searchbar.SearchBar(
+          body: searchbar.MusicSearchBar(
             isYt: true,
             controller: _controller,
             liveSearch: true,
@@ -130,9 +130,8 @@ class _YouTubeSearchPageState extends State<YouTubeSearchPage> {
               onPressed: () => Navigator.pop(context),
             ),
             hintText: PlayerTranslationConstants.searchYt.tr,
-            onQueryChanged: (changedQuery) {
-              return YouTubeServices()
-                  .getSearchSuggestions(query: changedQuery);
+            onQueryChanged: (changedQuery) async {
+              return YouTubeServices().getSearchSuggestions(query: changedQuery);
             },
             onSubmitted: (submittedQuery) async {
               setState(() {
@@ -259,40 +258,23 @@ class _YouTubeSearchPageState extends State<YouTubeSearchPage> {
                                                       .toString(),
                                                 ),
                                                 labelStyle: TextStyle(
-                                                  color: Theme.of(context)
-                                                      .textTheme
-                                                      .bodyLarge!
-                                                      .color,
+                                                  color: Theme.of(context).textTheme.bodyLarge!.color,
                                                   fontWeight: FontWeight.normal,
                                                 ),
                                                 onDeleted: () {
                                                   setState(() {
-                                                    searchHistory
-                                                        .removeAt(index);
-                                                    Hive.box(AppHiveConstants.settings).put(
-                                                      'search',
-                                                      searchHistory,
+                                                    searchHistory.removeAt(index);
+                                                    Hive.box(AppHiveConstants.settings).put('search', searchHistory,
                                                     );
                                                   });
                                                 },
                                               ),
                                               onTap: () {
-                                                setState(
-                                                  () {
+                                                setState(() {
                                                     fetched = false;
-                                                    query = searchHistory
-                                                        .removeAt(index)
-                                                        .toString()
-                                                        .trim();
-                                                    searchHistory.insert(
-                                                      0,
-                                                      query,
-                                                    );
-                                                    Hive.box(AppHiveConstants.settings).put(
-                                                      'search',
-                                                      searchHistory,
-                                                    );
-
+                                                    query = searchHistory.removeAt(index).toString().trim();
+                                                    searchHistory.insert(0, query,);
+                                                    Hive.box(AppHiveConstants.settings).put('search', searchHistory,);
                                                     _controller.text = query;
                                                     status = false;
                                                     fetched = false;
@@ -309,359 +291,246 @@ class _YouTubeSearchPageState extends State<YouTubeSearchPage> {
                               ),
                             )
                           : searchedList.isEmpty
-                              ? emptyScreen(
-                                  context,
-                                  0,
-                                  ':( ',
-                                  100,
-                                  PlayerTranslationConstants.sorry.tr,
-                                  60,
-                                  PlayerTranslationConstants.resultsNotFound.tr,
-                                  20,
-                                )
-                              : Stack(
-                                  children: [
-                                    SingleChildScrollView(
-                                      padding: const EdgeInsets.only(
-                                        left: 10,
-                                        right: 10,
-                                      ),
-                                      physics: const BouncingScrollPhysics(),
-                                      child: Column(
-                                        children: searchedList.map(
-                                          (Map section) {
-                                            if (section['items'] == null) {
-                                              return const SizedBox();
-                                            }
-                                            return Column(
-                                              children: [
-                                                Padding(
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                    left: 15,
-                                                    top: 20,
-                                                    bottom: 5,
-                                                  ),
-                                                  child: Row(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .spaceBetween,
-                                                    children: [
-                                                      Text(
-                                                        section['title']
-                                                            .toString(),
-                                                        style: TextStyle(
-                                                          color: Theme.of(
-                                                            context,
-                                                          )
-                                                              .colorScheme
-                                                              .secondary,
-                                                          fontSize: 18,
-                                                          fontWeight:
-                                                              FontWeight.w800,
-                                                        ),
-                                                      ),
-                                                      if (['songs'].contains(
-                                                        section['title']
-                                                            .toString()
-                                                            .toLowerCase(),
-                                                      ))
-                                                        // 'Top Result'))
-                                                        Row(
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .end,
-                                                          children: [
-                                                            GestureDetector(
-                                                              onTap: () {
-                                                                Navigator.push(
-                                                                  context,
-                                                                  PageRouteBuilder(
-                                                                    opaque:
-                                                                        false,
-                                                                    pageBuilder: (
-                                                                      _,
-                                                                      __,
-                                                                      ___,
-                                                                    ) =>
-                                                                        SongsListViewPage(
-                                                                      onTap: (
-                                                                        index,
-                                                                        listItems,
-                                                                      ) {},
-                                                                      title:
-                                                                          'Search Results',
-                                                                      subtitle:
-                                                                          '\nType: ${section['title']}\nSearched Text: "${(query == '' ? widget.query : query).capitalizeAllWordsFirstLetter()}"',
-                                                                      listItemsTitle:
-                                                                          section['title']
-                                                                              .toString(),
-                                                                      loadFunction:
-                                                                          () {
-                                                                        return YtMusicService()
-                                                                            .searchSongs(
-                                                                          query == ''
-                                                                              ? widget.query
-                                                                              : query,
-                                                                        );
-                                                                      },
-                                                                    ),
-                                                                  ),
-                                                                );
-                                                              },
-                                                              child: Row(
-                                                                children: [
-                                                                  Text(
-                                                                    PlayerTranslationConstants.viewAll.tr,
-                                                                    style:
-                                                                        TextStyle(
-                                                                      color: Theme
-                                                                              .of(
-                                                                        context,
-                                                                      )
-                                                                          .textTheme
-                                                                          .bodySmall!
-                                                                          .color,
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .w800,
-                                                                    ),
-                                                                  ),
-                                                                  Icon(
-                                                                    Icons
-                                                                        .chevron_right_rounded,
-                                                                    color: Theme
-                                                                            .of(
-                                                                      context,
-                                                                    )
-                                                                        .textTheme
-                                                                        .bodySmall!
-                                                                        .color,
-                                                                  ),
-                                                                ],
-                                                              ),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                    ],
-                                                  ),
-                                                ),
-                                                ListView.builder(
-                                                  physics:
-                                                      const NeverScrollableScrollPhysics(),
-                                                  shrinkWrap: true,
-                                                  itemCount:
-                                                      (section['items'] as List)
-                                                          .length,
-                                                  itemBuilder: (context, idx) {
-                                                    final itemType =
-                                                        section['items'][idx]
-                                                                    ['type']
-                                                                ?.toString() ??
-                                                            'Video';
-                                                    return ListTile(
-                                                      title: Text(
-                                                        section['items'][idx]
-                                                                ['title']
-                                                            .toString(),
-                                                        overflow: TextOverflow
-                                                            .ellipsis,
-                                                        style: const TextStyle(
-                                                          fontWeight:
-                                                              FontWeight.w500,
-                                                        ),
-                                                      ),
-                                                      subtitle: Text(
-                                                        section['items'][idx]
-                                                                ['subtitle']
-                                                            .toString(),
-                                                        overflow: TextOverflow
-                                                            .ellipsis,
-                                                      ),
-                                                      contentPadding:
-                                                          const EdgeInsets.only(
-                                                        left: 15.0,
-                                                      ),
-                                                      leading: imageCard(
-                                                        borderRadius:
-                                                            itemType == 'Artist'
-                                                                ? 50.0
-                                                                : 7.0,
-                                                        imageUrl:
-                                                            section['items']
-                                                                        [idx]
-                                                                    ['image']
-                                                                .toString(),
-                                                      ),
-                                                      trailing: (itemType ==
-                                                                  'Song' ||
-                                                              itemType ==
-                                                                  'Video')
-                                                          ? YtSongTileTrailingMenu(
-                                                              data: section[
-                                                                      'items']
-                                                                  [idx] as Map,
-                                                            )
-                                                          : null,
-                                                      onTap: () async {
-                                                        if (itemType ==
-                                                            'Artist') {
-                                                          Navigator.push(
-                                                            context,
-                                                            MaterialPageRoute(
-                                                              builder: (context) =>
-                                                                  YouTubeArtist(
-                                                                artistId: section[
-                                                                            'items']
-                                                                        [
-                                                                        idx]['id']
-                                                                    .toString(),
-                                                              ),
-                                                            ),
-                                                          );
-                                                        }
-                                                        if (itemType ==
-                                                                'Playlist' ||
-                                                            itemType ==
-                                                                'Album' ||
-                                                            itemType ==
-                                                                'Single') {
-                                                          Navigator.push(
-                                                            context,
-                                                            MaterialPageRoute(
-                                                              builder: (context) =>
-                                                                  YouTubePlaylist(
-                                                                playlistId: section[
-                                                                            'items']
-                                                                        [
-                                                                        idx]['id']
-                                                                    .toString(),
-                                                                type: itemType ==
-                                                                            'Album' ||
-                                                                        itemType ==
-                                                                            'Single'
-                                                                    ? 'album'
-                                                                    : 'playlist',
-                                                              ),
-                                                            ),
-                                                          );
-                                                        }
-                                                        if (itemType ==
-                                                                'Song' ||
-                                                            itemType ==
-                                                                'Video') {
-                                                          setState(() {
-                                                            done = false;
-                                                          });
-                                                          final Map? response =
-                                                              await YouTubeServices()
-                                                                  .formatVideoFromId(
-                                                            id: section['items']
-                                                                    [idx]['id']
-                                                                .toString(),
-                                                            data:
-                                                                section['items']
-                                                                        [idx]
-                                                                    as Map,
-                                                          );
-                                                          if (itemType ==
-                                                              'Song') {
-                                                            final Map
-                                                                response2 =
-                                                                await YtMusicService()
-                                                                    .getSongData(
-                                                              videoId: section[
-                                                                          'items']
-                                                                      [
-                                                                      idx]['id']
-                                                                  .toString(),
-                                                            );
-                                                            if (response !=
-                                                                    null &&
-                                                                response2[
-                                                                        'image'] !=
-                                                                    null) {
-                                                              response[
-                                                                  'image'] = response2[
-                                                                      'image'] ??
-                                                                  response[
-                                                                      'image'];
-                                                            }
-                                                          }
-                                                          setState(() {
-                                                            done = true;
-                                                          });
-                                                          if (response !=
-                                                              null) {
-                                                            PlayerInvoke.init(
-                                                              songsList: [
-                                                                response
-                                                              ],
-                                                              index: 0,
-                                                              isOffline: false,
-                                                            );
-                                                          }
-                                                          if (response ==
-                                                              null) {
-                                                            ShowSnackBar()
-                                                                .showSnackBar(
-                                                              context,
-                                                              PlayerTranslationConstants.ytLiveAlert.tr,
-                                                            );
-                                                          }
-                                                        }
-                                                      },
-                                                    );
-                                                  },
-                                                ),
-                                              ],
-                                            );
-                                          },
-                                        ).toList(),
-                                      ),
-                                    ),
-                                    if (!done)
-                                      Center(
-                                        child: SizedBox.square(
-                                          dimension: boxSize,
-                                          child: Card(
-                                            elevation: 10,
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(
-                                                15,
+                              ? emptyScreen(context,
+                    0, ':( ',
+                    100, PlayerTranslationConstants.sorry.tr,
+                    60, PlayerTranslationConstants.resultsNotFound.tr, 20,)
+                      : Stack(
+                    children: [
+                      SingleChildScrollView(
+                        padding: const EdgeInsets.only(
+                          left: 10,
+                          right: 10,
+                        ),
+                        physics: const BouncingScrollPhysics(),
+                        child: Column(
+                          children: searchedList.map(
+                                (Map section) {
+                                  if (section['items'] == null) {
+                                    return const SizedBox();
+                                  }
+                                  return Column(
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.only(left: 15, top: 20, bottom: 5,),
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(section['title'].toString(),
+                                              style: TextStyle(color: Theme.of(context,).colorScheme.secondary,
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.w800,
                                               ),
                                             ),
-                                            clipBehavior: Clip.antiAlias,
-                                            child: GradientContainer(
-                                              child: Center(
-                                                child: Column(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment
-                                                          .spaceEvenly,
-                                                  children: [
-                                                    CircularProgressIndicator(
-                                                      valueColor:
-                                                          AlwaysStoppedAnimation<
-                                                              Color>(
-                                                        Theme.of(context)
-                                                            .colorScheme
-                                                            .secondary,
-                                                      ),
-                                                      strokeWidth: 5,
+                                            if (['songs'].contains(section['title'].toString().toLowerCase(),))
+                                              Row(
+                                                mainAxisAlignment: MainAxisAlignment.end,
+                                                children: [
+                                                  GestureDetector(
+                                                    child: Row(
+                                                      children: [
+                                                        Text(
+                                                          PlayerTranslationConstants.viewAll.tr,
+                                                          style: TextStyle(color: Theme.of(context,).textTheme.bodySmall!.color,
+                                                            fontWeight: FontWeight.w800,
+                                                          ),
+                                                        ),
+                                                        Icon(Icons.chevron_right_rounded,
+                                                          color: Theme.of(context,).textTheme.bodySmall!.color,
+                                                        ),
+                                                      ],
                                                     ),
-                                                    Text(
-                                                      PlayerTranslationConstants.fetchingStream.tr,
-                                                    ),
-                                                  ],
-                                                ),
+                                                    onTap: () {
+                                                      Navigator.push(context,
+                                                        PageRouteBuilder(
+                                                          opaque: false,
+                                                          pageBuilder: (_, __, ___,) => SongsListViewPage(
+                                                            onTap: (index, listItems,) {},
+                                                            title: AppTranslationConstants.searchResults.tr,
+                                                            subtitle: '\n${AppTranslationConstants.type.tr}: ${section['title'].toString().camelCase!.tr}\n${AppTranslationConstants.searchedText.tr}: "${(query == '' ? widget.query : query)?.capitalizeAllWordsFirstLetter() ?? ""}"',
+                                                            listItemsTitle: section['title'].toString(),
+                                                            loadFunction: () {
+                                                              return YtMusicService().searchSongs(query == '' ? widget.query : query,
+                                                              );
+                                                            },
+                                                          ),
+                                                        ),
+                                                      );
+                                                    },
+                                                  ),
+                                                ],
                                               ),
-                                            ),
-                                          ),
+                                          ],
                                         ),
-                                      )
-                                  ],
+                                      ),
+                                      ListView.builder(
+                                        physics: const NeverScrollableScrollPhysics(),
+                                        shrinkWrap: true,
+                                        itemCount: (section['items'] as List).length,
+                                        itemBuilder: (context, idx) {
+                                          final itemType = section['items'][idx]['type']?.toString() ?? 'Video';
+                                          YoutubeItemType ytItemType = YoutubeItemType.song;
+                                          ytItemType = EnumToString.fromString(YoutubeItemType.values, itemType) ?? YoutubeItemType.song;
+                                          return ListTile(
+                                            title: Text(
+                                              section['items'][idx]['title'].toString(),
+                                              overflow: TextOverflow.ellipsis,
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                            subtitle: Text(
+                                              section['items'][idx]['subtitle'].toString(),
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                            contentPadding: const EdgeInsets.only(left: 15.0,),
+                                            leading: imageCard(
+                                              borderRadius: itemType == 'Artist' ? 50.0 : 7.0,
+                                              imageUrl: section['items'][idx]['image'].toString(),
+                                            ),
+                                            trailing: (itemType == 'Song' || itemType == 'Video')
+                                                ? YtSongTileTrailingMenu(
+                                              data: section['items']
+                                              [idx] as Map,) : null,
+                                            onTap: () async {
+                                              AppUtilities.logger.d("Tapping Search Result");
+                                              switch(ytItemType) {
+                                                case YoutubeItemType.artist:
+                                                  Navigator.push(context,
+                                                    MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          YouTubeArtist(artistId: section['items'][idx]['id'].toString(),
+                                                          ),
+                                                    ),
+                                                  );
+                                                  break;
+                                                case YoutubeItemType.playlist:
+                                                  Navigator.push(context,
+                                                    MaterialPageRoute(builder: (context) =>
+                                                        YouTubePlaylist(playlistId: section['items'][idx]['id'].toString(),
+                                                          type: 'playlist',
+                                                        ),
+                                                    ),
+                                                  );
+                                                  break;
+                                                case YoutubeItemType.song:
+                                                  setState(() {
+                                                    done = false;
+                                                  });
+                                                  final Map? response = await YouTubeServices().formatVideoFromId(
+                                                    id: section['items'][idx]['id'].toString(),
+                                                    data: section['items'][idx] as Map,
+                                                  );
+                                                  final Map response2 = await YtMusicService().getSongData(
+                                                    videoId: section['items'][idx]['id'].toString(),
+                                                  );
+                                                  if (response != null && response2['image'] != null) {
+                                                    response['image'] = response2['image'] ?? response['image'];
+                                                  }
+                                                  setState(() {
+                                                    done = true;
+                                                  });
+                                                  if (response != null) {
+                                                    PlayerInvoke.init(songsList: [response],
+                                                      index: 0, isOffline: false,
+                                                    );
+                                                  }
+                                                  if (response == null) {
+                                                    ShowSnackBar().showSnackBar(context, PlayerTranslationConstants.ytLiveAlert.tr,);
+                                                  }
+                                                  break;
+                                                case YoutubeItemType.video:
+                                                  setState(() {
+                                                    done = false;
+                                                  });
+                                                  final Map? response = await YouTubeServices().formatVideoFromId(
+                                                    id: section['items'][idx]['id'].toString(),
+                                                    data: section['items'][idx] as Map,
+                                                  );
+                                                  setState(() {
+                                                    done = true;
+                                                  });
+                                                  if (response != null) {
+                                                    PlayerInvoke.init(songsList: [response],
+                                                      index: 0, isOffline: false,
+                                                    );
+                                                  }
+                                                  if (response == null) {
+                                                    ShowSnackBar().showSnackBar(context, PlayerTranslationConstants.ytLiveAlert.tr,);
+                                                  }
+                                                  break;
+                                                case YoutubeItemType.album:
+                                                  Navigator.push(context,
+                                                    MaterialPageRoute(builder: (context) =>
+                                                        YouTubePlaylist(playlistId: section['items'][idx]['id'].toString(),
+                                                          type: 'album',),
+                                                    ),
+                                                  );
+                                                  break;
+                                                case YoutubeItemType.single:
+                                                  Navigator.push(context,
+                                                    MaterialPageRoute(builder: (context) =>
+                                                        YouTubePlaylist(playlistId: section['items'][idx]['id'].toString(),
+                                                          type: 'album',),
+                                                    ),
+                                                  );
+                                                  break;
+                                                default:
+                                                  break;
+                                              }
+                                            },
+                                          );
+                                        },
+                                      ),
+                                    ],
+                                  );
+                                  },
+                          ).toList(),
+                        ),
+                      ),
+                      if (!done)
+                        Center(
+                          child: SizedBox.square(
+                            dimension: boxSize,
+                            child: Card(
+                              elevation: 10,
+                              shape: RoundedRectangleBorder(
+                                borderRadius:
+                                BorderRadius.circular(
+                                  15,
                                 ),
+                              ),
+                              clipBehavior: Clip.antiAlias,
+                              child: GradientContainer(
+                                child: Center(
+                                  child: Column(
+                                    mainAxisAlignment:
+                                    MainAxisAlignment
+                                        .spaceEvenly,
+                                    children: [
+                                      CircularProgressIndicator(
+                                        valueColor:
+                                        AlwaysStoppedAnimation<
+                                            Color>(
+                                          Theme.of(context)
+                                              .colorScheme
+                                              .secondary,
+                                        ),
+
+                                        strokeWidth: 5,
+                                      ),
+                                      Text(
+                                        PlayerTranslationConstants.fetchingStream.tr,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        )
+                    ],
+                  ),
                 ),
               ],
             ),

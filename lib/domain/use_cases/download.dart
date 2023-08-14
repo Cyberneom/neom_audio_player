@@ -338,8 +338,7 @@ class Download with ChangeNotifier {
           .create(recursive: true)
           .then((value) => filepath2 = value.path);
     } catch (e) {
-      Logger.root
-          .info('Error creating files, requesting additional permission');
+      AppUtilities.logger.i('Error creating files, requesting additional permission');
       if (Platform.isAndroid) {
         PermissionStatus status = await Permission.manageExternalStorage.status;
         if (status.isDenied) {
@@ -407,7 +406,7 @@ class Download with ChangeNotifier {
           client.close();
         }
       } catch (e) {
-        Logger.root.severe('Error in download: $e');
+        AppUtilities.logger.e('Error in download: $e');
       }
     }).onDone(() async {
       if (download) {
@@ -436,7 +435,7 @@ class Download with ChangeNotifier {
             lyrics = res['lyrics'].toString();
           }
         } catch (e) {
-          Logger.root.severe('Error fetching lyrics: $e');
+          AppUtilities.logger.e('Error fetching lyrics: $e');
           lyrics = '';
         }
         // commented out not to use FFmpeg as it increases the size of the app
@@ -503,7 +502,7 @@ class Download with ChangeNotifier {
             //   }
             // });
           } catch (e) {
-            Logger.root.severe('Error editing tags: $e');
+            AppUtilities.logger.e('Error editing tags: $e');
           }
         } else {
           // Set metadata to file

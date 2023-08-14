@@ -67,15 +67,13 @@ class Lyrics {
           result['source'] = res['source']!;
         }
       } else {
-        Logger.root
-            .info('Lyrics not available on Saavn, finding on Musixmatch');
+        AppUtilities.logger.i('Lyrics not available on Saavn, finding on Musixmatch');
         result['lyrics'] =
             await getMusixMatchLyrics(title: title, artist: artist);
         result['type'] = 'text';
         result['source'] = 'Musixmatch';
         if (result['lyrics'] == '') {
-          Logger.root
-              .info('Lyrics not found on Musixmatch, searching on Google');
+          AppUtilities.logger.i('Lyrics not found on Musixmatch, searching on Google');
           result['lyrics'] =
               await getGoogleLyrics(title: title, artist: artist);
           result['type'] = 'text';
@@ -106,7 +104,7 @@ class Lyrics {
           fetchedLyrics['lyrics'].toString().replaceAll('<br>', '\n');
       return lyrics;
     } catch (e) {
-      Logger.root.severe('Error in getSaavnLyrics', e);
+      AppUtilities.logger.e('Error in getSaavnLyrics', e);
       return '';
     }
   }
@@ -140,7 +138,7 @@ class Lyrics {
             artist2 =
                 value['tracks']['items'][0]['artists'][0]['name'].toString();
           } catch (e) {
-            Logger.root.severe(
+            AppUtilities.logger.e(
               'Error in extracting artist/title in getSpotifyLyrics for $title - $artist',
               e,
             );
@@ -161,7 +159,7 @@ class Lyrics {
             AppUtilities.logger.i('Song not matched');
           }
         } catch (e) {
-          Logger.root.severe('Error in getSpotifyLyrics', e);
+          AppUtilities.logger.e('Error in getSpotifyLyrics', e);
         }
       },
       forceSign: false,
@@ -201,14 +199,14 @@ class Lyrics {
           }
         }
       } else {
-        Logger.root.severe(
+        AppUtilities.logger.e(
           'getSpotifyLyricsFromId returned ${res.statusCode}',
           res.body,
         );
       }
       return result;
     } catch (e) {
-      Logger.root.severe('Error in getSpotifyLyrics', e);
+      AppUtilities.logger.e('Error in getSpotifyLyrics', e);
       return result;
     }
   }
@@ -307,7 +305,7 @@ class Lyrics {
       final String lyrics = await scrapLink(link);
       return lyrics;
     } catch (e) {
-      Logger.root.severe('Error in getMusixMatchLyrics', e);
+      AppUtilities.logger.e('Error in getMusixMatchLyrics', e);
       return '';
     }
   }

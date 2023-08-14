@@ -23,19 +23,22 @@ import 'package:flutter/material.dart';
 
 import 'package:hive/hive.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
+import 'package:neom_commons/core/utils/app_theme.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
 import 'package:neom_music_player/data/implementations/app_hive_controller.dart';
+import 'package:neom_music_player/domain/entities/playlist_item.dart';
+import 'package:neom_music_player/domain/entities/playlist_section.dart';
 import 'package:neom_music_player/ui/widgets/drawer.dart';
 import 'package:neom_music_player/ui/widgets/on_hover.dart';
 import 'package:neom_music_player/domain/use_cases/youtube_services.dart';
 import 'package:neom_music_player/ui/YouTube/youtube_playlist.dart';
 import 'package:neom_music_player/ui/YouTube/youtube_search.dart';
+import 'package:neom_music_player/ui/youtube/playlist_card.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
 import 'package:get/get.dart';
-
-
+import 'package:neom_music_player/utils/enums/playlist_type.dart';
 
 class YouTube extends StatefulWidget {
   const YouTube({super.key});
@@ -44,8 +47,7 @@ class YouTube extends StatefulWidget {
   _YouTubeState createState() => _YouTubeState();
 }
 
-class _YouTubeState extends State<YouTube>
-    with AutomaticKeepAliveClientMixin<YouTube> {
+class _YouTubeState extends State<YouTube> with AutomaticKeepAliveClientMixin<YouTube> {
 
   final TextEditingController _controller = TextEditingController();
 
@@ -53,27 +55,27 @@ class _YouTubeState extends State<YouTube>
   bool get wantKeepAlive => true;
 
   bool status = false;
-  late List searchedList;
-  late List headList;
+  List<PlaylistSection>? searchedList;
+  PlaylistSection? headList;
 
   @override
   void initState() {
 
     AppUtilities.logger.i("Initializing Youtube Feature");
-    searchedList = AppHiveController().searchedList;
-    headList = AppHiveController().headList;
+    // searchedList = AppHiveController().searchedList;
+    // headList = AppHiveController().headList;
 
     if (!status) {
       YouTubeServices().getMusicHome().then((value) {
         status = true;
-        if (value.isNotEmpty) {
+        if (value.head != null || value.body != null) {
           setState(() {
-            searchedList = value['body'] ?? [];
-            headList = value['head'] ?? [];
-            AppHiveController().updateCache(
-              searchedList: searchedList,
-              headList: headList,
-            );
+            headList = value.head;
+            searchedList = value.body;
+            // AppHiveController().updateCache(
+            //   searchedList: searchedList.t,
+            //   headList: headList,
+            // );
           });
         } else {
           status = false;
@@ -103,71 +105,71 @@ class _YouTubeState extends State<YouTube>
       backgroundColor: AppColor.main75,
       body: Stack(
         children: [
-          if (searchedList.isEmpty)
-            const Center(
-              child: CircularProgressIndicator(),
-            )
+          if (searchedList == null || searchedList!.isEmpty)
+            const Center(child: CircularProgressIndicator(),)
           else
             SingleChildScrollView(
               physics: const BouncingScrollPhysics(),
               padding: const EdgeInsets.fromLTRB(10, 70, 10, 0),
               child: Column(
                 children: [
-                  if (headList.isNotEmpty)
+                  if (headList != null)
                     CarouselSlider.builder(
-                      itemCount: headList.length,
+                      itemCount: headList?.playlistItems?.length,
                       options: CarouselOptions(
                         height: boxSize + 20,
                         viewportFraction: rotated ? 0.36 : 1.0,
                         autoPlay: true,
                         enlargeCenterPage: true,
                       ),
-                      itemBuilder: (
-                        BuildContext context,
-                        int index,
-                        int pageViewIndex,
-                      ) =>
-                          GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            PageRouteBuilder(
-                              opaque: false,
-                              pageBuilder: (_, __, ___) => YouTubeSearchPage(
-                                query: headList[index]['title'].toString(),
+                      itemBuilder: (BuildContext context,
+                        int index, int pageViewIndex,) {
+                        String headlistTitle = headList?.playlistItems![index].title ?? "";
+                        if(headlistTitle.toLowerCase() == "null") {
+                          headlistTitle = "";
+                        }
+                        String headlistImgUrl = headList?.playlistItems![index].imgUrl ?? "";
+                        return GestureDetector(
+                          child: Card(
+                            elevation: 5,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                            clipBehavior: Clip.antiAlias,
+                            child: CachedNetworkImage(
+                              fit: BoxFit.cover,
+                              errorWidget: (context, _, __) => const Image(
+                                fit: BoxFit.cover,
+                                image: AssetImage(
+                                  AppAssets.musicPlayerYTCover,
+                                ),
+                              ),
+                              imageUrl: headlistImgUrl,
+                              placeholder: (context, url) => const Image(
+                                fit: BoxFit.cover,
+                                image: AssetImage(AppAssets.musicPlayerYTCover),
                               ),
                             ),
-                          );
-                        },
-                        child: Card(
-                          elevation: 5,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10.0),
                           ),
-                          clipBehavior: Clip.antiAlias,
-                          child: CachedNetworkImage(
-                            fit: BoxFit.cover,
-                            errorWidget: (context, _, __) => const Image(
-                              fit: BoxFit.cover,
-                              image: AssetImage(
-                                AppAssets.musicPlayerYTCover,
+                          onTap: () {
+                            Navigator.push(context,
+                              PageRouteBuilder(opaque: false,
+                                pageBuilder: (_, __, ___) => YouTubeSearchPage(
+                                  query: headlistTitle,
+                                ),
                               ),
-                            ),
-                            imageUrl: headList[index]['image'].toString(),
-                            placeholder: (context, url) => const Image(
-                              fit: BoxFit.cover,
-                              image: AssetImage(AppAssets.musicPlayerYTCover),
-                            ),
-                          ),
-                        ),
-                      ),
+                            );
+                          },
+                        );
+                      }
                     ),
                   ListView.builder(
-                    itemCount: searchedList.length,
+                    itemCount: searchedList?.length ?? 0,
                     physics: const BouncingScrollPhysics(),
                     shrinkWrap: true,
                     padding: const EdgeInsets.only(bottom: 10),
                     itemBuilder: (context, index) {
+                      String sectionTitle = searchedList![index].title;
                       return Column(
                         children: [
                           Row(
@@ -175,8 +177,7 @@ class _YouTubeState extends State<YouTube>
                               Padding(
                                 padding:
                                     const EdgeInsets.fromLTRB(10, 10, 0, 5),
-                                child: Text(
-                                  '${searchedList[index]["title"]}',
+                                child: Text(sectionTitle,
                                   style: TextStyle(
                                     color:
                                         Theme.of(context).colorScheme.secondary,
@@ -193,213 +194,10 @@ class _YouTubeState extends State<YouTube>
                             child: ListView.builder(
                               physics: const BouncingScrollPhysics(),
                               scrollDirection: Axis.horizontal,
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 5),
-                              itemCount:
-                                  (searchedList[index]['playlists'] as List)
-                                      .length,
+                              padding: const EdgeInsets.symmetric(horizontal: 5),
+                              itemCount: searchedList![index].playlistItems?.length ?? 0,
                               itemBuilder: (context, idx) {
-                                final item =
-                                    searchedList[index]['playlists'][idx];
-                                item['subtitle'] = item['type'] != 'video'
-                                    ? '${item["count"]} Tracks | ${item["description"]}'
-                                    : '${item["count"]} | ${item["description"]}';
-                                return GestureDetector(
-                                  onTap: () {
-                                    item['type'] == 'video'
-                                        ? Navigator.push(
-                                            context,
-                                            PageRouteBuilder(
-                                              opaque: false,
-                                              pageBuilder: (_, __, ___) =>
-                                                  YouTubeSearchPage(
-                                                query: item['title'].toString(),
-                                              ),
-                                            ),
-                                          )
-                                        : Navigator.push(
-                                            context,
-                                            PageRouteBuilder(
-                                              opaque: false,
-                                              pageBuilder: (_, __, ___) =>
-                                                  YouTubePlaylist(
-                                                playlistId: item['playlistId']
-                                                    .toString(),
-                                                // playlistImage:
-                                                //     item['imageStandard']
-                                                //         .toString(),
-                                                // playlistName:
-                                                //     item['title'].toString(),
-                                                // playlistSubtitle:
-                                                //     '${item['count']} Songs',
-                                                // playlistSecondarySubtitle:
-                                                //     item['description']
-                                                //         ?.toString(),
-                                              ),
-                                            ),
-                                          );
-                                  },
-                                  child: SizedBox(
-                                    width: item['type'] != 'playlist'
-                                        ? (boxSize - 30) * (16 / 9)
-                                        : boxSize - 30,
-                                    child: HoverBox(
-                                      child: Column(
-                                        children: [
-                                          Expanded(
-                                            child: Stack(
-                                              children: [
-                                                Positioned.fill(
-                                                  child: Card(
-                                                    elevation: 5,
-                                                    shape:
-                                                        RoundedRectangleBorder(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                        10.0,
-                                                      ),
-                                                    ),
-                                                    clipBehavior:
-                                                        Clip.antiAlias,
-                                                    child: CachedNetworkImage(
-                                                      fit: BoxFit.cover,
-                                                      errorWidget:
-                                                          (context, _, __) =>
-                                                              Image(
-                                                        fit: BoxFit.cover,
-                                                        image: item['type'] !=
-                                                                'playlist'
-                                                            ? const AssetImage(
-                                                                AppAssets.musicPlayerYTCover,
-                                                              )
-                                                            : const AssetImage(
-                                                                AppAssets.musicPlayerCover,
-                                                              ),
-                                                      ),
-                                                      imageUrl: item['image']
-                                                          .toString(),
-                                                      placeholder:
-                                                          (context, url) =>
-                                                              Image(
-                                                        fit: BoxFit.cover,
-                                                        image: item['type'] !=
-                                                                'playlist'
-                                                            ? const AssetImage(
-                                                                AppAssets.musicPlayerYTCover,
-                                                              )
-                                                            : const AssetImage(
-                                                                AppAssets.musicPlayerCover,
-                                                              ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                                if (item['type'] == 'chart')
-                                                  Align(
-                                                    alignment:
-                                                        Alignment.centerRight,
-                                                    child: Container(
-                                                      color: Colors.black
-                                                          .withOpacity(0.75),
-                                                      width: (boxSize - 30) *
-                                                          (16 / 9) /
-                                                          2.5,
-                                                      margin:
-                                                          const EdgeInsets.all(
-                                                        4.0,
-                                                      ),
-                                                      child: Column(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .center,
-                                                        children: [
-                                                          Text(
-                                                            item['count']
-                                                                .toString(),
-                                                            style:
-                                                                const TextStyle(
-                                                              fontSize: 20,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold,
-                                                            ),
-                                                          ),
-                                                          const IconButton(
-                                                            onPressed: null,
-                                                            color: Colors.white,
-                                                            disabledColor:
-                                                                Colors.white,
-                                                            icon: Icon(
-                                                              Icons
-                                                                  .playlist_play_rounded,
-                                                              size: 40,
-                                                            ),
-                                                          )
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                              ],
-                                            ),
-                                          ),
-                                          Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 10.0,
-                                            ),
-                                            child: Column(
-                                              children: [
-                                                Text(
-                                                  '${item["title"]}',
-                                                  textAlign: TextAlign.center,
-                                                  softWrap: false,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                ),
-                                                Text(
-                                                  item['subtitle'].toString(),
-                                                  textAlign: TextAlign.center,
-                                                  softWrap: false,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                  style: TextStyle(
-                                                    fontSize: 11,
-                                                    color: Theme.of(context)
-                                                        .textTheme
-                                                        .bodySmall!
-                                                        .color,
-                                                  ),
-                                                ),
-                                                const SizedBox(
-                                                  height: 5.0,
-                                                )
-                                              ],
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      builder: ({
-                                        required BuildContext context,
-                                        required bool isHover,
-                                        Widget? child,
-                                      }) {
-                                        return Card(
-                                          color: isHover
-                                              ? null
-                                              : Colors.transparent,
-                                          elevation: 0,
-                                          margin: EdgeInsets.zero,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              10.0,
-                                            ),
-                                          ),
-                                          clipBehavior: Clip.antiAlias,
-                                          child: child,
-                                        );
-                                      },
-                                    ),
-                                  ),
-                                );
+                                return PlaylistCard(playlistItem: searchedList![index].playlistItems![idx]);
                               },
                             ),
                           ),
@@ -415,14 +213,11 @@ class _YouTubeState extends State<YouTube>
               width: MediaQuery.of(context).size.width,
               height: 55.0,
               padding: const EdgeInsets.all(5.0),
-              margin:
-                  const EdgeInsets.symmetric(horizontal: 15.0, vertical: 5.0),
+              margin: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 5.0),
               // margin: EdgeInsets.zero,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(
-                  10.0,
-                ),
-                color: Theme.of(context).cardColor,
+                borderRadius: BorderRadius.circular(10.0,),
+                color: AppTheme.canvasColor50(context),
                 boxShadow: const [
                   BoxShadow(
                     color: Colors.black26,

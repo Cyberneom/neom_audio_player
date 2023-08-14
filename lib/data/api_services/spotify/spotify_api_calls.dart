@@ -8,10 +8,8 @@ import 'package:neom_itemlists/itemlists/utils/constants/app_spotify_constants.d
 import 'package:spotify/spotify.dart' as spotify;
 import 'package:spotify_sdk/spotify_sdk.dart';
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:http/http.dart';
-import 'package:logging/logging.dart';
 
 class SpotifyApiCalls {
 
@@ -190,13 +188,13 @@ class SpotifyApiCalls {
           result['expires_in'].toString(),
         ];
       } else {
-        Logger.root.severe(
+        AppUtilities.logger.e(
           'Error in getAccessToken, called: $path, returned: ${response.statusCode}',
           response.body,
         );
       }
     } catch (e) {
-      Logger.root.severe('Error in getting spotify access token: $e');
+      AppUtilities.logger.e('Error in getting spotify access token: $e');
     }
     return [];
   }
@@ -218,13 +216,13 @@ class SpotifyApiCalls {
         final List playlists = result['items'] as List;
         return playlists;
       } else {
-        Logger.root.severe(
+        AppUtilities.logger.e(
           'Error in getUserPlaylists, called: $path, returned: ${response.statusCode}',
           response.body,
         );
       }
     } catch (e) {
-      Logger.root.severe('Error in getting spotify user playlists: $e');
+      AppUtilities.logger.e('Error in getting spotify user playlists: $e');
     }
     return [];
   }
@@ -280,13 +278,13 @@ class SpotifyApiCalls {
         final int total = result['total'] as int;
         return {'tracks': tracks, 'total': total};
       } else {
-        Logger.root.severe(
+        AppUtilities.logger.e(
           'Error in getHundredTracksOfPlaylist, called: $path, returned: ${response.statusCode}',
           response.body,
         );
       }
     } catch (e) {
-      Logger.root.severe('Error in getting spotify playlist tracks: $e');
+      AppUtilities.logger.e('Error in getting spotify playlist tracks: $e');
     }
     return {};
   }
@@ -313,7 +311,7 @@ class SpotifyApiCalls {
       final result = jsonDecode(response.body) as Map;
       return result;
     } else {
-      Logger.root.severe(
+      AppUtilities.logger.e(
         'Error in searchTrack, called: $path, returned: ${response.statusCode}',
         response.body,
       );
@@ -337,7 +335,7 @@ class SpotifyApiCalls {
       final result = jsonDecode(response.body) as Map;
       return result;
     } else {
-      Logger.root.severe(
+      AppUtilities.logger.e(
         'Error in getTrackDetails, called: $path, returned: ${response.statusCode}',
         response.body,
       );
@@ -374,14 +372,14 @@ class SpotifyApiCalls {
           });
         }
       } else {
-        Logger.root.severe(
+        AppUtilities.logger.e(
           'Error in getFeaturedPlaylists, called: $path, returned: ${response.statusCode}',
           response.body,
         );
       }
       return songsData;
     } catch (e) {
-      Logger.root.severe('Error in getting spotify featured playlists: $e');
+      AppUtilities.logger.e('Error in getting spotify featured playlists: $e');
       return List.empty();
     }
   }

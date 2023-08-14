@@ -1,6 +1,6 @@
 /*
  *  This file is part of BlackHole (https://github.com/Sangwan5688/BlackHole).
- * 
+ *
  * BlackHole is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Lesser General Public License
  * along with BlackHole.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  * Copyright (c) 2021-2023, Ankit Sangwan
  */
 
@@ -23,8 +23,9 @@ import 'package:neom_music_player/domain/entities/url_image_generator.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
 // ignore: avoid_classes_with_only_static_members
-class MediaItemConverter {
-  static Map mediaItemToMap(MediaItem mediaItem) {
+class MediaItemFormatter  {
+
+  static Map toJSON(MediaItem mediaItem) {
     return {
       'id': mediaItem.id,
       'album': mediaItem.album.toString(),
@@ -49,7 +50,7 @@ class MediaItemConverter {
     };
   }
 
-  static MediaItem mapToMediaItem(
+  static MediaItem fromJSON(
     Map song, {
     bool addedByAutoplay = false,
     bool autoplay = true,
@@ -178,4 +179,17 @@ class MediaItemConverter {
       'perma_url': video.url,
     };
   }
+
+  // static AppMediaItem fromMediaItem(MediaItem mediaItem) {
+  //   return AppMediaItem(
+  //     id: mediaItem.id,
+  //     album: mediaItem.album,
+  //     artist: mediaItem.artist,
+  //     duration: mediaItem.duration,
+  //     title: mediaItem.title,
+  //     artUri: mediaItem.artUri,
+  //     genre: mediaItem.genre,
+  //     extras: mediaItem.extras
+  //   );
+  // }
 }

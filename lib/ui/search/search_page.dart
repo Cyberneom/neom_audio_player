@@ -29,7 +29,7 @@ import 'package:neom_music_player/ui/widgets/empty_screen.dart';
 import 'package:neom_music_player/ui/widgets/gradient_containers.dart';
 import 'package:neom_music_player/ui/widgets/image_card.dart';
 import 'package:neom_music_player/ui/widgets/like_button.dart';
-import 'package:neom_music_player/ui/widgets/search_bar.dart' as searchbar;
+import 'package:neom_music_player/ui/widgets/music_search_bar.dart' as searchbar;
 import 'package:neom_music_player/ui/widgets/snackbar.dart';
 import 'package:neom_music_player/ui/widgets/song_tile_trailing_menu.dart';
 import 'package:neom_music_player/domain/use_cases/player_service.dart';
@@ -72,10 +72,8 @@ class _SearchPageState extends State<SearchPage> {
     'search',
     defaultValue: [],
   ) as List;
-  // bool showHistory =
-  //     Hive.box(AppHiveConstants.settings).get('showHistory', defaultValue: true) as bool;
-  bool liveSearch =
-      Hive.box(AppHiveConstants.settings).get('liveSearch', defaultValue: true) as bool;
+  bool showHistory = Hive.box(AppHiveConstants.settings).get('showHistory', defaultValue: true) as bool;
+  bool liveSearch = Hive.box(AppHiveConstants.settings).get('liveSearch', defaultValue: true) as bool;
 
   final controller = TextEditingController();
 
@@ -162,7 +160,7 @@ class _SearchPageState extends State<SearchPage> {
         child: Scaffold(
           resizeToAvoidBottomInset: false,
           backgroundColor: AppColor.main75,
-          body: searchbar.SearchBar(
+          body: searchbar.MusicSearchBar(
             isYt: false,
             controller: controller,
             liveSearch: liveSearch,

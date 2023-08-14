@@ -18,7 +18,6 @@
  */
 
 import 'package:flutter/material.dart';
-import 'package:logging/logging.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_music_player/data/api_services/APIs/saavn_api.dart';
 import 'package:neom_music_player/data/api_services/spotify/spotify_api_calls.dart';

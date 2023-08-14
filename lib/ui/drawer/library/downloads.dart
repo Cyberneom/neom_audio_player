@@ -29,6 +29,7 @@ import 'package:flutter/rendering.dart';
 import 'package:hive/hive.dart';
 import 'package:logging/logging.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
+import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_music_player/ui/widgets/custom_physics.dart';
 import 'package:neom_music_player/ui/widgets/data_search.dart';
 import 'package:neom_music_player/ui/widgets/empty_screen.dart';
@@ -159,7 +160,7 @@ class _DownloadsState extends State<Downloads>
         //   context,
         //   'Error: $e',
         // );
-        Logger.root.severe('Error while setting artist and album: $e');
+        AppUtilities.logger.e('Error while setting artist and album: $e');
       }
     }
 
@@ -310,7 +311,7 @@ class _DownloadsState extends State<Downloads>
         '${PlayerTranslationConstants.deleted.tr} ${song['title']}',
       );
     } catch (e) {
-      Logger.root.severe('Failed to delete $audioFile.path', e);
+      AppUtilities.logger.e('Failed to delete $audioFile.path', e);
       ShowSnackBar().showSnackBar(
         context,
         '${PlayerTranslationConstants.failedDelete.tr}: ${audioFile.path}\nError: $e',
@@ -812,7 +813,7 @@ Future<Map> editTags(Map song, BuildContext context) async {
                   );
                 }
               } catch (e) {
-                Logger.root.severe('Failed to edit tags', e);
+                AppUtilities.logger.e('Failed to edit tags', e);
                 ShowSnackBar().showSnackBar(
                   context,
                   '${PlayerTranslationConstants.failedTagEdit.tr}\nError: $e',

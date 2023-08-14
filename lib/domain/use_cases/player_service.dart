@@ -23,12 +23,11 @@ import 'package:audio_service/audio_service.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:logging/logging.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
 import 'package:neom_music_player/data/implementations/app_hive_controller.dart';
+import 'package:neom_music_player/domain/entities/app_media_item.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
-import 'package:neom_music_player/utils/helpers/mediaitem_converter.dart';
 import 'package:neom_music_player/domain/use_cases/youtube_services.dart';
 import 'package:neom_music_player/ui/player/audioplayer.dart';
 import 'package:on_audio_query/on_audio_query.dart';
@@ -69,18 +68,10 @@ class PlayerInvoke {
         audioHandler.stop();
       }
       if (offline) {
-        fromDownloads
-            ? setDownValues(finalList, globalIndex)
-            : (Platform.isWindows || Platform.isLinux)
-                ? setOffDesktopValues(finalList, globalIndex)
-                : setOffValues(finalList, globalIndex);
+        fromDownloads ? setDownValues(finalList, globalIndex)
+            : setOffValues(finalList, globalIndex);
       } else {
-        setValues(
-          finalList,
-          globalIndex,
-          recommend: recommend,
-          // playlistBox: playlistBox,
-        );
+        setValues(finalList, globalIndex, recommend: recommend,);
       }
     }
   }
@@ -121,45 +112,6 @@ class PlayerInvoke {
     return tempDict;
   }
 
-  static void setOffDesktopValues(List response, int index) {
-    getTemporaryDirectory().then((tempDir) async {
-      final File file = File('${tempDir.path}/cover.jpg');
-      if (!await file.exists()) {
-        final byteData = await rootBundle.load(AppAssets.musicPlayerCover);
-        await file.writeAsBytes(
-          byteData.buffer
-              .asUint8List(byteData.offsetInBytes, byteData.lengthInBytes),
-        );
-      }
-      final List<MediaItem> queue = [];
-      queue.addAll(
-        response.map(
-          (song) => MediaItem(
-            id: song['id'].toString(),
-            album: song['album'].toString(),
-            artist: song['artist'].toString(),
-            duration: Duration(
-              seconds: int.parse(
-                (song['duration'] == null || song['duration'] == 'null')
-                    ? '180'
-                    : song['duration'].toString(),
-              ),
-            ),
-            title: song['title'].toString(),
-            artUri: Uri.file(file.path),
-            genre: song['genre'].toString(),
-            extras: {
-              'url': song['path'].toString(),
-              'subtitle': song['subtitle'],
-              'quality': song['quality'],
-            },
-          ),
-        ),
-      );
-      updateNowPlaying(queue, index);
-    });
-  }
-
   static void setOffValues(List response, int index) {
     getTemporaryDirectory().then((tempDir) async {
       final File file = File('${tempDir.path}/cover.jpg');
@@ -183,8 +135,7 @@ class PlayerInvoke {
   static void setDownValues(List response, int index) {
     final List<MediaItem> queue = [];
     queue.addAll(
-      response.map(
-        (song) => MediaItemConverter.downMapToMediaItem(song as Map),
+      response.map((song) => MediaItemFormatter.downMapToMediaItem(song as Map),
       ),
     );
     updateNowPlaying(queue, index);
@@ -195,17 +146,14 @@ class PlayerInvoke {
     // Hive.box(AppHiveConstants.settings).get('cacheSong', defaultValue: true) as bool;
     final int expiredAt = int.parse((playItem['expire_at'] ?? '0').toString());
     if ((DateTime.now().millisecondsSinceEpoch ~/ 1000) + 350 > expiredAt) {
-      AppUtilities.logger.i(
-        'before service | youtube link expired for ${playItem["title"]}',
-      );
+      AppUtilities.logger.i('Before service | youtube link expired for ${playItem["title"]}',);
       if (Hive.box(AppHiveConstants.ytLinkCache).containsKey(playItem['id'])) {
-        final Map cache =
-            await Hive.box(AppHiveConstants.ytLinkCache).get(playItem['id']) as Map;
+        final Map cache = await Hive.box(AppHiveConstants.ytLinkCache).get(playItem['id']) as Map;
         final int expiredAt = int.parse((cache['expire_at'] ?? '0').toString());
         // final String wasCacheEnabled = cache['cached'].toString();
         if ((DateTime.now().millisecondsSinceEpoch ~/ 1000) + 350 > expiredAt) {
-          Logger.root
-              .info('youtube link expired in cache for ${playItem["title"]}');
+          AppUtilities.logger.i(
+              'youtube link expired in cache for ${playItem["title"]}');
           final newData =
               await YouTubeServices().refreshLink(playItem['id'].toString());
           AppUtilities.logger.i(
@@ -222,11 +170,8 @@ class PlayerInvoke {
           playItem['expire_at'] = cache['expire_at'];
         }
       } else {
-        final newData =
-            await YouTubeServices().refreshLink(playItem['id'].toString());
-        AppUtilities.logger.i(
-          'before service | received new link for ${playItem["title"]}',
-        );
+        final newData = await YouTubeServices().refreshLink(playItem['id'].toString());
+        AppUtilities.logger.i('before service | received new link for ${playItem["title"]}',);
         if (newData != null) {
           playItem['url'] = newData['url'];
           playItem['duration'] = newData['duration'];
@@ -254,7 +199,7 @@ class PlayerInvoke {
 
     queue.addAll(
       response.map(
-        (song) => MediaItemConverter.mapToMediaItem(
+        (song) => MediaItemFormatter.fromJSON(
           song as Map,
           autoplay: recommend,
           // playlistBox: playlistBox,
@@ -265,13 +210,15 @@ class PlayerInvoke {
   }
 
   static Future<void> updateNowPlaying(List<MediaItem> queue, int index) async {
+    AppUtilities.logger.i("Updating Now Playing info.");
     await audioHandler.setShuffleMode(AudioServiceShuffleMode.none);
     await audioHandler.updateQueue(queue);
     await audioHandler.customAction('skipToMediaItem', {'id': queue[index].id});
+    AppUtilities.logger.d("Starting stream for ${queue[index].title} and URL ${queue[index].extras!['url'].toString()}");
     await audioHandler.play();
-    final AudioServiceRepeatMode repeatMode = AppHiveController().repeatMode;
     final bool enforceRepeat = AppHiveController().enforceRepeat;
     if (enforceRepeat) {
+      final AudioServiceRepeatMode repeatMode = AppHiveController().repeatMode;
       switch (repeatMode) {
         case AudioServiceRepeatMode.none:
           audioHandler.setRepeatMode(AudioServiceRepeatMode.none);

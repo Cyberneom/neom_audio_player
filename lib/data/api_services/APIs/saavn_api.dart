@@ -22,6 +22,7 @@ import 'dart:convert';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart';
 import 'package:logging/logging.dart';
+import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
 import 'package:neom_music_player/utils/helpers/format.dart';
 
@@ -116,7 +117,7 @@ class SaavnAPI {
         result = await FormatResponse.formatHomePageData(data);
       }
     } catch (e) {
-      Logger.root.severe('Error in fetchHomePageData: $e');
+      AppUtilities.logger.e('Error in fetchHomePageData: $e');
     }
     return result;
   }
@@ -150,7 +151,7 @@ class SaavnAPI {
           }
         }
       } catch (e) {
-        Logger.root.severe('Error in getSongFromToken with -1: $e');
+        AppUtilities.logger.e('Error in getSongFromToken with -1: $e');
       }
       return {'songs': List.empty()};
     } else {
@@ -161,7 +162,7 @@ class SaavnAPI {
         if (res.statusCode == 200) {
           final Map getMain = json.decode(res.body) as Map;
           if (getMain['status'] == 'failure') {
-            Logger.root.severe('Error in getSongFromToken response: $getMain');
+            AppUtilities.logger.e('Error in getSongFromToken response: $getMain');
             return {'songs': List.empty()};
           }
           if (type == 'album' || type == 'playlist') {
@@ -189,7 +190,7 @@ class SaavnAPI {
           };
         }
       } catch (e) {
-        Logger.root.severe('Error in getSongFromToken: $e');
+        AppUtilities.logger.e('Error in getSongFromToken: $e');
       }
       return {'songs': List.empty()};
     }
@@ -202,7 +203,7 @@ class SaavnAPI {
       final List getMain = json.decode(res.body) as List;
       return FormatResponse.formatSongsResponse(getMain, 'song');
     } else {
-      Logger.root.severe(
+      AppUtilities.logger.e(
         'Error in getReco returned status: ${res.statusCode}, response: ${res.body}',
       );
     }
@@ -268,7 +269,7 @@ class SaavnAPI {
         }).toList();
       }
     } catch (e) {
-      Logger.root.severe('Error in getTopSearches: $e');
+      AppUtilities.logger.e('Error in getTopSearches: $e');
     }
     return List.empty();
   }
@@ -298,7 +299,7 @@ class SaavnAPI {
         };
       }
     } catch (e) {
-      Logger.root.severe('Error in fetchSongSearchResults: $e');
+      AppUtilities.logger.e('Error in fetchSongSearchResults: $e');
       return {
         'songs': List.empty(),
         'error': e,
@@ -449,13 +450,13 @@ class SaavnAPI {
           };
         }
       }
-      Logger.root.severe('Songs not found in fetchAlbumSongs: ${res.body}');
+      AppUtilities.logger.e('Songs not found in fetchAlbumSongs: ${res.body}');
       return {
         'songs': List.empty(),
         'error': '',
       };
     } catch (e) {
-      Logger.root.severe('Error in fetchAlbumSongs: $e');
+      AppUtilities.logger.e('Error in fetchAlbumSongs: $e');
       return {
         'songs': List.empty(),
         'error': e,
@@ -581,7 +582,7 @@ class SaavnAPI {
         };
       }
     } catch (e) {
-      Logger.root.severe('Error in fetchPlaylistSongs: $e');
+      AppUtilities.logger.e('Error in fetchPlaylistSongs: $e');
       return {
         'songs': List.empty(),
         'error': e,
@@ -613,7 +614,7 @@ class SaavnAPI {
         );
       }
     } catch (e) {
-      Logger.root.severe('Error in fetchSongDetails: $e');
+      AppUtilities.logger.e('Error in fetchSongDetails: $e');
     }
     return {};
   }

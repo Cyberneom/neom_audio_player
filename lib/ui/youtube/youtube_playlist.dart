@@ -21,6 +21,7 @@ import 'package:flutter/material.dart';
 
 import 'package:logging/logging.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
+import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_music_player/ui/widgets/bouncy_playlist_header_scroll_view.dart';
 import 'package:neom_music_player/ui/widgets/copy_clipboard.dart';
 import 'package:neom_music_player/ui/widgets/gradient_containers.dart';
@@ -80,7 +81,7 @@ class _YouTubePlaylistState extends State<YouTubePlaylist> {
               playlistImage = (value['images'] as List?)?.last as String? ?? '';
               fetched = true;
             } catch (e) {
-              Logger.root.severe('Error in fetching playlist details', e);
+              AppUtilities.logger.e('Error in fetching playlist details', e);
               fetched = true;
             }
           });
@@ -96,7 +97,7 @@ class _YouTubePlaylistState extends State<YouTubePlaylist> {
               playlistImage = (value['images'] as List?)?.last as String? ?? '';
               fetched = true;
             } catch (e) {
-              Logger.root.severe('Error in fetching playlist details', e);
+              AppUtilities.logger.e('Error in fetching playlist details', e);
               fetched = true;
             }
           });
@@ -112,7 +113,7 @@ class _YouTubePlaylistState extends State<YouTubePlaylist> {
               playlistImage = (value['images'] as List?)?.last as String? ?? '';
               fetched = true;
             } catch (e) {
-              Logger.root.severe('Error in fetching playlist details', e);
+              AppUtilities.logger.e('Error in fetching playlist details', e);
               fetched = true;
             }
           });

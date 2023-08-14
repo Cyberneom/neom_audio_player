@@ -25,7 +25,11 @@ import 'package:html_unescape/html_unescape_small.dart';
 import 'package:http/http.dart';
 import 'package:logging/logging.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
+import 'package:neom_music_player/domain/entities/playlist_item.dart';
+import 'package:neom_music_player/domain/entities/playlist_section.dart';
+import 'package:neom_music_player/domain/entities/youtube_music_home.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
+import 'package:neom_music_player/utils/enums/playlist_type.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
 class YouTubeServices {
@@ -41,6 +45,8 @@ class YouTubeServices {
   };
   final YoutubeExplode yt = YoutubeExplode();
 
+  static const playlistLength = 20;
+
   Future<List<Video>> getPlaylistSongs(String id) async {
     final List<Video> results = await yt.playlists.getVideos(id).toList();
     return results;
@@ -51,7 +57,7 @@ class YouTubeServices {
       final Video result = await yt.videos.get(id);
       return result;
     } catch (e) {
-      Logger.root.severe('Error while getting video from id', e);
+      AppUtilities.logger.e('Error while getting video from id', e);
       return null;
     }
   }
@@ -67,19 +73,9 @@ class YouTubeServices {
     }
     final Map? response = await formatVideo(
       video: vid,
-      quality: Hive.box(AppHiveConstants.settings)
-          .get(
-            'ytQuality',
-            defaultValue: 'Low',
-          )
-          .toString(),
+      quality: Hive.box(AppHiveConstants.settings).get('ytQuality', defaultValue: 'Low',).toString(),
       data: data,
       getUrl: getUrl ?? true,
-      // preferM4a: Hive.box(
-      //         'settings')
-      //     .get('preferM4a',
-      //         defaultValue:
-      //             true) as bool
     );
     return response;
   }
@@ -91,8 +87,7 @@ class YouTubeServices {
     }
     String quality;
     try {
-      quality =
-          Hive.box(AppHiveConstants.settings).get('quality', defaultValue: 'Low').toString();
+      quality = Hive.box(AppHiveConstants.settings).get('quality', defaultValue: 'Low').toString();
     } catch (e) {
       quality = 'Low';
     }
@@ -105,86 +100,71 @@ class YouTubeServices {
     return metadata;
   }
 
-  Future<Map<String, List>> getMusicHome() async {
-    final Uri link = Uri.https(
-      searchAuthority,
+  Future<YoutubeMusicHome> getMusicHome() async {
+
+    final YoutubeMusicHome musicHome = YoutubeMusicHome();
+    final Uri link = Uri.https(searchAuthority,
       paths['music'].toString(),
     );
+    
     try {
       final Response response = await get(link);
-      if (response.statusCode != 200) {
-        return {};
+
+      if (response.statusCode == 200) {
+        final String searchResults = RegExp(r'(\"contents\":{.*?}),\"metadata\"',
+            dotAll: true).firstMatch(response.body)![1]!;
+        final Map data = json.decode('{$searchResults}') as Map;
+
+        final List result = data['contents']['twoColumnBrowseResultsRenderer']
+        ['tabs'][0]['tabRenderer']['content']['sectionListRenderer']
+        ['contents'] as List;
+
+        final List headResult = data['header']['carouselHeaderRenderer']
+        ['contents'][0]['carouselItemRenderer']['carouselItems'] as List;
+
+        final List shelfRenderer = result.map((element) {
+          return element['itemSectionRenderer']['contents'][0]['shelfRenderer'];
+        }).toList();
+
+        final List<PlaylistSection> bodySection = shelfRenderer.map((element) {
+          String resultTitle = element['title']['runs'][0]['text'].toString().trim();
+          List shelfRendererItems = element['content']['horizontalListRenderer']['items'] as List;
+
+          final playlistItems = resultTitle == 'Charts' || resultTitle == 'Classements' || resultTitle.contains('Las más escuchadas')
+              ? formatItems(shelfRendererItems, type: PlaylistType.chart)
+              : resultTitle.contains('Music Videos') || resultTitle.contains('Nouveaux clips')
+              || resultTitle.contains('En Musique Avec Moi') || resultTitle.contains('Performances Uniques')
+              || resultTitle.contains('Nuevos Videos Musicales') || resultTitle.contains('Actuaciones Únicas')
+              ? formatItems(shelfRendererItems, type: PlaylistType.video)
+              : formatItems(shelfRendererItems,);
+          if (playlistItems.isNotEmpty) {
+            AppUtilities.logger.i("Got info successfully for '$resultTitle'",);
+            return PlaylistSection(
+              title: resultTitle,
+              playlistItems: playlistItems,
+            );
+          } else {
+            AppUtilities.logger.w("Got null in getMusicHome for '$resultTitle'",);
+            return PlaylistSection(title: resultTitle,);
+          }
+        }).toList();
+
+        PlaylistSection headSection = PlaylistSection(
+          playlistItems: formatItems(headResult, isHead: true)
+        );
+
+        musicHome.body = bodySection;
+        musicHome.head = headSection;
       }
-      final String searchResults =
-          RegExp(r'(\"contents\":{.*?}),\"metadata\"', dotAll: true)
-              .firstMatch(response.body)![1]!;
-      final Map data = json.decode('{$searchResults}') as Map;
-
-      final List result = data['contents']['twoColumnBrowseResultsRenderer']
-              ['tabs'][0]['tabRenderer']['content']['sectionListRenderer']
-          ['contents'] as List;
-
-      final List headResult = data['header']['carouselHeaderRenderer']
-          ['contents'][0]['carouselItemRenderer']['carouselItems'] as List;
-
-      final List shelfRenderer = result.map((element) {
-        return element['itemSectionRenderer']['contents'][0]['shelfRenderer'];
-      }).toList();
-
-      final List finalResult = shelfRenderer.map((element) {
-        final playlistItems = element['title']['runs'][0]['text'].trim() ==
-                    'Charts' ||
-                element['title']['runs'][0]['text'].trim() == 'Classements'
-            ? formatChartItems(
-                element['content']['horizontalListRenderer']['items'] as List,
-              )
-            : element['title']['runs'][0]['text']
-                        .toString()
-                        .contains('Music Videos') ||
-                    element['title']['runs'][0]['text']
-                        .toString()
-                        .contains('Nouveaux clips') ||
-                    element['title']['runs'][0]['text']
-                        .toString()
-                        .contains('En Musique Avec Moi') ||
-                    element['title']['runs'][0]['text']
-                        .toString()
-                        .contains('Performances Uniques')
-                ? formatVideoItems(
-                    element['content']['horizontalListRenderer']['items']
-                        as List,
-                  )
-                : formatItems(
-                    element['content']['horizontalListRenderer']['items']
-                        as List,
-                  );
-        if (playlistItems.isNotEmpty) {
-          return {
-            'title': element['title']['runs'][0]['text'],
-            'playlists': playlistItems,
-          };
-        } else {
-          Logger.root.severe(
-            "got null in getMusicHome for '${element['title']['runs'][0]['text']}'",
-          );
-          return null;
-        }
-      }).toList();
-
-      final List finalHeadResult = formatHeadItems(headResult);
-      finalResult.removeWhere((element) => element == null);
-
-      return {'body': finalResult, 'head': finalHeadResult};
     } catch (e) {
-      Logger.root.severe('Error in getMusicHome: $e');
-      return {};
+      AppUtilities.logger.e('Error in getMusicHome: $e');
     }
+
+    return musicHome;
   }
 
   Future<List> getSearchSuggestions({required String query}) async {
-    const baseUrl =
-        'https://suggestqueries.google.com/complete/search?client=firefox&ds=yt&q=';
-    // 'https://invidious.snopyta.org/api/v1/search/suggestions?q=';
+    const baseUrl = 'https://suggestqueries.google.com/complete/search?client=firefox&ds=yt&q=';
     final Uri link = Uri.parse(baseUrl + query);
     try {
       final Response response = await get(link, headers: headers);
@@ -192,152 +172,97 @@ class YouTubeServices {
         return [];
       }
       final unescape = HtmlUnescape();
-      // final Map res = jsonDecode(response.body) as Map;
       final List res = (jsonDecode(response.body) as List)[1] as List;
-      // return (res['suggestions'] as List).map((e) => unescape.convert(e.toString())).toList();
       return res.map((e) => unescape.convert(e.toString())).toList();
     } catch (e) {
-      Logger.root.severe('Error in getSearchSuggestions: $e');
+      AppUtilities.logger.e('Error in getSearchSuggestions: $e');
       return [];
     }
   }
 
-  List formatVideoItems(List itemsList) {
+  List<PlaylistItem> formatItems(List itemsList, {PlaylistType type = PlaylistType.playlist, bool isHead = false}) {
+
+    List<PlaylistItem> playlistItems = [];
+    String typeRenderer = "";
+
     try {
-      final List result = itemsList.map((e) {
-        return {
-          'title': e['gridVideoRenderer']['title']['simpleText'],
-          'type': 'video',
-          'description': e['gridVideoRenderer']['shortBylineText']['runs'][0]
-              ['text'],
-          'count': e['gridVideoRenderer']['shortViewCountText']['simpleText'],
-          'videoId': e['gridVideoRenderer']['videoId'],
-          'firstItemId': e['gridVideoRenderer']['videoId'],
-          'image':
-              e['gridVideoRenderer']['thumbnail']['thumbnails'].last['url'],
-          'imageMin': e['gridVideoRenderer']['thumbnail']['thumbnails'][0]
-              ['url'],
-          'imageMedium': e['gridVideoRenderer']['thumbnail']['thumbnails'][1]
-              ['url'],
-          'imageStandard': e['gridVideoRenderer']['thumbnail']['thumbnails'][2]
-              ['url'],
-          'imageMax':
-              e['gridVideoRenderer']['thumbnail']['thumbnails'].last['url'],
-        };
-      }).toList();
 
-      return result;
+      if(isHead) {
+        typeRenderer = 'defaultPromoPanelRenderer';
+        type = PlaylistType.video;
+      } else {
+        switch(type) {
+          case PlaylistType.video:
+            typeRenderer = "gridVideoRenderer";
+            break;
+          case PlaylistType.chart:
+            typeRenderer = "gridPlaylistRenderer";
+            break;
+          case PlaylistType.playlist:
+            typeRenderer = "compactStationRenderer";
+            break;
+          case PlaylistType.audio:
+            break;
+          default:
+            typeRenderer = "compactStationRenderer";
+            break;
+        }
+      }
+
+      itemsList.forEach((e) {
+        String eTitle = "";
+        if(e[typeRenderer]['title']['simpleText'] != null) {
+           eTitle = e[typeRenderer]['title']['simpleText'].toString();
+        } else {
+          eTitle = e[typeRenderer]['title']['runs'][0]['text'].toString();
+        }
+
+
+        String eDescription = "";
+        if(e[typeRenderer]['description'] != null) {
+          eDescription = isHead ? (e[typeRenderer]['description']['runs'] as List)
+              .map((e) => e['text']).toList().join() : e[typeRenderer]['description']['simpleText'] != null
+              ? e[typeRenderer]['description']['simpleText'].toString() : e[typeRenderer]['shortBylineText']['runs'][0]['text'].toString();
+        }
+
+        String eImgUrl = isHead ? e[typeRenderer]['largeFormFactorBackgroundThumbnail']
+          ['thumbnailLandscapePortraitRenderer']['landscape']['thumbnails'].last['url'].toString()
+            : e[typeRenderer]['thumbnail']['thumbnails'][0]['url'].toString();
+
+        int eCount = 0;
+        if(isHead) {
+          eCount = 0;
+        } else if(e[typeRenderer]['videoCountText'] != null && e[typeRenderer]['videoCountText']['runs'] != null) {
+          eCount = int.parse(e[typeRenderer]['videoCountText']['runs'][0]['text'].toString());
+        } else if(e[typeRenderer]['viewCountText'] != null && e[typeRenderer]['viewCountText']['simpleText'] != null) {
+          eDescription = eDescription + e[typeRenderer]['viewCountText']['simpleText'].toString();
+        }
+
+        String eId = type == PlaylistType.video ? (isHead ? e[typeRenderer]['navigationEndpoint']['watchEndpoint']['videoId'].toString()
+            : e[typeRenderer]['videoId'].toString())
+            : e[typeRenderer]['navigationEndpoint']['watchEndpoint']['playlistId'].toString();
+
+        String eFirstItemId = type == PlaylistType.video ? (isHead ? e[typeRenderer]['navigationEndpoint']['watchEndpoint']['videoId'].toString()
+            : e[typeRenderer]['videoId'].toString())
+            : e[typeRenderer]['navigationEndpoint']['watchEndpoint']['videoId'].toString();
+
+        playlistItems.add(
+          PlaylistItem(
+            title: eTitle,
+            type: type,
+            description: eDescription,
+            imgUrl: eImgUrl,
+            count: eCount,
+            id: eId,
+            firstItemId: eFirstItemId,
+          ),
+        );
+      });
     } catch (e) {
-      Logger.root.severe('Error in formatVideoItems: $e');
-      return List.empty();
+      AppUtilities.logger.e('Error in formatItems: $e');
     }
-  }
 
-  List formatChartItems(List itemsList) {
-    try {
-      final List result = itemsList.map((e) {
-        return {
-          'title': e['gridPlaylistRenderer']['title']['runs'][0]['text'],
-          'type': 'chart',
-          'description': e['gridPlaylistRenderer']['shortBylineText']['runs'][0]
-              ['text'],
-          'count': e['gridPlaylistRenderer']['videoCountText']['runs'][0]
-              ['text'],
-          'playlistId': e['gridPlaylistRenderer']['navigationEndpoint']
-              ['watchEndpoint']['playlistId'],
-          'firstItemId': e['gridPlaylistRenderer']['navigationEndpoint']
-              ['watchEndpoint']['videoId'],
-          'image': e['gridPlaylistRenderer']['thumbnail']['thumbnails'][0]
-              ['url'],
-          'imageMedium': e['gridPlaylistRenderer']['thumbnail']['thumbnails'][0]
-              ['url'],
-          'imageStandard': e['gridPlaylistRenderer']['thumbnail']['thumbnails']
-              [0]['url'],
-          'imageMax': e['gridPlaylistRenderer']['thumbnail']['thumbnails'][0]
-              ['url'],
-        };
-      }).toList();
-
-      return result;
-    } catch (e) {
-      Logger.root.severe('Error in formatChartItems: $e');
-      return List.empty();
-    }
-  }
-
-  List formatItems(List itemsList) {
-    try {
-      final List result = itemsList.map((e) {
-        return {
-          'title': e['compactStationRenderer']['title']['simpleText'],
-          'type': 'playlist',
-          'description': e['compactStationRenderer']['description']
-              ['simpleText'],
-          'count': e['compactStationRenderer']['videoCountText']['runs'][0]
-              ['text'],
-          'playlistId': e['compactStationRenderer']['navigationEndpoint']
-              ['watchEndpoint']['playlistId'],
-          'firstItemId': e['compactStationRenderer']['navigationEndpoint']
-              ['watchEndpoint']['videoId'],
-          'image': e['compactStationRenderer']['thumbnail']['thumbnails'][0]
-              ['url'],
-          'imageMedium': e['compactStationRenderer']['thumbnail']['thumbnails']
-              [0]['url'],
-          'imageStandard': e['compactStationRenderer']['thumbnail']
-              ['thumbnails'][1]['url'],
-          'imageMax': e['compactStationRenderer']['thumbnail']['thumbnails'][2]
-              ['url'],
-        };
-      }).toList();
-
-      return result;
-    } catch (e) {
-      Logger.root.severe('Error in formatItems: $e');
-      return List.empty();
-    }
-  }
-
-  List formatHeadItems(List itemsList) {
-    try {
-      final List result = itemsList.map((e) {
-        return {
-          'title': e['defaultPromoPanelRenderer']['title']['runs'][0]['text'],
-          'type': 'video',
-          'description':
-              (e['defaultPromoPanelRenderer']['description']['runs'] as List)
-                  .map((e) => e['text'])
-                  .toList()
-                  .join(),
-          'videoId': e['defaultPromoPanelRenderer']['navigationEndpoint']
-              ['watchEndpoint']['videoId'],
-          'firstItemId': e['defaultPromoPanelRenderer']['navigationEndpoint']
-              ['watchEndpoint']['videoId'],
-          'image': e['defaultPromoPanelRenderer']
-                          ['largeFormFactorBackgroundThumbnail']
-                      ['thumbnailLandscapePortraitRenderer']['landscape']
-                  ['thumbnails']
-              .last['url'],
-          'imageMedium': e['defaultPromoPanelRenderer']
-                      ['largeFormFactorBackgroundThumbnail']
-                  ['thumbnailLandscapePortraitRenderer']['landscape']
-              ['thumbnails'][1]['url'],
-          'imageStandard': e['defaultPromoPanelRenderer']
-                      ['largeFormFactorBackgroundThumbnail']
-                  ['thumbnailLandscapePortraitRenderer']['landscape']
-              ['thumbnails'][2]['url'],
-          'imageMax': e['defaultPromoPanelRenderer']
-                          ['largeFormFactorBackgroundThumbnail']
-                      ['thumbnailLandscapePortraitRenderer']['landscape']
-                  ['thumbnails']
-              .last['url'],
-        };
-      }).toList();
-
-      return result;
-    } catch (e) {
-      Logger.root.severe('Error in formatHeadItems: $e');
-      return List.empty();
-    }
+    return playlistItems;
   }
 
   Future<Map?> formatVideo({
@@ -354,8 +279,7 @@ class YouTubeServices {
     if (getUrl) {
       // check cache first
       if (Hive.box(AppHiveConstants.ytLinkCache).containsKey(video.id.value)) {
-        final Map cachedData =
-            Hive.box(AppHiveConstants.ytLinkCache).get(video.id.value) as Map;
+        final Map cachedData = Hive.box(AppHiveConstants.ytLinkCache).get(video.id.value) as Map;
         final int cachedExpiredAt =
             int.parse(cachedData['expire_at'].toString());
         if ((DateTime.now().millisecondsSinceEpoch ~/ 1000) + 350 >
@@ -387,12 +311,12 @@ class YouTubeServices {
             'highUrl': urls.last,
           },
         ).onError(
-          (error, stackTrace) => Logger.root.severe(
+          (error, stackTrace) => AppUtilities.logger.e(
             'Hive Error in formatVideo, you probably forgot to open box.\nError: $error',
           ),
         );
       } catch (e) {
-        Logger.root.severe(
+        AppUtilities.logger.e(
           'Hive Error in formatVideo, you probably forgot to open box.\nError: $e',
         );
       }
@@ -425,49 +349,6 @@ class YouTubeServices {
           (data?['subtitle'] ?? '') != '' ? data!['subtitle'] : video.author,
       'perma_url': video.url,
     };
-    // For invidous
-    // if (video['liveNow'] == true) return null;
-    // try {
-    //   final Uri link = Uri.https(
-    //     'invidious.snopyta.org',
-    //     'api/v1/videos/${video["videoId"]}',
-    //   );
-    //   final Response response = await get(link, headers: headers);
-    //   if (response.statusCode != 200) {
-    //     return {};
-    //   }
-    //   final jsonData = jsonDecode(response.body) as Map;
-    //   final urls = (jsonData['adaptiveFormats'] as List)
-    //       .where((e) => e['container'] == 'm4a');
-
-    //   return {
-    //     'id': jsonData['videoId'],
-    //     'album': jsonData['author'],
-    //     'duration': jsonData['lengthSeconds'],
-    //     'title': jsonData['title'],
-    //     'artist': jsonData['author'],
-    //     'image': jsonData['videoThumbnails'][0]['url'],
-    //     'secondImage': jsonData['videoThumbnails'][2]?['url'],
-    //     'language': 'YouTube',
-    //     'genre': 'YouTube',
-    //     'url':
-    //         'https://yewtu.be/latest_version?id=${video["videoId"]}&itag=${quality == "High" ? 140 : 139}&local=true&listen=1',
-    //     'lowUrl':
-    //         'https://yewtu.be/latest_version?id=09cZRYupO4s&itag=139&local=true&listen=1',
-    //     'highUrl':
-    //         'https://yewtu.be/latest_version?id=09cZRYupO4s&itag=140&local=true&listen=1',
-    //     'year': jsonData['published'].toString().yearFromEpoch,
-    //     '320kbps': 'false',
-    //     'has_lyrics': 'false',
-    //     'release_date': jsonData['published'].toString().dateFromEpoch,
-    //     'album_id': jsonData['authorId'].toString(),
-    //     'artist_id': jsonData['authorId'].toString(),
-    //     'subtitle': jsonData['author'],
-    //     'perma_url': 'https://youtube.com/watch?v=${jsonData["videoId"]}',
-    //   };
-    // } catch (e) {
-    //   return {};
-    // }
   }
 
   Future<List<Map>> fetchSearchResults(String query) async {
@@ -483,70 +364,9 @@ class YouTubeServices {
         'items': videoResult,
       }
     ];
-    // return searchResults;
-
-    // For parsing html
-    // Uri link = Uri.https(searchAuthority, searchPath, {"search_query": query});
-    // final Response response = await get(link);
-    // if (response.statusCode != 200) {
-    // return [];
-    // }
-    // List searchResults = RegExp(
-    // r'\"videoId\"\:\"(.*?)\",\"thumbnail\"\:\{\"thumbnails\"\:\[\{\"url\"\:\"(.*?)".*?\"title\"\:\{\"runs\"\:\[\{\"text\"\:\"(.*?)\"\}\].*?\"longBylineText\"\:\{\"runs\"\:\[\{\"text\"\:\"(.*?)\",.*?\"lengthText\"\:\{\"accessibility\"\:\{\"accessibilityData\"\:\{\"label\"\:\"(.*?)\"\}\},\"simpleText\"\:\"(.*?)\"\},\"viewCountText\"\:\{\"simpleText\"\:\"(.*?) views\"\}.*?\"commandMetadata\"\:\{\"webCommandMetadata\"\:\{\"url\"\:\"(/watch?.*?)\".*?\"shortViewCountText\"\:\{\"accessibility\"\:\{\"accessibilityData\"\:\{\"label\"\:\"(.*?) views\"\}\},\"simpleText\"\:\"(.*?) views\"\}.*?\"channelThumbnailSupportedRenderers\"\:\{\"channelThumbnailWithLinkRenderer\"\:\{\"thumbnail\"\:\{\"thumbnails\"\:\[\{\"url\"\:\"(.*?)\"')
-    // .allMatches(response.body)
-    // .map((m) {
-    // List<String> parts = m[6].toString().split(':');
-    // int dur;
-    // if (parts.length == 3)
-    // dur = int.parse(parts[0]) * 60 * 60 +
-    // int.parse(parts[1]) * 60 +
-    // int.parse(parts[2]);
-    // if (parts.length == 2)
-    // dur = int.parse(parts[0]) * 60 + int.parse(parts[1]);
-    // if (parts.length == 1) dur = int.parse(parts[0]);
-
-    // return {
-    //   'id': m[1],
-    //   'image': m[2],
-    //   'title': m[3],
-    //     'longLength': m[5],
-    //     'length': m[6],
-    //     'totalViewsCount': m[7],
-    //     'url': 'https://www.youtube.com' + m[8],
-    //     'album': '',
-    //     'channelName': m[4],
-    //     'channelImage': m[11],
-    //     'duration': dur.toString(),
-    //     'longViews': m[9] + ' views',
-    //     'views': m[10] + ' views',
-    //     'artist': '',
-    //     "year": '',
-    //     "language": '',
-    //     "320kbps": '',
-    //     "has_lyrics": '',
-    //     "release_date": '',
-    //     "album_id": '',
-    //     'subtitle': '',
-    //   };
-    // }).toList();
-    // For invidous
-    // try {
-    //   final Uri link =
-    //       Uri.https('invidious.snopyta.org', 'api/v1/search', {'q': query});
-    //   final Response response = await get(link, headers: headers);
-    //   if (response.statusCode != 200) {
-    //     return [];
-    //   }
-    //   return jsonDecode(response.body) as List;
-    // } catch (e) {
-    //   return [];
-    // }
   }
 
-  Future<List<String>> getUri(
-    Video video,
-    // {bool preferM4a = true}
-  ) async {
+  Future<List<String>> getUri(Video video,) async {
     final StreamManifest manifest =
         await yt.videos.streamsClient.getManifest(video.id);
     final List<AudioOnlyStreamInfo> sortedStreamInfo =
@@ -568,4 +388,5 @@ class YouTubeServices {
       sortedStreamInfo.last.url.toString(),
     ];
   }
+
 }

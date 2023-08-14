@@ -113,7 +113,7 @@ class _NeomMusicPlayerAppState extends State<NeomMusicPlayerApp> {
           handleSharedText(value, navigatorKey);
         },
         onError: (err) {
-          Logger.root.severe('ERROR in getTextStream', err);
+          AppUtilities.logger.e('ERROR in getTextStream', err);
         },
       );
 
@@ -124,7 +124,7 @@ class _NeomMusicPlayerAppState extends State<NeomMusicPlayerApp> {
           if (value != null) handleSharedText(value, navigatorKey);
         },
         onError: (err) {
-          Logger.root.severe('ERROR in getInitialTextStream', err);
+          AppUtilities.logger.e('ERROR in getInitialTextStream', err);
         },
       );
 
@@ -146,7 +146,7 @@ class _NeomMusicPlayerAppState extends State<NeomMusicPlayerApp> {
           }
         },
         onError: (err) {
-          Logger.root.severe('ERROR in getDataStream', err);
+          AppUtilities.logger.e('ERROR in getDataStream', err);
         },
       );
 

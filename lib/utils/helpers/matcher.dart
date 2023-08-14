@@ -17,7 +17,6 @@
  * Copyright (c) 2021-2023, Ankit Sangwan
  */
 
-import 'package:logging/logging.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 
 bool matchSongs({
@@ -64,8 +63,7 @@ bool matchSongs({
     flexibility: titleFlexibility,
   );
 
-  Logger.root
-      .info('TitleMatched: $titleMatched, ArtistMatched: $artistMatched');
+  AppUtilities.logger.i('TitleMatched: $titleMatched, ArtistMatched: $artistMatched');
 
   return artistMatched && titleMatched;
 }

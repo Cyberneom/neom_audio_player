@@ -29,12 +29,12 @@ import 'package:neom_music_player/ui/player/audioplayer.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
 import 'package:get/get.dart';
 
-class NowPlaying extends StatefulWidget {
+class NowPlayingPage extends StatefulWidget {
   @override
-  _NowPlayingState createState() => _NowPlayingState();
+  _NowPlayingPageState createState() => _NowPlayingPageState();
 }
 
-class _NowPlayingState extends State<NowPlaying> {
+class _NowPlayingPageState extends State<NowPlayingPage> {
   final AudioPlayerHandler audioHandler = GetIt.I<AudioPlayerHandler>();
   final ScrollController _scrollController = ScrollController();
 

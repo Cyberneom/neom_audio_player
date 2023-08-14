@@ -40,6 +40,7 @@ import 'package:material_design_icons_flutter/material_design_icons_flutter.dart
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
+import 'package:neom_music_player/domain/entities/app_media_item.dart';
 import 'package:neom_music_player/ui/Search/album_search_page.dart';
 import 'package:neom_music_player/ui/widgets/add_playlist.dart';
 import 'package:neom_music_player/ui/widgets/animated_text.dart';
@@ -57,7 +58,6 @@ import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
 import 'package:neom_music_player/utils/music_player_theme.dart';
 import 'package:neom_music_player/utils/helpers/dominant_color.dart';
 import 'package:neom_music_player/utils/helpers/lyrics.dart';
-import 'package:neom_music_player/utils/helpers/mediaitem_converter.dart';
 import 'package:neom_music_player/ui/widgets/song_list.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
 import 'package:rxdart/rxdart.dart' as rx;
@@ -224,10 +224,11 @@ class _PlayScreenState extends State<PlayScreen> {
       child: StreamBuilder<MediaItem?>(
         stream: audioHandler.mediaItem,
         builder: (context, snapshot) {
-          final MediaItem? mediaItem = snapshot.data;
-          if (mediaItem == null) return const SizedBox();
-          final offline =
-              !mediaItem.extras!['url'].toString().startsWith('http');
+          if(snapshot.data == null) {
+            return const SizedBox();
+          }
+          final MediaItem mediaItem = snapshot.data!;
+          final offline = !mediaItem.extras!['url'].toString().startsWith('http');
           mediaItem.artUri.toString().startsWith('file')
               ? getColors(
                   imageProvider: FileImage(
@@ -301,7 +302,7 @@ class _PlayScreenState extends State<PlayScreen> {
                       onSelected: (int? value) {
                         if (value == 10) {
                           final Map details =
-                              MediaItemConverter.mediaItemToMap(mediaItem);
+                          MediaItemFormatter.toJSON(mediaItem);
                           details['duration'] =
                               '${(int.parse(details["duration"].toString()) ~/ 60).toString().padLeft(2, "0")}:${(int.parse(details["duration"].toString()) % 60).toString().padLeft(2, "0")}';
                           // style: Theme.of(context).textTheme.caption,
@@ -881,8 +882,7 @@ class ControlButtons extends StatelessWidget {
                               child: playing
                                   ? FloatingActionButton(
                                       elevation: 10,
-                                      tooltip:
-                                          PlayerTranslationConstants.pause.tr,
+                                      tooltip: PlayerTranslationConstants.pause.tr,
                                       backgroundColor: Colors.white,
                                       onPressed: audioHandler.pause,
                                       child: const Icon(
@@ -933,7 +933,7 @@ class ControlButtons extends StatelessWidget {
                 : DownloadButton(
                     size: 20.0,
                     icon: 'download',
-                    data: MediaItemConverter.mediaItemToMap(mediaItem),
+                    data: MediaItemFormatter.toJSON(mediaItem),
                   );
           default:
             break;
@@ -1796,7 +1796,7 @@ class _ArtWorkWidgetState extends State<ArtWorkWidget> {
                                       tooltip: PlayerTranslationConstants.songInfo.tr,
                                       onPressed: () {
                                         final Map details =
-                                            MediaItemConverter.mediaItemToMap(
+                                        MediaItemFormatter.toJSON(
                                           widget.mediaItem,
                                         );
                                         details['duration'] =
@@ -2272,7 +2272,7 @@ class NameNControls extends StatelessWidget {
                               if (!offline)
                                 DownloadButton(
                                   size: 25.0,
-                                  data: MediaItemConverter.mediaItemToMap(
+                                  data: MediaItemFormatter.toJSON(
                                     mediaItem,
                                   ),
                                 )

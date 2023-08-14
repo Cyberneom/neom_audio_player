@@ -130,9 +130,8 @@ class YtMusicService {
     if (response.statusCode == 200) {
       return json.decode(response.body) as Map;
     } else {
-      Logger.root
-          .severe('YtMusic returned ${response.statusCode}', response.body);
-      AppUtilities.logger.i('Requested endpoint: $uri');
+      AppUtilities.logger.w('YtMusic returned ${response.statusCode}', response.body);
+      AppUtilities.logger.w('Requested endpoint: $uri');
       return {};
     }
   }
@@ -418,7 +417,7 @@ class YtMusicService {
       }
       return searchResults;
     } catch (e) {
-      Logger.root.severe('Error in yt search', e);
+      AppUtilities.logger.e('Error in yt search', e);
       return List.empty();
     }
   }
@@ -449,7 +448,7 @@ class YtMusicService {
       }
       return songs;
     } catch (e) {
-      Logger.root.severe('Error in yt song search', e);
+      AppUtilities.logger.e('Error in yt song search', e);
       return List.empty();
     }
   }
@@ -488,7 +487,7 @@ class YtMusicService {
       }
       return results;
     } catch (e) {
-      Logger.root.severe('Error in yt search suggestions', e);
+      AppUtilities.logger.e('Error in yt search suggestions', e);
       return List.empty();
     }
   }
@@ -550,7 +549,7 @@ class YtMusicService {
         'images': videoDetails['thumbnail']['thumbnails'].map((e) => e['url']),
       };
     } catch (e) {
-      Logger.root.severe('Error in yt get song data', e);
+      AppUtilities.logger.e('Error in yt get song data', e);
       return {};
     }
   }
@@ -710,7 +709,7 @@ class YtMusicService {
         'type': 'playlist',
       };
     } catch (e) {
-      Logger.root.severe('Error in ytmusic getPlaylistDetails', e);
+      AppUtilities.logger.e('Error in ytmusic getPlaylistDetails', e);
       return {};
     }
   }
@@ -825,7 +824,7 @@ class YtMusicService {
         'type': 'album',
       };
     } catch (e) {
-      Logger.root.severe('Error in ytmusic getAlbumDetails', e);
+      AppUtilities.logger.e('Error in ytmusic getAlbumDetails', e);
       return {};
     }
   }
@@ -1026,7 +1025,7 @@ class YtMusicService {
       }
       return songResults;
     } catch (e) {
-      Logger.root.severe('Error in ytmusic getWatchPlaylist', e);
+      AppUtilities.logger.e('Error in ytmusic getWatchPlaylist', e);
       return [];
     }
   }

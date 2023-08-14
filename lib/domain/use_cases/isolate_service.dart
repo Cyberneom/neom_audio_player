@@ -20,8 +20,7 @@ Future<void> startBackgroundProcessing() async {
     if (isolateSendPort == null) {
       AppUtilities.logger.i('setting isolateSendPort');
       isolateSendPort = message as SendPort;
-      final appDocumentDirectoryPath =
-          (await getApplicationDocumentsDirectory()).path;
+      final appDocumentDirectoryPath = (await getApplicationDocumentsDirectory()).path;
       isolateSendPort?.send(appDocumentDirectoryPath);
     } else {
       await audioHandler.customAction('refreshLink', {'newData': message});

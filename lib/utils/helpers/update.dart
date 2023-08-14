@@ -18,6 +18,7 @@
  */
 
 import 'package:logging/logging.dart';
+import 'package:neom_commons/core/utils/app_utilities.dart';
 
 bool compareVersion(String latestVersion, String currentVersion) {
   bool update = false;
@@ -32,7 +33,7 @@ bool compareVersion(String latestVersion, String currentVersion) {
         break;
       }
     } catch (e) {
-      Logger.root.severe('Error while comparing versions: $e');
+      AppUtilities.logger.e('Error while comparing versions: $e');
       break;
     }
   }

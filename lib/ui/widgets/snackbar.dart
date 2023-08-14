@@ -20,6 +20,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:logging/logging.dart';
+import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
 
 class ShowSnackBar {
@@ -55,7 +56,7 @@ class ShowSnackBar {
         ),
       );
     } catch (e) {
-      Logger.root.severe('Failed to show Snackbar with title: $title', e);
+      AppUtilities.logger.e('Failed to show Snackbar with title: $title', e);
     }
   }
 }

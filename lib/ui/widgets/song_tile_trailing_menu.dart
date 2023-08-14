@@ -23,7 +23,7 @@ import 'package:flutter/material.dart';
 
 import 'package:neom_music_player/ui/widgets/add_playlist.dart';
 import 'package:neom_music_player/utils/helpers/add_mediaitem_to_queue.dart';
-import 'package:neom_music_player/utils/helpers/mediaitem_converter.dart';
+import 'package:neom_music_player/domain/entities/app_media_item.dart';
 import 'package:neom_music_player/domain/use_cases/youtube_services.dart';
 import 'package:neom_music_player/ui/widgets/song_list.dart';
 import 'package:neom_music_player/ui/Search/album_search_page.dart';
@@ -51,7 +51,7 @@ class SongTileTrailingMenu extends StatefulWidget {
 class _SongTileTrailingMenuState extends State<SongTileTrailingMenu> {
   @override
   Widget build(BuildContext context) {
-    final MediaItem mediaItem = MediaItemConverter.mapToMediaItem(widget.data);
+    final MediaItem mediaItem = MediaItemFormatter.fromJSON(widget.data);
     return PopupMenuButton(
       icon: Icon(
         Icons.more_vert_rounded,
@@ -338,8 +338,7 @@ class _YtSongTileTrailingMenuState extends State<YtSongTileTrailingMenu> {
             data: widget.data,
           )
               .then((songMap) {
-            final MediaItem mediaItem =
-                MediaItemConverter.mapToMediaItem(songMap!);
+            final MediaItem mediaItem = MediaItemFormatter.fromJSON(songMap!);
             if (value == 1) {
               playNext(mediaItem, context);
             }

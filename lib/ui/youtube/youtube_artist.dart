@@ -21,6 +21,7 @@ import 'package:flutter/material.dart';
 
 import 'package:logging/logging.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
+import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_music_player/ui/widgets/bouncy_sliver_scroll_view.dart';
 import 'package:neom_music_player/ui/widgets/copy_clipboard.dart';
 import 'package:neom_music_player/ui/widgets/gradient_containers.dart';
@@ -69,7 +70,7 @@ class _YouTubeArtistState extends State<YouTubeArtist> {
             artistImage = value['images']?.last as String? ?? '';
             fetched = true;
           } catch (e) {
-            Logger.root.severe('Error in fetching artist details', e);
+            AppUtilities.logger.e('Error in fetching artist details', e);
             fetched = true;
           }
         });
