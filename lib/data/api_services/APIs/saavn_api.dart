@@ -21,8 +21,8 @@ import 'dart:convert';
 
 import 'package:hive/hive.dart';
 import 'package:http/http.dart';
-import 'package:logging/logging.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
+import 'package:neom_music_player/domain/entities/app_media_item.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
 import 'package:neom_music_player/utils/helpers/format.dart';
 
@@ -237,7 +237,7 @@ class SaavnAPI {
     return null;
   }
 
-  Future<List> getRadioSongs({
+  Future<List<AppMediaItem>> getRadioSongs({
     required String stationId,
     int count = 20,
     int next = 1,
@@ -252,7 +252,9 @@ class SaavnAPI {
         for (int i = 0; i < count; i++) {
           responseList.add(getMain[i.toString()]['song']);
         }
-        return FormatResponse.formatSongsResponse(responseList, 'song');
+        //TODO VERIFY
+        // return FormatResponse.formatSongsResponse(responseList, 'song');
+        return [];
       }
       return [];
     }

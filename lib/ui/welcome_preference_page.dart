@@ -40,14 +40,10 @@ class WelcomePreferencePage extends StatefulWidget {
 
 class _WelcomePreferencePageState extends State<WelcomePreferencePage> {
 
-
   List<bool> isSelected = [true, false];
-  List preferredLanguage = Hive.box(AppHiveConstants.settings)
-      .get('preferredLanguage', defaultValue: ['Hindi'])?.toList() as List;
-  String region =
-      Hive.box(AppHiveConstants.settings).get('region', defaultValue: 'México') as String;
-  bool useProxy =
-      Hive.box(AppHiveConstants.settings).get('useProxy', defaultValue: false) as bool;
+  List preferredLanguage = Hive.box(AppHiveConstants.settings).get('preferredLanguage', defaultValue: ['Español'])?.toList() as List;
+  String region = Hive.box(AppHiveConstants.settings).get('region', defaultValue: 'México') as String;
+  bool useProxy = Hive.box(AppHiveConstants.settings).get('useProxy', defaultValue: false) as bool;
 
   @override
   Widget build(BuildContext context) {
@@ -131,8 +127,7 @@ class _WelcomePreferencePageState extends State<WelcomePreferencePage> {
                                       ),
                                     ),
                                     TextSpan(
-                                      text:
-                                          PlayerTranslationConstants.tryOurMusicPlayer.tr,
+                                      text: PlayerTranslationConstants.tryOurMusicPlayer.tr,
                                       style: TextStyle(
                                         height: 1.5,
                                         fontWeight: FontWeight.w300,
@@ -198,8 +193,7 @@ class _WelcomePreferencePageState extends State<WelcomePreferencePage> {
                                         backgroundColor: AppColor.main25,
                                         context: context,
                                         builder: (BuildContext context) {
-                                          final List checked =
-                                              List.from(preferredLanguage);
+                                          final List checked = List.from(preferredLanguage);
                                           return StatefulBuilder(
                                             builder: (
                                               BuildContext context,

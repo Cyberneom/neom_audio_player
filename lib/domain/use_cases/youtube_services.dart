@@ -25,10 +25,13 @@ import 'package:html_unescape/html_unescape_small.dart';
 import 'package:http/http.dart';
 import 'package:logging/logging.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
+import 'package:neom_music_player/domain/entities/app_media_item.dart';
 import 'package:neom_music_player/domain/entities/playlist_item.dart';
 import 'package:neom_music_player/domain/entities/playlist_section.dart';
+import 'package:neom_music_player/domain/entities/youtube_item.dart';
 import 'package:neom_music_player/domain/entities/youtube_music_home.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
+import 'package:neom_music_player/utils/enums/app_media_source.dart';
 import 'package:neom_music_player/utils/enums/playlist_type.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
@@ -57,12 +60,12 @@ class YouTubeServices {
       final Video result = await yt.videos.get(id);
       return result;
     } catch (e) {
-      AppUtilities.logger.e('Error while getting video from id', e);
+      AppUtilities.logger.e('Error while getting video from id $id', e);
       return null;
     }
   }
 
-  Future<Map?> formatVideoFromId({
+  Future<AppMediaItem?> formatVideoFromId({
     required String id,
     Map? data,
     bool? getUrl,
@@ -71,7 +74,7 @@ class YouTubeServices {
     if (vid == null) {
       return null;
     }
-    final Map? response = await formatVideo(
+    final AppMediaItem? response = await formatVideo(
       video: vid,
       quality: Hive.box(AppHiveConstants.settings).get('ytQuality', defaultValue: 'Low',).toString(),
       data: data,
@@ -80,19 +83,22 @@ class YouTubeServices {
     return response;
   }
 
-  Future<Map?> refreshLink(String id) async {
+  Future<AppMediaItem?> refreshLink(String id) async {
+    AppUtilities.logger.i('Refreshing YT Link for $id');
+
     final Video? res = await getVideoFromId(id);
     if (res == null) {
       return null;
     }
+
     String quality;
     try {
       quality = Hive.box(AppHiveConstants.settings).get('quality', defaultValue: 'Low').toString();
     } catch (e) {
       quality = 'Low';
     }
-    final Map? data = await formatVideo(video: res, quality: quality);
-    return data;
+    final AppMediaItem? refreshedItem = await formatVideo(video: res, quality: quality);
+    return refreshedItem;
   }
 
   Future<Playlist> getPlaylistDetails(String id) async {
@@ -112,7 +118,7 @@ class YouTubeServices {
 
       if (response.statusCode == 200) {
         final String searchResults = RegExp(r'(\"contents\":{.*?}),\"metadata\"',
-            dotAll: true).firstMatch(response.body)![1]!;
+            dotAll: true,).firstMatch(response.body)![1]!;
         final Map data = json.decode('{$searchResults}') as Map;
 
         final List result = data['contents']['twoColumnBrowseResultsRenderer']
@@ -138,7 +144,7 @@ class YouTubeServices {
               ? formatItems(shelfRendererItems, type: PlaylistType.video)
               : formatItems(shelfRendererItems,);
           if (playlistItems.isNotEmpty) {
-            AppUtilities.logger.i("Got info successfully for '$resultTitle'",);
+            AppUtilities.logger.d("Got info successfully for '$resultTitle'",);
             return PlaylistSection(
               title: resultTitle,
               playlistItems: playlistItems,
@@ -150,7 +156,7 @@ class YouTubeServices {
         }).toList();
 
         PlaylistSection headSection = PlaylistSection(
-          playlistItems: formatItems(headResult, isHead: true)
+          playlistItems: formatItems(headResult, isHead: true),
         );
 
         musicHome.body = bodySection;
@@ -265,41 +271,35 @@ class YouTubeServices {
     return playlistItems;
   }
 
-  Future<Map?> formatVideo({
-    required Video video,
-    required String quality,
-    Map? data,
-    bool getUrl = true,
-    // bool preferM4a = true,
-  }) async {
+  Future<AppMediaItem?> formatVideo({required Video video, required String quality,
+    Map? data, bool getUrl = true,}) async {
+
+    AppUtilities.logger.i('FormatVideo for ${data.toString()}');
+
     if (video.duration?.inSeconds == null) return null;
     List<String> urls = [];
     String finalUrl = '';
     String expireAt = '0';
     if (getUrl) {
-      // check cache first
-      if (Hive.box(AppHiveConstants.ytLinkCache).containsKey(video.id.value)) {
+      if (false && Hive.box(AppHiveConstants.ytLinkCache).containsKey(video.id.value)) {
+        AppUtilities.logger.d("Check Cache First");
         final Map cachedData = Hive.box(AppHiveConstants.ytLinkCache).get(video.id.value) as Map;
-        final int cachedExpiredAt =
-            int.parse(cachedData['expire_at'].toString());
-        if ((DateTime.now().millisecondsSinceEpoch ~/ 1000) + 350 >
-            cachedExpiredAt) {
-          // cache expired
+        final int cachedExpiredAt = int.parse(cachedData['expire_at'].toString());
+        if ((DateTime.now().millisecondsSinceEpoch ~/ 1000) + 350 > cachedExpiredAt) {
+          AppUtilities.logger.d("Cache Expired");
           urls = await getUri(video);
         } else {
-          // giving cache link
-          AppUtilities.logger.i('cache found for ${video.id.value}');
+          AppUtilities.logger.d('Giving cache link- Cache found for ${video.id.value}');
           urls = [cachedData['url'].toString()];
         }
       } else {
-        //cache not present
+        AppUtilities.logger.d('Cache no Present');
         urls = await getUri(video);
       }
 
       finalUrl = quality == 'High' ? urls.last : urls.first;
       expireAt = RegExp('expire=(.*?)&').firstMatch(finalUrl)!.group(1) ??
-          (DateTime.now().millisecondsSinceEpoch ~/ 1000 + 3600 * 5.5)
-              .toString();
+          (DateTime.now().millisecondsSinceEpoch ~/ 1000 + 3600 * 5.5).toString();
 
       try {
         await Hive.box(AppHiveConstants.ytLinkCache).put(
@@ -321,42 +321,40 @@ class YouTubeServices {
         );
       }
     }
-    return {
-      'id': video.id.value,
-      'album': (data?['album'] ?? '') != ''
-          ? data!['album']
+    return AppMediaItem(
+      id: video.id.value,
+      album: (data?['album'] ?? '') != '' ? data!['album'].toString()
           : video.author.replaceAll('- Topic', '').trim(),
-      'duration': video.duration?.inSeconds.toString(),
-      'title':
-          (data?['title'] ?? '') != '' ? data!['title'] : video.title.trim(),
-      'artist': (data?['artist'] ?? '') != ''
-          ? data!['artist']
+      title: (data?['title'] ?? '') != '' ? data!['title'].toString() : video.title.trim(),
+      subtitle: (data?['subtitle'] ?? '') != '' ? data!['subtitle'].toString() : video.author,
+      duration: video.duration!,
+      artist: (data?['artist'] ?? '') != ''
+          ? data!['artist'].toString()
           : video.author.replaceAll('- Topic', '').trim(),
-      'image': video.thumbnails.maxResUrl,
-      'secondImage': video.thumbnails.highResUrl,
-      'language': 'YouTube',
-      'genre': 'YouTube',
-      'expire_at': expireAt,
-      'url': finalUrl,
-      'lowUrl': urls.isNotEmpty ? urls.first : '',
-      'highUrl': urls.isNotEmpty ? urls.last : '',
-      'year': video.uploadDate?.year.toString(),
-      '320kbps': 'false',
-      'has_lyrics': 'false',
-      'release_date': video.publishDate.toString(),
-      'album_id': video.channelId.value,
-      'subtitle':
-          (data?['subtitle'] ?? '') != '' ? data!['subtitle'] : video.author,
-      'perma_url': video.url,
-    };
+      image: video.thumbnails.maxResUrl,
+      allImages: [video.thumbnails.highResUrl],
+      language: 'YouTube',
+      genre: 'YouTube',
+      hasLyrics: false,
+      url: finalUrl,
+      allUrls: urls,
+      expireAt: int.parse(expireAt),
+      year: video.uploadDate?.year ?? 0,
+      kbps320: false,
+      releaseDate: video.publishDate.toString(),
+      albumId: video.channelId.value,
+      permaUrl: video.url,
+      mediaSource: AppMediaSource.youtube,
+    );
   }
 
   Future<List<Map>> fetchSearchResults(String query) async {
+    AppUtilities.logger.i('FetchSearchResults for $query');
     final List<Video> searchResults = await yt.search.search(query);
-    final List<Map> videoResult = [];
+    final List<AppMediaItem> videoResult = [];
     for (final Video vid in searchResults) {
-      final res = await formatVideo(video: vid, quality: 'High', getUrl: false);
-      if (res != null) videoResult.add(res);
+      final AppMediaItem? res = await formatVideo(video: vid, quality: 'High', getUrl: false);
+      if (AppMediaItem != null) videoResult.add(res!);
     }
     return [
       {

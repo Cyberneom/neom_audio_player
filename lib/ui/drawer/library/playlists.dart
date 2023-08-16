@@ -21,6 +21,7 @@ import 'package:flutter/material.dart';
 
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:neom_commons/core/app_flavour.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
 import 'package:neom_music_player/ui/widgets/collage.dart';
@@ -41,11 +42,8 @@ class PlaylistPage extends StatefulWidget {
 
 class _PlaylistPageState extends State<PlaylistPage> {
   final Box settingsBox = Hive.box(AppHiveConstants.settings);
-  final List playlistNames =
-      Hive.box(AppHiveConstants.settings).get('playlistNames')?.toList() as List? ??
-          [AppHiveConstants.favoriteSongs];
-  Map playlistDetails =
-      Hive.box(AppHiveConstants.settings).get('playlistDetails', defaultValue: {}) as Map;
+  final List playlistNames = Hive.box(AppHiveConstants.settings).get('playlistNames')?.toList() as List? ?? [AppHiveConstants.favoriteSongs];
+  Map playlistDetails = Hive.box(AppHiveConstants.settings).get('playlistDetails', defaultValue: {}) as Map;
   @override
   Widget build(BuildContext context) {
     if (!playlistNames.contains(AppHiveConstants.favoriteSongs)) {
@@ -175,8 +173,7 @@ class _PlaylistPageState extends State<PlaylistPage> {
                                 ),
                               )
                             : Collage(
-                                imageList:
-                                    playlistDetails[name]['imagesList'] as List,
+                                imageList: [AppFlavour.getAppLogoUrl()],//playlistDetails[name]['imagesList'] as List,
                                 showGrid: true,
                                 placeholderImage: AppAssets.musicPlayerCover,
                               ),

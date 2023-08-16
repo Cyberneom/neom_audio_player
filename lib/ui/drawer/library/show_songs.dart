@@ -21,15 +21,17 @@ import 'package:flutter/material.dart';
 
 import 'package:hive/hive.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
+import 'package:neom_music_player/domain/entities/app_media_item.dart';
 import 'package:neom_music_player/ui/widgets/gradient_containers.dart';
 import 'package:neom_music_player/ui/widgets/image_card.dart';
-import 'package:neom_music_player/domain/use_cases/player_service.dart';
+import 'package:neom_music_player/neom_player_invoke.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
 import 'package:get/get.dart';
+import 'package:neom_music_player/utils/neom_audio_utilities.dart';
 
 class SongsList extends StatefulWidget {
-  final List data;
+  final List<AppMediaItem> data;
   final bool offline;
   final String? title;
   const SongsList({
@@ -43,7 +45,7 @@ class SongsList extends StatefulWidget {
 }
 
 class _SongsListState extends State<SongsList> {
-  List _songs = [];
+  List<AppMediaItem> _songs = [];
   List original = [];
   bool offline = false;
   bool added = false;
@@ -58,62 +60,10 @@ class _SongsListState extends State<SongsList> {
     offline = widget.offline;
     if (!offline) original = List.from(_songs);
 
-    sortSongs(sortVal: sortValue, order: orderValue);
+    _songs = NeomAudioUtilities.sortSongs(_songs, sortVal: sortValue, order: orderValue);
 
     processStatus = true;
     setState(() {});
-  }
-
-  void sortSongs({required int sortVal, required int order}) {
-    switch (sortVal) {
-      case 0:
-        _songs.sort(
-          (a, b) => a['title']
-              .toString()
-              .toUpperCase()
-              .compareTo(b['title'].toString().toUpperCase()),
-        );
-      case 1:
-        _songs.sort(
-          (a, b) => a['dateAdded']
-              .toString()
-              .toUpperCase()
-              .compareTo(b['dateAdded'].toString().toUpperCase()),
-        );
-      case 2:
-        _songs.sort(
-          (a, b) => a['album']
-              .toString()
-              .toUpperCase()
-              .compareTo(b['album'].toString().toUpperCase()),
-        );
-      case 3:
-        _songs.sort(
-          (a, b) => a['artist']
-              .toString()
-              .toUpperCase()
-              .compareTo(b['artist'].toString().toUpperCase()),
-        );
-      case 4:
-        _songs.sort(
-          (a, b) => a['duration']
-              .toString()
-              .toUpperCase()
-              .compareTo(b['duration'].toString().toUpperCase()),
-        );
-      default:
-        _songs.sort(
-          (b, a) => a['dateAdded']
-              .toString()
-              .toUpperCase()
-              .compareTo(b['dateAdded'].toString().toUpperCase()),
-        );
-        break;
-    }
-
-    if (order == 1) {
-      _songs = _songs.reversed.toList();
-    }
   }
 
   @override
@@ -140,7 +90,7 @@ class _SongsListState extends State<SongsList> {
                   orderValue = value - 5;
                   Hive.box(AppHiveConstants.settings).put('orderValue', orderValue);
                 }
-                sortSongs(sortVal: sortValue, order: orderValue);
+                _songs = NeomAudioUtilities.sortSongs(_songs, sortVal: sortValue, order: orderValue);
                 setState(() {});
               },
               itemBuilder: (context) {
@@ -240,20 +190,20 @@ class _SongsListState extends State<SongsList> {
                           leading: imageCard(
                             localImage: offline,
                             imageUrl: offline
-                                ? _songs[index]['image'].toString()
-                                : _songs[index]['image'].toString(),
+                                ? _songs[index].image.toString()
+                                : _songs[index].image.toString(),
                           ),
                           title: Text(
-                            '${_songs[index]['title']}',
+                            '${_songs[index].title}',
                             overflow: TextOverflow.ellipsis,
                           ),
                           subtitle: Text(
-                            '${_songs[index]['artist']}',
+                            '${_songs[index].artist}',
                             overflow: TextOverflow.ellipsis,
                           ),
                           onTap: () {
-                            PlayerInvoke.init(
-                              songsList: _songs,
+                            NeomPlayerInvoke.init(
+                              appMediaItems: _songs,
                               index: index,
                               isOffline: offline,
                               fromDownloads: offline,

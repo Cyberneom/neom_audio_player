@@ -1,23 +1,10 @@
 
 import 'package:flutter/material.dart';
 
-import 'package:logging/logging.dart';
-import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
 import 'package:neom_music_player/domain/entities/playlist_item.dart';
 import 'package:neom_music_player/ui/YouTube/youtube_playlist.dart';
 import 'package:neom_music_player/ui/YouTube/youtube_search.dart';
-import 'package:neom_music_player/ui/widgets/bouncy_playlist_header_scroll_view.dart';
-import 'package:neom_music_player/ui/widgets/copy_clipboard.dart';
-import 'package:neom_music_player/ui/widgets/gradient_containers.dart';
-import 'package:neom_music_player/ui/widgets/image_card.dart';
-import 'package:neom_music_player/ui/widgets/playlist_popupmenu.dart';
-import 'package:neom_music_player/ui/widgets/song_tile_trailing_menu.dart';
-import 'package:neom_music_player/domain/use_cases/player_service.dart';
-import 'package:neom_music_player/domain/use_cases/youtube_services.dart';
-import 'package:neom_music_player/domain/use_cases/yt_music.dart';
-import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
-import 'package:get/get.dart';
 import 'package:neom_music_player/utils/enums/playlist_type.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 

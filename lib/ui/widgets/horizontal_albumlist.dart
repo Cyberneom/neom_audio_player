@@ -18,8 +18,12 @@
  */
 
 import 'package:flutter/material.dart';
+import 'package:neom_commons/core/domain/model/app_item.dart';
+import 'package:neom_commons/core/domain/model/item_list.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
+import 'package:neom_commons/core/utils/enums/itemlist_type.dart';
+import 'package:neom_music_player/domain/entities/app_media_item.dart';
 import 'package:neom_music_player/ui/widgets/image_card.dart';
 import 'package:neom_music_player/ui/widgets/like_button.dart';
 import 'package:neom_music_player/ui/widgets/on_hover.dart';
@@ -27,11 +31,11 @@ import 'package:neom_music_player/ui/widgets/song_tile_trailing_menu.dart';
 import 'package:neom_music_player/utils/enums/image_quality.dart';
 
 class HorizontalAlbumsList extends StatelessWidget {
-  final List songsList;
+  final Itemlist itemlist;
   final Function(int) onTap;
   const HorizontalAlbumsList({
     super.key,
-    required this.songsList,
+    required this.itemlist,
     required this.onTap,
   });
 
@@ -45,27 +49,23 @@ class HorizontalAlbumsList extends StatelessWidget {
             .trim();
   }
 
-  String getSubTitle(Map item) {
-    final type = item['type'];
-    if (type == 'charts') {
+  String getSubTitle(AppMediaItem item, {ItemlistType type = ItemlistType.single}) {
+
+    if (type == ItemlistType.album) {
       return '';
-    } else if (type == 'playlist' || type == 'radio_station') {
-      return formatString(item['subtitle']?.toString());
-    } else if (type == 'song') {
-      return formatString(item['artist']?.toString());
+    } else if (type == ItemlistType.playlist || type == ItemlistType.radioStation) {
+      return formatString(item.title);
+    } else if (type == ItemlistType.single) {
+      return formatString(item.artist);
     } else {
-      if (item['subtitle'] != null) {
-        return formatString(item['subtitle']?.toString());
+      if (item.album.isNotEmpty) {
+        return formatString(item.image);
       }
-      final artists = item['more_info']?['artistMap']?['artists']
-          .map((artist) => artist['name'])
-          .toList();
-      if (artists != null) {
-        return formatString(artists?.join(', ')?.toString());
+      String artist = item.artist;
+      if (artist.isNotEmpty != null) {
+        return formatString(artist);
       }
-      if (item['artist'] != null) {
-        return formatString(item['artist']?.toString());
-      }
+
       return '';
     }
   }
@@ -83,10 +83,10 @@ class HorizontalAlbumsList extends StatelessWidget {
         physics: const BouncingScrollPhysics(),
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 10),
-        itemCount: songsList.length,
+        itemCount: itemlist.appItems?.length ?? 0,
         itemBuilder: (context, index) {
-          final Map item = songsList[index] as Map;
-          final subTitle = getSubTitle(item);
+          final AppMediaItem appMediaItem = AppMediaItem.mapItemsFromItemlist(itemlist).elementAt(index);
+          final subTitle = getSubTitle(appMediaItem);
           return GestureDetector(
             onLongPress: () {
               Feedback.forLongPress(context);
@@ -100,23 +100,16 @@ class HorizontalAlbumsList extends StatelessWidget {
                     backgroundColor: AppColor.main75,
                     contentPadding: EdgeInsets.zero,
                     content: imageCard(
-                      borderRadius:
-                          item['type'] == 'radio_station' ? 1000.0 : 15.0,
-                      imageUrl: item['image'].toString(),
+                      borderRadius: 15, //appMediaItem['type'] == 'radio_station' ? 1000.0 : 15.0,
+                      imageUrl: appMediaItem.image,
                       boxDimension: MediaQuery.of(context).size.width * 0.8,
                       imageQuality: ImageQuality.high,
-                      placeholderImage: (item['type'] == 'playlist' ||
-                              item['type'] == 'album')
-                          ? const AssetImage(
-                              AppAssets.musicPlayerAlbum,
-                            )
-                          : item['type'] == 'artist'
-                              ? const AssetImage(
-                                  AppAssets.musicPlayerArtist,
-                                )
-                              : const AssetImage(
-                                  AppAssets.musicPlayerCover,
-                                ),
+                      placeholderImage: const AssetImage(AppAssets.musicPlayerAlbum,)
+                      // (appMediaItem['type'] == 'playlist' || appMediaItem['type'] == 'album')
+                      //     ? const AssetImage(AppAssets.musicPlayerAlbum,)
+                      //     : appMediaItem['type'] == 'artist'
+                      //     ? const AssetImage(AppAssets.musicPlayerArtist,)
+                      //     : const AssetImage(AppAssets.musicPlayerCover,),
                     ),
                   );
                 },
@@ -130,25 +123,16 @@ class HorizontalAlbumsList extends StatelessWidget {
               child: HoverBox(
                 child: imageCard(
                   margin: const EdgeInsets.all(4.0),
-                  borderRadius: item['type'] == 'radio_station' ||
-                          item['type'] == 'artist'
-                      ? 1000.0
-                      : 10.0,
-                  imageUrl: item['image'].toString(),
+                  borderRadius: 10,
+                  // appMediaItem['type'] == 'radio_station' || appMediaItem['type'] == 'artist' ? 1000.0 : 10.0,
+                  imageUrl: appMediaItem.image,
                   boxDimension: double.infinity,
                   imageQuality: ImageQuality.medium,
-                  placeholderImage:
-                      (item['type'] == 'playlist' || item['type'] == 'album')
-                          ? const AssetImage(
-                              AppAssets.musicPlayerAlbum,
-                            )
-                          : item['type'] == 'artist'
-                              ? const AssetImage(
-                                  AppAssets.musicPlayerArtist,
-                                )
-                              : const AssetImage(
-                                  AppAssets.musicPlayerCover,
-                                ),
+                  placeholderImage: const AssetImage(AppAssets.musicPlayerAlbum,),
+                      // (appMediaItem['type'] == 'playlist' || appMediaItem['type'] == 'album')
+                      //     ? const AssetImage(AppAssets.musicPlayerAlbum,)
+                      //     : appMediaItem['type'] == 'artist' ? const AssetImage(AppAssets.musicPlayerArtist,
+                      // ) : const AssetImage(AppAssets.musicPlayerCover,),
                 ),
                 builder: ({
                   required BuildContext context,
@@ -173,10 +157,9 @@ class HorizontalAlbumsList extends StatelessWidget {
                               dimension: isHover ? boxSize - 25 : boxSize - 30,
                               child: child,
                             ),
-                            if (isHover &&
-                                (item['type'] == 'song' ||
-                                    item['type'] == 'radio_station' ||
-                                    item['duration'] != null))
+                            if (isHover
+                                // && (appItem['type'] == 'song' || appItem['type'] == 'radio_station' || appItem['duration'] != null)
+                            )
                               Positioned.fill(
                                 child: Container(
                                   margin: const EdgeInsets.all(
@@ -184,10 +167,8 @@ class HorizontalAlbumsList extends StatelessWidget {
                                   ),
                                   decoration: BoxDecoration(
                                     color: Colors.black54,
-                                    borderRadius: BorderRadius.circular(
-                                      item['type'] == 'radio_station'
-                                          ? 1000.0
-                                          : 10.0,
+                                    borderRadius: BorderRadius.circular(10
+                                      // appItem['type'] == 'radio_station' ? 1000.0 : 10.0,
                                     ),
                                   ),
                                   child: Center(
@@ -205,9 +186,9 @@ class HorizontalAlbumsList extends StatelessWidget {
                                   ),
                                 ),
                               ),
-                            if (isHover &&
-                                (item['type'] == 'song' ||
-                                    item['duration'] != null))
+                            if (isHover
+                                // && (appItem['type'] == 'song' || appItem['duration'] != null)
+                            )
                               Align(
                                 alignment: Alignment.topRight,
                                 child: Row(
@@ -215,10 +196,11 @@ class HorizontalAlbumsList extends StatelessWidget {
                                   children: [
                                     LikeButton(
                                       mediaItem: null,
-                                      data: item,
+                                      data: null, //appItem,
                                     ),
                                     SongTileTrailingMenu(
-                                      data: item,
+                                      appMediaItem: appMediaItem, //appItem,
+                                      itemlist: itemlist,
                                     ),
                                   ],
                                 ),
@@ -230,8 +212,7 @@ class HorizontalAlbumsList extends StatelessWidget {
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Text(
-                                formatString(item['title']?.toString()),
+                              Text(formatString(appMediaItem.title),
                                 textAlign: TextAlign.center,
                                 softWrap: false,
                                 overflow: TextOverflow.ellipsis,

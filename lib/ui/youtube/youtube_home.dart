@@ -21,24 +21,17 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 
-import 'package:hive/hive.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_theme.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
-import 'package:neom_music_player/data/implementations/app_hive_controller.dart';
-import 'package:neom_music_player/domain/entities/playlist_item.dart';
 import 'package:neom_music_player/domain/entities/playlist_section.dart';
 import 'package:neom_music_player/ui/widgets/drawer.dart';
-import 'package:neom_music_player/ui/widgets/on_hover.dart';
 import 'package:neom_music_player/domain/use_cases/youtube_services.dart';
-import 'package:neom_music_player/ui/YouTube/youtube_playlist.dart';
 import 'package:neom_music_player/ui/YouTube/youtube_search.dart';
 import 'package:neom_music_player/ui/youtube/playlist_card.dart';
-import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
 import 'package:get/get.dart';
-import 'package:neom_music_player/utils/enums/playlist_type.dart';
 
 class YouTube extends StatefulWidget {
   const YouTube({super.key});

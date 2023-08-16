@@ -23,13 +23,15 @@ import 'package:hive/hive.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/constants/app_translation_constants.dart';
+import 'package:neom_music_player/domain/entities/app_media_item.dart';
+import 'package:neom_music_player/domain/entities/youtube_item.dart';
 import 'package:neom_music_player/ui/widgets/empty_screen.dart';
 import 'package:neom_music_player/ui/widgets/gradient_containers.dart';
 import 'package:neom_music_player/ui/widgets/image_card.dart';
 import 'package:neom_music_player/ui/widgets/music_search_bar.dart' as searchbar;
 import 'package:neom_music_player/ui/widgets/snackbar.dart';
 import 'package:neom_music_player/ui/widgets/song_tile_trailing_menu.dart';
-import 'package:neom_music_player/domain/use_cases/player_service.dart';
+import 'package:neom_music_player/neom_player_invoke.dart';
 import 'package:neom_music_player/domain/use_cases/youtube_services.dart';
 import 'package:neom_music_player/domain/use_cases/yt_music.dart';
 import 'package:neom_music_player/ui/widgets/song_list_view.dart';
@@ -94,8 +96,7 @@ class _YouTubeSearchPageState extends State<YouTubeSearchPage> {
       } else {
         if (searchYtMusic) {
           AppUtilities.logger.i('calling yt music search');
-          YtMusicService()
-              .search(query == '' ? widget.query : query)
+          YtMusicService().search(query == '' ? widget.query : query)
               .then((value) {
             setState(() {
               searchedList = value;
@@ -417,7 +418,7 @@ class _YouTubeSearchPageState extends State<YouTubeSearchPage> {
                                                   setState(() {
                                                     done = false;
                                                   });
-                                                  final Map? response = await YouTubeServices().formatVideoFromId(
+                                                  final AppMediaItem? response = await YouTubeServices().formatVideoFromId(
                                                     id: section['items'][idx]['id'].toString(),
                                                     data: section['items'][idx] as Map,
                                                   );
@@ -425,13 +426,14 @@ class _YouTubeSearchPageState extends State<YouTubeSearchPage> {
                                                     videoId: section['items'][idx]['id'].toString(),
                                                   );
                                                   if (response != null && response2['image'] != null) {
-                                                    response['image'] = response2['image'] ?? response['image'];
+                                                    response.image = response2['image'].toString() ?? response.image;
                                                   }
                                                   setState(() {
                                                     done = true;
                                                   });
+
                                                   if (response != null) {
-                                                    PlayerInvoke.init(songsList: [response],
+                                                    NeomPlayerInvoke.init(appMediaItems: [response],
                                                       index: 0, isOffline: false,
                                                     );
                                                   }
@@ -443,15 +445,18 @@ class _YouTubeSearchPageState extends State<YouTubeSearchPage> {
                                                   setState(() {
                                                     done = false;
                                                   });
-                                                  final Map? response = await YouTubeServices().formatVideoFromId(
+                                                  final AppMediaItem? response = await YouTubeServices().formatVideoFromId(
                                                     id: section['items'][idx]['id'].toString(),
                                                     data: section['items'][idx] as Map,
                                                   );
+
                                                   setState(() {
                                                     done = true;
                                                   });
+
                                                   if (response != null) {
-                                                    PlayerInvoke.init(songsList: [response],
+                                                    NeomPlayerInvoke.init(
+                                                      appMediaItems: [response],
                                                       index: 0, isOffline: false,
                                                     );
                                                   }

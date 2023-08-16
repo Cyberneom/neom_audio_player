@@ -24,7 +24,7 @@ import 'package:flutter/material.dart';
 
 class Collage extends StatelessWidget {
   final bool showGrid;
-  final List imageList;
+  final List<String> imageList;
   final String placeholderImage;
   final double borderRadius;
   const Collage({
@@ -62,9 +62,7 @@ class Collage extends StatelessWidget {
                           fit: BoxFit.cover,
                           image: AssetImage(placeholderImage),
                         ),
-                        imageUrl: image['image']
-                            .toString()
-                            .replaceAll('http:', 'https:'),
+                        imageUrl: image.replaceAll('http:', 'https:'),
                         placeholder: (context, _) => Image(
                           fit: BoxFit.cover,
                           image: AssetImage(placeholderImage),
@@ -79,9 +77,7 @@ class Collage extends StatelessWidget {
                   fit: BoxFit.cover,
                   image: AssetImage(placeholderImage),
                 ),
-                imageUrl: imageList[0]['image']
-                    .toString()
-                    .replaceAll('http:', 'https:'),
+                imageUrl: imageList[0].replaceAll('http:', 'https:'),
                 placeholder: (context, _) => Image(
                   fit: BoxFit.cover,
                   image: AssetImage(placeholderImage),

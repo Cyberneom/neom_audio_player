@@ -26,6 +26,7 @@ import 'package:hive/hive.dart';
 import 'package:logging/logging.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
+import 'package:neom_music_player/domain/entities/app_media_item.dart';
 import 'package:neom_music_player/ui/widgets/add_playlist.dart';
 import 'package:neom_music_player/ui/widgets/custom_physics.dart';
 import 'package:neom_music_player/ui/widgets/data_search.dart';
@@ -35,7 +36,7 @@ import 'package:neom_music_player/ui/widgets/playlist_head.dart';
 import 'package:neom_music_player/ui/widgets/snackbar.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
 import 'package:neom_music_player/utils/helpers/audio_query.dart';
-import 'package:neom_music_player/domain/use_cases/player_service.dart';
+import 'package:neom_music_player/neom_player_invoke.dart';
 import 'package:neom_music_player/ui/drawer/local_music/localplaylists.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
 import 'package:on_audio_query/on_audio_query.dart';
@@ -770,7 +771,7 @@ class _SongsTabState extends State<SongsTab>
         : Column(
             children: [
               PlaylistHead(
-                songsList: widget.songs,
+                songsList: AppMediaItem.listFromSongModel(widget.songs),
                 offline: true,
                 fromDownloads: false,
               ),
@@ -1296,12 +1297,13 @@ class _SongsTabState extends State<SongsTab>
                           ],
                         ),
                         onTap: () {
-                          PlayerInvoke.init(
-                            songsList: widget.songs,
-                            index: index,
-                            isOffline: true,
-                            recommend: false,
-                          );
+                          AppUtilities.logger.i("NeomPlayerInvoke for downloaded songs");
+                          // NeomPlayerInvoke.init(
+                          //   appMediaItems: widget.songs,
+                          //   index: index,
+                          //   isOffline: true,
+                          //   recommend: false,
+                          // );
                         },
                       );
                     },

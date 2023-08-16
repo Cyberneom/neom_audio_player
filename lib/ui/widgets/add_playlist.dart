@@ -21,10 +21,11 @@ import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 
 import 'package:hive/hive.dart';
+import 'package:neom_commons/core/app_flavour.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
 import 'package:neom_music_player/data/implementations/playlist_hive_controller.dart';
-import 'package:neom_music_player/domain/entities/app_media_item.dart';
+import 'package:neom_music_player/utils/helpers/media_item_mapper.dart';
 import 'package:neom_music_player/ui/widgets/collage.dart';
 import 'package:neom_music_player/ui/widgets/gradient_containers.dart';
 import 'package:neom_music_player/ui/widgets/snackbar.dart';
@@ -226,8 +227,7 @@ class AddToPlaylist {
                                 ),
                               )
                             : Collage(
-                                imageList: playlistDetails[playlistNames[index]]
-                                    ['imagesList'] as List,
+                                imageList: [AppFlavour.getAppLogoUrl()], // playlistDetails[playlistNames[index]]['imagesList'] as List,
                                 showGrid: true,
                                 placeholderImage: AppAssets.musicPlayerCover,
                               ),

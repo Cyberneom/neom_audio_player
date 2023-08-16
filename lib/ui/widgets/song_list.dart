@@ -22,10 +22,13 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import 'package:logging/logging.dart';
+import 'package:neom_commons/core/domain/model/item_list.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
+import 'package:neom_commons/core/utils/enums/itemlist_type.dart';
 import 'package:neom_music_player/data/api_services/APIs/saavn_api.dart';
+import 'package:neom_music_player/domain/entities/app_media_item.dart';
 import 'package:neom_music_player/ui/widgets/bouncy_playlist_header_scroll_view.dart';
 import 'package:neom_music_player/ui/widgets/copy_clipboard.dart';
 import 'package:neom_music_player/ui/widgets/download_button.dart';
@@ -35,19 +38,20 @@ import 'package:neom_music_player/ui/widgets/like_button.dart';
 import 'package:neom_music_player/ui/widgets/playlist_popupmenu.dart';
 import 'package:neom_music_player/ui/widgets/snackbar.dart';
 import 'package:neom_music_player/ui/widgets/song_tile_trailing_menu.dart';
+import 'package:neom_music_player/utils/enums/playlist_type.dart';
 import 'package:neom_music_player/utils/helpers/extensions.dart';
-import 'package:neom_music_player/domain/use_cases/player_service.dart';
+import 'package:neom_music_player/neom_player_invoke.dart';
 import 'package:neom_music_player/domain/entities/url_image_generator.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:get/get.dart';
 
 class SongsListPage extends StatefulWidget {
-  final Map listItem;
+  final Itemlist itemlist;
 
   const SongsListPage({
     super.key,
-    required this.listItem,
+    required this.itemlist,
   });
 
   @override
@@ -57,7 +61,7 @@ class SongsListPage extends StatefulWidget {
 class _SongsListPageState extends State<SongsListPage> {
   int page = 1;
   bool loading = false;
-  List songList = [];
+  List<AppMediaItem> songList = [];
   bool fetched = false;
   bool isSharePopupShown = false;
 
@@ -70,7 +74,7 @@ class _SongsListPageState extends State<SongsListPage> {
     _scrollController.addListener(() {
       if (_scrollController.position.pixels >=
               _scrollController.position.maxScrollExtent &&
-          widget.listItem['type'].toString() == 'songs' &&
+          widget.itemlist.type == ItemlistType.playlist &&
           !loading) {
         page += 1;
         _fetchSongs();
@@ -87,16 +91,15 @@ class _SongsListPageState extends State<SongsListPage> {
   void _fetchSongs() {
     loading = true;
     try {
-      switch (widget.listItem['type'].toString()) {
-        case 'songs':
+      switch (widget.itemlist.type) {
+        case ItemlistType.playlist:
           SaavnAPI()
               .fetchSongSearchResults(
-            searchQuery: widget.listItem['id'].toString(),
+            searchQuery: widget.itemlist.id,
             page: page,
-          )
-              .then((value) {
+          ).then((value) {
             setState(() {
-              songList.addAll(value['songs'] as List);
+              songList.addAll(AppMediaItem.listFromList(value['songs'] as List));
               fetched = true;
               loading = false;
             });
@@ -108,12 +111,12 @@ class _SongsListPageState extends State<SongsListPage> {
               );
             }
           });
-        case 'album':
+        case ItemlistType.album:
           SaavnAPI()
-              .fetchAlbumSongs(widget.listItem['id'].toString())
+              .fetchAlbumSongs(widget.itemlist.id)
               .then((value) {
             setState(() {
-              songList = value['songs'] as List;
+              songList = AppMediaItem.listFromList(value['songs'] as List);
               fetched = true;
               loading = false;
             });
@@ -125,12 +128,12 @@ class _SongsListPageState extends State<SongsListPage> {
               );
             }
           });
-        case 'playlist':
+        case ItemlistType.giglist:
           SaavnAPI()
-              .fetchPlaylistSongs(widget.listItem['id'].toString())
+              .fetchPlaylistSongs(widget.itemlist.id)
               .then((value) {
             setState(() {
-              songList = value['songs'] as List;
+              songList = AppMediaItem.listFromList(value['songs'] as List);
               fetched = true;
               loading = false;
             });
@@ -142,15 +145,10 @@ class _SongsListPageState extends State<SongsListPage> {
               );
             }
           });
-        case 'mix':
-          SaavnAPI()
-              .getSongFromToken(
-            widget.listItem['perma_url'].toString().split('/').last,
-            'mix',
-          )
-              .then((value) {
+        case ItemlistType.radioStation:
+          SaavnAPI().getSongFromToken(widget.itemlist.uri, 'mix',).then((value) {
             setState(() {
-              songList = value['songs'] as List;
+              songList = AppMediaItem.listFromList(value['songs'] as List);
               fetched = true;
               loading = false;
             });
@@ -163,15 +161,15 @@ class _SongsListPageState extends State<SongsListPage> {
               );
             }
           });
-        case 'show':
+        case ItemlistType.podcast:
           SaavnAPI()
               .getSongFromToken(
-            widget.listItem['perma_url'].toString().split('/').last,
+            widget.itemlist.uri,
             'show',
           )
               .then((value) {
             setState(() {
-              songList = value['songs'] as List;
+              songList = AppMediaItem.listFromList(value['songs'] as List);
               fetched = true;
               loading = false;
             });
@@ -191,7 +189,7 @@ class _SongsListPageState extends State<SongsListPage> {
           });
           ShowSnackBar().showSnackBar(
             context,
-            'Error: Unsupported Type ${widget.listItem['type']}',
+            'Error: Unsupported Type ${widget.itemlist.type}',
             duration: const Duration(seconds: 3),
           );
           break;
@@ -202,7 +200,7 @@ class _SongsListPageState extends State<SongsListPage> {
         loading = false;
       });
       AppUtilities.logger.e(
-        'Error in song_list with type ${widget.listItem["type"]}: $e',
+        'Error in song_list with type ${widget.itemlist.type}: $e',
       );
     }
   }
@@ -223,7 +221,7 @@ class _SongsListPageState extends State<SongsListPage> {
                     MultiDownloadButton(
                       data: songList,
                       playlistName:
-                          widget.listItem['title']?.toString() ?? 'Songs',
+                          widget.itemlist.name?.toString() ?? 'Songs',
                     ),
                   IconButton(
                     icon: const Icon(Icons.share_rounded),
@@ -233,7 +231,7 @@ class _SongsListPageState extends State<SongsListPage> {
                         isSharePopupShown = true;
 
                         Share.share(
-                          widget.listItem['perma_url'].toString(),
+                          widget.itemlist.uri.toString(),
                         ).whenComplete(() {
                           Timer(const Duration(milliseconds: 500), () {
                             isSharePopupShown = false;
@@ -244,28 +242,27 @@ class _SongsListPageState extends State<SongsListPage> {
                   ),
                   PlaylistPopupMenu(
                     data: songList,
-                    title: widget.listItem['title']?.toString() ?? 'Songs',
+                    title: widget.itemlist.name?.toString() ?? 'Songs',
                   ),
                 ],
                 title:
-                    widget.listItem['title']?.toString().unescape() ?? 'Songs',
+                    widget.itemlist.name?.toString().unescape() ?? 'Songs',
                 subtitle: '${songList.length} Songs',
-                secondarySubtitle: widget.listItem['subTitle']?.toString() ??
-                    widget.listItem['subtitle']?.toString(),
-                onPlayTap: () => PlayerInvoke.init(
-                  songsList: songList,
+                secondarySubtitle: widget.itemlist.description?.toString() ??
+                    widget.itemlist.description?.toString(),
+                onPlayTap: () => NeomPlayerInvoke.init(
+                  appMediaItems: songList,
                   index: 0,
                   isOffline: false,
                 ),
-                onShuffleTap: () => PlayerInvoke.init(
-                  songsList: songList,
+                onShuffleTap: () => NeomPlayerInvoke.init(
+                  appMediaItems: songList,
                   index: 0,
                   isOffline: false,
                   shuffle: true,
                 ),
                 placeholderImage: AppAssets.musicPlayerAlbum,
-                imageUrl: UrlImageGetter([widget.listItem['image']?.toString()])
-                    .mediumQuality,
+                imageUrl: UrlImageGetter([widget.itemlist.imgUrl?.toString()]).mediumQuality,
                 sliverList: SliverList(
                   delegate: SliverChildListDelegate([
                     if (songList.isNotEmpty)
@@ -284,11 +281,11 @@ class _SongsListPageState extends State<SongsListPage> {
                           ),
                         ),
                       ),
-                    ...songList.map((entry) {
+                    ...songList.map((itemEntry) {
                       return ListTile(
                         contentPadding: const EdgeInsets.only(left: 15.0),
                         title: Text(
-                          '${entry["title"]}',
+                          '${itemEntry.title}',
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
                             fontWeight: FontWeight.w500,
@@ -297,33 +294,33 @@ class _SongsListPageState extends State<SongsListPage> {
                         onLongPress: () {
                           copyToClipboard(
                             context: context,
-                            text: '${entry["title"]}',
+                            text: '${itemEntry.title}',
                           );
                         },
                         subtitle: Text(
-                          '${entry["subtitle"]}',
+                          '${itemEntry.subtitle}',
                           overflow: TextOverflow.ellipsis,
                         ),
-                        leading: imageCard(imageUrl: entry['image'].toString()),
+                        leading: imageCard(imageUrl: itemEntry.image.toString()),
                         trailing: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             DownloadButton(
-                              data: entry as Map,
+                              data: itemEntry as Map,
                               icon: 'download',
                             ),
                             LikeButton(
                               mediaItem: null,
-                              data: entry,
+                              data: itemEntry.toMap(),
                             ),
-                            SongTileTrailingMenu(data: entry),
+                            SongTileTrailingMenu(appMediaItem: itemEntry, itemlist: widget.itemlist),
                           ],
                         ),
                         onTap: () {
-                          PlayerInvoke.init(
-                            songsList: songList,
+                          NeomPlayerInvoke.init(
+                            appMediaItems: songList,
                             index: songList.indexWhere(
-                              (element) => element == entry,
+                              (element) => element == itemEntry,
                             ),
                             isOffline: false,
                           );

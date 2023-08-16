@@ -19,15 +19,15 @@
 
 import 'package:flutter/material.dart';
 
-import 'package:logging/logging.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
+import 'package:neom_music_player/domain/entities/app_media_item.dart';
 import 'package:neom_music_player/ui/widgets/bouncy_sliver_scroll_view.dart';
 import 'package:neom_music_player/ui/widgets/copy_clipboard.dart';
 import 'package:neom_music_player/ui/widgets/gradient_containers.dart';
 import 'package:neom_music_player/ui/widgets/image_card.dart';
 import 'package:neom_music_player/ui/widgets/song_tile_trailing_menu.dart';
-import 'package:neom_music_player/domain/use_cases/player_service.dart';
+import 'package:neom_music_player/neom_player_invoke.dart';
 import 'package:neom_music_player/domain/use_cases/youtube_services.dart';
 import 'package:neom_music_player/domain/use_cases/yt_music.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
@@ -155,29 +155,28 @@ class _YouTubeArtistState extends State<YouTubeArtist> {
                                 setState(() {
                                   done = false;
                                 });
-                                final Map? response =
-                                    await YouTubeServices().formatVideoFromId(
-                                  id: entry['id'].toString(),
-                                  data: entry,
+                                final AppMediaItem? response = await YouTubeServices().formatVideoFromId(
+                                  id: entry['id'].toString(), data: entry,
                                 );
 
-                                final Map response2 =
-                                    await YtMusicService().getSongData(
+                                final Map response2 = await YtMusicService().getSongData(
                                   videoId: entry['id'].toString(),
                                 );
-                                if (response != null &&
-                                    response2['image'] != null) {
-                                  response['image'] =
-                                      response2['image'] ?? response['image'];
+
+                                if (response != null && response2['image'] != null) {
+                                  response.image = response2['image'].toString();
                                 }
                                 setState(() {
                                   done = true;
                                 });
-                                PlayerInvoke.init(
-                                  songsList: [response],
-                                  index: 0,
-                                  isOffline: false,
-                                );
+
+                                if(response != null) {
+                                  NeomPlayerInvoke.init(
+                                    appMediaItems: [response],
+                                    index: 0,
+                                    isOffline: false,
+                                  );
+                                }
                                 // for (var i = 0;
                                 //     i < searchedList.length;
                                 //     i++) {

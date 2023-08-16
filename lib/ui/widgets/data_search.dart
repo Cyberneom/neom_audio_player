@@ -20,11 +20,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:neom_commons/core/domain/model/item_list.dart';
+import 'package:neom_music_player/domain/entities/app_media_item.dart';
 import 'package:neom_music_player/ui/widgets/download_button.dart';
 import 'package:neom_music_player/ui/widgets/image_card.dart';
 import 'package:neom_music_player/ui/widgets/song_tile_trailing_menu.dart';
 import 'package:neom_music_player/utils/helpers/audio_query.dart';
-import 'package:neom_music_player/domain/use_cases/player_service.dart';
+import 'package:neom_music_player/neom_player_invoke.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 
@@ -109,8 +111,24 @@ class DataSearch extends SearchDelegate {
           overflow: TextOverflow.ellipsis,
         ),
         onTap: () async {
-          PlayerInvoke.init(
-            songsList: suggestionList,
+          List<AppMediaItem> suggestionItems = [];
+
+          for (var element in suggestionList) {
+            suggestionItems.add(AppMediaItem(
+              id: element.id.toString(),
+              album: element.album ?? '',
+              title: element.title ?? '',
+              duration: Duration(seconds: element.duration ?? 0),
+              artist: element.artist ?? '',
+              artistId: element.artistId.toString(),
+              genre: element.genre ?? '',
+              albumId: element.albumId.toString(),
+              url: element.uri ?? '',
+              permaUrl: element.uri ?? '')
+            );
+          }
+          NeomPlayerInvoke.init(
+            appMediaItems: suggestionItems,
             index: index,
             isOffline: true,
             recommend: false,
@@ -125,17 +143,14 @@ class DataSearch extends SearchDelegate {
     final suggestionList = query.isEmpty
         ? data
         : [
-            ...{
-              ...data.where(
-                (element) =>
-                    element.title.toLowerCase().contains(query.toLowerCase()),
-              ),
-              ...data.where(
-                (element) =>
-                    element.artist!.toLowerCase().contains(query.toLowerCase()),
-              ),
-            }
-          ];
+          ...{
+          ...data.where((element) =>
+              element.title.toLowerCase().contains(query.toLowerCase()),
+          ),
+          ...data.where((element) =>
+              element.artist!.toLowerCase().contains(query.toLowerCase()),
+          ),
+          }];
     return ListView.builder(
       physics: const BouncingScrollPhysics(),
       padding: const EdgeInsets.only(top: 10, bottom: 10),
@@ -162,8 +177,8 @@ class DataSearch extends SearchDelegate {
           overflow: TextOverflow.ellipsis,
         ),
         onTap: () async {
-          PlayerInvoke.init(
-            songsList: suggestionList,
+          NeomPlayerInvoke.init(
+            appMediaItems: AppMediaItem.listFromSongModel(suggestionList),
             index: index,
             isOffline: true,
             recommend: false,
@@ -282,14 +297,15 @@ class DownloadsSearch extends SearchDelegate {
                     icon: 'download',
                   ),
                   SongTileTrailingMenu(
-                    data: suggestionList[index] as Map,
+                    appMediaItem: AppMediaItem.fromMap(suggestionList[index] as Map),
+                    itemlist: Itemlist(),
                     isPlaylist: true,
                   ),
                 ],
               ),
         onTap: () {
-          PlayerInvoke.init(
-            songsList: suggestionList,
+          NeomPlayerInvoke.init(
+            appMediaItems: AppMediaItem.listFromList(suggestionList),
             index: index,
             isOffline: isDowns,
             fromDownloads: isDowns,
@@ -342,8 +358,8 @@ class DownloadsSearch extends SearchDelegate {
           overflow: TextOverflow.ellipsis,
         ),
         onTap: () {
-          PlayerInvoke.init(
-            songsList: suggestionList,
+          NeomPlayerInvoke.init(
+            appMediaItems: AppMediaItem.listFromList(suggestionList),
             index: index,
             isOffline: isDowns,
             fromDownloads: isDowns,

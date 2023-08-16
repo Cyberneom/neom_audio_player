@@ -18,13 +18,17 @@
  */
 
 import 'package:flutter/material.dart';
+import 'package:neom_commons/core/domain/model/item_list.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
+import 'package:neom_commons/core/utils/enums/itemlist_type.dart';
+import 'package:neom_music_player/domain/entities/app_media_item.dart';
 import 'package:neom_music_player/ui/widgets/custom_physics.dart';
 import 'package:neom_music_player/ui/widgets/image_card.dart';
 import 'package:neom_music_player/ui/widgets/song_tile_trailing_menu.dart';
+import 'package:neom_music_player/utils/enums/playlist_type.dart';
 
 class HorizontalAlbumsListSeparated extends StatelessWidget {
-  final List songsList;
+  final List<Itemlist> songsList;
   final Function(int) onTap;
   const HorizontalAlbumsListSeparated({
     super.key,
@@ -69,14 +73,12 @@ class HorizontalAlbumsListSeparated extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool rotated =
-        MediaQuery.of(context).size.height < MediaQuery.of(context).size.width;
+    final bool rotated = MediaQuery.of(context).size.height < MediaQuery.of(context).size.width;
     final bool biggerScreen = MediaQuery.of(context).size.width > 1050;
     final double portion = (songsList.length <= 4) ? 1.0 : 0.875;
-    final double listSize = rotated
-        ? biggerScreen
-            ? MediaQuery.of(context).size.width * portion / 3
-            : MediaQuery.of(context).size.width * portion / 2
+    final double listSize = rotated ? biggerScreen
+        ? MediaQuery.of(context).size.width * portion / 3
+        : MediaQuery.of(context).size.width * portion / 2
         : MediaQuery.of(context).size.width * portion;
     return SizedBox(
       height: songsList.length < 4 ? songsList.length * 74 : 74 * 4,
@@ -99,7 +101,7 @@ class HorizontalAlbumsListSeparated extends StatelessWidget {
                   final subTitle = getSubTitle(item as Map);
                   return ListTile(
                     title: Text(
-                      formatString(item['title']?.toString()),
+                      formatString(item.name?.toString()),
                       overflow: TextOverflow.ellipsis,
                     ),
                     subtitle: Text(
@@ -107,13 +109,13 @@ class HorizontalAlbumsListSeparated extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                     leading: imageCard(
-                      imageUrl: item['image'].toString(),
-                      placeholderImage: (item['type'] == 'playlist' ||
-                              item['type'] == 'album')
+                      imageUrl: item.imgUrl.toString(),
+                      placeholderImage: (item.type == ItemlistType.playlist ||
+                              item.type == ItemlistType.album)
                           ? const AssetImage(
                               AppAssets.musicPlayerAlbum,
                             )
-                          : item['type'] == 'artist'
+                          : item.type == 'artist'
                               ? const AssetImage(
                                   AppAssets.musicPlayerArtist,
                                 )
@@ -122,7 +124,8 @@ class HorizontalAlbumsListSeparated extends StatelessWidget {
                                 ),
                     ),
                     trailing: SongTileTrailingMenu(
-                      data: item,
+                      appMediaItem: item.getTotalItems() > 0 ? AppMediaItem.mapItemsFromItemlist(item).first : AppMediaItem(),
+                      itemlist: item,
                     ),
                     onTap: () => onTap(songsList.indexOf(item)),
                   );

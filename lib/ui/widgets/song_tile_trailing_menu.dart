@@ -20,10 +20,12 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:neom_commons/core/domain/model/item_list.dart';
+import 'package:neom_music_player/domain/entities/app_media_item.dart';
 
 import 'package:neom_music_player/ui/widgets/add_playlist.dart';
 import 'package:neom_music_player/utils/helpers/add_mediaitem_to_queue.dart';
-import 'package:neom_music_player/domain/entities/app_media_item.dart';
+import 'package:neom_music_player/utils/helpers/media_item_mapper.dart';
 import 'package:neom_music_player/domain/use_cases/youtube_services.dart';
 import 'package:neom_music_player/ui/widgets/song_list.dart';
 import 'package:neom_music_player/ui/Search/album_search_page.dart';
@@ -34,12 +36,14 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:get/get.dart';
 
 class SongTileTrailingMenu extends StatefulWidget {
-  final Map data;
+  final AppMediaItem appMediaItem;
+  final Itemlist itemlist;
   final bool isPlaylist;
-  final Function(Map)? deleteLiked;
+  final Function(AppMediaItem)? deleteLiked;
   const SongTileTrailingMenu({
     super.key,
-    required this.data,
+    required this.appMediaItem,
+    required this.itemlist,
     this.isPlaylist = false,
     this.deleteLiked,
   });
@@ -51,7 +55,7 @@ class SongTileTrailingMenu extends StatefulWidget {
 class _SongTileTrailingMenuState extends State<SongTileTrailingMenu> {
   @override
   Widget build(BuildContext context) {
-    final MediaItem mediaItem = MediaItemFormatter.fromJSON(widget.data);
+    final MediaItem mediaItem = MediaItemMapper.appMediaItemToMediaItem(appMediaItem: widget.appMediaItem);
     return PopupMenuButton(
       icon: Icon(
         Icons.more_vert_rounded,
@@ -68,12 +72,8 @@ class _SongTileTrailingMenuState extends State<SongTileTrailingMenu> {
             value: 6,
             child: Row(
               children: [
-                const Icon(
-                  Icons.delete_rounded,
-                ),
-                const SizedBox(
-                  width: 10.0,
-                ),
+                const Icon(Icons.delete_rounded,),
+                const SizedBox(width: 10.0,),
                 Text(
                   PlayerTranslationConstants.remove.tr,
                 ),
@@ -171,25 +171,19 @@ class _SongTileTrailingMenuState extends State<SongTileTrailingMenu> {
       onSelected: (value) {
         switch (value) {
           case 3:
-            Share.share(widget.data['perma_url'].toString());
-
+            Share.share(widget.appMediaItem.permaUrl);
           case 4:
             Navigator.push(
               context,
               PageRouteBuilder(
                 opaque: false,
                 pageBuilder: (_, __, ___) => SongsListPage(
-                  listItem: {
-                    'type': 'album',
-                    'id': mediaItem.extras?['album_id'],
-                    'title': mediaItem.album,
-                    'image': mediaItem.artUri,
-                  },
+                  itemlist: widget.itemlist,
                 ),
               ),
             );
           case 6:
-            widget.deleteLiked!(widget.data);
+            widget.deleteLiked!(widget.appMediaItem);
           case 0:
             AddToPlaylist().addToPlaylist(context, mediaItem);
           case 1:
@@ -332,13 +326,10 @@ class _YtSongTileTrailingMenuState extends State<YtSongTileTrailingMenu> {
           );
         }
         if (value == 1 || value == 2 || value == 3) {
-          YouTubeServices()
-              .formatVideoFromId(
-            id: widget.data['id'].toString(),
-            data: widget.data,
-          )
-              .then((songMap) {
-            final MediaItem mediaItem = MediaItemFormatter.fromJSON(songMap!);
+          YouTubeServices().formatVideoFromId(
+            id: widget.data['id'].toString(), data: widget.data,
+          ).then((songMap) {
+            final MediaItem mediaItem = MediaItemMapper.appMediaItemToMediaItem(appMediaItem: songMap!);
             if (value == 1) {
               playNext(mediaItem, context);
             }

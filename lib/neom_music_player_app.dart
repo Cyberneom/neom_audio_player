@@ -51,134 +51,125 @@ class NeomMusicPlayerApp extends StatefulWidget {
   static _NeomMusicPlayerAppState of(BuildContext context) =>
       context.findAncestorStateOfType<_NeomMusicPlayerAppState>()!;
 
-  static Future<void> setOptimalDisplayMode() async {
-    await FlutterDisplayMode.setHighRefreshRate();
-  }
-
   /// Called when Doing Background Work initiated from Widget
-  @pragma('vm:entry-point')
-  static Future<void> backgroundCallback(Uri? data) async {
-    if (data?.host == 'controls') {
-      final audioHandler = await AudioHandlerHelper().getAudioHandler();
-      if (data?.path == '/play') {
-        audioHandler.play();
-      } else if (data?.path == '/pause') {
-        audioHandler.pause();
-      } else if (data?.path == '/skipNext') {
-        audioHandler.skipToNext();
-      } else if (data?.path == '/skipPrevious') {
-        audioHandler.skipToPrevious();
-      }
-    }
-  }
+  // @pragma('vm:entry-point')
+  // static Future<void> backgroundCallback(Uri? data) async {
+  //   if (data?.host == 'controls') {
+  //     final audioHandler = await NeomAudioProvider().getAudioHandler();
+  //     if (data?.path == '/play') {
+  //       audioHandler.play();
+  //     } else if (data?.path == '/pause') {
+  //       audioHandler.pause();
+  //     } else if (data?.path == '/skipNext') {
+  //       audioHandler.skipToNext();
+  //     } else if (data?.path == '/skipPrevious') {
+  //       audioHandler.skipToPrevious();
+  //     }
+  //   }
+  // }
 
 }
 
 class _NeomMusicPlayerAppState extends State<NeomMusicPlayerApp> {
 
-  late StreamSubscription _intentTextStreamSubscription;
-  late StreamSubscription _intentDataStreamSubscription;
-  final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+  // late StreamSubscription _intentTextStreamSubscription;
+  // late StreamSubscription _intentDataStreamSubscription;
+  // final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
   @override
   void dispose() {
-    _intentTextStreamSubscription.cancel();
-    _intentDataStreamSubscription.cancel();
+    // _intentTextStreamSubscription.cancel();
+    // _intentDataStreamSubscription.cancel();
     super.dispose();
   }
 
   @override
   void initState() {
     super.initState();
-
-    WidgetsFlutterBinding.ensureInitialized();
-    Paint.enableDithering = true;
-
-    if (Platform.isAndroid) {
-      NeomMusicPlayerApp.setOptimalDisplayMode();
-    }
-
-    HomeWidget.setAppGroupId('com.gigmeout.io');
-    HomeWidget.registerBackgroundCallback(NeomMusicPlayerApp.backgroundCallback);
-    AppTheme.currentTheme.addListener(() {
-      setState(() {});
-    });
+    ///TODO VERIFY IF NEEDED
+    // HomeWidget.setAppGroupId('com.gigmeout.io');
+    // HomeWidget.registerBackgroundCallback(NeomMusicPlayerApp.backgroundCallback);
+    // AppTheme.currentTheme.addListener(() {
+    //   setState(() {});
+    // });
 
     if (Platform.isAndroid || Platform.isIOS) {
+      ///TODO VERIFY IF NEEDED
       // For sharing or opening urls/text coming from outside the app while the app is in the memory
-      _intentTextStreamSubscription =
-          ReceiveSharingIntent.getTextStream().listen(
-        (String value) {
-          AppUtilities.logger.i('Received intent on stream: $value');
-          handleSharedText(value, navigatorKey);
-        },
-        onError: (err) {
-          AppUtilities.logger.e('ERROR in getTextStream', err);
-        },
-      );
+      // _intentTextStreamSubscription = ReceiveSharingIntent.getTextStream().listen(
+      //   (String value) {
+      //     AppUtilities.logger.i('Received intent on stream: $value');
+      //     handleSharedText(value, navigatorKey);
+      //   },
+      //   onError: (err) {
+      //     AppUtilities.logger.e('ERROR in getTextStream', err);
+      //   },
+      // );
 
+      //TODO VERIFY IF NEEDED
       // For sharing or opening urls/text coming from outside the app while the app is closed
-      ReceiveSharingIntent.getInitialText().then(
-        (String? value) {
-          AppUtilities.logger.i('Received Intent initially: $value');
-          if (value != null) handleSharedText(value, navigatorKey);
-        },
-        onError: (err) {
-          AppUtilities.logger.e('ERROR in getInitialTextStream', err);
-        },
-      );
+      // ReceiveSharingIntent.getInitialText().then((String? value) {
+      //     AppUtilities.logger.i('Received Intent initially: $value');
+      //     if (value != null) handleSharedText(value, navigatorKey);
+      //   },
+      //   onError: (err) {
+      //     AppUtilities.logger.e('ERROR in getInitialTextStream', err);
+      //   },
+      // );
 
+      //TODO VERIFY IF NEEDED
       // For sharing files coming from outside the app while the app is in the memory
-      _intentDataStreamSubscription = ReceiveSharingIntent.getMediaStream().listen(
-        (List<SharedMediaFile> value) {
-          if (value.isNotEmpty) {
-            for (final file in value) {
-              if (file.path.endsWith('.json')) {
-                final List playlistNames = Hive.box(AppHiveConstants.settings).get('playlistNames')?.toList() as List? ?? [AppHiveConstants.favoriteSongs];
-                importFilePlaylist(null, playlistNames,
-                  path: file.path,
-                  pickFile: false,
-                ).then(
-                  (value) => navigatorKey.currentState?.pushNamed('/playlists'),
-                );
-              }
-            }
-          }
-        },
-        onError: (err) {
-          AppUtilities.logger.e('ERROR in getDataStream', err);
-        },
-      );
+      // _intentDataStreamSubscription = ReceiveSharingIntent.getMediaStream().listen(
+      //   (List<SharedMediaFile> value) {
+      //     if (value.isNotEmpty) {
+      //       for (final file in value) {
+      //         if (file.path.endsWith('.json')) {
+      //           final List playlistNames = Hive.box(AppHiveConstants.settings).get('playlistNames')?.toList() as List? ?? [AppHiveConstants.favoriteSongs];
+      //           importFilePlaylist(null, playlistNames,
+      //             path: file.path,
+      //             pickFile: false,
+      //           ).then(
+      //             (value) => navigatorKey.currentState?.pushNamed('/playlists'),
+      //           );
+      //         }
+      //       }
+      //     }
+      //   },
+      //   onError: (err) {
+      //     AppUtilities.logger.e('ERROR in getDataStream', err);
+      //   },
+      // );
 
+      //TODO VERIFY IF NEEDED
       // For sharing files coming from outside the app while the app is closed
-      ReceiveSharingIntent.getInitialMedia().then((List<SharedMediaFile> value) {
-        if (value.isNotEmpty) {
-          for (final file in value) {
-            if (file.path.endsWith('.json')) {
-              final List playlistNames = Hive.box(AppHiveConstants.settings).get('playlistNames')?.toList() as List? ?? [AppHiveConstants.favoriteSongs];
-              importFilePlaylist(
-                null, playlistNames,
-                path: file.path,
-                pickFile: false,
-              ).then(
-                (value) => navigatorKey.currentState?.pushNamed('/playlists'),
-              );
-            }
-          }
-        }
-      });
+      // ReceiveSharingIntent.getInitialMedia().then((List<SharedMediaFile> value) {
+      //   if (value.isNotEmpty) {
+      //     for (final file in value) {
+      //       if (file.path.endsWith('.json')) {
+      //         final List playlistNames = Hive.box(AppHiveConstants.settings).get('playlistNames')?.toList() as List? ?? [AppHiveConstants.favoriteSongs];
+      //         importFilePlaylist(
+      //           null, playlistNames,
+      //           path: file.path,
+      //           pickFile: false,
+      //         ).then(
+      //           (value) => navigatorKey.currentState?.pushNamed('/playlists'),
+      //         );
+      //       }
+      //     }
+      //   }
+      // });
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-      DeviceOrientation.portraitDown,
-      DeviceOrientation.landscapeLeft,
-      DeviceOrientation.landscapeRight,
-    ]);
+    // SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    // SystemChrome.setPreferredOrientations([
+    //   DeviceOrientation.portraitUp,
+    //   DeviceOrientation.portraitDown,
+    //   DeviceOrientation.landscapeLeft,
+    //   DeviceOrientation.landscapeRight,
+    // ]);
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
@@ -203,9 +194,9 @@ class _NeomMusicPlayerAppState extends State<NeomMusicPlayerApp> {
         builder: (context, constraints) {
           return OrientationBuilder(
             builder: (context, orientation) {
-              SizerUtil.setScreenSize(constraints, orientation);
+              // SizerUtil.setScreenSize(constraints, orientation);
               return MaterialApp(
-                navigatorKey: navigatorKey,
+                // navigatorKey: navigatorKey,
                 title: AppFlavour.appInUse.name,
                 restorationScopeId: AppFlavour.appInUse.name,
                 themeMode: AppTheme.themeMode,

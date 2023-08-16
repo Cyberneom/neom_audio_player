@@ -37,10 +37,12 @@ import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
 import 'package:logging/logging.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:neom_commons/core/domain/model/item_list.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
-import 'package:neom_music_player/domain/entities/app_media_item.dart';
+import 'package:neom_music_player/utils/helpers/media_item_mapper.dart';
+import 'package:neom_music_player/domain/use_cases/neom_audio_handler.dart';
 import 'package:neom_music_player/ui/Search/album_search_page.dart';
 import 'package:neom_music_player/ui/widgets/add_playlist.dart';
 import 'package:neom_music_player/ui/widgets/animated_text.dart';
@@ -72,17 +74,14 @@ class PlayScreen extends StatefulWidget {
 }
 
 class _PlayScreenState extends State<PlayScreen> {
-  final String gradientType = Hive.box(AppHiveConstants.settings)
-      .get('gradientType', defaultValue: 'halfDark')
-      .toString();
-  final bool getLyricsOnline =
-      Hive.box(AppHiveConstants.settings).get('getLyricsOnline', defaultValue: true) as bool;
+  final String gradientType = Hive.box(AppHiveConstants.settings).get('gradientType', defaultValue: 'halfDark').toString();
+  final bool getLyricsOnline = Hive.box(AppHiveConstants.settings).get('getLyricsOnline', defaultValue: true) as bool;
 
   final MusicPlayerTheme currentTheme = MusicPlayerTheme();
   final ValueNotifier<List<Color?>?> gradientColor =
       ValueNotifier<List<Color?>?>(MusicPlayerTheme().playGradientColor);
   final PanelController _panelController = PanelController();
-  final AudioPlayerHandler audioHandler = GetIt.I<AudioPlayerHandler>();
+  final NeomAudioHandler audioHandler = GetIt.I<NeomAudioHandler>();
   GlobalKey<FlipCardState> cardKey = GlobalKey<FlipCardState>();
   late Duration _time;
 
@@ -302,7 +301,7 @@ class _PlayScreenState extends State<PlayScreen> {
                       onSelected: (int? value) {
                         if (value == 10) {
                           final Map details =
-                          MediaItemFormatter.toJSON(mediaItem);
+                          MediaItemMapper.toJSON(mediaItem);
                           details['duration'] =
                               '${(int.parse(details["duration"].toString()) ~/ 60).toString().padLeft(2, "0")}:${(int.parse(details["duration"].toString()) % 60).toString().padLeft(2, "0")}';
                           // style: Theme.of(context).textTheme.caption,
@@ -377,12 +376,14 @@ class _PlayScreenState extends State<PlayScreen> {
                             PageRouteBuilder(
                               opaque: false,
                               pageBuilder: (_, __, ___) => SongsListPage(
-                                listItem: {
-                                  'type': 'album',
-                                  'id': mediaItem.extras?['album_id'],
-                                  'title': mediaItem.album,
-                                  'image': mediaItem.artUri,
-                                },
+                                itemlist: Itemlist()
+                                //TODO TO VERIFY
+                                // {
+                                //   'type': 'album',
+                                //   'id': mediaItem.extras?['album_id'],
+                                //   'title': mediaItem.album,
+                                //   'image': mediaItem.artUri,
+                                // },
                               ),
                             ),
                           );
@@ -782,7 +783,7 @@ class QueueState {
 }
 
 class ControlButtons extends StatelessWidget {
-  final AudioPlayerHandler audioHandler;
+  final NeomAudioHandler audioHandler;
   final bool shuffle;
   final bool miniplayer;
   final List buttons;
@@ -933,7 +934,7 @@ class ControlButtons extends StatelessWidget {
                 : DownloadButton(
                     size: 20.0,
                     icon: 'download',
-                    data: MediaItemFormatter.toJSON(mediaItem),
+                    data: MediaItemMapper.toJSON(mediaItem),
                   );
           default:
             break;
@@ -944,16 +945,10 @@ class ControlButtons extends StatelessWidget {
   }
 }
 
-abstract class AudioPlayerHandler implements AudioHandler {
-  Stream<QueueState> get queueState;
-  Future<void> moveQueueItem(int currentIndex, int newIndex);
-  rx.ValueStream<double> get volume;
-  Future<void> setVolume(double volume);
-  rx.ValueStream<double> get speed;
-}
+
 
 class NowPlayingStream extends StatelessWidget {
-  final AudioPlayerHandler audioHandler;
+  final NeomAudioHandler audioHandler;
   final ScrollController? scrollController;
   final PanelController? panelController;
   final bool head;
@@ -1231,7 +1226,7 @@ class ArtWorkWidget extends StatefulWidget {
   final bool offline;
   final bool getLyricsOnline;
   final double width;
-  final AudioPlayerHandler audioHandler;
+  final NeomAudioHandler audioHandler;
 
   const ArtWorkWidget({
     required this.cardKey,
@@ -1796,7 +1791,7 @@ class _ArtWorkWidgetState extends State<ArtWorkWidget> {
                                       tooltip: PlayerTranslationConstants.songInfo.tr,
                                       onPressed: () {
                                         final Map details =
-                                        MediaItemFormatter.toJSON(
+                                        MediaItemMapper.toJSON(
                                           widget.mediaItem,
                                         );
                                         details['duration'] =
@@ -1950,7 +1945,7 @@ class NameNControls extends StatelessWidget {
   final double height;
   // final List<Color?>? gradientColor;
   final PanelController panelController;
-  final AudioPlayerHandler audioHandler;
+  final NeomAudioHandler audioHandler;
 
   const NameNControls({
     required this.width,
@@ -2019,12 +2014,13 @@ class NameNControls extends StatelessWidget {
                         PageRouteBuilder(
                           opaque: false,
                           pageBuilder: (_, __, ___) => SongsListPage(
-                            listItem: {
-                              'type': 'album',
-                              'id': mediaItem.extras?['album_id'],
-                              'title': mediaItem.album,
-                              'image': mediaItem.artUri,
-                            },
+                            itemlist: Itemlist()
+                            // {
+                            //   'type': 'album',
+                            //   'id': mediaItem.extras?['album_id'],
+                            //   'title': mediaItem.album,
+                            //   'image': mediaItem.artUri,
+                            // },
                           ),
                         ),
                       );
@@ -2272,7 +2268,7 @@ class NameNControls extends StatelessWidget {
                               if (!offline)
                                 DownloadButton(
                                   size: 25.0,
-                                  data: MediaItemFormatter.toJSON(
+                                  data: MediaItemMapper.toJSON(
                                     mediaItem,
                                   ),
                                 )

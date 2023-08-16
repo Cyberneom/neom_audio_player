@@ -22,13 +22,16 @@ import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
+import 'package:neom_music_player/domain/entities/app_media_item.dart';
+import 'package:neom_music_player/domain/entities/youtube_item.dart';
 import 'package:neom_music_player/ui/widgets/bouncy_playlist_header_scroll_view.dart';
 import 'package:neom_music_player/ui/widgets/copy_clipboard.dart';
 import 'package:neom_music_player/ui/widgets/gradient_containers.dart';
 import 'package:neom_music_player/ui/widgets/image_card.dart';
 import 'package:neom_music_player/ui/widgets/playlist_popupmenu.dart';
+import 'package:neom_music_player/ui/widgets/snackbar.dart';
 import 'package:neom_music_player/ui/widgets/song_tile_trailing_menu.dart';
-import 'package:neom_music_player/domain/use_cases/player_service.dart';
+import 'package:neom_music_player/neom_player_invoke.dart';
 import 'package:neom_music_player/domain/use_cases/youtube_services.dart';
 import 'package:neom_music_player/domain/use_cases/yt_music.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
@@ -169,39 +172,51 @@ class _YouTubePlaylistState extends State<YouTubePlaylist> {
                     done = false;
                   });
 
-                  final Map? response = await YouTubeServices().formatVideoFromId(
-                    id: searchedList.first['id'].toString(),
-                    data: searchedList.first,
-                  );
-                  final List<Map> playList = List.from(searchedList);
-                  playList[0] = response!;
-                  setState(() {
-                    done = true;
-                  });
-                  PlayerInvoke.init(
-                    songsList: playList,
-                    index: 0,
-                    isOffline: false,
-                    recommend: false,
-                  );
+                  try {
+                    final AppMediaItem? response = await YouTubeServices().formatVideoFromId(
+                      id: searchedList.first['id'].toString(), data: searchedList.first,
+                    );
+                    final List<AppMediaItem> playList = AppMediaItem.listFromList(searchedList);
+                    playList[0] = response!;
+
+                    setState(() {
+                      done = true;
+                    });
+                    NeomPlayerInvoke.init(
+                      appMediaItems: playList,
+                      index: 0,
+                      isOffline: false,
+                      recommend: false,
+                    );
+                  } catch (e) {
+                    AppUtilities.logger.e(e.toString());
+                    setState(() {
+                      done = true;
+                    });
+                    ShowSnackBar().showSnackBar(
+                      context,
+                      'Algo sucedió al iniciar la reproducción.',
+                    );
+                  }
+
                 },
+
                 onShuffleTap: () async {
                   setState(() {
                     done = false;
                   });
-                  final List<Map> playList = List.from(searchedList);
+                  final List<AppMediaItem> playList = List.from(searchedList);
                   playList.shuffle();
-                  final Map? response =
-                      await YouTubeServices().formatVideoFromId(
-                    id: playList.first['id'].toString(),
-                    data: playList.first,
+                  final AppMediaItem? response = await YouTubeServices().formatVideoFromId(
+                    id: playList.first.id,
+                    data: searchedList.first,
                   );
                   playList[0] = response!;
                   setState(() {
                     done = true;
                   });
-                  PlayerInvoke.init(
-                    songsList: playList,
+                  NeomPlayerInvoke.init(
+                    appMediaItems: playList,
                     index: 0,
                     isOffline: false,
                     recommend: false,
@@ -261,19 +276,19 @@ class _YouTubePlaylistState extends State<YouTubePlaylist> {
                                 setState(() {
                                   done = false;
                                 });
-                                final Map? response =
-                                    await YouTubeServices().formatVideoFromId(
-                                  id: entry['id'].toString(),
-                                  data: entry,
-                                );
+                                final AppMediaItem? response = await YouTubeServices().formatVideoFromId(
+                                  id: entry['id'].toString(), data: entry,);
                                 setState(() {
                                   done = true;
                                 });
-                                PlayerInvoke.init(
-                                  songsList: [response],
-                                  index: 0,
-                                  isOffline: false,
-                                );
+
+                                if(response != null) {
+                                  NeomPlayerInvoke.init(
+                                    appMediaItems: [response],
+                                    index: 0,
+                                    isOffline: false,
+                                  );
+                                }
                                 // for (var i = 0;
                                 //     i < searchedList.length;
                                 //     i++) {

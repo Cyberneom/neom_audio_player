@@ -18,10 +18,12 @@
  */
 
 import 'package:flutter/material.dart';
+import 'package:neom_commons/core/domain/model/item_list.dart';
 
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
 import 'package:neom_music_player/data/api_services/APIs/saavn_api.dart';
+import 'package:neom_music_player/domain/entities/app_media_item.dart';
 import 'package:neom_music_player/ui/widgets/artist_like_button.dart';
 import 'package:neom_music_player/ui/widgets/bouncy_sliver_scroll_view.dart';
 import 'package:neom_music_player/ui/widgets/copy_clipboard.dart';
@@ -34,7 +36,7 @@ import 'package:neom_music_player/ui/widgets/like_button.dart';
 import 'package:neom_music_player/ui/widgets/playlist_popupmenu.dart';
 import 'package:neom_music_player/ui/widgets/snackbar.dart';
 import 'package:neom_music_player/ui/widgets/song_tile_trailing_menu.dart';
-import 'package:neom_music_player/domain/use_cases/player_service.dart';
+import 'package:neom_music_player/neom_player_invoke.dart';
 import 'package:neom_music_player/domain/entities/url_image_generator.dart';
 import 'package:neom_music_player/ui/widgets/song_list.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
@@ -142,8 +144,8 @@ class _ArtistSearchPageState extends State<ArtistSearchPage> {
                                 Expanded(
                                   child: GestureDetector(
                                     onTap: () {
-                                      PlayerInvoke.init(
-                                        songsList: data['Top Songs']!,
+                                      NeomPlayerInvoke.init(
+                                        appMediaItems: AppMediaItem.listFromList(data['Top Songs']!),
                                         index: 0,
                                         isOffline: false,
                                       );
@@ -233,8 +235,8 @@ class _ArtistSearchPageState extends State<ArtistSearchPage> {
                                             stationId: value,
                                           )
                                               .then((value) {
-                                            PlayerInvoke.init(
-                                              songsList: value,
+                                            NeomPlayerInvoke.init(
+                                              appMediaItems: value,
                                               index: 0,
                                               isOffline: false,
                                             );
@@ -320,8 +322,8 @@ class _ArtistSearchPageState extends State<ArtistSearchPage> {
                                         size: 24.0,
                                       ),
                                       onTap: () {
-                                        PlayerInvoke.init(
-                                          songsList: data['Top Songs']!,
+                                        NeomPlayerInvoke.init(
+                                          appMediaItems: AppMediaItem.listFromList(data['Top Songs']!),
                                           index: 0,
                                           isOffline: false,
                                           shuffle: true,
@@ -499,7 +501,7 @@ class _ArtistSearchPageState extends State<ArtistSearchPage> {
                                         0,
                                       ),
                                       child: HorizontalAlbumsList(
-                                        songsList: entry.value,
+                                        itemlist: Itemlist(name: "PROBAR"),//entry.value,
                                         onTap: (int idx) {
                                           Navigator.push(
                                             context,
@@ -512,13 +514,10 @@ class _ArtistSearchPageState extends State<ArtistSearchPage> {
                                               ) =>
                                                   entry.key == 'Related Artists'
                                                       ? ArtistSearchPage(
-                                                          data: entry.value[idx]
-                                                              as Map,
+                                                          data: entry.value[idx] as Map,
                                                         )
                                                       : SongsListPage(
-                                                          listItem:
-                                                              entry.value[idx]
-                                                                  as Map,
+                                                          itemlist: Itemlist.fromJSON(entry.value[idx] as Map),
                                                         ),
                                             ),
                                           );
@@ -586,42 +585,31 @@ class _ArtistSearchPageState extends State<ArtistSearchPage> {
                                                       icon: 'download',
                                                     ),
                                                     LikeButton(
-                                                      data: entry.value[index]
-                                                          as Map,
+                                                      data: entry.value[index] as Map,
                                                       mediaItem: null,
                                                     ),
                                                     SongTileTrailingMenu(
-                                                      data: entry.value[index]
-                                                          as Map,
+                                                      appMediaItem: AppMediaItem.fromMap(entry.value[index] as Map),
+                                                      itemlist: Itemlist(),
                                                     ),
                                                   ],
                                                 )
                                               : null,
                                           onTap: () {
-                                            if (entry.key == 'Top Songs' ||
-                                                entry.key == 'Latest Release' ||
-                                                entry.key == 'Singles') {
-                                              PlayerInvoke.init(
-                                                songsList: entry.value,
+                                            if (entry.key == 'Top Songs' || entry.key == 'Latest Release' || entry.key == 'Singles') {
+                                              NeomPlayerInvoke.init(
+                                                appMediaItems: AppMediaItem.listFromList(entry.value),
                                                 index: index,
                                                 isOffline: false,
                                               );
                                             }
-                                            if (entry.key != 'Top Songs' &&
-                                                entry.key != 'Latest Release' &&
-                                                entry.key != 'Singles') {
+                                            if (entry.key != 'Top Songs' && entry.key != 'Latest Release' && entry.key != 'Singles') {
                                               Navigator.push(
                                                 context,
                                                 PageRouteBuilder(
                                                   opaque: false,
-                                                  pageBuilder: (
-                                                    _,
-                                                    __,
-                                                    ___,
-                                                  ) =>
-                                                      SongsListPage(
-                                                    listItem: entry.value[index]
-                                                        as Map,
+                                                  pageBuilder: (_, __, ___,) => SongsListPage(
+                                                    itemlist: Itemlist.fromJSON(entry.value[index] as Map),
                                                   ),
                                                 ),
                                               );

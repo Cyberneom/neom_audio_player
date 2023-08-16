@@ -19,36 +19,36 @@
 
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
-import 'package:neom_music_player/domain/use_cases/audio_service.dart';
+import 'package:neom_music_player/domain/use_cases/neom_audio_handler.dart';
 import 'package:neom_music_player/ui/player/audioplayer.dart';
 
-class AudioHandlerHelper {
-  static final AudioHandlerHelper _instance = AudioHandlerHelper._internal();
-  factory AudioHandlerHelper() {
+class NeomAudioProvider {
+
+  static final NeomAudioProvider _instance = NeomAudioProvider._internal();
+  factory NeomAudioProvider() {
     return _instance;
   }
 
-  AudioHandlerHelper._internal();
+  NeomAudioProvider._internal();
 
   static bool _isInitialized = false;
-  static AudioPlayerHandler? audioHandler;
+  static NeomAudioHandler? audioHandler;
 
   Future<void> _initialize() async {
     audioHandler = await AudioService.init(
-      builder: () => AudioPlayerHandlerImpl(),
+      builder: () => NeomAudioHandler(),
       config: AudioServiceConfig(
         androidNotificationChannelId: 'com.gigmeout.letsgig.channel.audio',
         androidNotificationChannelName: 'Gigmeout',
         androidNotificationIcon: 'drawable/ic_stat_music_note',
         androidShowNotificationBadge: true,
         androidStopForegroundOnPause: false,
-        // Hive.box(AppHiveConstants.settings).get('stopServiceOnPause', defaultValue: true) as bool,
         notificationColor: Colors.grey[900],
       ),
     );
   }
 
-  Future<AudioPlayerHandler> getAudioHandler() async {
+  Future<NeomAudioHandler> getAudioHandler() async {
     if (!_isInitialized) {
       await _initialize();
       _isInitialized = true;

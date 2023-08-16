@@ -22,8 +22,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
 import 'package:hive/hive.dart';
+import 'package:neom_commons/core/app_flavour.dart';
+import 'package:neom_commons/core/domain/model/item_list.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
+import 'package:neom_music_player/domain/entities/app_media_item.dart';
 import 'package:neom_music_player/ui/widgets/collage.dart';
 import 'package:neom_music_player/ui/widgets/custom_physics.dart';
 import 'package:neom_music_player/ui/widgets/data_search.dart';
@@ -36,11 +39,12 @@ import 'package:neom_music_player/ui/widgets/playlist_head.dart';
 import 'package:neom_music_player/ui/widgets/song_tile_trailing_menu.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
 import 'package:neom_music_player/utils/helpers/songs_count.dart' as songs_count;
-import 'package:neom_music_player/domain/use_cases/player_service.dart';
+import 'package:neom_music_player/neom_player_invoke.dart';
 import 'package:neom_music_player/ui/drawer/library/show_songs.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
 // import 'package:path_provider/path_provider.dart';
 import 'package:get/get.dart';
+import 'package:neom_music_player/utils/neom_audio_utilities.dart';
 
 final ValueNotifier<bool> selectMode = ValueNotifier<bool>(false);
 final Set<String> selectedItems = <String>{};
@@ -49,13 +53,13 @@ class LikedSongs extends StatefulWidget {
   final String playlistName;
   final String? showName;
   final bool fromPlaylist;
-  final List? songs;
+  final List<AppMediaItem>? appMediaSongs;
   const LikedSongs({
     super.key,
     required this.playlistName,
     this.showName,
     this.fromPlaylist = false,
-    this.songs,
+    this.appMediaSongs,
   });
   @override
   _LikedSongsState createState() => _LikedSongsState();
@@ -66,7 +70,7 @@ class _LikedSongsState extends State<LikedSongs>
   Box? likedBox;
   bool added = false;
   // String? tempPath = Hive.box(AppHiveConstants.settings).get('tempDirPath')?.toString();
-  List _songs = [];
+  List<AppMediaItem> _appMediaSongs = [];
   final Map<String, List<Map>> _albums = {};
   final Map<String, List<Map>> _artists = {};
   final Map<String, List<Map>> _genres = {};
@@ -76,10 +80,8 @@ class _LikedSongsState extends State<LikedSongs>
   TabController? _tcontroller;
   // int currentIndex = 0;
   int sortValue = Hive.box(AppHiveConstants.settings).get('sortValue', defaultValue: 1) as int;
-  int orderValue =
-      Hive.box(AppHiveConstants.settings).get('orderValue', defaultValue: 1) as int;
-  int albumSortValue =
-      Hive.box(AppHiveConstants.settings).get('albumSortValue', defaultValue: 2) as int;
+  int orderValue = Hive.box(AppHiveConstants.settings).get('orderValue', defaultValue: 1) as int;
+  int albumSortValue =   Hive.box(AppHiveConstants.settings).get('albumSortValue', defaultValue: 2) as int;
   final ScrollController _scrollController = ScrollController();
   final ValueNotifier<bool> _showShuffle = ValueNotifier<bool>(true);
   int _currentTabIndex = 0;
@@ -131,117 +133,67 @@ class _LikedSongsState extends State<LikedSongs>
   void getLiked() {
     likedBox = Hive.box(widget.playlistName);
     if (widget.fromPlaylist) {
-      _songs = widget.songs!;
+      _appMediaSongs = widget.appMediaSongs!;
     } else {
-      _songs = likedBox?.values.toList() ?? [];
+      _appMediaSongs = likedBox?.values.map((element) {
+        return AppMediaItem.fromMap(element);
+      }).toList() ?? [];
       songs_count.addSongsCount(
         widget.playlistName,
-        _songs.length,
-        _songs.length >= 4
-            ? _songs.sublist(0, 4)
-            : _songs.sublist(0, _songs.length),
+        _appMediaSongs.length,
+        _appMediaSongs.length >= 4
+            ? _appMediaSongs.sublist(0, 4)
+            : _appMediaSongs.sublist(0, _appMediaSongs.length),
       );
     }
     setArtistAlbum();
   }
 
   void setArtistAlbum() {
-    for (final element in _songs) {
-      if (_albums.containsKey(element['album'])) {
-        final List<Map> tempAlbum = _albums[element['album']]!;
-        tempAlbum.add(element as Map);
-        _albums.addEntries([MapEntry(element['album'].toString(), tempAlbum)]);
-      } else {
-        _albums.addEntries([
-          MapEntry(element['album'].toString(), [element as Map])
-        ]);
-      }
-
-      element['artist'].toString().split(', ').forEach((singleArtist) {
-        if (_artists.containsKey(singleArtist)) {
-          final List<Map> tempArtist = _artists[singleArtist]!;
-          tempArtist.add(element);
-          _artists.addEntries([MapEntry(singleArtist, tempArtist)]);
-        } else {
-          _artists.addEntries([
-            MapEntry(singleArtist, [element])
-          ]);
-        }
-      });
-
-      if (_genres.containsKey(element['genre'])) {
-        final List<Map> tempGenre = _genres[element['genre']]!;
-        tempGenre.add(element);
-        _genres.addEntries([MapEntry(element['genre'].toString(), tempGenre)]);
-      } else {
-        _genres.addEntries([
-          MapEntry(element['genre'].toString(), [element])
-        ]);
-      }
-    }
-
-    sortSongs(sortVal: sortValue, order: orderValue);
-
-    _sortedAlbumKeysList = _albums.keys.toList();
-    _sortedArtistKeysList = _artists.keys.toList();
-    _sortedGenreKeysList = _genres.keys.toList();
-
-    sortAlbums();
-
-    added = true;
-    setState(() {});
-  }
-
-  void sortSongs({required int sortVal, required int order}) {
-    switch (sortVal) {
-      case 0:
-        _songs.sort(
-          (a, b) => a['title']
-              .toString()
-              .toUpperCase()
-              .compareTo(b['title'].toString().toUpperCase()),
-        );
-      case 1:
-        _songs.sort(
-          (a, b) => a['dateAdded']
-              .toString()
-              .toUpperCase()
-              .compareTo(b['dateAdded'].toString().toUpperCase()),
-        );
-      case 2:
-        _songs.sort(
-          (a, b) => a['album']
-              .toString()
-              .toUpperCase()
-              .compareTo(b['album'].toString().toUpperCase()),
-        );
-      case 3:
-        _songs.sort(
-          (a, b) => a['artist']
-              .toString()
-              .toUpperCase()
-              .compareTo(b['artist'].toString().toUpperCase()),
-        );
-      case 4:
-        _songs.sort(
-          (a, b) => a['duration']
-              .toString()
-              .toUpperCase()
-              .compareTo(b['duration'].toString().toUpperCase()),
-        );
-      default:
-        _songs.sort(
-          (b, a) => a['dateAdded']
-              .toString()
-              .toUpperCase()
-              .compareTo(b['dateAdded'].toString().toUpperCase()),
-        );
-        break;
-    }
-
-    if (order == 1) {
-      _songs = _songs.reversed.toList();
-    }
+    // for (final element in _appMediaItems) {
+    //   if (_albums.containsKey(element.album)) {
+    //     final List<Map> tempAlbum = _albums[element.album]!;
+    //     tempAlbum.add(element as Map);
+    //     _albums.addEntries([MapEntry(element.album.toString(), tempAlbum)]);
+    //   } else {
+    //     _albums.addEntries([
+    //       MapEntry(element.album.toString(), [element as Map])
+    //     ]);
+    //   }
+    //
+    //   element.artist.toString().split(', ').forEach((singleArtist) {
+    //     if (_artists.containsKey(singleArtist)) {
+    //       final List<Map> tempArtist = _artists[singleArtist]!;
+    //       tempArtist.add(element);
+    //       _artists.addEntries([MapEntry(singleArtist, tempArtist)]);
+    //     } else {
+    //       _artists.addEntries([
+    //         MapEntry(singleArtist, [element])
+    //       ]);
+    //     }
+    //   });
+    //
+    //   if (_genres.containsKey(element.genre)) {
+    //     final List<Map> tempGenre = _genres[element.genre]!;
+    //     tempGenre.add(element);
+    //     _genres.addEntries([MapEntry(element.genre.toString(), tempGenre)]);
+    //   } else {
+    //     _genres.addEntries([
+    //       MapEntry(element.genre.toString(), [element])
+    //     ]);
+    //   }
+    // }
+    //
+    // sortSongs(sortVal: sortValue, order: orderValue);
+    //
+    // _sortedAlbumKeysList = _albums.keys.toList();
+    // _sortedArtistKeysList = _artists.keys.toList();
+    // _sortedGenreKeysList = _genres.keys.toList();
+    //
+    // sortAlbums();
+    //
+    // added = true;
+    // setState(() {});
   }
 
   void sortAlbums() {
@@ -296,33 +248,33 @@ class _LikedSongsState extends State<LikedSongs>
     }
   }
 
-  void deleteLiked(Map song) {
+  void deleteLiked(AppMediaItem song) {
     setState(() {
-      likedBox!.delete(song['id']);
-      if (_albums[song['album']]!.length == 1) {
-        _sortedAlbumKeysList.remove(song['album']);
+      likedBox!.delete(song.id);
+      if (_albums[song.album]!.length == 1) {
+        _sortedAlbumKeysList.remove(song.album);
       }
-      _albums[song['album']]!.remove(song);
+      _albums[song.album]!.remove(song);
 
-      song['artist'].toString().split(', ').forEach((singleArtist) {
+      song.artist.toString().split(', ').forEach((singleArtist) {
         if (_artists[singleArtist]!.length == 1) {
           _sortedArtistKeysList.remove(singleArtist);
         }
         _artists[singleArtist]!.remove(song);
       });
 
-      if (_genres[song['genre']]!.length == 1) {
-        _sortedGenreKeysList.remove(song['genre']);
+      if (_genres[song.genre]!.length == 1) {
+        _sortedGenreKeysList.remove(song.genre);
       }
-      _genres[song['genre']]!.remove(song);
+      _genres[song.genre]!.remove(song);
 
-      _songs.remove(song);
+      _appMediaSongs.remove(song);
       songs_count.addSongsCount(
         widget.playlistName,
-        _songs.length,
-        _songs.length >= 4
-            ? _songs.sublist(0, 4)
-            : _songs.sublist(0, _songs.length),
+        _appMediaSongs.length,
+        _appMediaSongs.length >= 4
+            ? _appMediaSongs.sublist(0, 4)
+            : _appMediaSongs.sublist(0, _appMediaSongs.length),
       );
     });
   }
@@ -370,9 +322,9 @@ class _LikedSongsState extends State<LikedSongs>
                 valueListenable: selectMode,
                 child: Row(
                   children: <Widget>[
-                    if (_songs.isNotEmpty)
+                    if (_appMediaSongs.isNotEmpty)
                       MultiDownloadButton(
-                        data: _songs,
+                        data: _appMediaSongs,
                         playlistName: widget.showName == null
                             ? widget.playlistName[0].toUpperCase() +
                                 widget.playlistName.substring(1)
@@ -385,7 +337,7 @@ class _LikedSongsState extends State<LikedSongs>
                       onPressed: () {
                         showSearch(
                           context: context,
-                          delegate: DownloadsSearch(data: _songs),
+                          delegate: DownloadsSearch(data: _appMediaSongs),
                         );
                       },
                     ),
@@ -405,7 +357,8 @@ class _LikedSongsState extends State<LikedSongs>
                             orderValue = value - 5;
                             Hive.box(AppHiveConstants.settings).put('orderValue', orderValue);
                           }
-                          sortSongs(
+                          _appMediaSongs = NeomAudioUtilities.sortSongs(
+                            _appMediaSongs,
                             sortVal: sortValue,
                             order: orderValue,
                           );
@@ -509,10 +462,10 @@ class _LikedSongsState extends State<LikedSongs>
                       ? Row(
                           children: [
                             MultiDownloadButton(
-                              data: _songs
+                              data: _appMediaSongs
                                   .where(
                                     (element) =>
-                                        selectedItems.contains(element['id']),
+                                        selectedItems.contains(element.id),
                                   )
                                   .toList(),
                               playlistName: widget.showName == null
@@ -544,8 +497,8 @@ class _LikedSongsState extends State<LikedSongs>
                   controller: _tcontroller,
                   children: [
                     SongsTab(
-                      songs: _songs,
-                      onDelete: (Map item) {
+                      appMediaItems: _appMediaSongs,
+                      onDelete: (AppMediaItem item) {
                         deleteLiked(item);
                       },
                       playlistName: widget.playlistName,
@@ -584,9 +537,9 @@ class _LikedSongsState extends State<LikedSongs>
                 size: 24.0,
               ),
               onPressed: () {
-                if (_songs.isNotEmpty) {
-                  PlayerInvoke.init(
-                    songsList: _songs,
+                if (_appMediaSongs.isNotEmpty) {
+                  NeomPlayerInvoke.init(
+                    appMediaItems: _appMediaSongs,
                     index: 0,
                     isOffline: false,
                     recommend: false,
@@ -618,13 +571,13 @@ class _LikedSongsState extends State<LikedSongs>
 }
 
 class SongsTab extends StatefulWidget {
-  final List songs;
+  final List<AppMediaItem> appMediaItems;
   final String playlistName;
-  final Function(Map item) onDelete;
+  final Function(AppMediaItem item) onDelete;
   final ScrollController scrollController;
   const SongsTab({
     super.key,
-    required this.songs,
+    required this.appMediaItems,
     required this.onDelete,
     required this.playlistName,
     required this.scrollController,
@@ -642,7 +595,7 @@ class _SongsTabState extends State<SongsTab>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return (widget.songs.isEmpty)
+    return (widget.appMediaItems.isEmpty)
         ? emptyScreen(
             context,
             3,
@@ -656,7 +609,7 @@ class _SongsTabState extends State<SongsTab>
         : Column(
             children: [
               PlaylistHead(
-                songsList: widget.songs,
+                songsList: widget.appMediaItems,
                 offline: false,
                 fromDownloads: false,
               ),
@@ -666,17 +619,16 @@ class _SongsTabState extends State<SongsTab>
                   physics: const BouncingScrollPhysics(),
                   padding: const EdgeInsets.only(bottom: 10),
                   shrinkWrap: true,
-                  itemCount: widget.songs.length,
+                  itemCount: widget.appMediaItems.length,
                   itemExtent: 70.0,
                   itemBuilder: (context, index) {
                     return ValueListenableBuilder(
                       valueListenable: selectMode,
                       builder: (context, value, child) {
-                        final bool selected =
-                            selectedItems.contains(widget.songs[index]['id']);
+                        final bool selected = selectedItems.contains(widget.appMediaItems[index].id);
                         return ListTile(
                           leading: imageCard(
-                            imageUrl: widget.songs[index]['image'].toString(),
+                            imageUrl: widget.appMediaItems[index].image.toString(),
                             selected: selected,
                           ),
                           onTap: () {
@@ -684,7 +636,7 @@ class _SongsTabState extends State<SongsTab>
                               selectMode.value = false;
                               if (selected) {
                                 selectedItems.remove(
-                                  widget.songs[index]['id'].toString(),
+                                  widget.appMediaItems[index].id.toString(),
                                 );
                                 selectMode.value = true;
                                 if (selectedItems.isEmpty) {
@@ -692,13 +644,13 @@ class _SongsTabState extends State<SongsTab>
                                 }
                               } else {
                                 selectedItems
-                                    .add(widget.songs[index]['id'].toString());
+                                    .add(widget.appMediaItems[index].id.toString());
                                 selectMode.value = true;
                               }
                               setState(() {});
                             } else {
-                              PlayerInvoke.init(
-                                songsList: widget.songs,
+                              NeomPlayerInvoke.init(
+                                appMediaItems: widget.appMediaItems,
                                 index: index,
                                 isOffline: false,
                                 recommend: false,
@@ -709,15 +661,14 @@ class _SongsTabState extends State<SongsTab>
                           onLongPress: () {
                             selectMode.value = false;
                             if (selected) {
-                              selectedItems
-                                  .remove(widget.songs[index]['id'].toString());
+                              selectedItems.remove(widget.appMediaItems[index].id.toString());
                               selectMode.value = true;
                               if (selectedItems.isEmpty) {
                                 selectMode.value = false;
                               }
                             } else {
                               selectedItems
-                                  .add(widget.songs[index]['id'].toString());
+                                  .add(widget.appMediaItems[index].id.toString());
                               selectMode.value = true;
                             }
                             setState(() {});
@@ -725,11 +676,11 @@ class _SongsTabState extends State<SongsTab>
                           selected: selected,
                           selectedTileColor: Colors.white10,
                           title: Text(
-                            '${widget.songs[index]['title']}',
+                            '${widget.appMediaItems[index].title}',
                             overflow: TextOverflow.ellipsis,
                           ),
                           subtitle: Text(
-                            '${widget.songs[index]['artist'] ?? 'Unknown'} - ${widget.songs[index]['album'] ?? 'Unknown'}',
+                            '${widget.appMediaItems[index].artist ?? 'Unknown'} - ${widget.appMediaItems[index].album ?? 'Unknown'}',
                             overflow: TextOverflow.ellipsis,
                           ),
                           trailing: Row(
@@ -738,14 +689,15 @@ class _SongsTabState extends State<SongsTab>
                               if (widget.playlistName != AppHiveConstants.favoriteSongs)
                                 LikeButton(
                                   mediaItem: null,
-                                  data: widget.songs[index] as Map,
+                                  data: widget.appMediaItems[index] as Map,
                                 ),
                               DownloadButton(
-                                data: widget.songs[index] as Map,
+                                data: widget.appMediaItems[index] as Map,
                                 icon: 'download',
                               ),
                               SongTileTrailingMenu(
-                                data: widget.songs[index] as Map,
+                                appMediaItem: widget.appMediaItems[index],
+                                itemlist: Itemlist(),
                                 isPlaylist: true,
                                 deleteLiked: widget.onDelete,
                               ),
@@ -810,14 +762,11 @@ class _AlbumsTabState extends State<AlbumsTab>
             itemCount: widget.sortedAlbumKeysList.length,
             itemBuilder: (context, index) {
               final List imageList = widget
-                          .albums[widget.sortedAlbumKeysList[index]]!.length >=
-                      4
-                  ? widget.albums[widget.sortedAlbumKeysList[index]]!
-                      .sublist(0, 4)
-                  : widget.albums[widget.sortedAlbumKeysList[index]]!.sublist(
-                      0,
-                      widget.albums[widget.sortedAlbumKeysList[index]]!.length,
-                    );
+                  .albums[widget.sortedAlbumKeysList[index]]!.length >= 4
+                  ? widget.albums[widget.sortedAlbumKeysList[index]]!.sublist(0, 4)
+                  : widget.albums[widget.sortedAlbumKeysList[index]]!.sublist(0,
+                widget.albums[widget.sortedAlbumKeysList[index]]!.length,
+              );
               return ListTile(
                 leading: (widget.offline)
                     ? OfflineCollage(
@@ -828,7 +777,7 @@ class _AlbumsTabState extends State<AlbumsTab>
                             : AppAssets.musicPlayerAlbum,
                       )
                     : Collage(
-                        imageList: imageList,
+                        imageList: [AppFlavour.getAppLogoUrl()],//itemlist.getImgUrls(),
                         showGrid: widget.type == 'genre',
                         placeholderImage: widget.type == 'artist'
                             ? AppAssets.musicPlayerArtist
@@ -852,8 +801,7 @@ class _AlbumsTabState extends State<AlbumsTab>
                       opaque: false,
                       pageBuilder: (_, __, ___) => widget.offline
                           ? SongsList(
-                              data: widget
-                                  .albums[widget.sortedAlbumKeysList[index]]!,
+                              data: AppMediaItem.listFromList(widget.albums[widget.sortedAlbumKeysList[index]]!),
                               offline: widget.offline,
                             )
                           : LikedSongs(
@@ -861,8 +809,7 @@ class _AlbumsTabState extends State<AlbumsTab>
                               fromPlaylist: true,
                               showName:
                                   widget.sortedAlbumKeysList[index].toString(),
-                              songs: widget
-                                  .albums[widget.sortedAlbumKeysList[index]],
+                              appMediaSongs: AppMediaItem.listFromList(widget.albums[widget.sortedAlbumKeysList[index]]),
                             ),
                     ),
                   );

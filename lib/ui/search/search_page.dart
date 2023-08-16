@@ -20,9 +20,11 @@
 import 'package:flutter/material.dart';
 
 import 'package:hive/hive.dart';
+import 'package:neom_commons/core/domain/model/item_list.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
 import 'package:neom_music_player/data/api_services/APIs/saavn_api.dart';
+import 'package:neom_music_player/domain/entities/app_media_item.dart';
 import 'package:neom_music_player/ui/widgets/copy_clipboard.dart';
 import 'package:neom_music_player/ui/widgets/download_button.dart';
 import 'package:neom_music_player/ui/widgets/empty_screen.dart';
@@ -32,7 +34,7 @@ import 'package:neom_music_player/ui/widgets/like_button.dart';
 import 'package:neom_music_player/ui/widgets/music_search_bar.dart' as searchbar;
 import 'package:neom_music_player/ui/widgets/snackbar.dart';
 import 'package:neom_music_player/ui/widgets/song_tile_trailing_menu.dart';
-import 'package:neom_music_player/domain/use_cases/player_service.dart';
+import 'package:neom_music_player/neom_player_invoke.dart';
 import 'package:neom_music_player/ui/widgets/song_list.dart';
 import 'package:neom_music_player/ui/search/album_search_page.dart';
 import 'package:neom_music_player/ui/search/artist_search_page.dart';
@@ -374,8 +376,7 @@ class _SearchPageState extends State<SearchPage> {
                               children: sortedKeys.map(
                                 (e) {
                                   final String key = position[e].toString();
-                                  final List? value =
-                                      searchedData[key] as List?;
+                                  final List? value = searchedData[key] as List?;
 
                                   if (value == null) {
                                     return const SizedBox();
@@ -391,12 +392,9 @@ class _SearchPageState extends State<SearchPage> {
                                           mainAxisAlignment:
                                               MainAxisAlignment.spaceBetween,
                                           children: [
-                                            Text(
-                                              key,
+                                            Text(key,
                                               style: TextStyle(
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .secondary,
+                                                color: Theme.of(context).colorScheme.secondary,
                                                 fontSize: 18,
                                                 fontWeight: FontWeight.w800,
                                               ),
@@ -445,22 +443,14 @@ class _SearchPageState extends State<SearchPage> {
                                                             context,
                                                             PageRouteBuilder(
                                                               opaque: false,
-                                                              pageBuilder: (
-                                                                _,
-                                                                __,
-                                                                ___,
-                                                              ) =>
+                                                              pageBuilder: (_, __, ___,) =>
                                                                   SongsListPage(
-                                                                listItem: {
-                                                                  'id': query ==
-                                                                          ''
-                                                                      ? widget
-                                                                          .query
-                                                                      : query,
-                                                                  'title': key,
-                                                                  'type':
-                                                                      'songs',
-                                                                },
+                                                                    itemlist: Itemlist()
+                                                                    // {
+                                                                    //   'id': query == '' ? widget.query : query,
+                                                                    //   'title': key,
+                                                                    //   'type': 'songs',
+                                                                    // },
                                                               ),
                                                             ),
                                                           );
@@ -579,12 +569,11 @@ class _SearchPageState extends State<SearchPage> {
                                                           ),
                                                           LikeButton(
                                                             mediaItem: null,
-                                                            data: value[index]
-                                                                as Map,
+                                                            data: value[index] as Map,
                                                           ),
                                                           SongTileTrailingMenu(
-                                                            data: value[index]
-                                                                as Map,
+                                                            appMediaItem: AppMediaItem.fromMap(value[index]),
+                                                            itemlist: Itemlist(),
                                                           ),
                                                         ],
                                                       )
@@ -626,8 +615,8 @@ class _SearchPageState extends State<SearchPage> {
                                                   .put('search', searchQueries);
 
                                               if (key == 'Songs') {
-                                                PlayerInvoke.init(
-                                                  songsList: [value[index]],
+                                                NeomPlayerInvoke.init(
+                                                  appMediaItems: [AppMediaItem.fromMap(value[index])],
                                                   index: 0,
                                                   isOffline: false,
                                                 );
@@ -636,26 +625,9 @@ class _SearchPageState extends State<SearchPage> {
                                                   context,
                                                   PageRouteBuilder(
                                                     opaque: false,
-                                                    pageBuilder: (
-                                                      _,
-                                                      __,
-                                                      ___,
-                                                    ) =>
-                                                        key == 'Artists' ||
-                                                                (key == 'Top Result' &&
-                                                                    value[0][
-                                                                            'type'] ==
-                                                                        'artist')
-                                                            ? ArtistSearchPage(
-                                                                data:
-                                                                    value[index]
-                                                                        as Map,
-                                                              )
-                                                            : SongsListPage(
-                                                                listItem:
-                                                                    value[index]
-                                                                        as Map,
-                                                              ),
+                                                    pageBuilder: (_, __, ___,) => key == 'Artists' || (key == 'Top Result' && value[0]['type'] == 'artist')
+                                                            ? ArtistSearchPage(data: value[index] as Map,)
+                                                            : SongsListPage(itemlist: Itemlist.fromJSON(value[index] as Map,)),
                                                   ),
                                                 );
                                               }

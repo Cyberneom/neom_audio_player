@@ -21,11 +21,12 @@ import 'package:flutter/material.dart';
 
 import 'package:hive/hive.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
+import 'package:neom_music_player/domain/entities/app_media_item.dart';
 import 'package:neom_music_player/ui/widgets/empty_screen.dart';
 import 'package:neom_music_player/ui/widgets/gradient_containers.dart';
 import 'package:neom_music_player/ui/widgets/image_card.dart';
 import 'package:neom_music_player/ui/widgets/like_button.dart';
-import 'package:neom_music_player/domain/use_cases/player_service.dart';
+import 'package:neom_music_player/neom_player_invoke.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
 import 'package:get/get.dart';
@@ -36,11 +37,11 @@ class RecentlyPlayed extends StatefulWidget {
 }
 
 class _RecentlyPlayedState extends State<RecentlyPlayed> {
-  List _songs = [];
+  List<AppMediaItem> _songs = [];
   bool added = false;
 
   Future<void> getSongs() async {
-    _songs = Hive.box(AppHiveConstants.cache).get('recentSongs', defaultValue: []) as List;
+    // _songs = Hive.box(AppHiveConstants.cache).get('recentSongs', defaultValue: []) as List;
     added = true;
     setState(() {});
   }
@@ -74,14 +75,10 @@ class _RecentlyPlayedState extends State<RecentlyPlayed> {
         ),
         body: _songs.isEmpty
             ? emptyScreen(
-                context,
-                3,
-                PlayerTranslationConstants.nothingTo.tr,
-                15,
-                PlayerTranslationConstants.showHere.tr,
-                50.0,
-                PlayerTranslationConstants.playSomething.tr,
-                23.0,
+                context, 3,
+                PlayerTranslationConstants.nothingTo.tr, 15,
+                PlayerTranslationConstants.showHere.tr, 50.0,
+                PlayerTranslationConstants.playSomething.tr, 23.0,
               )
             : ListView.builder(
                 physics: const BouncingScrollPhysics(),
@@ -93,7 +90,7 @@ class _RecentlyPlayedState extends State<RecentlyPlayed> {
                   return _songs.isEmpty
                       ? const SizedBox()
                       : Dismissible(
-                          key: Key(_songs[index]['id'].toString()),
+                          key: Key(_songs[index].id.toString()),
                           direction: DismissDirection.endToStart,
                           background: const ColoredBox(
                             color: Colors.redAccent,
@@ -116,7 +113,7 @@ class _RecentlyPlayedState extends State<RecentlyPlayed> {
                           },
                           child: ListTile(
                             leading: imageCard(
-                              imageUrl: _songs[index]['image'].toString(),
+                              imageUrl: _songs[index].image.toString(),
                             ),
                             trailing: Row(
                               mainAxisSize: MainAxisSize.min,
@@ -132,16 +129,16 @@ class _RecentlyPlayedState extends State<RecentlyPlayed> {
                               ],
                             ),
                             title: Text(
-                              '${_songs[index]["title"]}',
+                              '${_songs[index].title}',
                               overflow: TextOverflow.ellipsis,
                             ),
                             subtitle: Text(
-                              '${_songs[index]["artist"]}',
+                              '${_songs[index].artist}',
                               overflow: TextOverflow.ellipsis,
                             ),
                             onTap: () {
-                              PlayerInvoke.init(
-                                songsList: _songs,
+                              NeomPlayerInvoke.init(
+                                appMediaItems: _songs,
                                 index: index,
                                 isOffline: false,
                               );

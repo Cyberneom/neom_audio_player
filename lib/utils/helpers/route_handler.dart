@@ -18,12 +18,14 @@
  */
 
 import 'package:flutter/material.dart';
+import 'package:neom_commons/core/domain/model/item_list.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_music_player/data/api_services/APIs/saavn_api.dart';
 import 'package:neom_music_player/data/api_services/spotify/spotify_api_calls.dart';
+import 'package:neom_music_player/domain/entities/app_media_item.dart';
 import 'package:neom_music_player/utils/helpers/audio_query.dart';
 import 'package:neom_music_player/utils/helpers/spotify_helper.dart';
-import 'package:neom_music_player/domain/use_cases/player_service.dart';
+import 'package:neom_music_player/neom_player_invoke.dart';
 import 'package:neom_music_player/domain/use_cases/youtube_services.dart';
 import 'package:neom_music_player/ui/widgets/song_list.dart';
 import 'package:neom_music_player/ui/player/audioplayer.dart';
@@ -114,8 +116,8 @@ class SaavnUrlHandler extends StatelessWidget {
   Widget build(BuildContext context) {
     SaavnAPI().getSongFromToken(token, type).then((value) {
       if (type == 'song') {
-        PlayerInvoke.init(
-          songsList: value['songs'] as List,
+        NeomPlayerInvoke.init(
+          appMediaItems: AppMediaItem.listFromList(value['songs'] as List),
           index: 0,
           isOffline: false,
         );
@@ -133,7 +135,7 @@ class SaavnUrlHandler extends StatelessWidget {
           PageRouteBuilder(
             opaque: false,
             pageBuilder: (_, __, ___) => SongsListPage(
-              listItem: value,
+              itemlist: Itemlist.fromJSON(value,)
             ),
           ),
         );
@@ -182,10 +184,10 @@ class YtUrlHandler extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (type == 'v') {
-      YouTubeServices().formatVideoFromId(id: id).then((Map? response) async {
+      YouTubeServices().formatVideoFromId(id: id).then((AppMediaItem? response) async {
         if (response != null) {
-          PlayerInvoke.init(
-            songsList: [response],
+          NeomPlayerInvoke.init(
+            appMediaItems: [response],
             index: 0,
             isOffline: false,
             recommend: false,
@@ -236,8 +238,8 @@ class OfflinePlayHandler extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     playOfflineSong(id).then((value) {
-      PlayerInvoke.init(
-        songsList: value[1] as List<SongModel>,
+      NeomPlayerInvoke.init(
+        appMediaItems: AppMediaItem.listFromSongModel(value[1] as List<SongModel>),
         index: value[0] as int,
         isOffline: true,
         recommend: false,

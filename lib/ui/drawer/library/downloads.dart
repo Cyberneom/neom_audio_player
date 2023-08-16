@@ -30,6 +30,7 @@ import 'package:hive/hive.dart';
 import 'package:logging/logging.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
+import 'package:neom_music_player/domain/entities/app_media_item.dart';
 import 'package:neom_music_player/ui/widgets/custom_physics.dart';
 import 'package:neom_music_player/ui/widgets/data_search.dart';
 import 'package:neom_music_player/ui/widgets/empty_screen.dart';
@@ -39,7 +40,7 @@ import 'package:neom_music_player/ui/widgets/playlist_head.dart';
 import 'package:neom_music_player/ui/widgets/snackbar.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
 import 'package:neom_music_player/utils/helpers/picker.dart';
-import 'package:neom_music_player/domain/use_cases/player_service.dart';
+import 'package:neom_music_player/neom_player_invoke.dart';
 import 'package:neom_music_player/ui/drawer/library/liked.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
 // import 'package:path_provider/path_provider.dart';
@@ -56,7 +57,7 @@ class _DownloadsState extends State<Downloads>
     with SingleTickerProviderStateMixin {
   Box downloadsBox = Hive.box('downloads');
   bool added = false;
-  List _songs = [];
+  List<AppMediaItem> _appMediaItems = [];
   final Map<String, List<Map>> _albums = {};
   final Map<String, List<Map>> _artists = {};
   final Map<String, List<Map>> _genres = {};
@@ -92,13 +93,7 @@ class _DownloadsState extends State<Downloads>
         _showShuffle.value = true;
       }
     });
-    // _tcontroller!.addListener(changeTitle);
-    // if (tempPath == null) {
-    //   getTemporaryDirectory().then((value) {
-    //     Hive.box(AppHiveConstants.settings).put('tempDirPath', value.path);
-    //   });
-    // }
-    getDownloads();
+    // getDownloads();
     super.initState();
   }
 
@@ -116,45 +111,41 @@ class _DownloadsState extends State<Downloads>
   // }
 
   Future<void> getDownloads() async {
-    _songs = downloadsBox.values.toList();
+    // _appMediaItems = downloadsBox.values.toList();
     setArtistAlbum();
   }
 
   void setArtistAlbum() {
-    for (final element in _songs) {
+    for (final mediaItem in _appMediaItems) {
       try {
-        if (_albums.containsKey(element['album'])) {
-          final List<Map> tempAlbum = _albums[element['album']]!;
-          tempAlbum.add(element as Map);
-          _albums
-              .addEntries([MapEntry(element['album'].toString(), tempAlbum)]);
-        } else {
-          _albums.addEntries([
-            MapEntry(element['album'].toString(), [element as Map])
-          ]);
-        }
-
-        if (_artists.containsKey(element['artist'])) {
-          final List<Map> tempArtist = _artists[element['artist']]!;
-          tempArtist.add(element);
-          _artists
-              .addEntries([MapEntry(element['artist'].toString(), tempArtist)]);
-        } else {
-          _artists.addEntries([
-            MapEntry(element['artist'].toString(), [element])
-          ]);
-        }
-
-        if (_genres.containsKey(element['genre'])) {
-          final List<Map> tempGenre = _genres[element['genre']]!;
-          tempGenre.add(element);
-          _genres
-              .addEntries([MapEntry(element['genre'].toString(), tempGenre)]);
-        } else {
-          _genres.addEntries([
-            MapEntry(element['genre'].toString(), [element])
-          ]);
-        }
+        // if (_albums.containsKey(mediaItem.album)) {
+        //   final List<Map> tempAlbum = _albums[mediaItem.album]!;
+        //   tempAlbum.add(mediaItem as Map);
+        //   _albums.addEntries([MapEntry(mediaItem.album.toString(), tempAlbum)]);
+        // } else {
+        //   _albums.addEntries([MapEntry(mediaItem.album.toString(), [mediaItem as Map])]);
+        // }
+        //
+        // if (_artists.containsKey(mediaItem.artist)) {
+        //   final List<Map> tempArtist = _artists[mediaItem.artist]!;
+        //   tempArtist.add(mediaItem);
+        //   _artists.addEntries([MapEntry(mediaItem.artist.toString(), tempArtist)]);
+        // } else {
+        //   _artists.addEntries([
+        //     MapEntry(mediaItem.artist.toString(), [mediaItem])
+        //   ]);
+        // }
+        //
+        // if (_genres.containsKey(mediaItem.genre)) {
+        //   final List<Map> tempGenre = _genres[mediaItem.genre]!;
+        //   tempGenre.add(mediaItem);
+        //   _genres
+        //       .addEntries([MapEntry(mediaItem.genre.toString(), tempGenre)]);
+        // } else {
+        //   _genres.addEntries([
+        //     MapEntry(mediaItem.genre.toString(), [mediaItem])
+        //   ]);
+        // }
       } catch (e) {
         // ShowSnackBar().showSnackBar(
         //   context,
@@ -179,52 +170,52 @@ class _DownloadsState extends State<Downloads>
   void sortSongs({required int sortVal, required int order}) {
     switch (sortVal) {
       case 0:
-        _songs.sort(
-          (a, b) => a['title']
+        _appMediaItems.sort(
+          (a, b) => a.title
               .toString()
               .toUpperCase()
-              .compareTo(b['title'].toString().toUpperCase()),
+              .compareTo(b.title.toString().toUpperCase()),
         );
       case 1:
-        _songs.sort(
-          (a, b) => a['dateAdded']
+        _appMediaItems.sort(
+          (a, b) => a.releaseDate
               .toString()
               .toUpperCase()
-              .compareTo(b['dateAdded'].toString().toUpperCase()),
+              .compareTo(b.releaseDate.toString().toUpperCase()),
         );
       case 2:
-        _songs.sort(
-          (a, b) => a['album']
+        _appMediaItems.sort(
+          (a, b) => a.album
               .toString()
               .toUpperCase()
-              .compareTo(b['album'].toString().toUpperCase()),
+              .compareTo(b.album.toString().toUpperCase()),
         );
       case 3:
-        _songs.sort(
-          (a, b) => a['artist']
+        _appMediaItems.sort(
+          (a, b) => a.artist
               .toString()
               .toUpperCase()
-              .compareTo(b['artist'].toString().toUpperCase()),
+              .compareTo(b.artist.toString().toUpperCase()),
         );
       case 4:
-        _songs.sort(
-          (a, b) => a['duration']
+        _appMediaItems.sort(
+          (a, b) => a.duration
               .toString()
               .toUpperCase()
-              .compareTo(b['duration'].toString().toUpperCase()),
+              .compareTo(b.duration.toString().toUpperCase()),
         );
       default:
-        _songs.sort(
-          (b, a) => a['dateAdded']
+        _appMediaItems.sort(
+          (b, a) => a.releaseDate
               .toString()
               .toUpperCase()
-              .compareTo(b['dateAdded'].toString().toUpperCase()),
+              .compareTo(b.releaseDate.toString().toUpperCase()),
         );
         break;
     }
 
     if (order == 1) {
-      _songs = _songs.reversed.toList();
+      _appMediaItems = _appMediaItems.reversed.toList();
     }
   }
 
@@ -300,7 +291,7 @@ class _DownloadsState extends State<Downloads>
     }
     _genres[song['genre']]!.remove(song);
 
-    _songs.remove(song);
+    _appMediaItems.remove(song);
     try {
       await audioFile.delete();
       if (await imageFile.exists()) {
@@ -357,13 +348,13 @@ class _DownloadsState extends State<Downloads>
                   showSearch(
                     context: context,
                     delegate: DownloadsSearch(
-                      data: _songs,
+                      data: _appMediaItems,
                       isDowns: true,
                     ),
                   );
                 },
               ),
-              if (_songs.isNotEmpty && _currentTabIndex == 0)
+              if (_appMediaItems.isNotEmpty && _currentTabIndex == 0)
                 PopupMenuButton(
                   icon: const Icon(Icons.sort_rounded),
                   shape: const RoundedRectangleBorder(
@@ -482,7 +473,7 @@ class _DownloadsState extends State<Downloads>
                       onDelete: (Map item) {
                         deleteSong(item);
                       },
-                      songs: _songs,
+                      appMediaItems: _appMediaItems,
                       scrollController: _scrollController,
                     ),
                     AlbumsTab(
@@ -516,9 +507,9 @@ class _DownloadsState extends State<Downloads>
                 size: 24.0,
               ),
               onPressed: () {
-                if (_songs.isNotEmpty) {
-                  PlayerInvoke.init(
-                    songsList: _songs,
+                if (_appMediaItems.isNotEmpty) {
+                  NeomPlayerInvoke.init(
+                    appMediaItems: _appMediaItems,
                     index: 0,
                     isOffline: true,
                     fromDownloads: true,
@@ -550,28 +541,21 @@ class _DownloadsState extends State<Downloads>
   }
 }
 
-Future<Map> editTags(Map song, BuildContext context) async {
+Future<AppMediaItem> editTags(AppMediaItem mediaItem, BuildContext context) async {
   await showDialog(
     context: context,
     builder: (BuildContext context) {
       final tagger = Audiotagger();
 
-      FileImage songImage = FileImage(File(song['image'].toString()));
+      FileImage songImage = FileImage(File(mediaItem.image.toString()));
 
-      final titlecontroller =
-          TextEditingController(text: song['title'].toString());
-      final albumcontroller =
-          TextEditingController(text: song['album'].toString());
-      final artistcontroller =
-          TextEditingController(text: song['artist'].toString());
-      final albumArtistController =
-          TextEditingController(text: song['albumArtist'].toString());
-      final genrecontroller =
-          TextEditingController(text: song['genre'].toString());
-      final yearcontroller =
-          TextEditingController(text: song['year'].toString());
-      final pathcontroller =
-          TextEditingController(text: song['path'].toString());
+      final titlecontroller = TextEditingController(text: mediaItem.title.toString());
+      final albumcontroller = TextEditingController(text: mediaItem.album.toString());
+      final artistcontroller = TextEditingController(text: mediaItem.artist.toString());
+      final albumArtistController = TextEditingController(text: mediaItem.albumArtist.toString());
+      final genrecontroller = TextEditingController(text: mediaItem.genre.toString());
+      final yearcontroller = TextEditingController(text: mediaItem.year.toString());
+      final pathcontroller = TextEditingController(text: mediaItem.path.toString());
 
       return AlertDialog(
         shape: RoundedRectangleBorder(
@@ -589,12 +573,12 @@ Future<Map> editTags(Map song, BuildContext context) async {
                   onTap: () async {
                     final String filePath = await Picker.selectFile(
                       context: context,
-                      // ext: ['png', 'jpg', 'jpeg'],
+                      // ext: .png', 'jpg', 'jpeg,
                       message: 'Pick Image',
                     );
                     if (filePath != '') {
                       final imagePath = filePath;
-                      File(imagePath).copy(song['image'].toString());
+                      File(imagePath).copy(mediaItem.image.toString());
 
                       songImage = FileImage(File(imagePath));
 
@@ -606,12 +590,12 @@ Future<Map> editTags(Map song, BuildContext context) async {
                           Permission.manageExternalStorage,
                         ].request();
                         await tagger.writeTags(
-                          path: song['path'].toString(),
+                          path: mediaItem.path.toString(),
                           tag: tag,
                         );
                       } catch (e) {
                         await tagger.writeTags(
-                          path: song['path'].toString(),
+                          path: mediaItem.path.toString(),
                           tag: tag,
                         );
                       }
@@ -778,13 +762,13 @@ Future<Map> editTags(Map song, BuildContext context) async {
             ),
             onPressed: () async {
               Navigator.pop(context);
-              song['title'] = titlecontroller.text;
-              song['album'] = albumcontroller.text;
-              song['artist'] = artistcontroller.text;
-              song['albumArtist'] = albumArtistController.text;
-              song['genre'] = genrecontroller.text;
-              song['year'] = yearcontroller.text;
-              song['path'] = pathcontroller.text;
+              mediaItem.title = titlecontroller.text;
+              mediaItem.album = albumcontroller.text;
+              mediaItem.artist = artistcontroller.text;
+              mediaItem.albumArtist = albumArtistController.text;
+              mediaItem.genre = genrecontroller.text;
+              mediaItem.year = int.parse(yearcontroller.text);
+              mediaItem.path = pathcontroller.text;
               final tag = Tag(
                 title: titlecontroller.text,
                 artist: artistcontroller.text,
@@ -799,12 +783,12 @@ Future<Map> editTags(Map song, BuildContext context) async {
                     Permission.manageExternalStorage,
                   ].request();
                   tagger.writeTags(
-                    path: song['path'].toString(),
+                    path: mediaItem.path.toString(),
                     tag: tag,
                   );
                 } catch (e) {
                   await tagger.writeTags(
-                    path: song['path'].toString(),
+                    path: mediaItem.path.toString(),
                     tag: tag,
                   );
                   ShowSnackBar().showSnackBar(
@@ -836,16 +820,16 @@ Future<Map> editTags(Map song, BuildContext context) async {
       );
     },
   );
-  return song;
+  return mediaItem;
 }
 
 class DownSongsTab extends StatefulWidget {
-  final List songs;
+  final List<AppMediaItem> appMediaItems;
   final Function(Map item) onDelete;
   final ScrollController scrollController;
   const DownSongsTab({
     super.key,
-    required this.songs,
+    required this.appMediaItems,
     required this.onDelete,
     required this.scrollController,
   });
@@ -856,11 +840,9 @@ class DownSongsTab extends StatefulWidget {
 
 class _DownSongsTabState extends State<DownSongsTab>
     with AutomaticKeepAliveClientMixin {
-  Future<void> downImage(
-    String imageFilePath,
-    String songFilePath,
-    String url,
-  ) async {
+  Future<void> downImage({required String imageFilePath,
+  required String songFilePath,
+  required String url,}) async {
     final File file = File(imageFilePath);
 
     try {
@@ -884,7 +866,7 @@ class _DownSongsTabState extends State<DownSongsTab>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return (widget.songs.isEmpty)
+    return (widget.appMediaItems.isEmpty)
         ? emptyScreen(
             context,
             3,
@@ -898,7 +880,7 @@ class _DownSongsTabState extends State<DownSongsTab>
         : Column(
             children: [
               PlaylistHead(
-                songsList: widget.songs,
+                songsList: widget.appMediaItems,
                 offline: true,
                 fromDownloads: true,
               ),
@@ -908,27 +890,23 @@ class _DownSongsTabState extends State<DownSongsTab>
                   physics: const BouncingScrollPhysics(),
                   padding: const EdgeInsets.only(bottom: 10),
                   shrinkWrap: true,
-                  itemCount: widget.songs.length,
+                  itemCount: widget.appMediaItems.length,
                   itemExtent: 70.0,
                   itemBuilder: (context, index) {
                     return ListTile(
                       leading: imageCard(
-                        imageUrl: widget.songs[index]['image'].toString(),
+                        imageUrl: widget.appMediaItems[index].image.toString(),
                         localImage: true,
                         localErrorFunction: (_, __) {
-                          if (widget.songs[index]['image'] != null &&
-                              widget.songs[index]['image_url'] != null) {
-                            downImage(
-                              widget.songs[index]['image'].toString(),
-                              widget.songs[index]['path'].toString(),
-                              widget.songs[index]['image_url'].toString(),
+                          if (widget.appMediaItems[index].image.isNotEmpty) {
+                              downImage(songFilePath: '', imageFilePath: '', url: widget.appMediaItems[index].image.toString(),
                             );
                           }
                         },
                       ),
                       onTap: () {
-                        PlayerInvoke.init(
-                          songsList: widget.songs,
+                        NeomPlayerInvoke.init(
+                          appMediaItems: widget.appMediaItems,
                           index: index,
                           isOffline: true,
                           fromDownloads: true,
@@ -936,11 +914,11 @@ class _DownSongsTabState extends State<DownSongsTab>
                         );
                       },
                       title: Text(
-                        '${widget.songs[index]['title']}',
+                        '${widget.appMediaItems[index].title}',
                         overflow: TextOverflow.ellipsis,
                       ),
                       subtitle: Text(
-                        '${widget.songs[index]['artist'] ?? 'Artist name'}',
+                        '${widget.appMediaItems[index].artist ?? 'Artist name'}',
                         overflow: TextOverflow.ellipsis,
                       ),
                       trailing: Row(
@@ -991,19 +969,19 @@ class _DownSongsTabState extends State<DownSongsTab>
                             ],
                             onSelected: (int? value) async {
                               if (value == 0) {
-                                widget.songs[index] = await editTags(
-                                  widget.songs[index] as Map,
+                                widget.appMediaItems[index] = await editTags(
+                                  widget.appMediaItems[index],
                                   context,
                                 );
                                 Hive.box(AppHiveConstants.downloads).put(
-                                  widget.songs[index]['id'],
-                                  widget.songs[index],
+                                  widget.appMediaItems[index].id,
+                                  widget.appMediaItems[index],
                                 );
                                 setState(() {});
                               }
                               if (value == 1) {
                                 setState(() {
-                                  widget.onDelete(widget.songs[index] as Map);
+                                  widget.onDelete(widget.appMediaItems[index] as Map);
                                 });
                               }
                             },

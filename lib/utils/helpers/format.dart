@@ -535,8 +535,7 @@ class FormatResponse {
     try {
       final List promoList = data['collections_temp'] as List;
       for (int i = 0; i < promoList.length; i++) {
-        data[promoList[i]] =
-            await formatSongsInList(data[promoList[i]] as List);
+        data[promoList[i]] = await formatSongsInList(data[promoList[i]] as List);
       }
       data['collections'].addAll(promoList);
       data['collections_temp'] = [];

@@ -21,13 +21,14 @@ import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:neom_music_player/domain/use_cases/neom_audio_handler.dart';
 
 import 'package:neom_music_player/ui/player/audioplayer.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
 import 'package:get/get.dart';
 
 class SeekBar extends StatefulWidget {
-  final AudioPlayerHandler audioHandler;
+  final NeomAudioHandler audioHandler;
   final Duration duration;
   final Duration position;
   final Duration bufferedPosition;
@@ -254,7 +255,7 @@ void showSliderDialog({
   required int divisions,
   required double min,
   required double max,
-  required AudioPlayerHandler audioHandler,
+  required NeomAudioHandler audioHandler,
   String valueSuffix = '',
 }) {
   showDialog<void>(

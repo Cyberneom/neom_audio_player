@@ -18,6 +18,7 @@
  */
 
 import 'package:flutter/material.dart';
+import 'package:neom_commons/core/domain/model/item_list.dart';
 
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
@@ -202,12 +203,8 @@ class _AlbumSearchPageState extends State<AlbumSearchPage> {
                                       opaque: false,
                                       pageBuilder: (_, __, ___) =>
                                           widget.type == 'Artists'
-                                              ? ArtistSearchPage(
-                                                  data: entry,
-                                                )
-                                              : SongsListPage(
-                                                  listItem: entry,
-                                                ),
+                                              ? ArtistSearchPage(data: entry,)
+                                              : SongsListPage(itemlist: Itemlist.fromJSON(entry),),
                                     ),
                                   );
                                 },

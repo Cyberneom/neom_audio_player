@@ -26,7 +26,7 @@ import 'package:neom_music_player/ui/widgets/bouncy_playlist_header_scroll_view.
 import 'package:neom_music_player/ui/widgets/copy_clipboard.dart';
 import 'package:neom_music_player/ui/widgets/gradient_containers.dart';
 import 'package:neom_music_player/ui/widgets/image_card.dart';
-import 'package:neom_music_player/domain/entities/song_item.dart';
+import 'package:neom_music_player/domain/entities/app_media_item.dart';
 import 'package:neom_music_player/domain/entities/url_image_generator.dart';
 
 class SongsListViewPage extends StatefulWidget {
@@ -40,7 +40,7 @@ class SongsListViewPage extends StatefulWidget {
   final Function? onShuffle;
   final String? listItemsTitle;
   final EdgeInsetsGeometry? listItemsPadding;
-  final List<SongItem> listItems;
+  final List<AppMediaItem> listItems;
   final List<Widget>? actions;
   final List<Widget>? dropDownActions;
   final Future<List> Function()? loadFunction;
@@ -72,7 +72,7 @@ class SongsListViewPage extends StatefulWidget {
 class _SongsListViewPageState extends State<SongsListViewPage> {
   int page = 1;
   bool loading = false;
-  List<SongItem> itemsList = [];
+  List<AppMediaItem> itemsList = [];
   bool fetched = false;
   bool isSharePopupShown = false;
 
@@ -111,7 +111,7 @@ class _SongsListViewPageState extends State<SongsListViewPage> {
       } else {
         final value = await widget.loadFunction!.call();
         setState(() {
-          itemsList = value as List<SongItem>;
+          itemsList = value as List<AppMediaItem>;
           fetched = true;
           loading = false;
         });
@@ -133,7 +133,7 @@ class _SongsListViewPageState extends State<SongsListViewPage> {
         loading = true;
         final value = await widget.loadMoreFunction!.call();
         setState(() {
-          itemsList = value as List<SongItem>;
+          itemsList = value as List<AppMediaItem>;
           fetched = true;
           loading = false;
         });

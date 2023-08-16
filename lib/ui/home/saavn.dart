@@ -5,8 +5,15 @@ import 'package:get/get.dart';
 
 
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:neom_commons/core/data/firestore/itemlist_firestore.dart';
+import 'package:neom_commons/core/data/implementations/user_controller.dart';
+import 'package:neom_commons/core/domain/model/item_list.dart';
+import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
+import 'package:neom_commons/core/utils/constants/app_constants.dart';
+import 'package:neom_commons/core/utils/enums/itemlist_type.dart';
 import 'package:neom_music_player/data/api_services/APIs/saavn_api.dart';
+import 'package:neom_music_player/domain/entities/app_media_item.dart';
 import 'package:neom_music_player/ui/widgets/collage.dart';
 import 'package:neom_music_player/ui/widgets/horizontal_albumlist.dart';
 import 'package:neom_music_player/ui/widgets/horizontal_albumlist_separated.dart';
@@ -16,22 +23,22 @@ import 'package:neom_music_player/ui/widgets/on_hover.dart';
 import 'package:neom_music_player/ui/widgets/snackbar.dart';
 import 'package:neom_music_player/ui/widgets/song_tile_trailing_menu.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
+import 'package:neom_music_player/utils/constants/music_player_route_constants.dart';
 import 'package:neom_music_player/utils/helpers/extensions.dart';
 import 'package:neom_music_player/utils/helpers/format.dart';
-import 'package:neom_music_player/domain/use_cases/player_service.dart';
+import 'package:neom_music_player/neom_player_invoke.dart';
 import 'package:neom_music_player/ui/widgets/song_list.dart';
 import 'package:neom_music_player/ui/drawer/library/liked.dart';
 import 'package:neom_music_player/ui/Search/artist_search_page.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
 import 'package:neom_music_player/utils/enums/image_quality.dart';
+import 'dart:math';
 
 bool fetched = false;
-List preferredLanguage = Hive.box(AppHiveConstants.settings)
-    .get('preferredLanguage', defaultValue: ['Hindi']) as List;
-List likedRadio =
-    Hive.box(AppHiveConstants.settings).get('likedRadio', defaultValue: []) as List;
-Map data = Hive.box(AppHiveConstants.cache).get('homepage', defaultValue: {}) as Map;
-List lists = ['recent', 'playlist', ...?data['collections'] as List?];
+List preferredLanguage = Hive.box(AppHiveConstants.settings).get('preferredLanguage', defaultValue: ['Hindi']) as List;
+List likedRadio = Hive.box(AppHiveConstants.settings).get('likedRadio', defaultValue: []) as List;
+// Map data = Hive.box(AppHiveConstants.cache).get('homepage', defaultValue: {}) as Map;
+Map<String, Itemlist> itemLists = {};
 
 class SaavnHomePage extends StatefulWidget {
   @override
@@ -40,67 +47,49 @@ class SaavnHomePage extends StatefulWidget {
 
 class _SaavnHomePageState extends State<SaavnHomePage>
     with AutomaticKeepAliveClientMixin<SaavnHomePage> {
-  List recentList = Hive.box(AppHiveConstants.cache).get('recentSongs', defaultValue: []) as List;
-  Map likedArtists = Hive.box(AppHiveConstants.settings).get('likedArtists', defaultValue: {}) as Map;
-  List playlistNames = Hive.box(AppHiveConstants.settings).get('playlistNames')?.toList() as List? ?? [AppHiveConstants.favoriteSongs];
-  Map playlistDetails = Hive.box(AppHiveConstants.settings).get('playlistDetails', defaultValue: {}) as Map;
+  List<AppMediaItem> recentList = Hive.box(AppHiveConstants.cache).get('recentSongs', defaultValue: <AppMediaItem>[]) as List<AppMediaItem>;
+  List<Itemlist> myItemLists = [];
+  List<Itemlist> publicItemlists = [];
+  // Map likedArtists = Hive.box(AppHiveConstants.settings).get('likedArtists', defaultValue: {}) as Map;
+  // List playlistNames = Hive.box(AppHiveConstants.settings).get('playlistNames')?.toList() as List? ?? [AppHiveConstants.favoriteSongs];
+  // Map playlistDetails = Hive.box(AppHiveConstants.settings).get('playlistDetails', defaultValue: {}) as Map;
   int recentIndex = 0;
   int playlistIndex = 1;
 
   Future<void> getHomePageData() async {
-    Map recievedData = await SaavnAPI().fetchHomePageData();
-    if (recievedData.isNotEmpty) {
-      Hive.box(AppHiveConstants.cache).put('homepage', recievedData);
-      data = recievedData;
-      lists = ['recent', 'playlist', ...?data['collections'] as List?];
-      lists.insert((lists.length / 2).round(), 'likedArtists');
-    }
-    setState(() {});
-    recievedData = await FormatResponse.formatPromoLists(data);
-    if (recievedData.isNotEmpty) {
-      Hive.box(AppHiveConstants.cache).put('homepage', recievedData);
-      data = recievedData;
-      lists = ['recent', 'playlist', ...?data['collections'] as List?];
-      lists.insert((lists.length / 2).round(), 'likedArtists');
-    }
-    setState(() {});
-  }
+    AppUtilities.logger.i("Get ItemLists Home Data");
 
-  String getSubTitle(Map item) {
-    final type = item['type'];
-    switch (type) {
-      case 'charts':
-        return '';
-      case 'radio_station':
-        return 'Radio • ${(item['subtitle']?.toString() ?? '').isEmpty ? 'JioSaavn' : item['subtitle']?.toString().unescape()}';
-      case 'playlist':
-        return 'Playlist • ${(item['subtitle']?.toString() ?? '').isEmpty ? 'JioSaavn' : item['subtitle'].toString().unescape()}';
-      case 'song':
-        return 'Single • ${item['artist']?.toString().unescape()}';
-      case 'mix':
-        return 'Mix • ${(item['subtitle']?.toString() ?? '').isEmpty ? 'JioSaavn' : item['subtitle'].toString().unescape()}';
-      case 'show':
-        return 'Podcast • ${(item['subtitle']?.toString() ?? '').isEmpty ? 'JioSaavn' : item['subtitle'].toString().unescape()}';
-      case 'album':
-        final artists = item['more_info']?['artistMap']?['artists']
-            .map((artist) => artist['name'])
-            .toList();
-        if (artists != null) {
-          return 'Album • ${artists?.join(', ')?.toString().unescape()}';
-        } else if (item['subtitle'] != null && item['subtitle'] != '') {
-          return 'Album • ${item['subtitle']?.toString().unescape()}';
-        }
-        return 'Album';
-      default:
-        final artists = item['more_info']?['artistMap']?['artists']
-            .map((artist) => artist['name'])
-            .toList();
-        return artists?.join(', ')?.toString().unescape() ?? '';
-    }
-  }
+    final userController = Get.find<UserController>();
 
-  int likedCount() {
-    return Hive.box(AppHiveConstants.favoriteSongs).length;
+    try {
+      Map<String,Itemlist> myLists = await ItemlistFirestore().retrieveItemlists(userController.profile.id);
+      myItemLists = myLists.values.toList();
+      publicItemlists = await ItemlistFirestore().fetchAll();
+      myItemLists.forEach((myKey) {
+        publicItemlists.removeWhere((key) => myKey.id == key.id);
+      });
+      myItemLists.addAll(publicItemlists);
+    } catch(e) {
+      AppUtilities.logger.e(e.toString());
+    }
+
+    // Map recievedData = await SaavnAPI().fetchHomePageData();
+    // if (recievedData.isNotEmpty) {
+    //   Hive.box(AppHiveConstants.cache).put('homepage', recievedData);
+    //   data = recievedData;
+    //   lists = ['recent', 'playlist', ...?data['collections'] as List?];
+    //   lists.insert((lists.length / 2).round(), 'likedArtists');
+    // }
+
+    setState(() {});
+    // recievedData = await FormatResponse.formatPromoLists(data);
+    // if (recievedData.isNotEmpty) {
+    //   Hive.box(AppHiveConstants.cache).put('homepage', recievedData);
+    //   data = recievedData;
+    //   lists = ['recent', 'playlist', ...?data['collections'] as List?];
+    //   lists.insert((lists.length / 2).round(), 'likedArtists');
+    // }
+    setState(() {});
   }
 
   @override
@@ -118,23 +107,22 @@ class _SaavnHomePageState extends State<SaavnHomePage>
         ? MediaQuery.of(context).size.width / 2
         : MediaQuery.of(context).size.height / 2.5;
     if (boxSize > 250) boxSize = 250;
-    if (playlistNames.length >= 3) {
+    if (publicItemlists.length >= 3) {
       recentIndex = 0;
       playlistIndex = 1;
     } else {
       recentIndex = 1;
       playlistIndex = 0;
     }
-    return (data.isEmpty && recentList.isEmpty)
-        ? const Center(
-            child: CircularProgressIndicator(),
-          )
+    return (myItemLists.isEmpty && recentList.isEmpty && publicItemlists.isEmpty)
+        ? const Center(child: CircularProgressIndicator(),)
         : ListView.builder(
             physics: const BouncingScrollPhysics(),
             shrinkWrap: true,
             padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
-            itemCount: data.isEmpty ? 2 : lists.length,
+            itemCount: publicItemlists.isEmpty ? 2 : publicItemlists.length,
             itemBuilder: (context, idx) {
+              AppUtilities.logger.i("Building Music Home Index $idx");
               if (idx == recentIndex) {
                 return ValueListenableBuilder(
                   valueListenable: Hive.box(AppHiveConstants.settings).listenable(),
@@ -148,8 +136,7 @@ class _SaavnHomePageState extends State<SaavnHomePage>
                               child: Text(
                                 PlayerTranslationConstants.lastSession.tr,
                                 style: TextStyle(
-                                  color:
-                                      Theme.of(context).colorScheme.secondary,
+                                  color: Theme.of(context).colorScheme.secondary,
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -158,14 +145,14 @@ class _SaavnHomePageState extends State<SaavnHomePage>
                           ],
                         ),
                         onTap: () {
-                          Navigator.pushNamed(context, '/recent');
+                          Navigator.pushNamed(context, MusicPlayerRouteConstants.recent);
                         },
                       ),
                       HorizontalAlbumsListSeparated(
-                        songsList: recentList,
+                        songsList: [],//recentList,
                         onTap: (int idx) {
-                          PlayerInvoke.init(
-                            songsList: [recentList[idx]],
+                          NeomPlayerInvoke.init(
+                            appMediaItems: [recentList[idx]],
                             index: 0,
                             isOffline: false,
                           );
@@ -174,11 +161,8 @@ class _SaavnHomePageState extends State<SaavnHomePage>
                     ],
                   ),
                   builder: (BuildContext context, Box box, Widget? child) {
-                    return (recentList.isEmpty ||
-                            !(box.get('showRecent', defaultValue: true)
-                                as bool))
-                        ? const SizedBox()
-                        : child!;
+                    return (recentList.isEmpty || !(box.get('showRecent', defaultValue: true) as bool))
+                        ? const SizedBox() : child!;
                   },
                 );
               }
@@ -195,8 +179,7 @@ class _SaavnHomePageState extends State<SaavnHomePage>
                               child: Text(
                                 PlayerTranslationConstants.yourPlaylists.tr,
                                 style: TextStyle(
-                                  color:
-                                      Theme.of(context).colorScheme.secondary,
+                                  color: Theme.of(context).colorScheme.secondary,
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -205,7 +188,7 @@ class _SaavnHomePageState extends State<SaavnHomePage>
                           ],
                         ),
                         onTap: () {
-                          Navigator.pushNamed(context, '/playlists');
+                          Navigator.pushNamed(context, MusicPlayerRouteConstants.playlists);
                         },
                       ),
                       SizedBox(
@@ -214,66 +197,38 @@ class _SaavnHomePageState extends State<SaavnHomePage>
                           physics: const BouncingScrollPhysics(),
                           scrollDirection: Axis.horizontal,
                           padding: const EdgeInsets.symmetric(horizontal: 10),
-                          itemCount: playlistNames.length,
+                          itemCount: myItemLists.length,
                           itemBuilder: (context, index) {
-                            final String name = playlistNames[index].toString();
-                            final String showName = playlistDetails
-                                    .containsKey(name)
-                                ? playlistDetails[name]['name']?.toString() ??
-                                    name
-                                : name;
-                            final String? subtitle = playlistDetails[name] ==
-                                        null ||
-                                    playlistDetails[name]['count'] == null ||
-                                    playlistDetails[name]['count'] == 0
-                                ? null
-                                : '${playlistDetails[name]['count']} ${PlayerTranslationConstants.songs.tr}';
+                            Itemlist itemlist = myItemLists.elementAt(index);
+                            final String name = itemlist.name;
+                            final String? subtitle = itemlist.getTotalItems() == 0 ? null :
+                                 '${itemlist.getTotalItems()} ${PlayerTranslationConstants.songs.tr}';
                             return GestureDetector(
                               child: SizedBox(
                                 width: boxSize - 20,
                                 child: HoverBox(
-                                  child: (playlistDetails[name] == null ||
-                                          playlistDetails[name]['imagesList'] ==
-                                              null ||
-                                          (playlistDetails[name]['imagesList']
-                                                  as List)
-                                              .isEmpty)
+                                  child: (itemlist.getImgUrls().isEmpty || itemlist.getTotalItems() == 0)
                                       ? Card(
                                           elevation: 5,
                                           color: Colors.black,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              10.0,
-                                            ),
-                                          ),
+                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0,),),
                                           clipBehavior: Clip.antiAlias,
                                           child: name == AppHiveConstants.favoriteSongs
-                                              ? const Image(
-                                                  image: AssetImage(
-                                                    AppAssets.musicPlayerCover,
-                                                  ),
-                                                )
-                                              : const Image(
-                                                  image: AssetImage(
-                                                    AppAssets.musicPlayerAlbum,
-                                                  ),
-                                                ),
+                                              ? const Image(image: AssetImage(AppAssets.musicPlayerCover,),)
+                                              : const Image(image: AssetImage(AppAssets.musicPlayerAlbum,),),
                                         )
                                       : Collage(
                                           borderRadius: 10.0,
-                                          imageList: playlistDetails[name]
-                                              ['imagesList'] as List,
+                                          imageList: itemlist.getImgUrls(),
                                           showGrid: true,
                                           placeholderImage: AppAssets.musicPlayerCover,
-                                        ),
-                                  builder: ({
+                                        ), builder: ({
                                     required BuildContext context,
                                     required bool isHover,
                                     Widget? child,
                                   }) {
                                     return Card(
-                                      color:
-                                          isHover ? null : Colors.transparent,
+                                      color: isHover ? null : Colors.transparent,
                                       elevation: 0,
                                       margin: EdgeInsets.zero,
                                       shape: RoundedRectangleBorder(
@@ -285,42 +240,28 @@ class _SaavnHomePageState extends State<SaavnHomePage>
                                       child: Column(
                                         children: [
                                           SizedBox.square(
-                                            dimension: isHover
-                                                ? boxSize - 25
-                                                : boxSize - 30,
+                                            dimension: isHover ? boxSize - 25 : boxSize - 30,
                                             child: child,
                                           ),
                                           Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 10.0,
-                                            ),
+                                            padding: const EdgeInsets.symmetric(horizontal: 10.0,),
                                             child: Column(
                                               mainAxisSize: MainAxisSize.min,
                                               children: [
-                                                Text(
-                                                  showName,
+                                                Text(itemlist.name.capitalizeFirst!,
                                                   textAlign: TextAlign.center,
                                                   softWrap: false,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                  style: const TextStyle(
-                                                    fontWeight: FontWeight.w500,
-                                                  ),
+                                                  overflow: TextOverflow.ellipsis,
+                                                  style: const TextStyle(fontWeight: FontWeight.w500,),
                                                 ),
-                                                if (subtitle != null &&
-                                                    subtitle.isNotEmpty)
-                                                  Text(
-                                                    subtitle,
+                                                if (subtitle != null && subtitle.isNotEmpty)
+                                                  Text(subtitle,
                                                     textAlign: TextAlign.center,
                                                     softWrap: false,
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
+                                                    overflow:TextOverflow.ellipsis,
                                                     style: TextStyle(
                                                       fontSize: 11,
-                                                      color: Theme.of(context)
-                                                          .textTheme
-                                                          .bodySmall!
-                                                          .color,
+                                                      color: Theme.of(context).textTheme.bodySmall!.color,
                                                     ),
                                                   )
                                               ],
@@ -334,17 +275,11 @@ class _SaavnHomePageState extends State<SaavnHomePage>
                               ),
                               onTap: () async {
                                 await Hive.openBox(name);
-                                Navigator.push(
-                                  context,
+                                Navigator.push(context,
                                   MaterialPageRoute(
                                     builder: (context) => LikedSongs(
                                       playlistName: name,
-                                      showName:
-                                          playlistDetails.containsKey(name)
-                                              ? playlistDetails[name]['name']
-                                                      ?.toString() ??
-                                                  name
-                                              : name,
+                                      showName: name,
                                     ),
                                   ),
                                 );
@@ -356,20 +291,23 @@ class _SaavnHomePageState extends State<SaavnHomePage>
                     ],
                   ),
                   builder: (BuildContext context, Box box, Widget? child) {
-                    return (playlistNames.isEmpty ||
-                            !(box.get('showPlaylist', defaultValue: true)
-                                as bool) ||
-                            (playlistNames.length == 1 &&
-                                playlistNames.first == AppHiveConstants.favoriteSongs &&
-                                likedCount() == 0))
-                        ? const SizedBox()
-                        : child!;
+                    return child!;
+                    // return (playlistNames.isEmpty ||
+                    //         !(box.get('showPlaylist', defaultValue: true)
+                    //             as bool) ||
+                    //         (playlistNames.length == 1 &&
+                    //             playlistNames.first == AppHiveConstants.favoriteSongs &&
+                    //             likedCount() == 0))
+                    //     ? const SizedBox()
+                    //     : child!;
                   },
                 );
               }
-              if (lists[idx] == 'likedArtists') {
-                final List likedArtistsList = likedArtists.values.toList();
-                return likedArtists.isEmpty
+              final Itemlist publicList = publicItemlists.elementAt(idx);
+
+              if(publicList.name == 'likedArtists') {
+                final Itemlist likedArtistsList = publicList;
+                return likedArtistsList.getTotalItems() == 0
                     ? const SizedBox()
                     : Column(
                         children: [
@@ -381,8 +319,7 @@ class _SaavnHomePageState extends State<SaavnHomePage>
                                 child: Text(
                                   'Liked Artists',
                                   style: TextStyle(
-                                    color:
-                                        Theme.of(context).colorScheme.secondary,
+                                    color: Theme.of(context).colorScheme.secondary,
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -391,114 +328,35 @@ class _SaavnHomePageState extends State<SaavnHomePage>
                             ],
                           ),
                           HorizontalAlbumsList(
-                            songsList: likedArtistsList,
+                            itemlist: likedArtistsList,
                             onTap: (int idx) {
                               Navigator.push(
                                 context,
                                 PageRouteBuilder(
                                   opaque: false,
                                   pageBuilder: (_, __, ___) => ArtistSearchPage(
-                                    data: likedArtistsList[idx] as Map,
+                                    data: likedArtistsList as Map,
                                   ),
                                 ),
                               );
                             },
                           ),
                         ],
-                      );
+                );
               }
-              return (data[lists[idx]] == null)
+              return publicList == null || publicList.getTotalItems() == 0
                   ? const SizedBox()
                   : Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Padding(
                           padding: const EdgeInsets.fromLTRB(15, 10, 15, 5),
-                          child: Row(
-                            children: [
-                              Text(
-                                data['modules'][lists[idx]]?['title']
-                                        ?.toString()
-                                        .unescape() ??
-                                    '',
-                                style: TextStyle(
-                                  color:
-                                      Theme.of(context).colorScheme.secondary,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(
-                                width: 8,
-                              ),
-                              GestureDetector(
-                                child: Icon(
-                                  Icons.block_rounded,
-                                  color: Theme.of(context).disabledColor,
-                                  size: 18,
-                                ),
-                                onTap: () {
-                                  showDialog(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return AlertDialog(
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(15.0),
-                                        ),
-                                        title: Text(
-                                          PlayerTranslationConstants.blacklistHomeSections.tr,
-                                        ),
-                                        content: Text(
-                                          PlayerTranslationConstants.blacklistHomeSectionsConfirm.tr,
-                                        ),
-                                        actions: [
-                                          TextButton(
-                                            style: TextButton.styleFrom(
-                                              foregroundColor: Theme.of(context)
-                                                  .iconTheme
-                                                  .color,
-                                            ),
-                                            onPressed: () {
-                                              Navigator.pop(context);
-                                            },
-                                            child: Text(
-                                              PlayerTranslationConstants.no.tr,
-                                            ),
-                                          ),
-                                          TextButton(
-                                            style: TextButton.styleFrom(
-                                              foregroundColor: Colors.white,
-                                              backgroundColor: Theme.of(context)
-                                                  .colorScheme
-                                                  .secondary,
-                                            ),
-                                            onPressed: () async {
-                                              Navigator.pop(context);
-                                              setState(() {});
-                                            },
-                                            child: Text(
-                                              PlayerTranslationConstants.yes.tr,
-                                              style: TextStyle(
-                                                color: Theme.of(context)
-                                                            .colorScheme
-                                                            .secondary ==
-                                                        Colors.white
-                                                    ? Colors.black
-                                                    : null,
-                                              ),
-                                            ),
-                                          ),
-                                          const SizedBox(
-                                            width: 5,
-                                          ),
-                                        ],
-                                      );
-                                    },
-                                  );
-                                },
-                              ),
-                            ],
+                          child: Text(publicList.name.capitalizeFirst ?? '',
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.secondary,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                         SizedBox(
@@ -507,30 +365,22 @@ class _SaavnHomePageState extends State<SaavnHomePage>
                             physics: const BouncingScrollPhysics(),
                             scrollDirection: Axis.horizontal,
                             padding: const EdgeInsets.symmetric(horizontal: 10),
-                            itemCount: data['modules'][lists[idx]]?['title']
-                                        ?.toString() ==
-                                    'Radio Stations'
-                                ? (data[lists[idx]] as List).length +
-                                    likedRadio.length
-                                : (data[lists[idx]] as List).length,
+                            itemCount: publicList.getTotalItems(),
+                            // publicList.name == 'Radio Stations'
+                            //     ? (publicItemlists.values.elementAt(idx) as List).length + likedRadio.length
+                            //     : (publicItemlists.values.elementAt(idx) as List).length,
                             itemBuilder: (context, index) {
-                              Map item;
-                              if (data['modules'][lists[idx]]?['title']
-                                      ?.toString() ==
-                                  'Radio Stations') {
-                                index < likedRadio.length
-                                    ? item = likedRadio[index] as Map
-                                    : item = data[lists[idx]]
-                                        [index - likedRadio.length] as Map;
+                              AppMediaItem item = AppMediaItem.mapItemsFromItemlist(publicList).elementAt(index);
+                              if (publicList.type != ItemlistType.radioStation) {
+                                // item = publicList;
                               } else {
-                                item = data[lists[idx]][index] as Map;
+                                // index < likedRadio.length
+                                //     ? item = likedRadio[index] as Map
+                                //     : item = publicItemlists.values.elementAt(idx)
+                                // [index - likedRadio.length] as Map;
                               }
-                              final currentSongList = data[lists[idx]]
-                                  .where((e) => e['type'] == 'song')
-                                  .toList();
-                              final subTitle = getSubTitle(item);
-                              item['subTitle'] = subTitle;
-                              if (item.isEmpty) return const SizedBox();
+                              final currentSongList = [];//publicItemlists.values.elementAt(idx).where((e) => e['type'] == 'song').toList();
+                              if (publicList.id.isEmpty) return const SizedBox();
                               return GestureDetector(
                                 onLongPress: () {
                                   Feedback.forLongPress(context);
@@ -541,39 +391,25 @@ class _SaavnHomePageState extends State<SaavnHomePage>
                                         child: Stack(
                                           children: [
                                             GestureDetector(
-                                              onTap: () =>
-                                                  Navigator.pop(context),
+                                              onTap: () => Navigator.pop(context),
                                             ),
                                             AlertDialog(
                                               shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(15.0),
+                                                borderRadius: BorderRadius.circular(15.0),
                                               ),
-                                              backgroundColor:
-                                                  Colors.transparent,
+                                              backgroundColor: Colors.transparent,
                                               contentPadding: EdgeInsets.zero,
                                               content: imageCard(
-                                                borderRadius: item['type'] ==
-                                                        'radio_station'
-                                                    ? 1000.0
-                                                    : 15.0,
-                                                imageUrl:
-                                                    item['image'].toString(),
+                                                borderRadius: 15,//item['type'] == 'radio_station' ? 1000.0 : 15.0,
+                                                imageUrl: publicList.imgUrl,
                                                 imageQuality: ImageQuality.high,
-                                                placeholderImage: (item[
-                                                                'type'] ==
-                                                            'playlist' ||
-                                                        item['type'] == 'album')
-                                                    ? const AssetImage(
-                                                        AppAssets.musicPlayerAlbum,
-                                                      )
-                                                    : item['type'] == 'artist'
-                                                        ? const AssetImage(
-                                                            AppAssets.musicPlayerArtist,
-                                                          )
-                                                        : const AssetImage(
-                                                            AppAssets.musicPlayerCover,
-                                                          ),
+                                                placeholderImage: const AssetImage(AppAssets.musicPlayerAlbum),
+                                                // (item['type'] == 'playlist' ||
+                                                //     item['type'] == 'album') ? const AssetImage(
+                                                //   AppAssets.musicPlayerAlbum,
+                                                // ) : item['type'] == 'artist'
+                                                //     ? const AssetImage(AppAssets.musicPlayerArtist,)
+                                                //     : const AssetImage(AppAssets.musicPlayerCover,),
                                               ),
                                             ),
                                           ],
@@ -583,61 +419,50 @@ class _SaavnHomePageState extends State<SaavnHomePage>
                                   );
                                 },
                                 onTap: () {
-                                  if (item['type'] == 'radio_station') {
-                                    ShowSnackBar().showSnackBar(
-                                      context,
-                                      PlayerTranslationConstants.connectingRadio.tr,
-                                      duration: const Duration(seconds: 2),
-                                    );
-                                    SaavnAPI()
-                                        .createRadio(
-                                      names: item['more_info']
-                                                      ['featured_station_type']
-                                                  .toString() ==
-                                              'artist'
-                                          ? [
-                                              item['more_info']['query']
-                                                  .toString()
-                                            ]
-                                          : [item['id'].toString()],
-                                      language: item['more_info']['language']
-                                              ?.toString() ??
-                                          'hindi',
-                                      stationType: item['more_info']
-                                              ['featured_station_type']
-                                          .toString(),
-                                    )
-                                        .then((value) {
-                                      if (value != null) {
-                                        SaavnAPI()
-                                            .getRadioSongs(stationId: value)
-                                            .then((value) {
-                                          PlayerInvoke.init(
-                                            songsList: value,
-                                            index: 0,
-                                            isOffline: false,
-                                            shuffle: true,
-                                          );
-                                        });
-                                      }
-                                    });
+                                  if (false
+                                  // item['type'] == 'radio_station'
+                                  ) {
+                                    // ShowSnackBar().showSnackBar(
+                                    //   context,
+                                    //   PlayerTranslationConstants.connectingRadio.tr,
+                                    //   duration: const Duration(seconds: 2),
+                                    // );
+                                    // SaavnAPI().createRadio(
+                                    //   names: item['more_info']['featured_station_type'].toString() == 'artist'
+                                    //       ? [item['more_info']['query'].toString()] : [item['id'].toString()],
+                                    //   language: item['more_info']['language']?.toString() ?? 'Español',
+                                    //   stationType: item['more_info']['featured_station_type'].toString(),
+                                    // ).then((value) {
+                                    //   if (value != null) {
+                                    //     SaavnAPI().getRadioSongs(stationId: value)
+                                    //         .then((value) {
+                                    //       NeomPlayerInvoke.init(
+                                    //         appMediaItems: value,
+                                    //         index: 0,
+                                    //         isOffline: false,
+                                    //         shuffle: true,
+                                    //       );
+                                    //     });
+                                    //   }
+                                    // });
                                   } else {
-                                    if (item['type'] == 'song') {
-                                      PlayerInvoke.init(
-                                        songsList: currentSongList as List,
-                                        index: currentSongList.indexWhere(
-                                          (e) => e['id'] == item['id'],
-                                        ),
-                                        isOffline: false,
-                                      );
+                                    if (false
+                                    // item['type'] == 'song'
+                                    ) {
+                                      // NeomPlayerInvoke.init(
+                                      //   appMediaItems: AppMediaItem.listFromList(currentSongList as List),
+                                      //   index: currentSongList.indexWhere(
+                                      //     (e) => e['id'] == item.get['id'],
+                                      //   ),
+                                      //   isOffline: false,
+                                      // );
                                     } else {
                                       Navigator.push(
                                         context,
                                         PageRouteBuilder(
                                           opaque: false,
                                           pageBuilder: (_, __, ___) =>
-                                              SongsListPage(
-                                            listItem: item,
+                                              SongsListPage(itemlist: publicList,//TODO Get items from itemlist,
                                           ),
                                         ),
                                       );
@@ -649,25 +474,19 @@ class _SaavnHomePageState extends State<SaavnHomePage>
                                   child: HoverBox(
                                     child: imageCard(
                                       margin: const EdgeInsets.all(4.0),
-                                      borderRadius:
-                                          item['type'] == 'radio_station'
-                                              ? 1000.0
-                                              : 10.0,
-                                      imageUrl: item['image'].toString(),
+                                      borderRadius: 10,
+                                          // item['type'] == 'radio_station'
+                                          //     ? 1000.0
+                                          //     : 10.0,
+                                      imageUrl: publicList.getImgUrls().elementAt(index),
                                       imageQuality: ImageQuality.medium,
-                                      placeholderImage:
-                                          (item['type'] == 'playlist' ||
-                                                  item['type'] == 'album')
-                                              ? const AssetImage(
-                                                  AppAssets.musicPlayerAlbum,
-                                                )
-                                              : item['type'] == 'artist'
-                                                  ? const AssetImage(
-                                                      AppAssets.musicPlayerArtist,
-                                                    )
-                                                  : const AssetImage(
-                                                      AppAssets.musicPlayerCover,
-                                                    ),
+                                      placeholderImage: const AssetImage(AppAssets.musicPlayerAlbum),
+                                          // (item['type'] == 'playlist' ||
+                                          //     item['type'] == 'album')
+                                          //     ? const AssetImage(AppAssets.musicPlayerAlbum,)
+                                          //     : item['type'] == 'artist'
+                                          //         ? const AssetImage(AppAssets.musicPlayerArtist,)
+                                          //         : const AssetImage(AppAssets.musicPlayerCover,),
                                     ),
                                     builder: ({
                                       required BuildContext context,
@@ -675,62 +494,41 @@ class _SaavnHomePageState extends State<SaavnHomePage>
                                       Widget? child,
                                     }) {
                                       return Card(
-                                        color:
-                                            isHover ? null : Colors.transparent,
+                                        color: isHover ? null : Colors.transparent,
                                         elevation: 0,
                                         margin: EdgeInsets.zero,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            10.0,
-                                          ),
-                                        ),
+                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0,),),
                                         clipBehavior: Clip.antiAlias,
                                         child: Column(
                                           children: [
                                             Stack(
                                               children: [
                                                 SizedBox.square(
-                                                  dimension: isHover
-                                                      ? boxSize - 25
-                                                      : boxSize - 30,
+                                                  dimension: isHover ? boxSize - 25 : boxSize - 30,
                                                   child: child,
                                                 ),
-                                                if (isHover &&
-                                                    (item['type'] == 'song' ||
-                                                        item['type'] ==
-                                                            'radio_station'))
+                                                if (isHover
+                                                    // && (item['type'] == 'song' || item['type'] == 'radio_station')
+                                                )
                                                   Positioned.fill(
                                                     child: Container(
-                                                      margin:
-                                                          const EdgeInsets.all(
-                                                        4.0,
-                                                      ),
+                                                      margin: const EdgeInsets.all(4.0,),
                                                       decoration: BoxDecoration(
                                                         color: Colors.black54,
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(
-                                                          item['type'] ==
-                                                                  'radio_station'
-                                                              ? 1000.0
-                                                              : 10.0,
+                                                        borderRadius: BorderRadius.circular(10,
+                                                          // item['type'] == 'radio_station'
+                                                          //     ? 1000.0 : 10.0,
                                                         ),
                                                       ),
                                                       child: Center(
                                                         child: DecoratedBox(
-                                                          decoration:
-                                                              BoxDecoration(
-                                                            color:
-                                                                Colors.black87,
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                              1000.0,
-                                                            ),
+                                                          decoration: BoxDecoration(
+                                                            color: Colors.black87,
+                                                            borderRadius: BorderRadius
+                                                                .circular(1000.0,),
                                                           ),
                                                           child: const Icon(
-                                                            Icons
-                                                                .play_arrow_rounded,
+                                                            Icons.play_arrow_rounded,
                                                             size: 50.0,
                                                             color: Colors.white,
                                                           ),
@@ -738,62 +536,42 @@ class _SaavnHomePageState extends State<SaavnHomePage>
                                                       ),
                                                     ),
                                                   ),
-                                                if (item['type'] ==
-                                                        'radio_station' &&
-                                                    (Platform.isAndroid ||
-                                                        Platform.isIOS ||
-                                                        isHover))
+                                                // if (item['type'] == 'radio_station' &&
+                                                //     (Platform.isAndroid || Platform.isIOS || isHover))
+                                                //   Align(
+                                                //     alignment: Alignment.topRight,
+                                                //     child: IconButton(
+                                                //       icon: likedRadio.contains(item)
+                                                //           ? const Icon(Icons.favorite_rounded, color: Colors.red,)
+                                                //           : const Icon(Icons.favorite_border_rounded),
+                                                //       tooltip: likedRadio.contains(item)
+                                                //           ? PlayerTranslationConstants.unlike.tr
+                                                //           : PlayerTranslationConstants.like.tr,
+                                                //       onPressed: () {
+                                                //         likedRadio.contains(item)
+                                                //             ? likedRadio.remove(item)
+                                                //             : likedRadio.add(item);
+                                                //         Hive.box(AppHiveConstants.settings).put('likedRadio', likedRadio,);
+                                                //         setState(() {});
+                                                //       },
+                                                //     ),
+                                                //   ),
+                                                if (publicList.getTotalItems() > 0
+                                                    // || item['type'] == 'song'
+                                                )
                                                   Align(
-                                                    alignment:
-                                                        Alignment.topRight,
-                                                    child: IconButton(
-                                                      icon: likedRadio
-                                                              .contains(item)
-                                                          ? const Icon(
-                                                              Icons
-                                                                  .favorite_rounded,
-                                                              color: Colors.red,
-                                                            )
-                                                          : const Icon(
-                                                              Icons
-                                                                  .favorite_border_rounded,
-                                                            ),
-                                                      tooltip: likedRadio
-                                                              .contains(item)
-                                                          ? PlayerTranslationConstants.unlike.tr
-                                                          : PlayerTranslationConstants.like.tr,
-                                                      onPressed: () {
-                                                        likedRadio
-                                                                .contains(item)
-                                                            ? likedRadio
-                                                                .remove(item)
-                                                            : likedRadio
-                                                                .add(item);
-                                                        Hive.box(AppHiveConstants.settings)
-                                                            .put(
-                                                          'likedRadio',
-                                                          likedRadio,
-                                                        );
-                                                        setState(() {});
-                                                      },
-                                                    ),
-                                                  ),
-                                                if (item['type'] == 'song' ||
-                                                    item['duration'] != null)
-                                                  Align(
-                                                    alignment:
-                                                        Alignment.topRight,
+                                                    alignment: Alignment.topRight,
                                                     child: Row(
-                                                      mainAxisSize:
-                                                          MainAxisSize.min,
+                                                      mainAxisSize: MainAxisSize.min,
                                                       children: [
                                                         if (isHover)
                                                           LikeButton(
                                                             mediaItem: null,
-                                                            data: item,
+                                                            data: publicList.toJSON(),
                                                           ),
                                                         SongTileTrailingMenu(
-                                                          data: item,
+                                                          appMediaItem: item,
+                                                          itemlist: publicList,
                                                         ),
                                                       ],
                                                     ),
@@ -801,40 +579,25 @@ class _SaavnHomePageState extends State<SaavnHomePage>
                                               ],
                                             ),
                                             Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                horizontal: 10.0,
-                                              ),
+                                              padding: const EdgeInsets.symmetric(horizontal: 10.0,),
                                               child: Column(
                                                 children: [
-                                                  Text(
-                                                    item['title']
-                                                            ?.toString()
-                                                            .unescape() ??
-                                                        '',
+                                                  Text(item.title,
                                                     textAlign: TextAlign.center,
                                                     softWrap: false,
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
+                                                    overflow: TextOverflow.ellipsis,
                                                     style: const TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.w500,
+                                                      fontWeight: FontWeight.w500,
                                                     ),
                                                   ),
-                                                  if (subTitle != '')
-                                                    Text(
-                                                      subTitle,
-                                                      textAlign:
-                                                          TextAlign.center,
+                                                  if (item.artist.isNotEmpty)
+                                                    Text(item.artist,
+                                                      textAlign: TextAlign.center,
                                                       softWrap: false,
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
+                                                      overflow: TextOverflow.ellipsis,
                                                       style: TextStyle(
                                                         fontSize: 11,
-                                                        color: Theme.of(context)
-                                                            .textTheme
-                                                            .bodySmall!
-                                                            .color,
+                                                        color: Theme.of(context).textTheme.bodySmall!.color,
                                                       ),
                                                     )
                                                 ],
@@ -854,5 +617,41 @@ class _SaavnHomePageState extends State<SaavnHomePage>
                     );
             },
           );
+  }
+
+  String getSubTitle(Map item) {
+    AppUtilities.logger.e("Getting SubtTitle.");
+    final type = item['type'];
+    switch (type) {
+      case 'charts':
+        return '';
+      case 'radio_station':
+        return 'Radio • ${(item['subtitle']?.toString() ?? '').isEmpty ? 'JioSaavn' : item['subtitle']?.toString().unescape()}';
+      case 'playlist':
+        return 'Playlist • ${(item['subtitle']?.toString() ?? '').isEmpty ? 'JioSaavn' : item['subtitle'].toString().unescape()}';
+      case 'song':
+        return 'Single • ${item['artist']?.toString().unescape()}';
+      case 'mix':
+        return 'Mix • ${(item['subtitle']?.toString() ?? '').isEmpty ? 'JioSaavn' : item['subtitle'].toString().unescape()}';
+      case 'show':
+        return 'Podcast • ${(item['subtitle']?.toString() ?? '').isEmpty ? 'JioSaavn' : item['subtitle'].toString().unescape()}';
+      case 'album':
+        final artists = item['more_info']?['artistMap']?['artists'].map((artist) => artist['name']).toList();
+        if (artists != null) {
+          return 'Album • ${artists?.join(', ')?.toString().unescape()}';
+        } else if (item['subtitle'] != null && item['subtitle'] != '') {
+          return 'Album • ${item['subtitle']?.toString().unescape()}';
+        }
+        return 'Album';
+      default:
+        final artists = item['more_info']?['artistMap']?['artists']
+            .map((artist) => artist['name'])
+            .toList();
+        return artists?.join(', ')?.toString().unescape() ?? '';
+    }
+  }
+
+  int likedCount() {
+    return Hive.box(AppHiveConstants.favoriteSongs).length;
   }
 }

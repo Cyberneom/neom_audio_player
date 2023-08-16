@@ -22,6 +22,7 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
+import 'package:neom_music_player/domain/use_cases/neom_audio_handler.dart';
 import 'package:neom_music_player/ui/widgets/gradient_containers.dart';
 import 'package:neom_music_player/ui/widgets/image_card.dart';
 import 'package:neom_music_player/ui/player/audioplayer.dart';
@@ -41,7 +42,7 @@ class MiniPlayer extends StatefulWidget {
 }
 
 class _MiniPlayerState extends State<MiniPlayer> {
-  final AudioPlayerHandler audioHandler = GetIt.I<AudioPlayerHandler>();
+  final NeomAudioHandler audioHandler = GetIt.I<NeomAudioHandler>();
 
   @override
   Widget build(BuildContext context) {

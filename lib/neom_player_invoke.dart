@@ -27,6 +27,9 @@ import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
 import 'package:neom_music_player/data/implementations/app_hive_controller.dart';
 import 'package:neom_music_player/domain/entities/app_media_item.dart';
+import 'package:neom_music_player/utils/helpers/media_item_mapper.dart';
+import 'package:neom_music_player/domain/entities/youtube_item.dart';
+import 'package:neom_music_player/domain/use_cases/neom_audio_handler.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
 import 'package:neom_music_player/domain/use_cases/youtube_services.dart';
 import 'package:neom_music_player/ui/player/audioplayer.dart';
@@ -34,22 +37,16 @@ import 'package:on_audio_query/on_audio_query.dart';
 import 'package:path_provider/path_provider.dart';
 
 // ignore: avoid_classes_with_only_static_members
-class PlayerInvoke {
-  static final AudioPlayerHandler audioHandler = GetIt.I<AudioPlayerHandler>();
+class NeomPlayerInvoke {
+  static final NeomAudioHandler audioHandler = GetIt.I<NeomAudioHandler>();
 
-  static Future<void> init({
-    required List songsList,
-    required int index,
-    bool fromMiniplayer = false,
-    bool? isOffline,
-    bool recommend = true,
-    bool fromDownloads = false,
-    bool shuffle = false,
-    String? playlistBox,
-  }) async {
+  static Future<void> init({required List<AppMediaItem> appMediaItems, required int index,
+    bool fromMiniPlayer = false, bool? isOffline, bool recommend = true,
+    bool fromDownloads = false, bool shuffle = false, String? playlistBox,}) async {
+
     final int globalIndex = index < 0 ? 0 : index;
     bool? offline = isOffline;
-    final List finalList = songsList.toList();
+    final List<AppMediaItem> finalList = appMediaItems.toList();
     if (shuffle) finalList.shuffle();
     if (offline == null) {
       if (audioHandler.mediaItem.valueWrapper?.value?.extras!['url'].startsWith('http')
@@ -62,7 +59,7 @@ class PlayerInvoke {
       offline = offline;
     }
 
-    if (!fromMiniplayer) {
+    if (!fromMiniPlayer) {
       if (Platform.isIOS) {
         // Don't know why but it fixes the playback issue with iOS Side
         audioHandler.stop();
@@ -76,18 +73,11 @@ class PlayerInvoke {
     }
   }
 
-  static Future<MediaItem> setTags(
-    SongModel response,
-    Directory tempDir,
-  ) async {
+  static Future<MediaItem> setTags(SongModel response, Directory tempDir,) async {
     String playTitle = response.title;
-    playTitle == ''
-        ? playTitle = response.displayNameWOExt
-        : playTitle = response.title;
+    playTitle == '' ? playTitle = response.displayNameWOExt : playTitle = response.title;
     String playArtist = response.artist!;
-    playArtist == '<unknown>'
-        ? playArtist = 'Unknown'
-        : playArtist = response.artist!;
+    playArtist == '<unknown>' ? playArtist = 'Unknown' : playArtist = response.artist!;
 
     final String playAlbum = response.album!;
     final int playDuration = response.duration ?? 180000;
@@ -135,72 +125,66 @@ class PlayerInvoke {
   static void setDownValues(List response, int index) {
     final List<MediaItem> queue = [];
     queue.addAll(
-      response.map((song) => MediaItemFormatter.downMapToMediaItem(song as Map),
+      response.map((song) => MediaItemMapper.downMapToMediaItem(song as Map),
       ),
     );
     updateNowPlaying(queue, index);
   }
 
-  static Future<void> refreshYtLink(Map playItem) async {
+  static Future<void> refreshYtLink(AppMediaItem playItem) async {
     // final bool cacheSong =
     // Hive.box(AppHiveConstants.settings).get('cacheSong', defaultValue: true) as bool;
-    final int expiredAt = int.parse((playItem['expire_at'] ?? '0').toString());
+    final int expiredAt = playItem.expireAt ?? 0;
     if ((DateTime.now().millisecondsSinceEpoch ~/ 1000) + 350 > expiredAt) {
-      AppUtilities.logger.i('Before service | youtube link expired for ${playItem["title"]}',);
-      if (Hive.box(AppHiveConstants.ytLinkCache).containsKey(playItem['id'])) {
-        final Map cache = await Hive.box(AppHiveConstants.ytLinkCache).get(playItem['id']) as Map;
+      AppUtilities.logger.i('Before service | youtube link expired for ${playItem.title}',);
+      if (Hive.box(AppHiveConstants.ytLinkCache).containsKey(playItem.id)) {
+        final Map cache = await Hive.box(AppHiveConstants.ytLinkCache).get(playItem.id) as Map;
         final int expiredAt = int.parse((cache['expire_at'] ?? '0').toString());
-        // final String wasCacheEnabled = cache['cached'].toString();
+
         if ((DateTime.now().millisecondsSinceEpoch ~/ 1000) + 350 > expiredAt) {
+          AppUtilities.logger.i('youtube link expired in cache for ${playItem.title}');
+          AppMediaItem? newMediaItem = await YouTubeServices().refreshLink(playItem.id);
           AppUtilities.logger.i(
-              'youtube link expired in cache for ${playItem["title"]}');
-          final newData =
-              await YouTubeServices().refreshLink(playItem['id'].toString());
-          AppUtilities.logger.i(
-            'before service | received new link for ${playItem["title"]}',
+            'before service | received new link for ${playItem.title}',
           );
-          if (newData != null) {
-            playItem['url'] = newData['url'];
-            playItem['duration'] = newData['duration'];
-            playItem['expire_at'] = newData['expire_at'];
+          if (newMediaItem != null) {
+            playItem.url = newMediaItem.url;
+            playItem.duration = newMediaItem.duration;
+            playItem.expireAt = newMediaItem.expireAt;
           }
         } else {
-          AppUtilities.logger.i('youtube link found in cache for ${playItem["title"]}');
-          playItem['url'] = cache['url'];
-          playItem['expire_at'] = cache['expire_at'];
+          AppUtilities.logger.i('youtube link found in cache for ${playItem.title}');
+          playItem.url = cache['url'].toString();
+          playItem.expireAt = int.parse(cache['expire_at'].toString());
         }
       } else {
-        final newData = await YouTubeServices().refreshLink(playItem['id'].toString());
-        AppUtilities.logger.i('before service | received new link for ${playItem["title"]}',);
+        final newData = await YouTubeServices().refreshLink(playItem.id);
+        AppUtilities.logger.i('before service | received new link for ${playItem.title}',);
         if (newData != null) {
-          playItem['url'] = newData['url'];
-          playItem['duration'] = newData['duration'];
-          playItem['expire_at'] = newData['expire_at'];
+          playItem.url = newData.url;
+          playItem.duration = newData.duration;
+          playItem.expireAt = newData.expireAt;
         }
       }
     }
   }
 
-  static Future<void> setValues(
-    List response,
-    int index, {
-    bool recommend = true,
-    // String? playlistBox,
-  }) async {
+  static Future<void> setValues(List<AppMediaItem> response, int index, {bool recommend = true}) async {
+    AppUtilities.logger.i("Settings Values for index $index");
     final List<MediaItem> queue = [];
-    final Map playItem = response[index] as Map;
-    final Map? nextItem = index == response.length - 1 ? null : response[index + 1] as Map;
-    if (playItem['genre'] == 'YouTube') {
+    final AppMediaItem playItem = response[index];
+    final AppMediaItem? nextItem = index == response.length - 1 ? null : response[index + 1];
+
+    if (playItem.genre == 'YouTube') {
       await refreshYtLink(playItem);
     }
-    if (nextItem != null && nextItem['genre'] == 'YouTube') {
+    if (nextItem != null && nextItem.genre == 'YouTube') {
       await refreshYtLink(nextItem);
     }
 
     queue.addAll(
       response.map(
-        (song) => MediaItemFormatter.fromJSON(
-          song as Map,
+        (song) => MediaItemMapper.appMediaItemToMediaItem(appMediaItem: song,
           autoplay: recommend,
           // playlistBox: playlistBox,
         ),

@@ -19,7 +19,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
-import 'package:neom_music_player/ui/home/music_player_root_page.dart';
+import 'package:neom_music_player/ui/music_player_root_page.dart';
 import 'package:neom_music_player/ui/drawer/library/downloads.dart';
 import 'package:neom_music_player/ui/drawer/library/now_playing_page.dart';
 import 'package:neom_music_player/ui/drawer/library/playlists.dart';

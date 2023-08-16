@@ -623,14 +623,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.3.1"
-  flutter_displaymode:
-    dependency: "direct main"
-    description:
-      name: flutter_displaymode
-      sha256: "42c5e9abd13d28ed74f701b60529d7f8416947e58256e6659c5550db719c57ef"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.6.0"
   flutter_google_places:
     dependency: transitive
     description:
@@ -1455,13 +1447,11 @@ packages:
     source: git
     version: "1.0.3"
   neom_itemlists:
-    dependency: transitive
+    dependency: "direct main"
     description:
-      path: "."
-      ref: HEAD
-      resolved-ref: caa0e626211d60460c570943653f7307ec984dc1
-      url: "https://github.com/Cyberneom/neom_itemlists.git"
-    source: git
+      path: "../neom_itemlists"
+      relative: true
+    source: path
     version: "1.0.2"
   neom_jobs:
     dependency: transitive
@@ -1972,14 +1962,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.1"
-  sizer:
-    dependency: "direct main"
-    description:
-      name: sizer
-      sha256: d2b3cb6cbc4a637f508dacd786bae55df31e5fc088044248a43e4fd1e050c117
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.0.15"
   sky_engine:
     dependency: transitive
     description: flutter
@@ -2145,14 +2127,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.3.2"
-  universal_io:
-    dependency: transitive
-    description:
-      name: universal_io
-      sha256: "1722b2dcc462b4b2f3ee7d188dad008b6eb4c40bbd03a3de451d82c78bba9aad"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.2.2"
   upgrader:
     dependency: transitive
     description:

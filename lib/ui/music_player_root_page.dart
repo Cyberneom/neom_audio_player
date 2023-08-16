@@ -1,22 +1,3 @@
-/*
- *  This file is part of BlackHole (https://github.com/Sangwan5688/BlackHole).
- * 
- * BlackHole is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * BlackHole is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with BlackHole.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * Copyright (c) 2021-2023, Ankit Sangwan
- */
-
 
 import 'package:flutter/material.dart';
 
@@ -186,16 +167,13 @@ class _MusicPlayerRootPageState extends State<MusicPlayerRootPage> {
               color: Theme.of(context).colorScheme.secondary,
               fontWeight: FontWeight.w600,
             ),
-            unselectedLabelTextStyle: TextStyle(
-              color: Theme.of(context).iconTheme.color,
-            ),
+            unselectedLabelTextStyle: TextStyle(color: Theme.of(context).iconTheme.color,),
             selectedIconTheme: Theme.of(context).iconTheme.copyWith(
               color: Theme.of(context).colorScheme.secondary,
             ),
             unselectedIconTheme: Theme.of(context).iconTheme,
             useIndicator: screenWidth < 1050,
-            indicatorColor: Theme.of(context)
-                .colorScheme.secondary.withOpacity(0.2),
+            indicatorColor: Theme.of(context).colorScheme.secondary.withOpacity(0.2),
             leading: homeDrawer(
               context: context,
               padding: const EdgeInsets.symmetric(vertical: 5.0),

@@ -23,6 +23,7 @@ import 'package:flutter/material.dart';
 
 import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
+import 'package:neom_music_player/domain/use_cases/neom_audio_handler.dart';
 import 'package:neom_music_player/ui/player/audioplayer.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
@@ -38,7 +39,7 @@ class Equalizer extends StatefulWidget {
 class _EqualizerState extends State<Equalizer> {
   bool enabled =
       Hive.box(AppHiveConstants.settings).get('setEqualizer', defaultValue: false) as bool;
-  AudioPlayerHandler audioHandler = GetIt.I<AudioPlayerHandler>();
+  NeomAudioHandler audioHandler = GetIt.I<NeomAudioHandler>();
 
   @override
   Widget build(BuildContext context) {
@@ -77,7 +78,7 @@ class _EqualizerState extends State<Equalizer> {
 }
 
 class EqualizerControls extends StatefulWidget {
-  final AudioPlayerHandler audioHandler;
+  final NeomAudioHandler audioHandler;
   const EqualizerControls({required this.audioHandler});
   @override
   _EqualizerControlsState createState() => _EqualizerControlsState();
@@ -134,7 +135,7 @@ class VerticalSlider extends StatefulWidget {
   final double? min;
   final double? max;
   final int bandIndex;
-  final AudioPlayerHandler audioHandler;
+  final NeomAudioHandler audioHandler;
 
   const VerticalSlider({
     super.key,

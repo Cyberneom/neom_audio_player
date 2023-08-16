@@ -22,6 +22,7 @@ import 'package:flutter/material.dart';
 
 import 'package:get_it/get_it.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
+import 'package:neom_music_player/domain/use_cases/neom_audio_handler.dart';
 import 'package:neom_music_player/ui/widgets/bouncy_sliver_scroll_view.dart';
 import 'package:neom_music_player/ui/widgets/empty_screen.dart';
 import 'package:neom_music_player/ui/widgets/gradient_containers.dart';
@@ -35,7 +36,7 @@ class NowPlayingPage extends StatefulWidget {
 }
 
 class _NowPlayingPageState extends State<NowPlayingPage> {
-  final AudioPlayerHandler audioHandler = GetIt.I<AudioPlayerHandler>();
+  final NeomAudioHandler audioHandler = GetIt.I<NeomAudioHandler>();
   final ScrollController _scrollController = ScrollController();
 
   @override

@@ -25,7 +25,7 @@ import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_music_player/utils/helpers/extensions.dart';
 import 'package:neom_music_player/domain/use_cases/ytmusic/nav.dart';
 import 'package:neom_music_player/domain/use_cases/ytmusic/playlist.dart';
-import 'package:neom_music_player/domain/entities/song_item.dart';
+import 'package:neom_music_player/domain/entities/app_media_item.dart';
 
 class YtMusicService {
   static const ytmDomain = 'music.youtube.com';
@@ -422,7 +422,7 @@ class YtMusicService {
     }
   }
 
-  Future<List<SongItem>> searchSongs(
+  Future<List<AppMediaItem>> searchSongs(
     String query, {
     bool ignoreSpelling = false,
   }) async {
@@ -435,14 +435,14 @@ class YtMusicService {
         ignoreSpelling: ignoreSpelling,
         filter: 'songs',
       );
-      final List<SongItem> songs = [];
+      final List<AppMediaItem> songs = [];
       for (final section in searchResults) {
         if (section['title'] != 'Songs') {
           continue;
         }
         for (final item in section['items'] as List) {
           item['permaUrl'] = 'https://youtube.com/watch?v=${item["id"]}';
-          final songItem = SongItem.fromMap(item as Map);
+          final songItem = AppMediaItem.fromMap(item as Map);
           songs.add(songItem);
         }
       }

@@ -12,7 +12,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:audio_service/audio_service.dart';
 import 'package:hive/hive.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
-import 'package:neom_music_player/domain/entities/app_media_item.dart';
+import 'package:neom_music_player/utils/helpers/media_item_mapper.dart';
 import 'package:neom_music_player/utils/helpers/songs_count.dart' as songs_count;
 
 
@@ -64,7 +64,7 @@ class PlaylistHiveController extends GetxController  {
   Future<void> addItemToPlaylist(String name, MediaItem mediaItem) async {
     if (name != AppHiveConstants.favoriteSongs) await Hive.openBox(name);
     final Box playlistBox = Hive.box(name);
-    final Map info = MediaItemFormatter.toJSON(mediaItem);
+    final Map info = MediaItemMapper.toJSON(mediaItem);
     info.addEntries([MapEntry('dateAdded', DateTime.now().toString())]);
     final List songs = playlistBox.values.toList();
     songs_count.addSongsCount(
