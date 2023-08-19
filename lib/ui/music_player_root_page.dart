@@ -9,7 +9,7 @@ import 'package:neom_music_player/ui/spotify/spotify_top_page.dart';
 import 'package:neom_music_player/ui/widgets/bottom_nav_bar.dart';
 import 'package:neom_music_player/ui/widgets/drawer.dart';
 import 'package:neom_music_player/ui/widgets/gradient_containers.dart';
-import 'package:neom_music_player/ui/widgets/miniplayer.dart';
+import 'package:neom_music_player/ui/player/miniplayer.dart';
 import 'package:neom_music_player/utils/constants/music_player_route_constants.dart';
 import 'package:neom_music_player/utils/helpers/route_handler.dart';
 import 'package:neom_music_player/ui/music_player_routes.dart';
@@ -66,9 +66,10 @@ class _MusicPlayerRootPageState extends State<MusicPlayerRootPage> {
     return GradientContainer(
       child: Scaffold(
         resizeToAvoidBottomInset: false,
-        backgroundColor: AppColor.main75,
         drawer: MusicPlayerDrawer(),
-        body: Row(
+        body: Container(
+          decoration: AppTheme.appBoxDecoration,
+          child: Row(
           children: [
             if (isRotated) getRotatedDrawer(),
             Expanded(
@@ -80,7 +81,7 @@ class _MusicPlayerRootPageState extends State<MusicPlayerRootPage> {
                 // confineInSafeArea: false,
                 onItemTapped: onItemTapped,
                 routeAndNavigatorSettings: CustomWidgetRouteAndNavigatorSettings(
-                  routes: MusicPlayerRoutes.namedRoutes,
+                  routes: MusicPlayerRoutes.routes,
                   onGenerateRoute: (RouteSettings settings) {
                     if (settings.name == MusicPlayerRouteConstants.player) {
                       return PageRouteBuilder(
@@ -92,7 +93,7 @@ class _MusicPlayerRootPageState extends State<MusicPlayerRootPage> {
                   },
                 ),
                 customWidget: Container(
-                  decoration: AppTheme.appBoxDecoration,
+
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -140,7 +141,7 @@ class _MusicPlayerRootPageState extends State<MusicPlayerRootPage> {
               ),
             ),
           ],
-        ),
+        ),),
       ),
     );
   }

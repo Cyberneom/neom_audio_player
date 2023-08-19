@@ -11,7 +11,7 @@ import 'package:neom_commons/core/utils/app_theme.dart';
 import 'package:neom_commons/core/utils/constants/app_constants.dart';
 import 'package:neom_commons/core/utils/constants/app_page_id_constants.dart';
 import 'package:neom_commons/core/utils/constants/app_route_constants.dart';
-import 'package:neom_music_player/ui/drawer/library/liked.dart';
+import 'package:neom_music_player/ui/drawer/library/liked_media_items.dart';
 import 'package:neom_music_player/ui/drawer/local_music/downloaded_songs.dart';
 import 'package:neom_music_player/ui/drawer/settings/widgets/music_player_settings_page.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
@@ -160,9 +160,9 @@ class MusicPlayerDrawer extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => LikedSongs(
-                    playlistName: AppHiveConstants.favoriteSongs,
-                    showName: PlayerTranslationConstants.favSongs.tr,
+                  builder: (context) => LikedMediaItems(
+                    alternativeName: AppHiveConstants.favoriteSongs,
+                    // showName: PlayerTranslationConstants.favSongs.tr,
                   ),
                 ),
               );

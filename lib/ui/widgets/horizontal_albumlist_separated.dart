@@ -28,12 +28,14 @@ import 'package:neom_music_player/ui/widgets/song_tile_trailing_menu.dart';
 import 'package:neom_music_player/utils/enums/playlist_type.dart';
 
 class HorizontalAlbumsListSeparated extends StatelessWidget {
-  final List<Itemlist> songsList;
+  final List<AppMediaItem> songsList;
+  final Itemlist? itemlist;
   final Function(int) onTap;
   const HorizontalAlbumsListSeparated({
     super.key,
     required this.songsList,
     required this.onTap,
+    this.itemlist
   });
 
   String formatString(String? text) {
@@ -98,10 +100,10 @@ class HorizontalAlbumsListSeparated extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: itemGroup.map((item) {
-                  final subTitle = getSubTitle(item as Map);
+                  final subTitle = item.subtitle ?? "";// getSubTitle(item as Map);
                   return ListTile(
                     title: Text(
-                      formatString(item.name?.toString()),
+                      formatString(item.title?.toString()),
                       overflow: TextOverflow.ellipsis,
                     ),
                     subtitle: Text(
@@ -109,23 +111,16 @@ class HorizontalAlbumsListSeparated extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                     leading: imageCard(
-                      imageUrl: item.imgUrl.toString(),
-                      placeholderImage: (item.type == ItemlistType.playlist ||
-                              item.type == ItemlistType.album)
-                          ? const AssetImage(
-                              AppAssets.musicPlayerAlbum,
-                            )
-                          : item.type == 'artist'
-                              ? const AssetImage(
-                                  AppAssets.musicPlayerArtist,
-                                )
-                              : const AssetImage(
-                                  AppAssets.musicPlayerCover,
-                                ),
+                      imageUrl: item.image.toString(),
+                      placeholderImage: (itemlist?.type == ItemlistType.playlist ||
+                              itemlist?.type == ItemlistType.album)
+                          ? const AssetImage(AppAssets.musicPlayerAlbum,)
+                          : item.artist.isNotEmpty ? const AssetImage(AppAssets.musicPlayerArtist,)
+                              : const AssetImage(AppAssets.musicPlayerCover,),
                     ),
                     trailing: SongTileTrailingMenu(
-                      appMediaItem: item.getTotalItems() > 0 ? AppMediaItem.mapItemsFromItemlist(item).first : AppMediaItem(),
-                      itemlist: item,
+                      appMediaItem: item,//.getTotalItems() > 0 ? AppMediaItem.mapItemsFromItemlist(item).first : AppMediaItem(),
+                      itemlist: itemlist ?? Itemlist(),
                     ),
                     onTap: () => onTap(songsList.indexOf(item)),
                   );

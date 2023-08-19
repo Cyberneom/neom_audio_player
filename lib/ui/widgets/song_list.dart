@@ -21,7 +21,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import 'package:logging/logging.dart';
 import 'package:neom_commons/core/domain/model/item_list.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
@@ -38,7 +37,6 @@ import 'package:neom_music_player/ui/widgets/like_button.dart';
 import 'package:neom_music_player/ui/widgets/playlist_popupmenu.dart';
 import 'package:neom_music_player/ui/widgets/snackbar.dart';
 import 'package:neom_music_player/ui/widgets/song_tile_trailing_menu.dart';
-import 'package:neom_music_player/utils/enums/playlist_type.dart';
 import 'package:neom_music_player/utils/helpers/extensions.dart';
 import 'package:neom_music_player/neom_player_invoke.dart';
 import 'package:neom_music_player/domain/entities/url_image_generator.dart';
@@ -93,95 +91,102 @@ class _SongsListPageState extends State<SongsListPage> {
     try {
       switch (widget.itemlist.type) {
         case ItemlistType.playlist:
-          SaavnAPI()
-              .fetchSongSearchResults(
-            searchQuery: widget.itemlist.id,
-            page: page,
-          ).then((value) {
-            setState(() {
-              songList.addAll(AppMediaItem.listFromList(value['songs'] as List));
-              fetched = true;
-              loading = false;
-            });
-            if (value['error'].toString() != '') {
-              ShowSnackBar().showSnackBar(
-                context,
-                'Error: ${value["error"]}',
-                duration: const Duration(seconds: 3),
-              );
-            }
+          songList.addAll(AppMediaItem.mapItemsFromItemlist(widget.itemlist));
+          // SaavnAPI().fetchSongSearchResults(searchQuery: widget.itemlist.id, page: page,
+          // ).then((value) {
+          //   setState(() {
+          //     songList.addAll(AppMediaItem.listFromList(value['songs'] as List));
+          //     fetched = true;
+          //     loading = false;
+          //   });
+          //   if (value['error'].toString() != '') {
+          //     ShowSnackBar().showSnackBar(
+          //       context,
+          //       'Error: ${value["error"]}',
+          //       duration: const Duration(seconds: 3),
+          //     );
+          //   }
+          // });
+          setState(() {
+            fetched = true;
+            loading = false;
           });
         case ItemlistType.album:
-          SaavnAPI()
-              .fetchAlbumSongs(widget.itemlist.id)
-              .then((value) {
-            setState(() {
-              songList = AppMediaItem.listFromList(value['songs'] as List);
-              fetched = true;
-              loading = false;
-            });
-            if (value['error'].toString() != '') {
-              ShowSnackBar().showSnackBar(
-                context,
-                'Error: ${value["error"]}',
-                duration: const Duration(seconds: 3),
-              );
-            }
+          songList.addAll(AppMediaItem.mapItemsFromItemlist(widget.itemlist));
+          // SaavnAPI()
+          //     .fetchAlbumSongs(widget.itemlist.id)
+          //     .then((value) {
+          //   setState(() {
+          //     songList = AppMediaItem.listFromList(value['songs'] as List);
+          //     fetched = true;
+          //     loading = false;
+          //   });
+          //   if (value['error'].toString() != '') {
+          //     ShowSnackBar().showSnackBar(
+          //       context,
+          //       'Error: ${value["error"]}',
+          //       duration: const Duration(seconds: 3),
+          //     );
+          //   }
+          // });
+          setState(() {
+            fetched = true;
+            loading = false;
           });
         case ItemlistType.giglist:
-          SaavnAPI()
-              .fetchPlaylistSongs(widget.itemlist.id)
-              .then((value) {
-            setState(() {
-              songList = AppMediaItem.listFromList(value['songs'] as List);
-              fetched = true;
-              loading = false;
-            });
-            if (value['error'] != null && value['error'].toString() != '') {
-              ShowSnackBar().showSnackBar(
-                context,
-                'Error: ${value["error"]}',
-                duration: const Duration(seconds: 3),
-              );
-            }
+          songList.addAll(AppMediaItem.mapItemsFromItemlist(widget.itemlist));
+          // SaavnAPI()
+          //     .fetchPlaylistSongs(widget.itemlist.id)
+          //     .then((value) {
+          //   setState(() {
+          //     songList = AppMediaItem.listFromList(value['songs'] as List);
+          //     fetched = true;
+          //     loading = false;
+          //   });
+          //   if (value['error'] != null && value['error'].toString() != '') {
+          //     ShowSnackBar().showSnackBar(
+          //       context,
+          //       'Error: ${value["error"]}',
+          //       duration: const Duration(seconds: 3),
+          //     );
+          //   }
+          // });
+          setState(() {
+            fetched = true;
+            loading = false;
           });
         case ItemlistType.radioStation:
-          SaavnAPI().getSongFromToken(widget.itemlist.uri, 'mix',).then((value) {
-            setState(() {
-              songList = AppMediaItem.listFromList(value['songs'] as List);
-              fetched = true;
-              loading = false;
-            });
-
-            if (value['error'] != null && value['error'].toString() != '') {
-              ShowSnackBar().showSnackBar(
-                context,
-                'Error: ${value["error"]}',
-                duration: const Duration(seconds: 3),
-              );
-            }
-          });
+          // SaavnAPI().getSongFromToken(widget.itemlist.uri, 'mix',).then((value) {
+          //   setState(() {
+          //     songList = AppMediaItem.listFromList(value['songs'] as List);
+          //     fetched = true;
+          //     loading = false;
+          //   });
+          //
+          //   if (value['error'] != null && value['error'].toString() != '') {
+          //     ShowSnackBar().showSnackBar(
+          //       context,
+          //       'Error: ${value["error"]}',
+          //       duration: const Duration(seconds: 3),
+          //     );
+          //   }
+          // });
         case ItemlistType.podcast:
-          SaavnAPI()
-              .getSongFromToken(
-            widget.itemlist.uri,
-            'show',
-          )
-              .then((value) {
-            setState(() {
-              songList = AppMediaItem.listFromList(value['songs'] as List);
-              fetched = true;
-              loading = false;
-            });
-
-            if (value['error'] != null && value['error'].toString() != '') {
-              ShowSnackBar().showSnackBar(
-                context,
-                'Error: ${value["error"]}',
-                duration: const Duration(seconds: 3),
-              );
-            }
-          });
+          // SaavnAPI().getSongFromToken(widget.itemlist.uri, 'show',).then((value) {
+          //   setState(() {
+          //     songList = AppMediaItem.listFromList(value['songs'] as List);
+          //     fetched = true;
+          //     loading = false;
+          //   });
+          //
+          //   if (value['error'] != null && value['error'].toString() != '') {
+          //     ShowSnackBar().showSnackBar(
+          //       context,
+          //       'Error: ${value["error"]}',
+          //       duration: const Duration(seconds: 3),
+          //     );
+          //   }
+          // });
         default:
           setState(() {
             fetched = true;
@@ -190,7 +195,7 @@ class _SongsListPageState extends State<SongsListPage> {
           ShowSnackBar().showSnackBar(
             context,
             'Error: Unsupported Type ${widget.itemlist.type}',
-            duration: const Duration(seconds: 3),
+            duration: const Duration(seconds: 2),
           );
           break;
       }
@@ -219,7 +224,7 @@ class _SongsListPageState extends State<SongsListPage> {
                 actions: [
                   if (songList.isNotEmpty)
                     MultiDownloadButton(
-                      data: songList,
+                      data: songList.map((e) => e.toMap()).toList(),
                       playlistName:
                           widget.itemlist.name?.toString() ?? 'Songs',
                     ),
@@ -306,7 +311,7 @@ class _SongsListPageState extends State<SongsListPage> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             DownloadButton(
-                              data: itemEntry as Map,
+                              data: itemEntry.toMap(),
                               icon: 'download',
                             ),
                             LikeButton(

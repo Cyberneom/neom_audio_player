@@ -78,8 +78,7 @@ class _PlayScreenState extends State<PlayScreen> {
   final bool getLyricsOnline = Hive.box(AppHiveConstants.settings).get('getLyricsOnline', defaultValue: true) as bool;
 
   final MusicPlayerTheme currentTheme = MusicPlayerTheme();
-  final ValueNotifier<List<Color?>?> gradientColor =
-      ValueNotifier<List<Color?>?>(MusicPlayerTheme().playGradientColor);
+  final ValueNotifier<List<Color?>?> gradientColor = ValueNotifier<List<Color?>?>(MusicPlayerTheme().playGradientColor);
   final PanelController _panelController = PanelController();
   final NeomAudioHandler audioHandler = GetIt.I<NeomAudioHandler>();
   GlobalKey<FlipCardState> cardKey = GlobalKey<FlipCardState>();
@@ -800,14 +799,14 @@ class ControlButtons extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final MediaItem mediaItem = audioHandler.mediaItem.value!;
-    final bool online = mediaItem.extras!['url'].toString().startsWith('http');
+    final bool isOnline = mediaItem.extras!['url'].toString().startsWith('http');
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       mainAxisSize: MainAxisSize.min,
       children: buttons.map((e) {
         switch (e) {
           case 'Like':
-            return !online
+            return !isOnline
                 ? const SizedBox()
                 : LikeButton(
                     mediaItem: mediaItem,
@@ -929,7 +928,7 @@ class ControlButtons extends StatelessWidget {
               },
             );
           case 'Download':
-            return !online
+            return !isOnline
                 ? const SizedBox()
                 : DownloadButton(
                     size: 20.0,

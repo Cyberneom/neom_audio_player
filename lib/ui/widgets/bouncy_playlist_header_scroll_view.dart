@@ -236,13 +236,13 @@ class BouncyPlaylistHeaderScrollView extends StatelessWidget {
                                                           Colors.white
                                                       ? Colors.black
                                                       : Colors.white,
-                                                  size: 26.0,
+                                                  size: 20.0,
                                                 ),
                                                 Text(
                                                   PlayerTranslationConstants.play.tr,
                                                   style: TextStyle(
                                                     fontWeight: FontWeight.bold,
-                                                    fontSize: 15.0,
+                                                    fontSize: 12.0,
                                                     color: Theme.of(context)
                                                                 .colorScheme
                                                                 .secondary ==
@@ -291,7 +291,7 @@ class BouncyPlaylistHeaderScrollView extends StatelessWidget {
                                                       Brightness.dark
                                                   ? Colors.white
                                                   : Colors.black,
-                                              size: 24.0,
+                                              size: 20.0,
                                             ),
                                           ),
                                         ),

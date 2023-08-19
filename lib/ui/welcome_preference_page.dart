@@ -28,7 +28,6 @@ import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
 import 'package:neom_music_player/utils/constants/countrycodes.dart';
 import 'package:neom_music_player/utils/constants/music_player_constants.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
-import 'package:sizer/sizer.dart';
 import 'package:get/get.dart';
 
 class WelcomePreferencePage extends StatefulWidget {
@@ -100,7 +99,7 @@ class _WelcomePreferencePageState extends State<WelcomePreferencePage> {
                                 text: TextSpan(
                                   text: '${PlayerTranslationConstants.welcome.tr}\n',
                                   style: TextStyle(
-                                    fontSize: 46.sp,
+                                    fontSize: 46,
                                     height: 1.0,
                                     fontWeight: FontWeight.bold,
                                     color:
@@ -112,7 +111,7 @@ class _WelcomePreferencePageState extends State<WelcomePreferencePage> {
                                           PlayerTranslationConstants.aboard.tr,
                                       style: TextStyle(
                                         fontWeight: FontWeight.bold,
-                                        fontSize: 52.sp,
+                                        fontSize: 52,
                                         color: Colors.white,
                                       ),
                                     ),
@@ -120,7 +119,7 @@ class _WelcomePreferencePageState extends State<WelcomePreferencePage> {
                                       text: '!\n',
                                       style: TextStyle(
                                         fontWeight: FontWeight.bold,
-                                        fontSize: 54.sp,
+                                        fontSize: 54,
                                         color: Theme.of(context)
                                             .colorScheme
                                             .secondary,
@@ -131,7 +130,7 @@ class _WelcomePreferencePageState extends State<WelcomePreferencePage> {
                                       style: TextStyle(
                                         height: 1.5,
                                         fontWeight: FontWeight.w300,
-                                        fontSize: 14.sp,
+                                        fontSize: 14,
                                         color: Colors.white,
                                       ),
                                     ),

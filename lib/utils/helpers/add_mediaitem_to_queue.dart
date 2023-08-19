@@ -33,7 +33,7 @@ void addToNowPlaying({
   bool showNotification = true,
 }) {
   final NeomAudioHandler audioHandler = GetIt.I<NeomAudioHandler>();
-  final MediaItem? currentMediaItem = audioHandler.mediaItem.valueWrapper!.value;
+  final MediaItem? currentMediaItem = audioHandler.mediaItem.valueWrapper?.value;
   if (currentMediaItem != null &&
       currentMediaItem.extras!['url'].toString().startsWith('http')) {
     if (audioHandler.queue.valueWrapper!.value.contains(mediaItem) && showNotification) {

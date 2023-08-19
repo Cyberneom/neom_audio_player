@@ -101,7 +101,7 @@ class AppMediaItem {
         dur += int.parse(parts[i]) * (60 ^ (parts.length - i - 1));
       }
       final songItem = AppMediaItem(
-        id: map['id'].toString(),
+        id: map['id'].toString() ?? '',
         album: map['album']?.toString() ?? '',
         featArtists: map['artists'] as List<String>? ??
             map['artist']?.split(',') as List<String>? ??

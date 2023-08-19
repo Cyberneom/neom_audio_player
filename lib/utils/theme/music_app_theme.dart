@@ -23,7 +23,7 @@ import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_music_player/utils/music_player_theme.dart';
 
 // ignore: avoid_classes_with_only_static_members
-class AppTheme {
+class MusicAppTheme {
   static MusicPlayerTheme get currentTheme => MusicPlayerTheme();
   static ThemeMode get themeMode => MusicPlayerTheme().currentTheme();
 
@@ -51,11 +51,11 @@ class AppTheme {
       appBarTheme: AppBarTheme(
         backgroundColor: currentTheme.currentColor(),
         systemOverlayStyle: SystemUiOverlayStyle(
-          statusBarIconBrightness: AppTheme.themeMode == ThemeMode.system
+          statusBarIconBrightness: MusicAppTheme.themeMode == ThemeMode.system
               ? MediaQuery.platformBrightnessOf(context) == Brightness.dark
                   ? Brightness.light
                   : Brightness.dark
-              : AppTheme.themeMode == ThemeMode.dark
+              : MusicAppTheme.themeMode == ThemeMode.dark
                   ? Brightness.light
                   : Brightness.dark,
         ),

@@ -53,8 +53,8 @@ class AppHiveController extends GetxController {
     logger.d('');
 
     try {
-      await fetchCachedData();
-      await fetchSettingsData();
+      // await fetchCachedData();
+      // await fetchSettingsData();
     } catch (e) {
       AppUtilities.logger.e(e.toString());
     }

@@ -25,12 +25,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-
+import 'package:get/get.dart';
 import 'package:hive/hive.dart';
-import 'package:logging/logging.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_music_player/domain/entities/app_media_item.dart';
+import 'package:neom_music_player/neom_player_invoke.dart';
+import 'package:neom_music_player/ui/drawer/library/liked_media_items.dart';
 import 'package:neom_music_player/ui/widgets/custom_physics.dart';
 import 'package:neom_music_player/ui/widgets/data_search.dart';
 import 'package:neom_music_player/ui/widgets/empty_screen.dart';
@@ -39,13 +40,10 @@ import 'package:neom_music_player/ui/widgets/image_card.dart';
 import 'package:neom_music_player/ui/widgets/playlist_head.dart';
 import 'package:neom_music_player/ui/widgets/snackbar.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
-import 'package:neom_music_player/utils/helpers/picker.dart';
-import 'package:neom_music_player/neom_player_invoke.dart';
-import 'package:neom_music_player/ui/drawer/library/liked.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
+import 'package:neom_music_player/utils/helpers/picker.dart';
 // import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:get/get.dart';
 
 class Downloads extends StatefulWidget {
   const Downloads({super.key});
@@ -476,25 +474,25 @@ class _DownloadsState extends State<Downloads>
                       appMediaItems: _appMediaItems,
                       scrollController: _scrollController,
                     ),
-                    AlbumsTab(
-                      albums: _albums,
-                      offline: true,
-                      type: 'album',
-                      sortedAlbumKeysList: _sortedAlbumKeysList,
-                    ),
-                    AlbumsTab(
-                      albums: _artists,
-                      type: 'artist',
-                      // tempPath: tempPath,
-                      offline: true,
-                      sortedAlbumKeysList: _sortedArtistKeysList,
-                    ),
-                    AlbumsTab(
-                      albums: _genres,
-                      type: 'genre',
-                      offline: true,
-                      sortedAlbumKeysList: _sortedGenreKeysList,
-                    ),
+                    // AlbumsTab(
+                    //   albums: _albums,
+                    //   offline: true,
+                    //   type: 'album',
+                    //   sortedAlbumKeysList: _sortedAlbumKeysList,
+                    // ),
+                    // AlbumsTab(
+                    //   albums: _artists,
+                    //   type: 'artist',
+                    //   // tempPath: tempPath,
+                    //   offline: true,
+                    //   sortedAlbumKeysList: _sortedArtistKeysList,
+                    // ),
+                    // AlbumsTab(
+                    //   albums: _genres,
+                    //   type: 'genre',
+                    //   offline: true,
+                    //   sortedAlbumKeysList: _sortedGenreKeysList,
+                    // ),
                   ],
                 ),
           floatingActionButton: ValueListenableBuilder(

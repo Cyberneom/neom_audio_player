@@ -66,7 +66,3 @@ Future<void> _backgroundProcess(SendPort sendPort) async {
   }
 
 }
-
-void addIdToBackgroundProcessingIsolate(String id) {
-  isolateSendPort?.send(id);
-}

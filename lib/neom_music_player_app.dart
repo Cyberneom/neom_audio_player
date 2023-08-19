@@ -22,7 +22,6 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_displaymode/flutter_displaymode.dart';
 import 'package:get/get.dart';
 
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -30,17 +29,18 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:home_widget/home_widget.dart';
 import 'package:logging/logging.dart';
 import 'package:neom_commons/core/app_flavour.dart';
+import 'package:neom_commons/core/utils/app_color.dart';
+import 'package:neom_commons/core/utils/app_theme.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
 import 'package:neom_music_player/utils/helpers/handle_native.dart';
 import 'package:neom_music_player/utils/helpers/import_export_playlist.dart';
 import 'package:neom_music_player/utils/helpers/route_handler.dart';
-import 'package:neom_music_player/data/providers/audio_service_provider.dart';
-import 'package:neom_music_player/utils/theme/app_theme.dart';
+import 'package:neom_music_player/data/providers/neom_audio_provider.dart';
+import 'package:neom_music_player/utils/theme/music_app_theme.dart';
 import 'package:neom_music_player/ui/music_player_routes.dart';
 import 'package:neom_music_player/ui/player/audioplayer.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
-import 'package:sizer/sizer.dart';
 
 class NeomMusicPlayerApp extends StatefulWidget {
 
@@ -163,73 +163,42 @@ class _NeomMusicPlayerAppState extends State<NeomMusicPlayerApp> {
 
   @override
   Widget build(BuildContext context) {
-    // SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-    // SystemChrome.setPreferredOrientations([
-    //   DeviceOrientation.portraitUp,
-    //   DeviceOrientation.portraitDown,
-    //   DeviceOrientation.landscapeLeft,
-    //   DeviceOrientation.landscapeRight,
-    // ]);
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        systemNavigationBarColor: Colors.transparent,
-        statusBarIconBrightness: AppTheme.themeMode == ThemeMode.system
-            ? MediaQuery.platformBrightnessOf(context) == Brightness.dark
-                ? Brightness.light
-                : Brightness.dark
-            : AppTheme.themeMode == ThemeMode.dark
-                ? Brightness.light
-                : Brightness.dark,
-        systemNavigationBarIconBrightness:
-            AppTheme.themeMode == ThemeMode.system
-                ? MediaQuery.platformBrightnessOf(context) == Brightness.dark
-                    ? Brightness.light
-                    : Brightness.dark
-                : AppTheme.themeMode == ThemeMode.dark
-                    ? Brightness.light
-                    : Brightness.dark,
+    return MaterialApp(
+        // navigatorKey: navigatorKey,
+        title: AppFlavour.appInUse.name,
+        // restorationScopeId: AppFlavour.appInUse.name,
+        themeMode: MusicAppTheme.themeMode,
+        darkTheme: MusicAppTheme.darkTheme(
+          context: context,
+        ),
+      theme: ThemeData(
+        brightness: Brightness.dark,
+        fontFamily: AppTheme.fontFamily,
+        timePickerTheme: TimePickerThemeData(
+            backgroundColor: AppColor.getMain()
+        ),
       ),
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          return OrientationBuilder(
-            builder: (context, orientation) {
-              // SizerUtil.setScreenSize(constraints, orientation);
-              return MaterialApp(
-                // navigatorKey: navigatorKey,
-                title: AppFlavour.appInUse.name,
-                restorationScopeId: AppFlavour.appInUse.name,
-                themeMode: AppTheme.themeMode,
-                darkTheme: AppTheme.darkTheme(
-                  context: context,
-                ),
-                localizationsDelegates: const [
-                  GlobalMaterialLocalizations.delegate,
-                  GlobalWidgetsLocalizations.delegate,
-                  GlobalCupertinoLocalizations.delegate,
-                ],
-                locale: Get.deviceLocale,
-                supportedLocales: const [
-                  Locale('es'), // Spanish, Mexico
-                  Locale('en'), // English, United States
-                  Locale('fr'), // French, France
-                  Locale('de'), // German, Germany
-                ],
-                routes: MusicPlayerRoutes.namedRoutes,
-                onGenerateRoute: (RouteSettings settings) {
-                  if (settings.name == '/player') {
-                    return PageRouteBuilder(
-                      opaque: false,
-                      pageBuilder: (_, __, ___) => const PlayScreen(),
-                    );
-                  }
-                  return HandleRoute.handleRoute(settings.name);
-                },
-              );
-            },
-          );
+        localizationsDelegates: const [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        locale: Get.deviceLocale,
+        supportedLocales: const [
+          Locale('es'), // Spanish, Mexico
+          Locale('en'), // English, United States
+          Locale('fr'), // French, France
+          Locale('de'), // German, Germany
+        ],
+        routes: MusicPlayerRoutes.routes,
+        onGenerateRoute: (RouteSettings settings) {
+          if (settings.name == '/player') {
+            return PageRouteBuilder(
+              pageBuilder: (_, __, ___) => const PlayScreen(), opaque: false,
+            );
+          }
+          return HandleRoute.handleRoute(settings.name);
         },
-      ),
     );
   }
 }
