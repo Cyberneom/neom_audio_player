@@ -18,7 +18,7 @@
  */
 
 import 'package:flutter/material.dart';
-import 'package:neom_music_player/domain/entities/app_media_item.dart';
+import 'package:neom_commons/core/domain/model/app_media_item.dart';
 
 import 'package:neom_music_player/neom_player_invoke.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';

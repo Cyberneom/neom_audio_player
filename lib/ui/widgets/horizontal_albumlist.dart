@@ -23,7 +23,7 @@ import 'package:neom_commons/core/domain/model/item_list.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
 import 'package:neom_commons/core/utils/enums/itemlist_type.dart';
-import 'package:neom_music_player/domain/entities/app_media_item.dart';
+import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_music_player/ui/widgets/image_card.dart';
 import 'package:neom_music_player/ui/widgets/like_button.dart';
 import 'package:neom_music_player/ui/widgets/on_hover.dart';
@@ -59,7 +59,7 @@ class HorizontalAlbumsList extends StatelessWidget {
       return formatString(item.artist);
     } else {
       if (item.album.isNotEmpty) {
-        return formatString(item.image);
+        return formatString(item.imgUrl);
       }
       String artist = item.artist;
       if (artist.isNotEmpty != null) {
@@ -101,7 +101,7 @@ class HorizontalAlbumsList extends StatelessWidget {
                     contentPadding: EdgeInsets.zero,
                     content: imageCard(
                       borderRadius: 15, //appMediaItem['type'] == 'radio_station' ? 1000.0 : 15.0,
-                      imageUrl: appMediaItem.image,
+                      imageUrl: appMediaItem.imgUrl,
                       boxDimension: MediaQuery.of(context).size.width * 0.8,
                       imageQuality: ImageQuality.high,
                       placeholderImage: const AssetImage(AppAssets.musicPlayerAlbum,)
@@ -125,7 +125,7 @@ class HorizontalAlbumsList extends StatelessWidget {
                   margin: const EdgeInsets.all(4.0),
                   borderRadius: 10,
                   // appMediaItem['type'] == 'radio_station' || appMediaItem['type'] == 'artist' ? 1000.0 : 10.0,
-                  imageUrl: appMediaItem.image,
+                  imageUrl: appMediaItem.imgUrl,
                   boxDimension: double.infinity,
                   imageQuality: ImageQuality.medium,
                   placeholderImage: const AssetImage(AppAssets.musicPlayerAlbum,),

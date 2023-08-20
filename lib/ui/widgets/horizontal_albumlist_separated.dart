@@ -21,11 +21,10 @@ import 'package:flutter/material.dart';
 import 'package:neom_commons/core/domain/model/item_list.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
 import 'package:neom_commons/core/utils/enums/itemlist_type.dart';
-import 'package:neom_music_player/domain/entities/app_media_item.dart';
+import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_music_player/ui/widgets/custom_physics.dart';
 import 'package:neom_music_player/ui/widgets/image_card.dart';
 import 'package:neom_music_player/ui/widgets/song_tile_trailing_menu.dart';
-import 'package:neom_music_player/utils/enums/playlist_type.dart';
 
 class HorizontalAlbumsListSeparated extends StatelessWidget {
   final List<AppMediaItem> songsList;
@@ -111,7 +110,7 @@ class HorizontalAlbumsListSeparated extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                     leading: imageCard(
-                      imageUrl: item.image.toString(),
+                      imageUrl: item.imgUrl.toString(),
                       placeholderImage: (itemlist?.type == ItemlistType.playlist ||
                               itemlist?.type == ItemlistType.album)
                           ? const AssetImage(AppAssets.musicPlayerAlbum,)

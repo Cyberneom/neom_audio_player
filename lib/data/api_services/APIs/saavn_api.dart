@@ -22,7 +22,7 @@ import 'dart:convert';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
-import 'package:neom_music_player/domain/entities/app_media_item.dart';
+import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
 import 'package:neom_music_player/utils/helpers/format.dart';
 

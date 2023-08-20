@@ -21,7 +21,7 @@ import 'package:flutter/material.dart';
 
 import 'package:hive/hive.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
-import 'package:neom_music_player/domain/entities/app_media_item.dart';
+import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_music_player/ui/widgets/empty_screen.dart';
 import 'package:neom_music_player/ui/widgets/gradient_containers.dart';
 import 'package:neom_music_player/ui/widgets/image_card.dart';
@@ -113,7 +113,7 @@ class _RecentlyPlayedState extends State<RecentlyPlayed> {
                           },
                           child: ListTile(
                             leading: imageCard(
-                              imageUrl: _songs[index].image.toString(),
+                              imageUrl: _songs[index].imgUrl.toString(),
                             ),
                             trailing: Row(
                               mainAxisSize: MainAxisSize.min,

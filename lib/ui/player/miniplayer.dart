@@ -28,9 +28,7 @@ import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_theme.dart';
 import 'package:neom_music_player/domain/use_cases/neom_audio_handler.dart';
 import 'package:neom_music_player/ui/player/miniplayer_controller.dart';
-import 'package:neom_music_player/ui/widgets/gradient_containers.dart';
-import 'package:neom_music_player/ui/widgets/image_card.dart';
-import 'package:neom_music_player/ui/player/audioplayer.dart';
+import 'package:neom_music_player/ui/player/media_player_page.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
 
 class MiniPlayer extends StatefulWidget {
@@ -57,9 +55,11 @@ class _MiniPlayerState extends State<MiniPlayer> {
         id: "miniplayer",
         init: MiniPlayerController(),
     builder: (_) {
-      final List preferredMiniButtons = Hive.box(AppHiveConstants.settings).get('preferredMiniButtons', defaultValue: ['Like', 'Play/Pause', 'Next'],)?.toList() as List;
+      final List<String> preferredMiniButtons = Hive.box(AppHiveConstants.settings).get('preferredMiniButtons', defaultValue: ['Like', 'Play/Pause', 'Next'],)?.toList() as List<String>;
       return Obx(() => _.isLoading ? Container() : Container(
         decoration: AppTheme.appBoxDecoration,
+        height: _.mediaItem == null ? 80 : 78,
+        width: AppTheme.fullWidth(context),
         child: Dismissible(
             key: const Key('miniplayer'),
             direction: DismissDirection.vertical,
@@ -71,7 +71,7 @@ class _MiniPlayerState extends State<MiniPlayer> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => PlayScreen(),
+                      builder: (context) => MediaPlayerPage(),
                     ),
                   );
                 }
@@ -93,29 +93,23 @@ class _MiniPlayerState extends State<MiniPlayer> {
               child: Card(
                 margin: EdgeInsets.zero,
                 color: AppColor.getMain(),
-                elevation: 10,
-                child: SizedBox(
-
-                  child: Column(
+                elevation: 1,
+                child: Container(
+                  height: _.mediaItem == null ? 80 : 78,
+                  width: AppTheme.fullWidth(context),
+                child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       _.miniplayerTile(
                         context: context,
                         preferredMiniButtons: preferredMiniButtons,
-                        // useDense: true,
-                        title: _.mediaItem?.title ?? '',
-                        subtitle: _.mediaItem?.artist ?? '',
-                        imagePath: (_.mediaItem?.artUri?.toString().startsWith('file:') ?? false
-                                ? _.mediaItem?.artUri?.toFilePath()
-                                : _.mediaItem?.artUri?.toString()) ??
-                            '',
-                        isLocalImage: _.mediaItem?.artUri?.toString().startsWith('file:') ?? false,
-                        isDummy: _.mediaItem == null,
+                        item: _.mediaItem,
+                        isTimeline: _.isTimeline,
                       ),
                       _.positionSlider(_.mediaItem?.duration?.inSeconds.toDouble(),),
                     ],
-                  ),
-                ),
+
+                ),),
               ),
             ),
       ),),

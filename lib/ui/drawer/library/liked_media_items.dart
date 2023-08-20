@@ -22,27 +22,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
 import 'package:hive/hive.dart';
-import 'package:neom_commons/core/app_flavour.dart';
 import 'package:neom_commons/core/domain/model/item_list.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
-import 'package:neom_commons/core/utils/constants/app_assets.dart';
-import 'package:neom_music_player/domain/entities/app_media_item.dart';
+import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_music_player/ui/drawer/library/widgets/song_page_tab.dart';
-import 'package:neom_music_player/ui/drawer/local_music/downloaded_songs.dart';
-import 'package:neom_music_player/ui/widgets/collage.dart';
 import 'package:neom_music_player/ui/widgets/custom_physics.dart';
 import 'package:neom_music_player/ui/widgets/data_search.dart';
 import 'package:neom_music_player/ui/widgets/download_button.dart';
-import 'package:neom_music_player/ui/widgets/empty_screen.dart';
 import 'package:neom_music_player/ui/widgets/gradient_containers.dart';
-import 'package:neom_music_player/ui/widgets/image_card.dart';
-import 'package:neom_music_player/ui/widgets/like_button.dart';
-import 'package:neom_music_player/ui/widgets/playlist_head.dart';
-import 'package:neom_music_player/ui/widgets/song_tile_trailing_menu.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
 import 'package:neom_music_player/utils/helpers/songs_count.dart' as songs_count;
 import 'package:neom_music_player/neom_player_invoke.dart';
-import 'package:neom_music_player/ui/drawer/library/show_songs.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
 // import 'package:path_provider/path_provider.dart';
 import 'package:get/get.dart';
@@ -225,16 +215,17 @@ class _LikedMediaItemsState extends State<LikedMediaItems>
                             ? widget.itemlist!.name.toUpperCase()
                             : widget.alternativeName.toUpperCase(),
                       ),
-                    IconButton(
-                      icon: const Icon(CupertinoIcons.search),
-                      tooltip: PlayerTranslationConstants.search.tr,
-                      onPressed: () {
-                        showSearch(
-                          context: context,
-                          delegate: DownloadsSearch(data: _appMediaItems),
-                        );
-                      },
-                    ),
+                    //TODO VERIFY IF OF USE
+                    // IconButton(
+                    //   icon: const Icon(CupertinoIcons.search),
+                    //   tooltip: PlayerTranslationConstants.search.tr,
+                    //   onPressed: () {
+                    //     showSearch(
+                    //       context: context,
+                    //       delegate: DownloadsSearch(data: _appMediaItems),
+                    //     );
+                    //   },
+                    // ),
                     if (_currentTabIndex == 0)
                       PopupMenuButton(
                         icon: const Icon(Icons.sort_rounded),
@@ -308,28 +299,17 @@ class _LikedMediaItemsState extends State<LikedMediaItems>
                                 )
                                 .toList(),
                           );
-                          menuList.add(
-                            const PopupMenuDivider(
-                              height: 10,
-                            ),
-                          );
+                          menuList.add(const PopupMenuDivider(height: 10,),);
                           menuList.addAll(
                             orderTypes
                                 .map(
-                                  (e) => PopupMenuItem(
-                                    value: sortTypes.length +
-                                        orderTypes.indexOf(e),
+                                  (e) => PopupMenuItem(value: sortTypes.length + orderTypes.indexOf(e),
                                     child: Row(
                                       children: [
                                         if (orderValue == orderTypes.indexOf(e))
-                                          Icon(
-                                            Icons.check_rounded,
-                                            color:
-                                                Theme.of(context).brightness ==
-                                                        Brightness.dark
-                                                    ? Colors.white
-                                                    : Colors.grey[700],
-                                          )
+                                          Icon(Icons.check_rounded,
+                                            color: Theme.of(context).brightness == Brightness.dark
+                                                ? Colors.white : Colors.grey[700],)
                                         else
                                           const SizedBox(),
                                         const SizedBox(width: 10),
@@ -339,8 +319,7 @@ class _LikedMediaItemsState extends State<LikedMediaItems>
                                       ],
                                     ),
                                   ),
-                                )
-                                .toList(),
+                                ).toList(),
                           );
                           return menuList;
                         },
@@ -374,26 +353,23 @@ class _LikedMediaItemsState extends State<LikedMediaItems>
                               icon: const Icon(Icons.clear_rounded),
                             )
                           ],
-                        )
-                      : child!;
+                  ) : child!;
                 },
               ),
             ],
           ),
-          body:
-          // !added ? const Center(child: CircularProgressIndicator(),) :
-          TabBarView(
-                  physics: const CustomPhysics(),
-                  controller: _tcontroller,
-                  children: [
-                    SongsPageTab(
-                      appMediaItems: _appMediaItems,
-                      onDelete: (AppMediaItem item) {
-                        deleteLiked(item);
-                      },
-                      playlistName: widget.itemlist?.name ?? "",
-                      scrollController: _scrollController,
-                    ),
+          body: TabBarView(
+            physics: const CustomPhysics(),
+            controller: _tcontroller,
+            children: [
+              SongsPageTab(
+                appMediaItems: _appMediaItems,
+                onDelete: (AppMediaItem item) {
+                  deleteLiked(item);
+                  },
+                playlistName: widget.itemlist?.name ?? "",
+                scrollController: _scrollController,
+              ),
                     // AlbumsTab(
                     //   albums: _albums,
                     //   type: 'album',

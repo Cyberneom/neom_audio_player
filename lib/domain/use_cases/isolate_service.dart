@@ -6,7 +6,7 @@ import 'package:logging/logging.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_music_player/domain/use_cases/neom_audio_handler.dart';
 import 'package:neom_music_player/domain/use_cases/youtube_services.dart';
-import 'package:neom_music_player/ui/player/audioplayer.dart';
+import 'package:neom_music_player/ui/player/media_player_page.dart';
 import 'package:path_provider/path_provider.dart';
 
 SendPort? isolateSendPort;

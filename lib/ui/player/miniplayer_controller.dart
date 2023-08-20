@@ -1,4 +1,3 @@
-import 'dart:io';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/cupertino.dart';
@@ -7,18 +6,12 @@ import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 import 'package:neom_commons/core/app_flavour.dart';
 
-import 'package:neom_commons/core/data/firestore/profile_firestore.dart';
-import 'package:neom_commons/core/data/firestore/user_firestore.dart';
-import 'package:neom_commons/core/domain/model/app_item.dart';
-import 'package:neom_commons/core/domain/model/app_profile.dart';
-import 'package:neom_commons/core/domain/model/item_list.dart';
-import 'package:neom_commons/core/domain/use_cases/itemlist_service.dart';
 import 'package:neom_commons/core/data/implementations/user_controller.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/constants/app_route_constants.dart';
 import 'package:neom_music_player/domain/use_cases/neom_audio_handler.dart';
-import 'package:neom_music_player/ui/player/audioplayer.dart';
+import 'package:neom_music_player/ui/player/widgets/control_buttons.dart';
 import 'package:neom_music_player/ui/widgets/image_card.dart';
 
 
@@ -37,6 +30,10 @@ class MiniPlayerController extends GetxController {
   final RxBool _isLoading = true.obs;
   bool get isLoading => _isLoading.value;
   set isLoading(bool isLoading) => _isLoading.value = isLoading;
+
+  final RxBool _isTimeline = true.obs;
+  bool get isTimeline => _isTimeline.value;
+  set isTimeline(bool isTimeline) => _isTimeline.value = isTimeline;
 
   final RxBool _isButtonDisabled = false.obs;
   bool get isButtonDisabled => _isButtonDisabled.value;
@@ -75,8 +72,14 @@ class MiniPlayerController extends GetxController {
   }
 
   void setMediaItem(MediaItem item) {
-    AppUtilities.logger.i("Setting new mediaitem)");
+    AppUtilities.logger.i("Setting new mediaitem");
     mediaItem = item;
+    update();
+  }
+
+  void setIsTimeline(bool value) {
+    AppUtilities.logger.i("Setting IsTimeline");
+    isTimeline = value;
     update();
   }
 
@@ -124,50 +127,160 @@ class MiniPlayerController extends GetxController {
     );
   }
 
+  // Container miniplayerTile({
+  //   required BuildContext context,
+  //   MediaItem? item,
+  //   required List<String> preferredMiniButtons,
+  //   bool useDense = false,
+  //   bool isLocalImage = false,
+  //   bool isTimeline = true,
+  // }) {
+  //   return Container(
+  //     color: AppColor.main75,
+  //     height: 75,
+  //     width: MediaQuery.of(context).size.width,
+  //     // onTap: item == null ? null : () => Navigator.pushNamed(context, '/player'),
+  //     child:
+  //     Row(children: [
+  //       Row(
+  //         children: [
+  //           if(!isTimeline)
+  //             IconButton(
+  //                 padding: EdgeInsets.zero,
+  //                 onPressed: () => goToTimeline(context), icon: Icon(Icons.arrow_back_ios)),
+  //           if(item != null || isTimeline)
+  //             Container(
+  //               height: item == null ? 80 : 78,
+  //               width: isTimeline && item == null ? (MediaQuery.of(context).size.width/6) : null,
+  //               child: Hero(tag: 'currentArtwork',
+  //                 child: imageCard(
+  //                   elevation: 8,
+  //                   boxDimension: useDense ? 40.0 : 50.0,
+  //                   localImage: item == null ? false : item.artUri?.toString().startsWith('file:') ?? false,
+  //                   imageUrl: item == null ? AppFlavour.getAppLogoUrl() : (item?.artUri?.toString().startsWith('file:') ?? false
+  //                       ? item?.artUri?.toFilePath() : item?.artUri?.toString()) ?? '',
+  //                 ),
+  //               ),
+  //             )
+  //         ],
+  //       ),
+  //       Column(
+  //         children: [
+  //           Text(
+  //             item == null ? (isTimeline ? '¿Buscando nueva música?' : '¿Buscando nuevas influencias?') : item.title,
+  //             maxLines: 1,
+  //             overflow: TextOverflow.ellipsis,
+  //             textAlign: isTimeline || item != null ? TextAlign.left : TextAlign.right,
+  //           ),
+  //           Text(
+  //             item == null ? (isTimeline ? 'Prueba nuestra nueva plataforma' : 'Volver al inicio') : item.artist ?? '',
+  //             maxLines: 1,
+  //             overflow: TextOverflow.ellipsis,
+  //             textAlign: isTimeline || item != null ? TextAlign.left : TextAlign.right,
+  //           ),
+  //         ],
+  //       ),
+  //       Container(
+  //         height: item == null ? 80 : 78,
+  //         width: item != null || isTimeline ? null : (MediaQuery.of(context).size.width/(item == null ? 6 : 3)),
+  //         child: item == null ? (isTimeline
+  //             ? IconButton(onPressed: () => goToMusicPlayerHome(), icon: Icon(Icons.arrow_forward_ios))
+  //             : Hero(tag: 'currentArtwork',
+  //           child: imageCard(
+  //             elevation: 8,
+  //             boxDimension: useDense ? 40.0 : 50.0,
+  //             localImage: item == null ? false : item.artUri?.toString().startsWith('file:') ?? false,
+  //             imageUrl: item == null ? AppFlavour.getAppLogoUrl() : (item?.artUri?.toString().startsWith('file:') ?? false
+  //                 ? item?.artUri?.toFilePath() : item?.artUri?.toString()) ?? '',
+  //           ),
+  //         ))
+  //             : ControlButtons(audioHandler, miniplayer: true,
+  //           buttons: isLocalImage ? <String>['Like', 'Play/Pause', 'Next'] : preferredMiniButtons,
+  //         ),),
+  //     ],),
+  //
+  //
+  //
+  //   );
+  // }
+
   ListTile miniplayerTile({
     required BuildContext context,
-    required String title,
-    required String subtitle,
-    required String imagePath,
-    required List preferredMiniButtons,
+    MediaItem? item,
+    required List<String> preferredMiniButtons,
     bool useDense = false,
     bool isLocalImage = false,
-    bool isDummy = false,
+    bool isTimeline = true,
   }) {
     return ListTile(
-      dense: useDense,
       tileColor: AppColor.main75,
-      onTap: isDummy ? null
-          : () => Navigator.pushNamed(context, '/player'),
+      onTap: item == null ? null : () => Navigator.pushNamed(context, '/player'),
+      leading: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if(!isTimeline)
+            IconButton(
+              padding: EdgeInsets.zero,
+                onPressed: () => goToTimeline(context), icon: Icon(Icons.arrow_back_ios)),
+          if(item != null || isTimeline)
+            Container(
+              height: item == null ? 80 : 78,
+              width: isTimeline && item == null ? (MediaQuery.of(context).size.width/6) : null,
+              child: Hero(tag: 'currentArtwork',
+                child: imageCard(
+                  elevation: 8,
+                  boxDimension: useDense ? 40.0 : 50.0,
+                  localImage: item == null ? false : item.artUri?.toString().startsWith('file:') ?? false,
+                  imageUrl: item == null ? AppFlavour.getAppLogoUrl() : (item?.artUri?.toString().startsWith('file:') ?? false
+                      ? item?.artUri?.toFilePath() : item?.artUri?.toString()) ?? '',
+                ),
+              ),
+            )
+        ],
+      ),
       title: Text(
-        isDummy ? '¿Estás buscando nueva música?' : title,
+        item == null ? (isTimeline ? '¿Buscando nueva música?' : '¿Buscando nuevas influencias?') : item.title,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
+        textAlign: isTimeline || item != null ? TextAlign.left : TextAlign.right,
       ),
       subtitle: Text(
-        isDummy ? 'Escucha nuestras recomendaciones' : subtitle,
+        item == null ? (isTimeline ? 'Prueba nuestra nueva plataforma' : 'Volver al inicio') : item.artist ?? '',
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
+        textAlign: isTimeline || item != null ? TextAlign.left : TextAlign.right,
       ),
-      leading: Hero(
-        tag: 'currentArtwork',
-        child: imageCard(
-          elevation: 8,
-          boxDimension: useDense ? 40.0 : 50.0,
-          localImage: isDummy ? true : isLocalImage,
-          imageUrl: isDummy ? AppFlavour.getAppLogoPath() : imagePath,
+      trailing: Container(
+        width: item != null || isTimeline ? null : (MediaQuery.of(context).size.width/(item == null ? 6 : 3)),
+        child: item == null ? (isTimeline
+          ? IconButton(onPressed: () => goToMusicPlayerHome(), icon: Icon(Icons.arrow_forward_ios))
+          : Hero(tag: 'currentArtwork',
+              child: imageCard(
+                elevation: 8,
+                boxDimension: useDense ? 40.0 : 50.0,
+                localImage: item == null ? false : item.artUri?.toString().startsWith('file:') ?? false,
+                imageUrl: item == null ? AppFlavour.getAppLogoUrl() : (item?.artUri?.toString().startsWith('file:') ?? false
+                    ? item?.artUri?.toFilePath() : item?.artUri?.toString()) ?? '',
+              ),
+            ))
+          : ControlButtons(audioHandler, miniplayer: true,
+          buttons: isLocalImage ? <String>['Like', 'Play/Pause', 'Next'] : preferredMiniButtons,
+          mediaItem: item,
         ),
       ),
-      trailing: isDummy
-          ? IconButton(onPressed: () => Get.toNamed(AppRouteConstants.musicPlayerHome), icon: Icon(Icons.arrow_forward_ios))
-          : ControlButtons(
-        audioHandler,
-        miniplayer: true,
-        buttons: isLocalImage
-            ? ['Like', 'Play/Pause', 'Next']
-            : preferredMiniButtons,
-      ),
     );
+  }
+
+  void goToMusicPlayerHome() {
+    isTimeline = false;
+    Get.toNamed(AppRouteConstants.musicPlayerHome);
+    update();
+  }
+
+  void goToTimeline(BuildContext context) {
+    isTimeline = true;
+    Get.back();
+    update();
   }
 
 

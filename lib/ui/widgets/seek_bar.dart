@@ -23,7 +23,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:neom_music_player/domain/use_cases/neom_audio_handler.dart';
 
-import 'package:neom_music_player/ui/player/audioplayer.dart';
+import 'package:neom_music_player/ui/player/media_player_page.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
 import 'package:get/get.dart';
 

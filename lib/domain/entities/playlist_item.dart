@@ -49,5 +49,5 @@ class PlaylistItem {
         firstItemId = data["firstItemId"].toString() ?? "",
         imgUrl = data['imgUrl'].toString() ?? "",
         type = EnumToString.fromString(PlaylistType.values, data["type"].toString() ?? PlaylistType.playlist.name) ?? PlaylistType.playlist,
-        count = int.parse(data["count"].toString() ?? "0") ?? 0;
+        count = int.parse(data["count"].toString());
 }

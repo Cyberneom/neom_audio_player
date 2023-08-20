@@ -23,7 +23,7 @@ import 'package:hive/hive.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/constants/app_translation_constants.dart';
-import 'package:neom_music_player/domain/entities/app_media_item.dart';
+import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_music_player/domain/entities/youtube_item.dart';
 import 'package:neom_music_player/ui/widgets/empty_screen.dart';
 import 'package:neom_music_player/ui/widgets/gradient_containers.dart';
@@ -426,7 +426,7 @@ class _YouTubeSearchPageState extends State<YouTubeSearchPage> {
                                                     videoId: section['items'][idx]['id'].toString(),
                                                   );
                                                   if (response != null && response2['image'] != null) {
-                                                    response.image = response2['image'].toString() ?? response.image;
+                                                    response.imgUrl = response2['image'].toString() ?? response.imgUrl;
                                                   }
                                                   setState(() {
                                                     done = true;

@@ -25,7 +25,7 @@ import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_music_player/utils/helpers/extensions.dart';
 import 'package:neom_music_player/domain/use_cases/ytmusic/nav.dart';
 import 'package:neom_music_player/domain/use_cases/ytmusic/playlist.dart';
-import 'package:neom_music_player/domain/entities/app_media_item.dart';
+import 'package:neom_commons/core/domain/model/app_media_item.dart';
 
 class YtMusicService {
   static const ytmDomain = 'music.youtube.com';

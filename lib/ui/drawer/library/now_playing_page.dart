@@ -22,11 +22,12 @@ import 'package:flutter/material.dart';
 
 import 'package:get_it/get_it.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
+import 'package:neom_commons/core/utils/constants/app_route_constants.dart';
 import 'package:neom_music_player/domain/use_cases/neom_audio_handler.dart';
+import 'package:neom_music_player/ui/player/widgets/now_playing_stream.dart';
 import 'package:neom_music_player/ui/widgets/bouncy_sliver_scroll_view.dart';
 import 'package:neom_music_player/ui/widgets/empty_screen.dart';
 import 'package:neom_music_player/ui/widgets/gradient_containers.dart';
-import 'package:neom_music_player/ui/player/audioplayer.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
 import 'package:get/get.dart';
 
@@ -64,16 +65,16 @@ class _NowPlayingPageState extends State<NowPlayingPage> {
                     elevation: 0,
                   ),
             body: processingState == AudioProcessingState.idle
-                ? emptyScreen(
+                ? TextButton(onPressed: ()=>Navigator.pushNamed(context, '/'), child: emptyScreen(
                     context,
                     3,
                     PlayerTranslationConstants.nothingIs.tr,
                     18.0,
                     PlayerTranslationConstants.playingCap.tr,
-                    60,
+                    45,
                     PlayerTranslationConstants.playSomething.tr,
-                    23.0,
-                  )
+                    30.0,
+                  ),)
                 : StreamBuilder<MediaItem?>(
                     stream: audioHandler.mediaItem,
                     builder: (context, snapshot) {

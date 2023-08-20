@@ -18,7 +18,7 @@
  */
 
 import 'package:audio_service/audio_service.dart';
-import 'package:neom_music_player/domain/entities/app_media_item.dart';
+import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_music_player/domain/entities/url_image_generator.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
@@ -134,20 +134,20 @@ class MediaItemMapper  {
       id: songItem.id,
       album: songItem.album,
       artist: '${songItem.artist} ${songItem.featArtists?.join(', ')}',
-      duration: songItem.duration,
+      duration: Duration(seconds: songItem.duration),
       title: songItem.title,
       artUri: Uri.parse(
-        UrlImageGetter([songItem.image]).highQuality,
+        UrlImageGetter([songItem.imgUrl]).highQuality,
       ),
       genre: songItem.genre,
       extras: {
         'url': songItem.url,
         'allUrl': songItem.allUrls,
-        'year': songItem.year,
+        'year': DateTime.fromMillisecondsSinceEpoch(songItem.publishedDate).year,
         'language': songItem.language,
-        '320kbps': songItem.kbps320,
+        '320kbps': songItem.is320Kbps,
         'quality': songItem.quality,
-        'has_lyrics': songItem.hasLyrics,
+        'has_lyrics': songItem.lyrics.isNotEmpty,
         'release_date': songItem.releaseDate,
         'album_id': songItem.albumId,
         'subtitle': songItem.subtitle,
@@ -187,20 +187,20 @@ class MediaItemMapper  {
       id: appMediaItem.id,
       album: appMediaItem.album,
       artist: appMediaItem.artist,
-      duration: appMediaItem.duration,
+      duration: Duration(seconds: appMediaItem.duration),
       title: appMediaItem.title,
       artUri: Uri.parse(
-        UrlImageGetter([appMediaItem.image]).highQuality,
+        UrlImageGetter([appMediaItem.imgUrl]).highQuality,
       ),
       genre: appMediaItem.genre,
       extras: {
         'url': appMediaItem.url,
         'allUrl': [],
-        'year': appMediaItem.year,
+        'year': DateTime.fromMillisecondsSinceEpoch(appMediaItem.publishedDate).year,
         'language': appMediaItem.language,
-        '320kbps': appMediaItem.kbps320,
+        '320kbps': appMediaItem.is320Kbps,
         'quality': 0,
-        'has_lyrics': appMediaItem.hasLyrics,
+        'has_lyrics': appMediaItem.lyrics.isNotEmpty,
         'release_date': appMediaItem.releaseDate,
         'album_id': appMediaItem.albumId,
         'subtitle': appMediaItem.subtitle,
@@ -213,16 +213,17 @@ class MediaItemMapper  {
     );
   }
 
-  // static AppMediaItem fromMediaItem(MediaItem mediaItem) {
-  //   return AppMediaItem(
-  //     id: mediaItem.id,
-  //     album: mediaItem.album,
-  //     artist: mediaItem.artist,
-  //     duration: mediaItem.duration,
-  //     title: mediaItem.title,
-  //     artUri: mediaItem.artUri,
-  //     genre: mediaItem.genre,
-  //     extras: mediaItem.extras
-  //   );
-  // }
+  static AppMediaItem fromMediaItem(MediaItem mediaItem) {
+    return AppMediaItem(
+      id: mediaItem.id ?? '',
+      album: mediaItem.album ?? '',
+      artist: mediaItem.artist ?? '',
+      duration: mediaItem.duration?.inSeconds ?? 0,
+      title: mediaItem.title,
+      imgUrl: mediaItem.artUri?.toString() ?? '',
+      genre: mediaItem.genre ?? '',
+    );
+  }
+
+
 }

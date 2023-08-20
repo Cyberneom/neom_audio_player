@@ -21,7 +21,7 @@ import 'package:flutter/material.dart';
 
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
-import 'package:neom_music_player/domain/entities/app_media_item.dart';
+import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_music_player/ui/widgets/bouncy_sliver_scroll_view.dart';
 import 'package:neom_music_player/ui/widgets/copy_clipboard.dart';
 import 'package:neom_music_player/ui/widgets/gradient_containers.dart';
@@ -164,7 +164,7 @@ class _YouTubeArtistState extends State<YouTubeArtist> {
                                 );
 
                                 if (response != null && response2['image'] != null) {
-                                  response.image = response2['image'].toString();
+                                  response.imgUrl = response2['image'].toString();
                                 }
                                 setState(() {
                                   done = true;

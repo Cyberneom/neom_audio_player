@@ -29,7 +29,7 @@ import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
-import 'package:neom_music_player/domain/entities/app_media_item.dart';
+import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_music_player/neom_player_invoke.dart';
 import 'package:neom_music_player/ui/drawer/library/liked_media_items.dart';
 import 'package:neom_music_player/ui/widgets/custom_physics.dart';
@@ -545,14 +545,14 @@ Future<AppMediaItem> editTags(AppMediaItem mediaItem, BuildContext context) asyn
     builder: (BuildContext context) {
       final tagger = Audiotagger();
 
-      FileImage songImage = FileImage(File(mediaItem.image.toString()));
+      FileImage songImage = FileImage(File(mediaItem.imgUrl));
 
       final titlecontroller = TextEditingController(text: mediaItem.title.toString());
       final albumcontroller = TextEditingController(text: mediaItem.album.toString());
       final artistcontroller = TextEditingController(text: mediaItem.artist.toString());
       final albumArtistController = TextEditingController(text: mediaItem.albumArtist.toString());
       final genrecontroller = TextEditingController(text: mediaItem.genre.toString());
-      final yearcontroller = TextEditingController(text: mediaItem.year.toString());
+      final yearcontroller = TextEditingController(text: DateTime.fromMillisecondsSinceEpoch(mediaItem.publishedDate).year.toString());
       final pathcontroller = TextEditingController(text: mediaItem.path.toString());
 
       return AlertDialog(
@@ -576,7 +576,7 @@ Future<AppMediaItem> editTags(AppMediaItem mediaItem, BuildContext context) asyn
                     );
                     if (filePath != '') {
                       final imagePath = filePath;
-                      File(imagePath).copy(mediaItem.image.toString());
+                      File(imagePath).copy(mediaItem.imgUrl.toString());
 
                       songImage = FileImage(File(imagePath));
 
@@ -765,7 +765,7 @@ Future<AppMediaItem> editTags(AppMediaItem mediaItem, BuildContext context) asyn
               mediaItem.artist = artistcontroller.text;
               mediaItem.albumArtist = albumArtistController.text;
               mediaItem.genre = genrecontroller.text;
-              mediaItem.year = int.parse(yearcontroller.text);
+              mediaItem.publishedDate = DateTime(int.parse(yearcontroller.text)).millisecondsSinceEpoch;
               mediaItem.path = pathcontroller.text;
               final tag = Tag(
                 title: titlecontroller.text,
@@ -893,11 +893,11 @@ class _DownSongsTabState extends State<DownSongsTab>
                   itemBuilder: (context, index) {
                     return ListTile(
                       leading: imageCard(
-                        imageUrl: widget.appMediaItems[index].image.toString(),
+                        imageUrl: widget.appMediaItems[index].imgUrl,
                         localImage: true,
                         localErrorFunction: (_, __) {
-                          if (widget.appMediaItems[index].image.isNotEmpty) {
-                              downImage(songFilePath: '', imageFilePath: '', url: widget.appMediaItems[index].image.toString(),
+                          if (widget.appMediaItems[index].imgUrl.isNotEmpty) {
+                              downImage(songFilePath: '', imageFilePath: '', url: widget.appMediaItems[index].imgUrl.toString(),
                             );
                           }
                         },

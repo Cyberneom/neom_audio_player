@@ -25,13 +25,13 @@ import 'package:html_unescape/html_unescape_small.dart';
 import 'package:http/http.dart';
 import 'package:logging/logging.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
-import 'package:neom_music_player/domain/entities/app_media_item.dart';
+import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_music_player/domain/entities/playlist_item.dart';
 import 'package:neom_music_player/domain/entities/playlist_section.dart';
 import 'package:neom_music_player/domain/entities/youtube_item.dart';
 import 'package:neom_music_player/domain/entities/youtube_music_home.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
-import 'package:neom_music_player/utils/enums/app_media_source.dart';
+import 'package:neom_commons/core/utils/enums/app_media_source.dart';
 import 'package:neom_music_player/utils/enums/playlist_type.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
@@ -327,20 +327,18 @@ class YouTubeServices {
           : video.author.replaceAll('- Topic', '').trim(),
       title: (data?['title'] ?? '') != '' ? data!['title'].toString() : video.title.trim(),
       subtitle: (data?['subtitle'] ?? '') != '' ? data!['subtitle'].toString() : video.author,
-      duration: video.duration!,
+      duration: video.duration!.inSeconds,
       artist: (data?['artist'] ?? '') != ''
           ? data!['artist'].toString()
           : video.author.replaceAll('- Topic', '').trim(),
-      image: video.thumbnails.maxResUrl,
-      allImages: [video.thumbnails.highResUrl],
+      imgUrl: video.thumbnails.maxResUrl,
+      allImgs: [video.thumbnails.highResUrl],
       language: 'YouTube',
       genre: 'YouTube',
-      hasLyrics: false,
       url: finalUrl,
       allUrls: urls,
       expireAt: int.parse(expireAt),
-      year: video.uploadDate?.year ?? 0,
-      kbps320: false,
+      publishedDate: video.uploadDate?.millisecondsSinceEpoch ?? 0,
       releaseDate: video.publishDate.toString(),
       albumId: video.channelId.value,
       permaUrl: video.url,

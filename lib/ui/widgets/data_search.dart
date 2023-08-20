@@ -21,7 +21,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:neom_commons/core/domain/model/item_list.dart';
-import 'package:neom_music_player/domain/entities/app_media_item.dart';
+import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_music_player/ui/widgets/download_button.dart';
 import 'package:neom_music_player/ui/widgets/image_card.dart';
 import 'package:neom_music_player/ui/widgets/song_tile_trailing_menu.dart';
@@ -118,7 +118,7 @@ class DataSearch extends SearchDelegate {
               id: element.id.toString(),
               album: element.album ?? '',
               title: element.title ?? '',
-              duration: Duration(seconds: element.duration ?? 0),
+              duration: element.duration ?? 0,
               artist: element.artist ?? '',
               artistId: element.artistId.toString(),
               genre: element.genre ?? '',

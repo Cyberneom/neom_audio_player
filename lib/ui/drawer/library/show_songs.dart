@@ -21,7 +21,7 @@ import 'package:flutter/material.dart';
 
 import 'package:hive/hive.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
-import 'package:neom_music_player/domain/entities/app_media_item.dart';
+import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_music_player/ui/widgets/gradient_containers.dart';
 import 'package:neom_music_player/ui/widgets/image_card.dart';
 import 'package:neom_music_player/neom_player_invoke.dart';
@@ -190,8 +190,8 @@ class _SongsListState extends State<SongsList> {
                           leading: imageCard(
                             localImage: offline,
                             imageUrl: offline
-                                ? _songs[index].image.toString()
-                                : _songs[index].image.toString(),
+                                ? _songs[index].imgUrl.toString()
+                                : _songs[index].imgUrl.toString(),
                           ),
                           title: Text(
                             '${_songs[index].title}',

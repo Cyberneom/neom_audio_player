@@ -1,20 +1,15 @@
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:neom_commons/core/data/firestore/itemlist_firestore.dart';
-import 'package:neom_commons/core/data/implementations/user_controller.dart';
 import 'package:neom_commons/core/domain/model/item_list.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
-import 'package:neom_commons/core/utils/constants/app_constants.dart';
 import 'package:neom_commons/core/utils/constants/app_route_constants.dart';
 import 'package:neom_commons/core/utils/enums/itemlist_type.dart';
-import 'package:neom_music_player/data/api_services/APIs/saavn_api.dart';
-import 'package:neom_music_player/domain/entities/app_media_item.dart';
+import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_music_player/ui/home/music_player_home_controller.dart';
 import 'package:neom_music_player/ui/widgets/collage.dart';
 import 'package:neom_music_player/ui/widgets/horizontal_albumlist.dart';
@@ -22,19 +17,15 @@ import 'package:neom_music_player/ui/widgets/horizontal_albumlist_separated.dart
 import 'package:neom_music_player/ui/widgets/image_card.dart';
 import 'package:neom_music_player/ui/widgets/like_button.dart';
 import 'package:neom_music_player/ui/widgets/on_hover.dart';
-import 'package:neom_music_player/ui/widgets/snackbar.dart';
 import 'package:neom_music_player/ui/widgets/song_tile_trailing_menu.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
 import 'package:neom_music_player/utils/constants/music_player_route_constants.dart';
-import 'package:neom_music_player/utils/helpers/extensions.dart';
-import 'package:neom_music_player/utils/helpers/format.dart';
 import 'package:neom_music_player/neom_player_invoke.dart';
 import 'package:neom_music_player/ui/widgets/song_list.dart';
 import 'package:neom_music_player/ui/drawer/library/liked_media_items.dart';
 import 'package:neom_music_player/ui/Search/artist_search_page.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
 import 'package:neom_music_player/utils/enums/image_quality.dart';
-import 'dart:math';
 
 class MusicPlayerHomeContent extends StatelessWidget {
 

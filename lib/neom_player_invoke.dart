@@ -18,26 +18,21 @@
  */
 
 import 'dart:io';
-import 'package:get/get.dart' as getx;
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:get_it/get_it.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
 import 'package:neom_music_player/data/implementations/app_hive_controller.dart';
-import 'package:neom_music_player/domain/entities/app_media_item.dart';
+import 'package:neom_commons/core/domain/model/app_media_item.dart';
+import 'package:neom_commons/core/utils/enums/app_media_source.dart';
 import 'package:neom_music_player/ui/player/miniplayer_controller.dart';
-import 'package:neom_music_player/utils/enums/app_media_source.dart';
 import 'package:neom_music_player/utils/helpers/media_item_mapper.dart';
-import 'package:neom_music_player/domain/entities/youtube_item.dart';
 import 'package:neom_music_player/domain/use_cases/neom_audio_handler.dart';
-import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
-import 'package:neom_music_player/domain/use_cases/youtube_services.dart';
-import 'package:neom_music_player/ui/player/audioplayer.dart';
 import 'package:neom_music_player/utils/music_player_utilities.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:get/get.dart' as getx;
 
 // ignore: avoid_classes_with_only_static_members
 class NeomPlayerInvoke {
@@ -164,7 +159,8 @@ class NeomPlayerInvoke {
       audioHandler.currentMediaItem = queue.elementAt(index);
       AppUtilities.logger.d("Starting stream for ${queue[index].title} and URL ${queue[index].extras!['url'].toString()}");
       await audioHandler.play();
-      // getx.Get.find<MiniPlayerController>().setMediaItem(queue.elementAt(index));
+
+      getx.Get.find<MiniPlayerController>().setMediaItem(queue.elementAt(index));
       // await audioHandler.playFromUri(Uri.parse(queue[index].extras!['url'].toString()));
       final bool enforceRepeat = AppHiveController().enforceRepeat;
       if (enforceRepeat) {

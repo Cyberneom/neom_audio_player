@@ -22,15 +22,15 @@ import 'package:neom_commons/core/domain/model/item_list.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_music_player/data/api_services/APIs/saavn_api.dart';
 import 'package:neom_music_player/data/api_services/spotify/spotify_api_calls.dart';
-import 'package:neom_music_player/domain/entities/app_media_item.dart';
-import 'package:neom_music_player/utils/helpers/audio_query.dart';
-import 'package:neom_music_player/utils/helpers/spotify_helper.dart';
-import 'package:neom_music_player/neom_player_invoke.dart';
+import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_music_player/domain/use_cases/youtube_services.dart';
-import 'package:neom_music_player/ui/widgets/song_list.dart';
-import 'package:neom_music_player/ui/player/audioplayer.dart';
+import 'package:neom_music_player/neom_player_invoke.dart';
 import 'package:neom_music_player/ui/Search/search_page.dart';
 import 'package:neom_music_player/ui/YouTube/youtube_playlist.dart';
+import 'package:neom_music_player/ui/player/media_player_page.dart';
+import 'package:neom_music_player/ui/widgets/song_list.dart';
+import 'package:neom_music_player/utils/helpers/audio_query.dart';
+import 'package:neom_music_player/utils/helpers/spotify_helper.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 
 // ignore: avoid_classes_with_only_static_members
@@ -125,7 +125,7 @@ class SaavnUrlHandler extends StatelessWidget {
           context,
           PageRouteBuilder(
             opaque: false,
-            pageBuilder: (_, __, ___) => const PlayScreen(),
+            pageBuilder: (_, __, ___) => const MediaPlayerPage(),
           ),
         );
       }
@@ -197,7 +197,7 @@ class YtUrlHandler extends StatelessWidget {
           context,
           PageRouteBuilder(
             opaque: false,
-            pageBuilder: (_, __, ___) => const PlayScreen(),
+            pageBuilder: (_, __, ___) => const MediaPlayerPage(),
           ),
         );
       });
@@ -248,7 +248,7 @@ class OfflinePlayHandler extends StatelessWidget {
         context,
         PageRouteBuilder(
           opaque: false,
-          pageBuilder: (_, __, ___) => const PlayScreen(),
+          pageBuilder: (_, __, ___) => const MediaPlayerPage(),
         ),
       );
     });

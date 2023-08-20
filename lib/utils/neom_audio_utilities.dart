@@ -2,7 +2,7 @@ import 'dart:collection';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:neom_music_player/domain/entities/app_media_item.dart';
+import 'package:neom_commons/core/domain/model/app_media_item.dart';
 
 class NeomAudioUtilities {
 
@@ -25,9 +25,9 @@ class NeomAudioUtilities {
       case 0:
         appMediaItems.sort(
               (a, b) => a.title
-              .toString()
+
               .toUpperCase()
-              .compareTo(b.title.toString().toUpperCase()),
+              .compareTo(b.title.toUpperCase()),
         );
       case 1:
         appMediaItems.sort(
@@ -39,16 +39,15 @@ class NeomAudioUtilities {
       case 2:
         appMediaItems.sort(
               (a, b) => a.album
-              .toString()
               .toUpperCase()
-              .compareTo(b.album.toString().toUpperCase()),
+              .compareTo(b.album.toUpperCase()),
         );
       case 3:
         appMediaItems.sort(
               (a, b) => a.artist
-              .toString()
+
               .toUpperCase()
-              .compareTo(b.artist.toString().toUpperCase()),
+              .compareTo(b.artist.toUpperCase()),
         );
       case 4:
         appMediaItems.sort(

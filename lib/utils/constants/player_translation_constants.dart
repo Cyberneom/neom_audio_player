@@ -183,6 +183,7 @@ class PlayerTranslationConstants {
   static const String musicLang = 'musicLang';
   static const String musicLangSub = 'musicLangSub';
   static const String musicPlayback = 'musicPlayback';
+  static const String music = 'music';
   static const String myMusic = 'myMusic';
   static const String noFolderSelected = 'noFolderSelected';
   static const String notAvailable = 'notAvailable';

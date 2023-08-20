@@ -21,7 +21,6 @@ import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:logging/logging.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 
 // ignore: avoid_classes_with_only_static_members

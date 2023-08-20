@@ -26,7 +26,7 @@ import 'package:neom_music_player/ui/widgets/bouncy_playlist_header_scroll_view.
 import 'package:neom_music_player/ui/widgets/copy_clipboard.dart';
 import 'package:neom_music_player/ui/widgets/gradient_containers.dart';
 import 'package:neom_music_player/ui/widgets/image_card.dart';
-import 'package:neom_music_player/domain/entities/app_media_item.dart';
+import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_music_player/domain/entities/url_image_generator.dart';
 
 class SongsListViewPage extends StatefulWidget {
@@ -199,7 +199,7 @@ class _SongsListViewPageState extends State<SongsListViewPage> {
                           overflow: TextOverflow.ellipsis,) : null,
                         leading: imageCard(
                           elevation: 8,
-                          imageUrl: entry.image,
+                          imageUrl: entry.imgUrl,
                         ),
                         onLongPress: () {
                           copyToClipboard(

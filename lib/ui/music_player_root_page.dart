@@ -13,7 +13,7 @@ import 'package:neom_music_player/ui/player/miniplayer.dart';
 import 'package:neom_music_player/utils/constants/music_player_route_constants.dart';
 import 'package:neom_music_player/utils/helpers/route_handler.dart';
 import 'package:neom_music_player/ui/music_player_routes.dart';
-import 'package:neom_music_player/ui/player/audioplayer.dart';
+import 'package:neom_music_player/ui/player/media_player_page.dart';
 import 'package:neom_music_player/ui/YouTube/youtube_home.dart';
 import 'package:neom_music_player/ui/drawer/music_player_drawer.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
@@ -27,12 +27,12 @@ class MusicPlayerRootPage extends StatefulWidget {
 
 class _MusicPlayerRootPageState extends State<MusicPlayerRootPage> {
   final ValueNotifier<int> _selectedIndex = ValueNotifier<int>(0);
-  List sectionsToShow = ['Home', 'Spotify', 'YouTube'];
+  List sectionsToShow = ['Music', 'Spotify', 'YouTube'];
   DateTime? backButtonPressTime;
   final bool useDense = false;
 
   void callback() {
-    List sectionsToShow = ['Home', 'Spotify', 'YouTube'];
+    List sectionsToShow = ['Music', 'Spotify', 'YouTube'];
     onItemTapped(0);
     setState(() {});
   }
@@ -86,7 +86,7 @@ class _MusicPlayerRootPageState extends State<MusicPlayerRootPage> {
                     if (settings.name == MusicPlayerRouteConstants.player) {
                       return PageRouteBuilder(
                         opaque: false,
-                        pageBuilder: (_, __, ___) => const PlayScreen(),
+                        pageBuilder: (_, __, ___) => const MediaPlayerPage(),
                       );
                     }
                     return HandleRoute.handleRoute(settings.name);
@@ -215,10 +215,10 @@ class _MusicPlayerRootPageState extends State<MusicPlayerRootPage> {
   List<CustomBottomNavBarItem> _navBarItems(BuildContext context) {
     return sectionsToShow.map((section) {
       switch (section) {
-        case 'Home':
+        case 'Music':
           return CustomBottomNavBarItem(
-            icon: const Icon(Icons.home_rounded),
-            title: Text(PlayerTranslationConstants.home.tr),
+            icon: const Icon(Icons.play_circle_fill),
+            title: Text(PlayerTranslationConstants.music.tr),
             selectedColor: Theme.of(context).colorScheme.secondary,
           );
         case 'Spotify':
@@ -235,8 +235,8 @@ class _MusicPlayerRootPageState extends State<MusicPlayerRootPage> {
           );
         default:
           return CustomBottomNavBarItem(
-            icon: const Icon(Icons.home_rounded),
-            title: Text(PlayerTranslationConstants.home.tr),
+            icon: const Icon(Icons.play_circle_fill),
+            title: Text(PlayerTranslationConstants.music.tr),
             selectedColor: Theme.of(context).colorScheme.secondary,
           );
       }

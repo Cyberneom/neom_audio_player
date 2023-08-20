@@ -28,7 +28,6 @@ import 'package:get/get.dart';
 
 import 'package:hive/hive.dart';
 import 'package:http/http.dart';
-import 'package:logging/logging.dart';
 import 'package:metadata_god/metadata_god.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_music_player/domain/use_cases/ext_storage_provider.dart';

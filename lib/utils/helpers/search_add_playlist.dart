@@ -20,19 +20,18 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-
+import 'package:get/get.dart';
 import 'package:http/http.dart';
+import 'package:http/http.dart' as http;
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_music_player/data/api_services/APIs/saavn_api.dart';
 import 'package:neom_music_player/data/api_services/spotify/spotify_api_calls.dart';
 import 'package:neom_music_player/data/implementations/playlist_hive_controller.dart';
-import 'package:neom_music_player/ui/widgets/gradient_containers.dart';
 import 'package:neom_music_player/domain/use_cases/youtube_services.dart';
+import 'package:neom_music_player/ui/widgets/gradient_containers.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
-import 'package:get/get.dart';
-import 'package:http/http.dart' as http;
 
 // ignore: avoid_classes_with_only_static_members
 class SearchAddPlaylist {

@@ -21,7 +21,7 @@ import 'package:audio_service/audio_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:neom_commons/core/domain/model/item_list.dart';
-import 'package:neom_music_player/domain/entities/app_media_item.dart';
+import 'package:neom_commons/core/domain/model/app_media_item.dart';
 
 import 'package:neom_music_player/ui/widgets/add_playlist.dart';
 import 'package:neom_music_player/utils/helpers/add_mediaitem_to_queue.dart';

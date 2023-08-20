@@ -1,27 +1,15 @@
-import 'dart:io';
 
 import 'package:audio_service/audio_service.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
-import 'package:neom_commons/core/app_flavour.dart';
 import 'package:neom_commons/core/data/firestore/itemlist_firestore.dart';
 
-import 'package:neom_commons/core/data/firestore/profile_firestore.dart';
-import 'package:neom_commons/core/data/firestore/user_firestore.dart';
-import 'package:neom_commons/core/domain/model/app_item.dart';
-import 'package:neom_commons/core/domain/model/app_profile.dart';
 import 'package:neom_commons/core/domain/model/item_list.dart';
-import 'package:neom_commons/core/domain/use_cases/itemlist_service.dart';
 import 'package:neom_commons/core/data/implementations/user_controller.dart';
-import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
-import 'package:neom_music_player/domain/entities/app_media_item.dart';
+import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_music_player/domain/use_cases/neom_audio_handler.dart';
-import 'package:neom_music_player/ui/player/audioplayer.dart';
-import 'package:neom_music_player/ui/widgets/image_card.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
 
 
@@ -101,7 +89,7 @@ class MusicPlayerHomeController extends GetxController {
     try {
       Map<String,Itemlist> myLists = await ItemlistFirestore().retrieveItemlists(userController.profile.id);
       myItemLists = myLists.values.toList();
-      publicItemlists = await ItemlistFirestore().fetchAll(excludeFirstlist: true, minItems: 2);
+      publicItemlists = await ItemlistFirestore().fetchAll(excludeFirstlist: false, minItems: 2);
       for (final myItemlist in myItemLists) {
         publicItemlists.removeWhere((publicList) => myItemlist.id == publicList.id);
       }

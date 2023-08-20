@@ -17,30 +17,21 @@
  * Copyright (c) 2021-2023, Ankit Sangwan
  */
 
-import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-
+import 'package:get/get.dart' as getx;
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:hive_flutter/hive_flutter.dart';
-import 'package:home_widget/home_widget.dart';
-import 'package:logging/logging.dart';
 import 'package:neom_commons/core/app_flavour.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_theme.dart';
-import 'package:neom_commons/core/utils/app_utilities.dart';
-import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
-import 'package:neom_music_player/utils/helpers/handle_native.dart';
-import 'package:neom_music_player/utils/helpers/import_export_playlist.dart';
+import 'package:neom_music_player/ui/player/miniplayer_controller.dart';
 import 'package:neom_music_player/utils/helpers/route_handler.dart';
-import 'package:neom_music_player/data/providers/neom_audio_provider.dart';
 import 'package:neom_music_player/utils/theme/music_app_theme.dart';
 import 'package:neom_music_player/ui/music_player_routes.dart';
-import 'package:neom_music_player/ui/player/audioplayer.dart';
-import 'package:receive_sharing_intent/receive_sharing_intent.dart';
+import 'package:neom_music_player/ui/player/media_player_page.dart';
 
 class NeomMusicPlayerApp extends StatefulWidget {
 
@@ -86,6 +77,7 @@ class _NeomMusicPlayerAppState extends State<NeomMusicPlayerApp> {
   @override
   void initState() {
     super.initState();
+    getx.Get.find<MiniPlayerController>().setIsTimeline(false);
     ///TODO VERIFY IF NEEDED
     // HomeWidget.setAppGroupId('com.gigmeout.io');
     // HomeWidget.registerBackgroundCallback(NeomMusicPlayerApp.backgroundCallback);
@@ -194,7 +186,7 @@ class _NeomMusicPlayerAppState extends State<NeomMusicPlayerApp> {
         onGenerateRoute: (RouteSettings settings) {
           if (settings.name == '/player') {
             return PageRouteBuilder(
-              pageBuilder: (_, __, ___) => const PlayScreen(), opaque: false,
+              pageBuilder: (_, __, ___) => const MediaPlayerPage(), opaque: false,
             );
           }
           return HandleRoute.handleRoute(settings.name);

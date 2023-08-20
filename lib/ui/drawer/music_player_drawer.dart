@@ -1,6 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-
+import 'package:get/get.dart' as getx;
 import 'package:get/get.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:neom_commons/core/app_flavour.dart';
@@ -14,6 +14,7 @@ import 'package:neom_commons/core/utils/constants/app_route_constants.dart';
 import 'package:neom_music_player/ui/drawer/library/liked_media_items.dart';
 import 'package:neom_music_player/ui/drawer/local_music/downloaded_songs.dart';
 import 'package:neom_music_player/ui/drawer/settings/widgets/music_player_settings_page.dart';
+import 'package:neom_music_player/ui/player/miniplayer_controller.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
 import 'package:neom_music_player/utils/constants/music_player_route_constants.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
@@ -80,24 +81,7 @@ class MusicPlayerDrawer extends StatelessWidget {
   }
 
   Widget _menuHeader(BuildContext context, AppDrawerController _) {
-    if (_.user.id.isEmpty) {
-      return customInkWell(
-        context: context,
-        onPressed: () {
-          Get.offAllNamed(AppRouteConstants.login);
-        },
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(minWidth: 200, minHeight: 100),
-          child: Center(
-            child: Text(
-              PlayerTranslationConstants.loginToContinue.tr,
-              style: AppTheme.primaryTitleText,
-            ),
-          ),
-        ),
-      );
-    } else {
-      return Center(
+    return Center(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.center,
@@ -109,7 +93,11 @@ class MusicPlayerDrawer extends StatelessWidget {
               leading: IconButton(
                   constraints: const BoxConstraints(),
                   icon: const Icon(Icons.arrow_back_ios),
-                  onPressed: ()=> Get.offAllNamed(AppRouteConstants.home),),
+                  onPressed: () {
+                    getx.Get.find<MiniPlayerController>().setIsTimeline(true);
+                    Get.offAllNamed(AppRouteConstants.home);
+                  },
+              ),
               title: Row(
                 children: [
                   Column(
@@ -144,7 +132,6 @@ class MusicPlayerDrawer extends StatelessWidget {
           ],
         ),
       );
-    }
   }
 
   ListTile drawerRowOption(MusicPlayerDrawerMenu selectedMenu, Icon icon, BuildContext context, {bool isEnabled = true}) {

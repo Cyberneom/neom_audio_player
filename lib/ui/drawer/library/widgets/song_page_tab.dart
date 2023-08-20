@@ -21,31 +21,20 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
-import 'package:hive/hive.dart';
-import 'package:neom_commons/core/app_flavour.dart';
 import 'package:neom_commons/core/domain/model/item_list.dart';
-import 'package:neom_commons/core/utils/app_color.dart';
-import 'package:neom_commons/core/utils/constants/app_assets.dart';
-import 'package:neom_music_player/domain/entities/app_media_item.dart';
+import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_music_player/ui/drawer/library/liked_media_items.dart';
-import 'package:neom_music_player/ui/widgets/collage.dart';
-import 'package:neom_music_player/ui/widgets/custom_physics.dart';
-import 'package:neom_music_player/ui/widgets/data_search.dart';
 import 'package:neom_music_player/ui/widgets/download_button.dart';
 import 'package:neom_music_player/ui/widgets/empty_screen.dart';
-import 'package:neom_music_player/ui/widgets/gradient_containers.dart';
 import 'package:neom_music_player/ui/widgets/image_card.dart';
 import 'package:neom_music_player/ui/widgets/like_button.dart';
 import 'package:neom_music_player/ui/widgets/playlist_head.dart';
 import 'package:neom_music_player/ui/widgets/song_tile_trailing_menu.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
-import 'package:neom_music_player/utils/helpers/songs_count.dart' as songs_count;
 import 'package:neom_music_player/neom_player_invoke.dart';
-import 'package:neom_music_player/ui/drawer/library/show_songs.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
 // import 'package:path_provider/path_provider.dart';
 import 'package:get/get.dart';
-import 'package:neom_music_player/utils/neom_audio_utilities.dart';
 
 
 class SongsPageTab extends StatelessWidget {
@@ -96,7 +85,7 @@ class SongsPageTab extends StatelessWidget {
                   final bool selected = selectedItems.contains(item.id);
                   return ListTile(
                     leading: imageCard(
-                      imageUrl: item.image,
+                      imageUrl: item.imgUrl,
                       selected: selected,
                     ),
                     onTap: () {
