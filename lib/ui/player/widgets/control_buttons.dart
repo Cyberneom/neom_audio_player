@@ -174,7 +174,7 @@ class ControlButtons extends StatelessWidget {
                   child: DownloadButton(
                     size: 20.0,
                     icon: 'download',
-                    data: MediaItemMapper.toJSON(mediaItem!),
+                    mediaItem: MediaItemMapper.fromMediaItem(mediaItem!),
                   )
               );
             default:

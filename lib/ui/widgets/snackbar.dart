@@ -20,6 +20,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:logging/logging.dart';
+import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
 
@@ -28,7 +29,7 @@ class ShowSnackBar {
     BuildContext context,
     String title, {
     SnackBarAction? action,
-    Duration duration = const Duration(seconds: 1),
+    Duration duration = const Duration(seconds: 3),
     bool noAction = false,
   }) {
     try {
@@ -36,7 +37,7 @@ class ShowSnackBar {
         SnackBar(
           duration: duration,
           elevation: 6,
-          backgroundColor: Colors.grey[900],
+          backgroundColor: AppColor.getMain(),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
           ),
@@ -50,7 +51,7 @@ class ShowSnackBar {
               : action ??
                   SnackBarAction(
                     textColor: Theme.of(context).colorScheme.secondary,
-                    label: PlayerTranslationConstants.ok.tr,
+                    label: PlayerTranslationConstants.ok.tr.toUpperCase(),
                     onPressed: () {},
                   ),
         ),

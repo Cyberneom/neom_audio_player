@@ -189,13 +189,13 @@ class _SongsListViewPageState extends State<SongsListViewPage> {
                     ...itemsList.map((entry) {
                       return ListTile(
                         contentPadding: widget.listItemsPadding ?? const EdgeInsets.symmetric(horizontal: 20.0),
-                        title: Text(entry.title,
+                        title: Text(entry.name,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
                             fontWeight: FontWeight.w500,
                           ),
                         ),
-                        subtitle: entry.subtitle != null ? Text(entry.subtitle!,
+                        subtitle: entry.description != null ? Text(entry.description!,
                           overflow: TextOverflow.ellipsis,) : null,
                         leading: imageCard(
                           elevation: 8,
@@ -204,7 +204,7 @@ class _SongsListViewPageState extends State<SongsListViewPage> {
                         onLongPress: () {
                           copyToClipboard(
                             context: context,
-                            text: entry.title,
+                            text: entry.name,
                           );
                         },
                         // trailing: Row(

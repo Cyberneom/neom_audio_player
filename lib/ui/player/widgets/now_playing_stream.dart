@@ -11,6 +11,7 @@ import 'package:neom_music_player/domain/use_cases/neom_audio_handler.dart';
 import 'package:neom_music_player/ui/widgets/download_button.dart';
 import 'package:neom_music_player/ui/widgets/like_button.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
+import 'package:neom_music_player/utils/helpers/media_item_mapper.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 class NowPlayingStream extends StatelessWidget {
@@ -127,33 +128,7 @@ class NowPlayingStream extends StatelessWidget {
                         DownloadButton(
                           icon: 'download',
                           size: 25.0,
-                          data: {
-                            'id': queue[index].id,
-                            'artist': queue[index].artist.toString(),
-                            'album': queue[index].album.toString(),
-                            'image': queue[index].artUri.toString(),
-                            'duration': queue[index]
-                                .duration!
-                                .inSeconds
-                                .toString(),
-                            'title': queue[index].title,
-                            'url': queue[index].extras?['url'].toString(),
-                            'year':
-                            queue[index].extras?['year'].toString(),
-                            'language': queue[index]
-                                .extras?['language']
-                                .toString(),
-                            'genre': queue[index].genre?.toString(),
-                            '320kbps': queue[index].extras?['320kbps'],
-                            'has_lyrics':
-                            queue[index].extras?['has_lyrics'],
-                            'release_date':
-                            queue[index].extras?['release_date'],
-                            'album_id': queue[index].extras?['album_id'],
-                            'subtitle': queue[index].extras?['subtitle'],
-                            'perma_url':
-                            queue[index].extras?['perma_url'],
-                          },
+                          mediaItem: MediaItemMapper.fromMediaItem(queue[index])
                         )
                       ],
                       ReorderableDragStartListener(

@@ -29,16 +29,16 @@ class MusicPlayerUtilities {
     // final bool cacheSong = Hive.box(AppHiveConstants.settings).get('cacheSong', defaultValue: true) as bool;
     final int expiredAt = playItem.expireAt ?? 0;
     if ((DateTime.now().millisecondsSinceEpoch ~/ 1000) + 350 > expiredAt) {
-      AppUtilities.logger.i('Before service | youtube link expired for ${playItem.title}',);
+      AppUtilities.logger.i('Before service | youtube link expired for ${playItem.name}',);
       if (Hive.box(AppHiveConstants.ytLinkCache).containsKey(playItem.id)) {
         final Map cache = await Hive.box(AppHiveConstants.ytLinkCache).get(playItem.id) as Map;
         final int expiredAt = int.parse((cache['expire_at'] ?? '0').toString());
 
         if ((DateTime.now().millisecondsSinceEpoch ~/ 1000) + 350 > expiredAt) {
-          AppUtilities.logger.i('youtube link expired in cache for ${playItem.title}');
+          AppUtilities.logger.i('youtube link expired in cache for ${playItem.name}');
           AppMediaItem? newMediaItem = await YouTubeServices().refreshLink(playItem.id);
           AppUtilities.logger.i(
-            'before service | received new link for ${playItem.title}',
+            'before service | received new link for ${playItem.name}',
           );
           if (newMediaItem != null) {
             playItem.url = newMediaItem.url;
@@ -46,13 +46,13 @@ class MusicPlayerUtilities {
             playItem.expireAt = newMediaItem.expireAt;
           }
         } else {
-          AppUtilities.logger.i('youtube link found in cache for ${playItem.title}');
+          AppUtilities.logger.i('youtube link found in cache for ${playItem.name}');
           playItem.url = cache['url'].toString();
           playItem.expireAt = int.parse(cache['expire_at'].toString());
         }
       } else {
         final newData = await YouTubeServices().refreshLink(playItem.id);
-        AppUtilities.logger.i('before service | received new link for ${playItem.title}',);
+        AppUtilities.logger.i('before service | received new link for ${playItem.name}',);
         if (newData != null) {
           playItem.url = newData.url;
           playItem.duration = newData.duration;

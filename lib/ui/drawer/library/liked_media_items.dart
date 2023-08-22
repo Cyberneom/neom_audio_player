@@ -30,6 +30,7 @@ import 'package:neom_music_player/ui/widgets/custom_physics.dart';
 import 'package:neom_music_player/ui/widgets/data_search.dart';
 import 'package:neom_music_player/ui/widgets/download_button.dart';
 import 'package:neom_music_player/ui/widgets/gradient_containers.dart';
+import 'package:neom_music_player/ui/widgets/multi_download_button.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
 import 'package:neom_music_player/utils/helpers/songs_count.dart' as songs_count;
 import 'package:neom_music_player/neom_player_invoke.dart';
@@ -122,7 +123,7 @@ class _LikedMediaItemsState extends State<LikedMediaItems>
       _appMediaItems = AppMediaItem.mapItemsFromItemlist(widget.itemlist!);
     } else {
       _appMediaItems = likedBox?.values.map((element) {
-        return AppMediaItem.fromMap(element);
+        return AppMediaItem.fromJSON(element);
       }).toList() ?? [];
 
       songs_count.addSongsCount(
@@ -177,8 +178,8 @@ class _LikedMediaItemsState extends State<LikedMediaItems>
           appBar: AppBar(
             title: Text(
               widget.itemlist != null
-                  ? widget.itemlist?.name.toUpperCase() ?? ''
-                  : widget.alternativeName.toUpperCase(),
+                  ? widget.itemlist?.name.tr.toUpperCase() ?? ''
+                  : widget.alternativeName.tr.toUpperCase(),
               textAlign: TextAlign.center,
               overflow: TextOverflow.ellipsis,
             ),
@@ -210,7 +211,7 @@ class _LikedMediaItemsState extends State<LikedMediaItems>
                   children: <Widget>[
                     if (_appMediaItems.isNotEmpty)
                       MultiDownloadButton(
-                        data: _appMediaItems.map((e) => e.toMap()).toList(),
+                        data: _appMediaItems.map((e) => e.toJSON()).toList(),
                         playlistName: widget.itemlist != null
                             ? widget.itemlist!.name.toUpperCase()
                             : widget.alternativeName.toUpperCase(),

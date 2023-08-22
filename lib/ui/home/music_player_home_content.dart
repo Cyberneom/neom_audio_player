@@ -78,10 +78,7 @@ class MusicPlayerHomeContent extends StatelessWidget {
                 padding: const EdgeInsets.fromLTRB(15, 10, 15, 5),
                 child: Text(publicList.name.capitalizeFirst ?? '',
                   style: TextStyle(
-                    color: Theme
-                        .of(context)
-                        .colorScheme
-                        .secondary,
+                    color: Theme.of(context).colorScheme.secondary,
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
@@ -236,7 +233,7 @@ class MusicPlayerHomeContent extends StatelessWidget {
                                       horizontal: 10.0,),
                                     child: Column(
                                       children: [
-                                        Text(item.title,
+                                        Text(item.name,
                                           textAlign: TextAlign.center,
                                           softWrap: false,
                                           overflow: TextOverflow.ellipsis,
@@ -364,8 +361,7 @@ class MusicPlayerHomeContent extends StatelessWidget {
     );
   }
 
-  Widget buildLastSessionContainer(BuildContext context,
-      MusicPlayerHomeController _) {
+  Widget buildLastSessionContainer(BuildContext context, MusicPlayerHomeController _) {
     return ValueListenableBuilder(
       valueListenable: Hive.box(AppHiveConstants.settings).listenable(),
       child: Column(
@@ -378,10 +374,7 @@ class MusicPlayerHomeContent extends StatelessWidget {
                   child: Text(
                     PlayerTranslationConstants.lastSession.tr,
                     style: TextStyle(
-                      color: Theme
-                          .of(context)
-                          .colorScheme
-                          .secondary,
+                      color: Theme.of(context).colorScheme.secondary,
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                     ),
@@ -590,21 +583,21 @@ class MusicPlayerHomeContent extends StatelessWidget {
             ),
           ],
         ),
-        HorizontalAlbumsList(
-          itemlist: likedArtistsList,
-          onTap: (int idx) {
-            Navigator.push(
-              context,
-              PageRouteBuilder(
-                opaque: false,
-                pageBuilder: (_, __, ___) =>
-                    ArtistSearchPage(
-                      data: likedArtistsList as Map,
-                    ),
-              ),
-            );
-          },
-        ),
+        // HorizontalAlbumsList(
+        //   itemlist: likedArtistsList,
+        //   onTap: (int idx) {
+        //     Navigator.push(
+        //       context,
+        //       PageRouteBuilder(
+        //         opaque: false,
+        //         pageBuilder: (_, __, ___) =>
+        //             ArtistSearchPage(
+        //               data: likedArtistsList as Map,
+        //             ),
+        //       ),
+        //     );
+        //   },
+        // ),
       ],
     );
   }

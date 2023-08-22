@@ -72,7 +72,7 @@ class MiniPlayerController extends GetxController {
   }
 
   void setMediaItem(MediaItem item) {
-    AppUtilities.logger.i("Setting new mediaitem");
+    AppUtilities.logger.i("Setting new mediaitem ${item.title}");
     mediaItem = item;
     update();
   }
@@ -231,8 +231,8 @@ class MiniPlayerController extends GetxController {
                   elevation: 8,
                   boxDimension: useDense ? 40.0 : 50.0,
                   localImage: item == null ? false : item.artUri?.toString().startsWith('file:') ?? false,
-                  imageUrl: item == null ? AppFlavour.getAppLogoUrl() : (item?.artUri?.toString().startsWith('file:') ?? false
-                      ? item?.artUri?.toFilePath() : item?.artUri?.toString()) ?? '',
+                  imageUrl: item == null ? AppFlavour.getAppLogoUrl() : (item.artUri?.toString().startsWith('file:') ?? false
+                      ? item.artUri?.toFilePath() : item.artUri?.toString()) ?? '',
                 ),
               ),
             )
@@ -259,8 +259,8 @@ class MiniPlayerController extends GetxController {
                 elevation: 8,
                 boxDimension: useDense ? 40.0 : 50.0,
                 localImage: item == null ? false : item.artUri?.toString().startsWith('file:') ?? false,
-                imageUrl: item == null ? AppFlavour.getAppLogoUrl() : (item?.artUri?.toString().startsWith('file:') ?? false
-                    ? item?.artUri?.toFilePath() : item?.artUri?.toString()) ?? '',
+                imageUrl: item == null ? AppFlavour.getAppLogoUrl() : (item.artUri?.toString().startsWith('file:') ?? false
+                    ? item.artUri?.toFilePath() : item.artUri?.toString()) ?? '',
               ),
             ))
           : ControlButtons(audioHandler, miniplayer: true,

@@ -27,6 +27,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_music_player/data/implementations/app_hive_controller.dart';
 import 'package:neom_music_player/data/implementations/playlist_hive_controller.dart';
@@ -158,7 +159,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
         }
 
         if (item.artUri.toString().startsWith('http')) {
-          addRecentlyPlayed(item);
+          addRecentlyPlayed(MediaItemMapper.fromMediaItem(item));
           _recentSubject.add([item]);
 
           if (recommend && item.extras!['autoplay'] as bool) {
@@ -484,37 +485,42 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
     _player = AudioPlayer();
   }
 
-  Future<void> addRecentlyPlayed(MediaItem mediaitem) async {
-    AppUtilities.logger.i('adding ${mediaitem.id} to recently played');
-    List recentList = await Hive.box(AppHiveConstants.cache).get('recentSongs', defaultValue: [])?.toList() as List;
-    final Map songStats = await Hive.box(AppHiveConstants.stats).get(mediaitem.id, defaultValue: {}) as Map;
-    final Map mostPlayed = await Hive.box(AppHiveConstants.stats).get('mostPlayed', defaultValue: {}) as Map;
+  Future<void> addRecentlyPlayed(AppMediaItem appMediaItem) async {
+    AppUtilities.logger.i('adding ${appMediaItem.id} to recently played');
 
-    songStats['lastPlayed'] = DateTime.now().millisecondsSinceEpoch;
-    songStats['playCount'] = songStats['playCount'] == null ? 1 : songStats['playCount'] + 1;
-    songStats['isYoutube'] = mediaitem.genre == 'YouTube';
-    songStats['title'] = mediaitem.title;
-    songStats['artist'] = mediaitem.artist;
-    songStats['album'] = mediaitem.album;
-    songStats['id'] = mediaitem.id;
-    Hive.box(AppHiveConstants.stats).put(mediaitem.id, songStats);
+    try {
+      List recentList = await Hive.box(AppHiveConstants.cache).get('recentSongs', defaultValue: [])?.toList() as List;
+      final Map songStats = await Hive.box(AppHiveConstants.stats).get(appMediaItem.id, defaultValue: {}) as Map;
+      final Map mostPlayed = await Hive.box(AppHiveConstants.stats).get('mostPlayed', defaultValue: {}) as Map;
 
-    if ((songStats['playCount'] as int) > (mostPlayed['playCount'] as int? ?? 0)) {
-      Hive.box(AppHiveConstants.stats).put('mostPlayed', songStats);
+      songStats['lastPlayed'] = DateTime.now().millisecondsSinceEpoch;
+      songStats['playCount'] = songStats['playCount'] == null ? 1 : songStats['playCount'] + 1;
+      songStats['isYoutube'] = appMediaItem.genre == 'YouTube';
+      songStats['title'] = appMediaItem.name;
+      songStats['artist'] = appMediaItem.artist;
+      songStats['album'] = appMediaItem.album;
+      songStats['id'] = appMediaItem.id;
+      Hive.box(AppHiveConstants.stats).put(appMediaItem.id, songStats);
+
+      if ((songStats['playCount'] as int) > (mostPlayed['playCount'] as int? ?? 0)) {
+        Hive.box(AppHiveConstants.stats).put('mostPlayed', songStats);
+      }
+      AppUtilities.logger.i('adding ${appMediaItem.id} ${appMediaItem.name} data to stats');
+
+      recentList.insert(0, appMediaItem.toJSON());
+
+      final jsonList = recentList.map((item) => jsonEncode(item)).toList();
+      final uniqueJsonList = jsonList.toSet().toList();
+      recentList = uniqueJsonList.map((item) => jsonDecode(item)).toList();
+
+      if (recentList.length > 30) {
+        recentList = recentList.sublist(0, 30);
+      }
+      Hive.box(AppHiveConstants.cache).put('recentSongs', recentList);
+    } catch(e) {
+      AppUtilities.logger.e(e.toString());
     }
-    AppUtilities.logger.i('adding ${mediaitem.id} data to stats');
 
-    final Map item = MediaItemMapper.toJSON(mediaitem);
-    recentList.insert(0, item);
-
-    final jsonList = recentList.map((item) => jsonEncode(item)).toList();
-    final uniqueJsonList = jsonList.toSet().toList();
-    recentList = uniqueJsonList.map((item) => jsonDecode(item)).toList();
-
-    if (recentList.length > 30) {
-      recentList = recentList.sublist(0, 30);
-    }
-    Hive.box(AppHiveConstants.cache).put('recentSongs', recentList);
   }
 
   Future<void> addLastQueue(List<MediaItem> queue) async {

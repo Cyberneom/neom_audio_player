@@ -54,7 +54,7 @@ class HorizontalAlbumsList extends StatelessWidget {
     if (type == ItemlistType.album) {
       return '';
     } else if (type == ItemlistType.playlist || type == ItemlistType.radioStation) {
-      return formatString(item.title);
+      return formatString(item.name);
     } else if (type == ItemlistType.single) {
       return formatString(item.artist);
     } else {
@@ -212,7 +212,7 @@ class HorizontalAlbumsList extends StatelessWidget {
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Text(formatString(appMediaItem.title),
+                              Text(formatString(appMediaItem.name),
                                 textAlign: TextAlign.center,
                                 softWrap: false,
                                 overflow: TextOverflow.ellipsis,

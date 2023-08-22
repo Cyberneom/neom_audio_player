@@ -34,7 +34,7 @@ class Lyrics {
     required String id,
     required String title,
     required String artist,
-    required bool saavnHas,
+    required bool isInternalLyric,
   }) async {
     final Map<String, String> result = {
       'lyrics': '',
@@ -50,7 +50,7 @@ class Lyrics {
     result['source'] = res['source']!;
     if (result['lyrics'] == '') {
       AppUtilities.logger.i('Synced Lyrics, not found. Getting text lyrics');
-      if (saavnHas) {
+      if (isInternalLyric) {
         AppUtilities.logger.i('Getting Lyrics from Saavn');
         result['lyrics'] = await getSaavnLyrics(id);
         result['type'] = 'text';
@@ -60,7 +60,7 @@ class Lyrics {
             id: id,
             title: title,
             artist: artist,
-            saavnHas: false,
+            isInternalLyric: false,
           );
           result['lyrics'] = res['lyrics']!;
           result['type'] = res['type']!;

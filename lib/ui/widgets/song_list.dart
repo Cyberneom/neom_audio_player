@@ -34,6 +34,7 @@ import 'package:neom_music_player/ui/widgets/download_button.dart';
 import 'package:neom_music_player/ui/widgets/gradient_containers.dart';
 import 'package:neom_music_player/ui/widgets/image_card.dart';
 import 'package:neom_music_player/ui/widgets/like_button.dart';
+import 'package:neom_music_player/ui/widgets/multi_download_button.dart';
 import 'package:neom_music_player/ui/widgets/playlist_popupmenu.dart';
 import 'package:neom_music_player/ui/widgets/snackbar.dart';
 import 'package:neom_music_player/ui/widgets/song_tile_trailing_menu.dart';
@@ -224,7 +225,7 @@ class _SongsListPageState extends State<SongsListPage> {
                 actions: [
                   if (songList.isNotEmpty)
                     MultiDownloadButton(
-                      data: songList.map((e) => e.toMap()).toList(),
+                      data: songList.map((e) => e.toJSON()).toList(),
                       playlistName:
                           widget.itemlist.name?.toString() ?? 'Songs',
                     ),
@@ -290,7 +291,7 @@ class _SongsListPageState extends State<SongsListPage> {
                       return ListTile(
                         contentPadding: const EdgeInsets.only(left: 15.0),
                         title: Text(
-                          '${itemEntry.title}',
+                          '${itemEntry.name}',
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
                             fontWeight: FontWeight.w500,
@@ -299,11 +300,11 @@ class _SongsListPageState extends State<SongsListPage> {
                         onLongPress: () {
                           copyToClipboard(
                             context: context,
-                            text: '${itemEntry.title}',
+                            text: '${itemEntry.name}',
                           );
                         },
                         subtitle: Text(
-                          '${itemEntry.subtitle}',
+                          '${itemEntry.description}',
                           overflow: TextOverflow.ellipsis,
                         ),
                         leading: imageCard(imageUrl: itemEntry.imgUrl),
@@ -311,12 +312,12 @@ class _SongsListPageState extends State<SongsListPage> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             DownloadButton(
-                              data: itemEntry.toMap(),
+                              mediaItem: itemEntry,
                               icon: 'download',
                             ),
                             LikeButton(
                               mediaItem: null,
-                              data: itemEntry.toMap(),
+                              data: itemEntry.toJSON(),
                             ),
                             SongTileTrailingMenu(appMediaItem: itemEntry, itemlist: widget.itemlist),
                           ],

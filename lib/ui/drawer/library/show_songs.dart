@@ -194,7 +194,7 @@ class _SongsListState extends State<SongsList> {
                                 : _songs[index].imgUrl.toString(),
                           ),
                           title: Text(
-                            '${_songs[index].title}',
+                            '${_songs[index].name}',
                             overflow: TextOverflow.ellipsis,
                           ),
                           subtitle: Text(

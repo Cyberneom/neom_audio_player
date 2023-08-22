@@ -20,7 +20,9 @@
 import 'package:flutter/material.dart';
 
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_music_player/data/implementations/spotify_hive_controller.dart';
+import 'package:neom_music_player/neom_player_invoke.dart';
 import 'package:neom_music_player/ui/widgets/empty_screen.dart';
 import 'package:neom_music_player/ui/widgets/image_card.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
@@ -88,16 +90,11 @@ class _TopPageState extends State<TopPage>
               Expanded(
                 child: value
                     ? emptyScreen(
-                        context,
-                        0,
-                        ':( ',
-                        100,
-                        'ERROR',
-                        60,
-                        'Service Unavailable',
-                        20,
-                      )
-                    : const Column(
+                        context, 0,
+                        ':( ', 100,
+                        'ERROR', 60,
+                        'Service Unavailable', 20,
+                      ) : const Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           CircularProgressIndicator(),
@@ -111,16 +108,21 @@ class _TopPageState extends State<TopPage>
                   itemCount: showList.length,
                   itemExtent: 70.0,
                   itemBuilder: (context, index) {
+                    AppMediaItem appMediaItem = AppMediaItem(
+                      name: showList[index]["name"].toString(),
+                      imgUrl: showList[index]['image_url_small'].toString(),
+                      artist: showList[index]['artist'].toString(),
+                      permaUrl: showList[index]['spotifyUrl'].toString(),
+                    );
                     return ListTile(
                       leading: imageCard(
-                        imageUrl: showList[index]['image_url_small'].toString(),
+                        imageUrl: appMediaItem.imgUrl,
                       ),
                       title: Text(
-                        '${index + 1}. ${showList[index]["name"]}',
+                        '${index + 1}. ${appMediaItem.name}',
                         overflow: TextOverflow.ellipsis,
                       ),
-                      subtitle: Text(
-                        showList[index]['artist'].toString(),
+                      subtitle: Text(appMediaItem.artist,
                         overflow: TextOverflow.ellipsis,
                       ),
                       trailing: PopupMenuButton(
@@ -133,9 +135,7 @@ class _TopPageState extends State<TopPage>
                         onSelected: (int? value) async {
                           if (value == 0) {
                             await launchUrl(
-                              Uri.parse(
-                                showList[index]['spotifyUrl'].toString(),
-                              ),
+                              Uri.parse(appMediaItem.permaUrl),
                               mode: LaunchMode.externalApplication,
                             );
                           }
@@ -155,15 +155,25 @@ class _TopPageState extends State<TopPage>
                           ),
                         ],
                       ),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => SearchPage(
-                              query: showList[index]['name'].toString(),
-                            ),
-                          ),
+                      onTap: () async {
+                        await launchUrl(
+                            Uri.parse(appMediaItem.permaUrl),
+                            mode: LaunchMode.externalApplication,
                         );
+                        // NeomPlayerInvoke.init(
+                        //   appMediaItems: [appMediaItem],
+                        //   index: 0,
+                        //   isOffline: false,
+                        //   recommend: false,
+                        // );
+                        // Navigator.push(
+                        //   context,
+                        //   MaterialPageRoute(
+                        //     builder: (context) => SearchPage(
+                        //       query: showList[index]['name'].toString(),
+                        //     ),
+                        //   ),
+                        // );
                       },
                     );
                   },

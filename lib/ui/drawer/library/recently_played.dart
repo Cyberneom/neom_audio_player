@@ -28,6 +28,7 @@ import 'package:neom_music_player/ui/widgets/image_card.dart';
 import 'package:neom_music_player/ui/widgets/like_button.dart';
 import 'package:neom_music_player/neom_player_invoke.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
+import 'package:neom_music_player/utils/constants/music_player_route_constants.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
 import 'package:get/get.dart';
 
@@ -37,11 +38,17 @@ class RecentlyPlayed extends StatefulWidget {
 }
 
 class _RecentlyPlayedState extends State<RecentlyPlayed> {
-  List<AppMediaItem> _songs = [];
+  Map<String, AppMediaItem> _songs = {};
   bool added = false;
 
   Future<void> getSongs() async {
-    // _songs = Hive.box(AppHiveConstants.cache).get('recentSongs', defaultValue: []) as List;
+    List recentSongs = await Hive.box(AppHiveConstants.cache).get('recentSongs', defaultValue: []) as List;
+    if(recentSongs.isNotEmpty) {
+      for (final element in recentSongs) {
+        AppMediaItem recentMediaItem = AppMediaItem.fromJSON(element);
+        _songs[recentMediaItem.id] = recentMediaItem;
+      }
+    }
     added = true;
     setState(() {});
   }
@@ -65,7 +72,7 @@ class _RecentlyPlayedState extends State<RecentlyPlayed> {
               onPressed: () {
                 Hive.box(AppHiveConstants.cache).put('recentSongs', []);
                 setState(() {
-                  _songs = [];
+                  _songs = {};
                 });
               },
               tooltip: PlayerTranslationConstants.clearAll.tr,
@@ -74,23 +81,25 @@ class _RecentlyPlayedState extends State<RecentlyPlayed> {
           ],
         ),
         body: _songs.isEmpty
-            ? emptyScreen(
+            ? TextButton(onPressed: ()=>Navigator.pushNamed(context, MusicPlayerRouteConstants.home),
+            child: emptyScreen(
                 context, 3,
                 PlayerTranslationConstants.nothingTo.tr, 15,
                 PlayerTranslationConstants.showHere.tr, 50.0,
                 PlayerTranslationConstants.playSomething.tr, 23.0,
-              )
-            : ListView.builder(
+              ),
+        ) : ListView.builder(
                 physics: const BouncingScrollPhysics(),
                 padding: const EdgeInsets.only(top: 10, bottom: 10),
                 shrinkWrap: true,
                 itemCount: _songs.length,
                 itemExtent: 70.0,
                 itemBuilder: (context, index) {
+                  AppMediaItem item = _songs.values.elementAt(index);
                   return _songs.isEmpty
                       ? const SizedBox()
                       : Dismissible(
-                          key: Key(_songs[index].id.toString()),
+                          key: Key(item.id),
                           direction: DismissDirection.endToStart,
                           background: const ColoredBox(
                             color: Colors.redAccent,
@@ -107,13 +116,13 @@ class _RecentlyPlayedState extends State<RecentlyPlayed> {
                             ),
                           ),
                           onDismissed: (direction) {
-                            _songs.removeAt(index);
+                            _songs.remove(item.id);
                             setState(() {});
                             Hive.box(AppHiveConstants.cache).put('recentSongs', _songs);
                           },
                           child: ListTile(
                             leading: imageCard(
-                              imageUrl: _songs[index].imgUrl.toString(),
+                              imageUrl: item.imgUrl,
                             ),
                             trailing: Row(
                               mainAxisSize: MainAxisSize.min,
@@ -124,21 +133,21 @@ class _RecentlyPlayedState extends State<RecentlyPlayed> {
                                 // ),
                                 LikeButton(
                                   mediaItem: null,
-                                  data: _songs[index] as Map,
+                                  data: item.toJSON() as Map,
                                 ),
                               ],
                             ),
                             title: Text(
-                              '${_songs[index].title}',
+                              '${item.name}',
                               overflow: TextOverflow.ellipsis,
                             ),
                             subtitle: Text(
-                              '${_songs[index].artist}',
+                              '${item.artist}',
                               overflow: TextOverflow.ellipsis,
                             ),
                             onTap: () {
                               NeomPlayerInvoke.init(
-                                appMediaItems: _songs,
+                                appMediaItems: _songs.values.toList(),
                                 index: index,
                                 isOffline: false,
                               );

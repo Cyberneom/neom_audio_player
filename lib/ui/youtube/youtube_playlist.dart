@@ -177,17 +177,19 @@ class _YouTubePlaylistState extends State<YouTubePlaylist> {
                       id: searchedList.first['id'].toString(), data: searchedList.first,
                     );
                     final List<AppMediaItem> playList = AppMediaItem.listFromList(searchedList);
-                    playList[0] = response!;
+                    if(playList.isNotEmpty) {
+                      playList[0] = response!;
 
-                    setState(() {
-                      done = true;
-                    });
-                    NeomPlayerInvoke.init(
-                      appMediaItems: playList,
-                      index: 0,
-                      isOffline: false,
-                      recommend: false,
-                    );
+                      setState(() {
+                        done = true;
+                      });
+                      NeomPlayerInvoke.init(
+                        appMediaItems: playList,
+                        index: 0,
+                        isOffline: false,
+                        recommend: false,
+                      );
+                    }
                   } catch (e) {
                     AppUtilities.logger.e(e.toString());
                     setState(() {

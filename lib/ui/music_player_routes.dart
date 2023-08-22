@@ -23,7 +23,7 @@ import 'package:neom_music_player/ui/music_player_root_page.dart';
 import 'package:neom_music_player/ui/drawer/library/downloads.dart';
 import 'package:neom_music_player/ui/drawer/library/now_playing_page.dart';
 import 'package:neom_music_player/ui/drawer/library/playlists.dart';
-import 'package:neom_music_player/ui/drawer/library/recent.dart';
+import 'package:neom_music_player/ui/drawer/library/recently_played.dart';
 import 'package:neom_music_player/ui/drawer/library/stats.dart';
 import 'package:neom_music_player/ui/player/media_player_page.dart';
 import 'package:neom_music_player/ui/welcome_preference_page.dart';

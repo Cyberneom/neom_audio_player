@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_theme.dart';
+import 'package:neom_itemlists/itemlists/ui/itemlist_page.dart';
 import 'package:neom_music_player/ui/home/music_player_home_page.dart';
 import 'package:neom_music_player/ui/spotify/spotify_top_page.dart';
 import 'package:neom_music_player/ui/widgets/bottom_nav_bar.dart';
@@ -27,12 +28,12 @@ class MusicPlayerRootPage extends StatefulWidget {
 
 class _MusicPlayerRootPageState extends State<MusicPlayerRootPage> {
   final ValueNotifier<int> _selectedIndex = ValueNotifier<int>(0);
-  List sectionsToShow = ['Music', 'Spotify', 'YouTube'];
+  List sectionsToShow = ['Music', 'Playlists', 'Spotify'];
   DateTime? backButtonPressTime;
   final bool useDense = false;
 
   void callback() {
-    List sectionsToShow = ['Music', 'Spotify', 'YouTube'];
+    List sectionsToShow = ['Music', 'Playlists', 'Spotify'];
     onItemTapped(0);
     setState(() {});
   }
@@ -127,13 +128,15 @@ class _MusicPlayerRootPageState extends State<MusicPlayerRootPage> {
                   switch (e) {
                     case 'Home':
                       return const SafeArea(child: MusicPlayerHomePage());
+                    case 'Playlists':
+                      return const SafeArea(child: ItemlistPage());
                     case 'Spotify':
                       return SafeArea(
                         child: SpotifyTopPage(pageController: _pageController,
                         ),
                       );
-                    case 'YouTube':
-                      return const SafeArea(child: YouTube());
+                    // case 'YouTube':
+                    //   return const SafeArea(child: YouTube());
                     default:
                       return const SafeArea(child: MusicPlayerHomePage());
                   }
@@ -186,6 +189,11 @@ class _MusicPlayerRootPageState extends State<MusicPlayerRootPage> {
                     icon: const Icon(Icons.home_rounded),
                     label: Text(PlayerTranslationConstants.home.tr),
                   );
+                case 'Playlists':
+                  return NavigationRailDestination(
+                    icon: const Icon(Icons.home_rounded),
+                    label: Text(PlayerTranslationConstants.home.tr),
+                  );
                 case 'Spotify':
                   return NavigationRailDestination(
                     icon: const Icon(Icons.trending_up_rounded),
@@ -193,12 +201,12 @@ class _MusicPlayerRootPageState extends State<MusicPlayerRootPage> {
                       PlayerTranslationConstants.spotifyTopCharts.tr,
                     ),
                   );
-                case 'YouTube':
-                  return NavigationRailDestination(
-                    icon: const Icon(MdiIcons.youtube),
-                    label:
-                    Text(PlayerTranslationConstants.youTube.tr),
-                  );
+                // case 'YouTube':
+                //   return NavigationRailDestination(
+                //     icon: const Icon(MdiIcons.youtube),
+                //     label:
+                //     Text(PlayerTranslationConstants.youTube.tr),
+                //   );
                 default:
                   return NavigationRailDestination(
                     icon: const Icon(Icons.home_rounded),
@@ -221,18 +229,25 @@ class _MusicPlayerRootPageState extends State<MusicPlayerRootPage> {
             title: Text(PlayerTranslationConstants.music.tr),
             selectedColor: Theme.of(context).colorScheme.secondary,
           );
+        case 'Playlists':
+          return CustomBottomNavBarItem(
+            icon: const Icon(Icons.library_music),
+            title: Text(PlayerTranslationConstants.playlists.capitalizeFirst!),
+            selectedColor: Theme.of(context).colorScheme.secondary,
+          );
         case 'Spotify':
           return CustomBottomNavBarItem(
             icon: const Icon(MdiIcons.spotify),
             title: Text(PlayerTranslationConstants.topCharts.tr),
             selectedColor: Theme.of(context).colorScheme.secondary,
           );
-        case 'YouTube':
-          return CustomBottomNavBarItem(
-            icon: const Icon(MdiIcons.youtube),
-            title: Text(PlayerTranslationConstants.youTube.tr),
-            selectedColor: Theme.of(context).colorScheme.secondary,
-          );
+          ///WORKING ON
+        // case 'YouTube':
+        //   return CustomBottomNavBarItem(
+        //     icon: const Icon(MdiIcons.youtube),
+        //     title: Text(PlayerTranslationConstants.youTube.tr),
+        //     selectedColor: Theme.of(context).colorScheme.secondary,
+        //   );
         default:
           return CustomBottomNavBarItem(
             icon: const Icon(Icons.play_circle_fill),

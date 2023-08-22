@@ -40,6 +40,7 @@ import 'package:neom_music_player/ui/widgets/image_card.dart';
 import 'package:neom_music_player/ui/widgets/playlist_head.dart';
 import 'package:neom_music_player/ui/widgets/snackbar.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
+import 'package:neom_music_player/utils/constants/music_player_route_constants.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
 import 'package:neom_music_player/utils/helpers/picker.dart';
 // import 'package:path_provider/path_provider.dart';
@@ -68,15 +69,15 @@ class _DownloadsState extends State<Downloads>
   // String? tempPath = Hive.box(AppHiveConstants.settings).get('tempDirPath')?.toString();
   int sortValue = Hive.box(AppHiveConstants.settings).get('sortValue', defaultValue: 1) as int;
   int orderValue =
-      Hive.box(AppHiveConstants.settings).get('orderValue', defaultValue: 1) as int;
-  int albumSortValue =
-      Hive.box(AppHiveConstants.settings).get('albumSortValue', defaultValue: 2) as int;
+  Hive.box(AppHiveConstants.settings).get('orderValue', defaultValue: 1) as int;
+  int albumSortValue =   Hive.box(AppHiveConstants.settings).get('albumSortValue', defaultValue: 2) as int;
   final ScrollController _scrollController = ScrollController();
   final ValueNotifier<bool> _showShuffle = ValueNotifier<bool>(true);
+  int tabControllerLength = 1;
 
   @override
   void initState() {
-    _tcontroller = TabController(length: 4, vsync: this);
+    _tcontroller = TabController(length: tabControllerLength, vsync: this);
     _tcontroller!.addListener(() {
       if ((_tcontroller!.previousIndex != 0 && _tcontroller!.index == 0) ||
           (_tcontroller!.previousIndex == 0)) {
@@ -91,7 +92,7 @@ class _DownloadsState extends State<Downloads>
         _showShuffle.value = true;
       }
     });
-    // getDownloads();
+    getDownloads();
     super.initState();
   }
 
@@ -109,7 +110,7 @@ class _DownloadsState extends State<Downloads>
   // }
 
   Future<void> getDownloads() async {
-    // _appMediaItems = downloadsBox.values.toList();
+    _appMediaItems = downloadsBox.values.map((e) => AppMediaItem.fromJSON(e)).toList();
     setArtistAlbum();
   }
 
@@ -168,47 +169,18 @@ class _DownloadsState extends State<Downloads>
   void sortSongs({required int sortVal, required int order}) {
     switch (sortVal) {
       case 0:
-        _appMediaItems.sort(
-          (a, b) => a.title
-              .toString()
-              .toUpperCase()
-              .compareTo(b.title.toString().toUpperCase()),
-        );
+        _appMediaItems.sort((a, b) => a.name.toString().toUpperCase().compareTo(b.name.toString().toUpperCase()),);
       case 1:
-        _appMediaItems.sort(
-          (a, b) => a.releaseDate
-              .toString()
-              .toUpperCase()
-              .compareTo(b.releaseDate.toString().toUpperCase()),
-        );
+        _appMediaItems.sort((a, b) => a.releaseDate.toString().toUpperCase().compareTo(b.releaseDate.toString().toUpperCase()),);
       case 2:
-        _appMediaItems.sort(
-          (a, b) => a.album
-              .toString()
-              .toUpperCase()
-              .compareTo(b.album.toString().toUpperCase()),
-        );
+        _appMediaItems.sort((a, b) => a.album.toString().toUpperCase().compareTo(b.album.toString().toUpperCase()),);
       case 3:
-        _appMediaItems.sort(
-          (a, b) => a.artist
-              .toString()
-              .toUpperCase()
-              .compareTo(b.artist.toString().toUpperCase()),
-        );
+        _appMediaItems.sort((a, b) => a.artist.toString().toUpperCase().compareTo(b.artist.toString().toUpperCase()),);
       case 4:
-        _appMediaItems.sort(
-          (a, b) => a.duration
-              .toString()
-              .toUpperCase()
-              .compareTo(b.duration.toString().toUpperCase()),
+        _appMediaItems.sort((a, b) => a.duration.toString().toUpperCase().compareTo(b.duration.toString().toUpperCase()),
         );
       default:
-        _appMediaItems.sort(
-          (b, a) => a.releaseDate
-              .toString()
-              .toUpperCase()
-              .compareTo(b.releaseDate.toString().toUpperCase()),
-        );
+        _appMediaItems.sort((b, a) => a.releaseDate.toString().toUpperCase().compareTo(b.releaseDate.toString().toUpperCase()),);
         break;
     }
 
@@ -220,52 +192,25 @@ class _DownloadsState extends State<Downloads>
   void sortAlbums() {
     switch (albumSortValue) {
       case 0:
-        _sortedAlbumKeysList.sort(
-          (a, b) =>
-              a.toString().toUpperCase().compareTo(b.toString().toUpperCase()),
-        );
-        _sortedArtistKeysList.sort(
-          (a, b) =>
-              a.toString().toUpperCase().compareTo(b.toString().toUpperCase()),
-        );
-        _sortedGenreKeysList.sort(
-          (a, b) =>
-              a.toString().toUpperCase().compareTo(b.toString().toUpperCase()),
-        );
+        _sortedAlbumKeysList.sort((a, b) => a.toString().toUpperCase().compareTo(b.toString().toUpperCase()),);
+        _sortedArtistKeysList.sort((a, b) => a.toString().toUpperCase().compareTo(b.toString().toUpperCase()),);
+        _sortedGenreKeysList.sort((a, b) => a.toString().toUpperCase().compareTo(b.toString().toUpperCase()),);
       case 1:
-        _sortedAlbumKeysList.sort(
-          (b, a) =>
-              a.toString().toUpperCase().compareTo(b.toString().toUpperCase()),
-        );
-        _sortedArtistKeysList.sort(
-          (b, a) =>
-              a.toString().toUpperCase().compareTo(b.toString().toUpperCase()),
-        );
-        _sortedGenreKeysList.sort(
-          (b, a) =>
-              a.toString().toUpperCase().compareTo(b.toString().toUpperCase()),
-        );
-      case 2:
-        _sortedAlbumKeysList
-            .sort((b, a) => _albums[a]!.length.compareTo(_albums[b]!.length));
-        _sortedArtistKeysList
-            .sort((b, a) => _artists[a]!.length.compareTo(_artists[b]!.length));
-        _sortedGenreKeysList
-            .sort((b, a) => _genres[a]!.length.compareTo(_genres[b]!.length));
+        _sortedAlbumKeysList.sort((b, a) => a.toString().toUpperCase().compareTo(b.toString().toUpperCase()),);
+        _sortedArtistKeysList.sort((b, a) => a.toString().toUpperCase().compareTo(b.toString().toUpperCase()),);
+        _sortedGenreKeysList.sort((b, a) => a.toString().toUpperCase().compareTo(b.toString().toUpperCase()),
+        );case 2:
+        _sortedAlbumKeysList.sort((b, a) => _albums[a]!.length.compareTo(_albums[b]!.length));
+        _sortedArtistKeysList.sort((b, a) => _artists[a]!.length.compareTo(_artists[b]!.length));
+        _sortedGenreKeysList.sort((b, a) => _genres[a]!.length.compareTo(_genres[b]!.length));
       case 3:
-        _sortedAlbumKeysList
-            .sort((a, b) => _albums[a]!.length.compareTo(_albums[b]!.length));
-        _sortedArtistKeysList
-            .sort((a, b) => _artists[a]!.length.compareTo(_artists[b]!.length));
-        _sortedGenreKeysList
-            .sort((a, b) => _genres[a]!.length.compareTo(_genres[b]!.length));
+        _sortedAlbumKeysList.sort((a, b) => _albums[a]!.length.compareTo(_albums[b]!.length));
+        _sortedArtistKeysList.sort((a, b) => _artists[a]!.length.compareTo(_artists[b]!.length));
+        _sortedGenreKeysList.sort((a, b) => _genres[a]!.length.compareTo(_genres[b]!.length));
       default:
-        _sortedAlbumKeysList
-            .sort((b, a) => _albums[a]!.length.compareTo(_albums[b]!.length));
-        _sortedArtistKeysList
-            .sort((b, a) => _artists[a]!.length.compareTo(_artists[b]!.length));
-        _sortedGenreKeysList
-            .sort((b, a) => _genres[a]!.length.compareTo(_genres[b]!.length));
+        _sortedAlbumKeysList.sort((b, a) => _albums[a]!.length.compareTo(_albums[b]!.length));
+        _sortedArtistKeysList.sort((b, a) => _artists[a]!.length.compareTo(_artists[b]!.length));
+        _sortedGenreKeysList.sort((b, a) => _genres[a]!.length.compareTo(_genres[b]!.length));
         break;
     }
   }
@@ -290,21 +235,18 @@ class _DownloadsState extends State<Downloads>
     _genres[song['genre']]!.remove(song);
 
     _appMediaItems.remove(song);
+
     try {
       await audioFile.delete();
       if (await imageFile.exists()) {
         imageFile.delete();
       }
-      ShowSnackBar().showSnackBar(
-        context,
-        '${PlayerTranslationConstants.deleted.tr} ${song['title']}',
-      );
+      ShowSnackBar().showSnackBar(context,
+        '${PlayerTranslationConstants.deleted.tr} ${song['title']}',);
     } catch (e) {
       AppUtilities.logger.e('Failed to delete $audioFile.path', e);
-      ShowSnackBar().showSnackBar(
-        context,
-        '${PlayerTranslationConstants.failedDelete.tr}: ${audioFile.path}\nError: $e',
-      );
+      ShowSnackBar().showSnackBar(context,
+        '${PlayerTranslationConstants.failedDelete.tr}: ${audioFile.path}\nError: $e',);
     }
   }
 
@@ -312,7 +254,7 @@ class _DownloadsState extends State<Downloads>
   Widget build(BuildContext context) {
     return GradientContainer(
       child: DefaultTabController(
-        length: 4,
+        length: tabControllerLength,
         child: Scaffold(
           backgroundColor: AppColor.main75,
           appBar: AppBar(
@@ -324,18 +266,10 @@ class _DownloadsState extends State<Downloads>
               controller: _tcontroller,
               indicatorSize: TabBarIndicatorSize.label,
               tabs: [
-                Tab(
-                  text: PlayerTranslationConstants.songs.tr,
-                ),
-                Tab(
-                  text: PlayerTranslationConstants.albums.tr,
-                ),
-                Tab(
-                  text: PlayerTranslationConstants.artists.tr,
-                ),
-                Tab(
-                  text: PlayerTranslationConstants.genres.tr,
-                ),
+                Tab(text: PlayerTranslationConstants.songs.tr,),
+                // Tab(text: PlayerTranslationConstants.albums.tr,),
+                // Tab(text: PlayerTranslationConstants.artists.tr,),
+                // Tab(text: PlayerTranslationConstants.genres.tr,),
               ],
             ),
             actions: [
@@ -547,10 +481,10 @@ Future<AppMediaItem> editTags(AppMediaItem mediaItem, BuildContext context) asyn
 
       FileImage songImage = FileImage(File(mediaItem.imgUrl));
 
-      final titlecontroller = TextEditingController(text: mediaItem.title.toString());
+      final titlecontroller = TextEditingController(text: mediaItem.name.toString());
       final albumcontroller = TextEditingController(text: mediaItem.album.toString());
       final artistcontroller = TextEditingController(text: mediaItem.artist.toString());
-      final albumArtistController = TextEditingController(text: mediaItem.albumArtist.toString());
+      final albumArtistController = TextEditingController(text: mediaItem.artist.toString());
       final genrecontroller = TextEditingController(text: mediaItem.genre.toString());
       final yearcontroller = TextEditingController(text: DateTime.fromMillisecondsSinceEpoch(mediaItem.publishedDate).year.toString());
       final pathcontroller = TextEditingController(text: mediaItem.path.toString());
@@ -760,10 +694,9 @@ Future<AppMediaItem> editTags(AppMediaItem mediaItem, BuildContext context) asyn
             ),
             onPressed: () async {
               Navigator.pop(context);
-              mediaItem.title = titlecontroller.text;
+              mediaItem.name = titlecontroller.text;
               mediaItem.album = albumcontroller.text;
               mediaItem.artist = artistcontroller.text;
-              mediaItem.albumArtist = albumArtistController.text;
               mediaItem.genre = genrecontroller.text;
               mediaItem.publishedDate = DateTime(int.parse(yearcontroller.text)).millisecondsSinceEpoch;
               mediaItem.path = pathcontroller.text;
@@ -850,8 +783,7 @@ class _DownSongsTabState extends State<DownSongsTab>
         file.writeAsBytesSync(image);
       }
     } catch (e) {
-      final HttpClientRequest request2 =
-          await HttpClient().getUrl(Uri.parse(url));
+      final HttpClientRequest request2 = await HttpClient().getUrl(Uri.parse(url));
       final HttpClientResponse response2 = await request2.close();
       final bytes2 = await consolidateHttpClientResponseBytes(response2);
       await file.writeAsBytes(bytes2);
@@ -865,62 +797,57 @@ class _DownSongsTabState extends State<DownSongsTab>
   Widget build(BuildContext context) {
     super.build(context);
     return (widget.appMediaItems.isEmpty)
-        ? emptyScreen(
-            context,
-            3,
-            PlayerTranslationConstants.nothingTo.tr,
-            15.0,
-            PlayerTranslationConstants.showHere.tr,
-            50,
-            PlayerTranslationConstants.addSomething.tr,
-            23.0,
-          )
-        : Column(
-            children: [
-              PlaylistHead(
-                songsList: widget.appMediaItems,
-                offline: true,
-                fromDownloads: true,
-              ),
-              Expanded(
-                child: ListView.builder(
-                  controller: widget.scrollController,
-                  physics: const BouncingScrollPhysics(),
-                  padding: const EdgeInsets.only(bottom: 10),
-                  shrinkWrap: true,
-                  itemCount: widget.appMediaItems.length,
-                  itemExtent: 70.0,
-                  itemBuilder: (context, index) {
-                    return ListTile(
-                      leading: imageCard(
-                        imageUrl: widget.appMediaItems[index].imgUrl,
-                        localImage: true,
-                        localErrorFunction: (_, __) {
-                          if (widget.appMediaItems[index].imgUrl.isNotEmpty) {
-                              downImage(songFilePath: '', imageFilePath: '', url: widget.appMediaItems[index].imgUrl.toString(),
-                            );
-                          }
-                        },
-                      ),
-                      onTap: () {
-                        NeomPlayerInvoke.init(
-                          appMediaItems: widget.appMediaItems,
-                          index: index,
-                          isOffline: true,
-                          fromDownloads: true,
-                          recommend: false,
-                        );
-                      },
-                      title: Text(
-                        '${widget.appMediaItems[index].title}',
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      subtitle: Text(
-                        '${widget.appMediaItems[index].artist ?? 'Artist name'}',
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
+        ? TextButton(onPressed: ()=>Navigator.pushNamed(context, MusicPlayerRouteConstants.home),
+      child: emptyScreen(
+        context, 3,
+        PlayerTranslationConstants.nothingTo.tr, 15.0,
+        PlayerTranslationConstants.showHere.tr, 50,
+        PlayerTranslationConstants.addSomething.tr, 23.0,
+          ),
+    ) : Column(
+      children: [
+        PlaylistHead(
+          songsList: widget.appMediaItems,
+          offline: true,
+          fromDownloads: true,
+        ),
+        Expanded(
+          child: ListView.builder(
+            controller: widget.scrollController,
+            physics: const BouncingScrollPhysics(),
+            padding: const EdgeInsets.only(bottom: 10),
+            shrinkWrap: true,
+            itemCount: widget.appMediaItems.length,
+            itemExtent: 70.0,
+            itemBuilder: (context, index) {
+              AppMediaItem item = widget.appMediaItems[index];
+              return ListTile(
+                leading: imageCard(
+                  imageUrl: item.imgUrl,
+                  localImage: true,
+                  localErrorFunction: (_, __) {
+                    if (item.imgUrl.isNotEmpty) {
+                      downImage(songFilePath: '', imageFilePath: '', url: item.imgUrl.toString(),
+                      );
+                    }},
+                ),
+                onTap: () {
+                  NeomPlayerInvoke.init(
+                    appMediaItems: widget.appMediaItems,
+                    index: index,
+                    isOffline: true,
+                    fromDownloads: true,
+                    recommend: false,
+                  );
+                  },
+                title: Text(item.name,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                subtitle: Text(item.artist,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
                         children: [
                           PopupMenuButton(
                             icon: const Icon(
@@ -967,19 +894,19 @@ class _DownSongsTabState extends State<DownSongsTab>
                             ],
                             onSelected: (int? value) async {
                               if (value == 0) {
-                                widget.appMediaItems[index] = await editTags(
-                                  widget.appMediaItems[index],
+                                item = await editTags(
+                                  item,
                                   context,
                                 );
                                 Hive.box(AppHiveConstants.downloads).put(
-                                  widget.appMediaItems[index].id,
-                                  widget.appMediaItems[index],
+                                  item.id,
+                                  item,
                                 );
                                 setState(() {});
                               }
                               if (value == 1) {
                                 setState(() {
-                                  widget.onDelete(widget.appMediaItems[index] as Map);
+                                  widget.onDelete(item as Map);
                                 });
                               }
                             },

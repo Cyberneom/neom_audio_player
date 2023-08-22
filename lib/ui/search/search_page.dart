@@ -1,6 +1,6 @@
 /*
  *  This file is part of BlackHole (https://github.com/Sangwan5688/BlackHole).
- * 
+ *
  * BlackHole is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -13,10 +13,11 @@
  *
  * You should have received a copy of the GNU Lesser General Public License
  * along with BlackHole.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  * Copyright (c) 2021-2023, Ankit Sangwan
  */
 
+import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 
 import 'package:hive/hive.dart';
@@ -25,22 +26,24 @@ import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
 import 'package:neom_music_player/data/api_services/APIs/saavn_api.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
+import 'package:neom_music_player/ui/Search/album_search_page.dart';
 import 'package:neom_music_player/ui/widgets/copy_clipboard.dart';
 import 'package:neom_music_player/ui/widgets/download_button.dart';
 import 'package:neom_music_player/ui/widgets/empty_screen.dart';
 import 'package:neom_music_player/ui/widgets/gradient_containers.dart';
 import 'package:neom_music_player/ui/widgets/image_card.dart';
 import 'package:neom_music_player/ui/widgets/like_button.dart';
+import 'package:neom_music_player/ui/widgets/multi_download_button.dart';
 import 'package:neom_music_player/ui/widgets/music_search_bar.dart' as searchbar;
 import 'package:neom_music_player/ui/widgets/snackbar.dart';
 import 'package:neom_music_player/ui/widgets/song_tile_trailing_menu.dart';
 import 'package:neom_music_player/neom_player_invoke.dart';
 import 'package:neom_music_player/ui/widgets/song_list.dart';
-import 'package:neom_music_player/ui/search/album_search_page.dart';
 import 'package:neom_music_player/ui/search/artist_search_page.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
 import 'package:get/get.dart';
+import 'package:neom_music_player/utils/helpers/media_item_mapper.dart';
 
 class SearchPage extends StatefulWidget {
   final String query;
@@ -414,30 +417,6 @@ class _SearchPageState extends State<SearchPage> {
                                                   children: [
                                                     GestureDetector(
                                                       onTap: () {
-                                                        if (key == 'Albums' ||
-                                                            key ==
-                                                                'Playlists' ||
-                                                            key == 'Artists') {
-                                                          Navigator.push(
-                                                            context,
-                                                            PageRouteBuilder(
-                                                              opaque: false,
-                                                              pageBuilder: (
-                                                                _,
-                                                                __,
-                                                                ___,
-                                                              ) =>
-                                                                  AlbumSearchPage(
-                                                                query: query ==
-                                                                        ''
-                                                                    ? widget
-                                                                        .query
-                                                                    : query,
-                                                                type: key,
-                                                              ),
-                                                            ),
-                                                          );
-                                                        }
                                                         if (key == 'Songs') {
                                                           Navigator.push(
                                                             context,
@@ -445,16 +424,27 @@ class _SearchPageState extends State<SearchPage> {
                                                               opaque: false,
                                                               pageBuilder: (_, __, ___,) =>
                                                                   SongsListPage(
-                                                                    itemlist: Itemlist()
+                                                                      itemlist: Itemlist()
                                                                     // {
                                                                     //   'id': query == '' ? widget.query : query,
                                                                     //   'title': key,
                                                                     //   'type': 'songs',
                                                                     // },
-                                                              ),
+                                                                  ),
                                                             ),
                                                           );
                                                         }
+
+                                                        // if (key == 'Albums' || key == 'Playlists' || key == 'Artists') {
+                                                        //   Navigator.push(context,
+                                                        //     PageRouteBuilder(
+                                                        //       opaque: false,
+                                                        //       pageBuilder: (_, __, ___,) =>
+                                                        //           AlbumSearchPage(query: query == '' ? widget.query : query, type: key,),
+                                                        //     ),
+                                                        //   );
+                                                        // }
+
                                                       },
                                                       child: Row(
                                                         children: [
@@ -563,8 +553,7 @@ class _SearchPageState extends State<SearchPage> {
                                                             MainAxisSize.min,
                                                         children: [
                                                           DownloadButton(
-                                                            data: value[index]
-                                                                as Map,
+                                                            mediaItem: MediaItemMapper.fromMediaItem(MediaItemMapper.fromJSON(value[index] as Map)),
                                                             icon: 'download',
                                                           ),
                                                           LikeButton(
@@ -572,10 +561,10 @@ class _SearchPageState extends State<SearchPage> {
                                                             data: value[index] as Map,
                                                           ),
                                                           SongTileTrailingMenu(
-                                                            appMediaItem: AppMediaItem.fromMap(value[index]),
+                                                            appMediaItem: AppMediaItem.fromJSON(value[index]),
                                                             itemlist: Itemlist(),
                                                           ),
-                                                        ],
+                                                    ],
                                                       )
                                                     : null
                                                 : AlbumDownloadButton(
@@ -616,7 +605,7 @@ class _SearchPageState extends State<SearchPage> {
 
                                               if (key == 'Songs') {
                                                 NeomPlayerInvoke.init(
-                                                  appMediaItems: [AppMediaItem.fromMap(value[index])],
+                                                  appMediaItems: [AppMediaItem.fromJSON(value[index])],
                                                   index: 0,
                                                   isOffline: false,
                                                 );
@@ -625,9 +614,7 @@ class _SearchPageState extends State<SearchPage> {
                                                   context,
                                                   PageRouteBuilder(
                                                     opaque: false,
-                                                    pageBuilder: (_, __, ___,) => key == 'Artists' || (key == 'Top Result' && value[0]['type'] == 'artist')
-                                                            ? ArtistSearchPage(data: value[index] as Map,)
-                                                            : SongsListPage(itemlist: Itemlist.fromJSON(value[index] as Map,)),
+                                                    pageBuilder: (_, __, ___,) => SongsListPage(itemlist: Itemlist.fromJSON(value[index] as Map,)),
                                                   ),
                                                 );
                                               }

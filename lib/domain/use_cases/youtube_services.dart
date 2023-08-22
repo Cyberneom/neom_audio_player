@@ -325,8 +325,8 @@ class YouTubeServices {
       id: video.id.value,
       album: (data?['album'] ?? '') != '' ? data!['album'].toString()
           : video.author.replaceAll('- Topic', '').trim(),
-      title: (data?['title'] ?? '') != '' ? data!['title'].toString() : video.title.trim(),
-      subtitle: (data?['subtitle'] ?? '') != '' ? data!['subtitle'].toString() : video.author,
+      name: (data?['title'] ?? '') != '' ? data!['title'].toString() : video.title.trim(),
+      description: (data?['subtitle'] ?? '') != '' ? data!['subtitle'].toString() : video.author,
       duration: video.duration!.inSeconds,
       artist: (data?['artist'] ?? '') != ''
           ? data!['artist'].toString()
@@ -337,9 +337,7 @@ class YouTubeServices {
       genre: 'YouTube',
       url: finalUrl,
       allUrls: urls,
-      expireAt: int.parse(expireAt),
       publishedDate: video.uploadDate?.millisecondsSinceEpoch ?? 0,
-      releaseDate: video.publishDate.toString(),
       albumId: video.channelId.value,
       permaUrl: video.url,
       mediaSource: AppMediaSource.youtube,

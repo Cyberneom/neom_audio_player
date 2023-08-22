@@ -32,9 +32,11 @@ import 'package:neom_music_player/ui/widgets/playlist_head.dart';
 import 'package:neom_music_player/ui/widgets/song_tile_trailing_menu.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
 import 'package:neom_music_player/neom_player_invoke.dart';
+import 'package:neom_music_player/utils/constants/music_player_route_constants.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
 // import 'package:path_provider/path_provider.dart';
 import 'package:get/get.dart';
+import 'package:neom_music_player/utils/helpers/media_item_mapper.dart';
 
 
 class SongsPageTab extends StatelessWidget {
@@ -53,7 +55,8 @@ class SongsPageTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {    
     return (appMediaItems.isEmpty)
-        ? emptyScreen(
+        ? TextButton(onPressed: ()=>Navigator.pushNamed(context, MusicPlayerRouteConstants.home),
+      child: emptyScreen(
       context,
       3,
       PlayerTranslationConstants.nothingTo.tr,
@@ -62,7 +65,7 @@ class SongsPageTab extends StatelessWidget {
       50,
       PlayerTranslationConstants.addSomething.tr,
       23.0,
-    ) : Column(
+    ),) : Column(
       children: [
         PlaylistHead(
           songsList: appMediaItems,
@@ -126,7 +129,7 @@ class SongsPageTab extends StatelessWidget {
                     },
                     selected: selected,
                     selectedTileColor: Colors.white10,
-                    title: Text('${item.title}',
+                    title: Text('${item.name}',
                       overflow: TextOverflow.ellipsis,
                     ),
                     subtitle: Text(
@@ -139,10 +142,10 @@ class SongsPageTab extends StatelessWidget {
                         if (playlistName != AppHiveConstants.favoriteSongs)
                           LikeButton(
                             mediaItem: null,
-                            data: item.toMap(),
+                            data: item.toJSON(),
                           ),
                         DownloadButton(
-                          data: item.toMap(),
+                          mediaItem: item,
                           icon: 'download',
                         ),
                         SongTileTrailingMenu(

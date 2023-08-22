@@ -62,11 +62,11 @@ class MusicPlayerDrawer extends StatelessWidget {
                       Obx(()=>_menuHeader(context, _)),
                       const Divider(),
                       drawerRowOption(MusicPlayerDrawerMenu.nowPlaying,  const Icon(Icons.queue_music_rounded,), context),
-                      drawerRowOption(MusicPlayerDrawerMenu.playlists, const Icon(Icons.playlist_play_rounded,), context),
+                      // drawerRowOption(MusicPlayerDrawerMenu.playlists, const Icon(Icons.playlist_play_rounded,), context),
                       drawerRowOption(MusicPlayerDrawerMenu.lastSession, const Icon(Icons.history_rounded), context),
                       drawerRowOption(MusicPlayerDrawerMenu.favorites, const Icon(Icons.favorite_rounded), context),
-                      drawerRowOption(MusicPlayerDrawerMenu.myMusic, const Icon(MdiIcons.folderMusic,), context),
-                      drawerRowOption(MusicPlayerDrawerMenu.stats, const Icon(Icons.download_done_rounded,), context),
+                      // drawerRowOption(MusicPlayerDrawerMenu.myMusic, const Icon(MdiIcons.folderMusic,), context),
+                      // drawerRowOption(MusicPlayerDrawerMenu.stats, const Icon(Icons.download_done_rounded,), context),
                       drawerRowOption(MusicPlayerDrawerMenu.downloads, const Icon(Icons.download_done_rounded,), context),
                       drawerRowOption(MusicPlayerDrawerMenu.settings, const Icon(Icons.playlist_play_rounded,), context),
                     ],
@@ -164,7 +164,7 @@ class MusicPlayerDrawer extends StatelessWidget {
             case MusicPlayerDrawerMenu.downloads:
               Navigator.pushNamed(context, MusicPlayerRouteConstants.downloads);
             case MusicPlayerDrawerMenu.playlists:
-              Navigator.pushNamed(context, MusicPlayerRouteConstants.playlists);
+              Get.toNamed(AppRouteConstants.lists);
             case MusicPlayerDrawerMenu.stats:
               Navigator.pushNamed(context, MusicPlayerRouteConstants.stats);
             case MusicPlayerDrawerMenu.settings:
@@ -203,4 +203,26 @@ class MusicPlayerDrawer extends StatelessWidget {
     );
   }
 
+}
+
+Widget homeDrawer({
+  required BuildContext context,
+  EdgeInsetsGeometry padding = EdgeInsets.zero,
+}) {
+  return Padding(
+    padding: padding,
+    child: Transform.rotate(
+      angle: 22 / 7 * 2,
+      child: IconButton(
+        icon: const Icon(
+          Icons.horizontal_split_rounded,
+        ),
+        // color: Theme.of(context).iconTheme.color,
+        onPressed: () {
+          Scaffold.of(context).openDrawer();
+        },
+        tooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
+      ),
+    ),
+  );
 }

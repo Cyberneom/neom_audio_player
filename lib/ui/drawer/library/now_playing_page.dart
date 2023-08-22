@@ -28,6 +28,7 @@ import 'package:neom_music_player/ui/player/widgets/now_playing_stream.dart';
 import 'package:neom_music_player/ui/widgets/bouncy_sliver_scroll_view.dart';
 import 'package:neom_music_player/ui/widgets/empty_screen.dart';
 import 'package:neom_music_player/ui/widgets/gradient_containers.dart';
+import 'package:neom_music_player/utils/constants/music_player_route_constants.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
 import 'package:get/get.dart';
 
@@ -65,17 +66,14 @@ class _NowPlayingPageState extends State<NowPlayingPage> {
                     elevation: 0,
                   ),
             body: processingState == AudioProcessingState.idle
-                ? TextButton(onPressed: ()=>Navigator.pushNamed(context, '/'), child: emptyScreen(
-                    context,
-                    3,
-                    PlayerTranslationConstants.nothingIs.tr,
-                    18.0,
-                    PlayerTranslationConstants.playingCap.tr,
-                    45,
-                    PlayerTranslationConstants.playSomething.tr,
-                    30.0,
-                  ),)
-                : StreamBuilder<MediaItem?>(
+                ? TextButton(onPressed: ()=>Navigator.pushNamed(context, MusicPlayerRouteConstants.home),
+              child: emptyScreen(
+                context, 3,
+                PlayerTranslationConstants.nothingIs.tr, 18.0,
+                PlayerTranslationConstants.playingCap.tr, 45,
+                PlayerTranslationConstants.playSomething.tr, 30.0,
+              ),
+            ) : StreamBuilder<MediaItem?>(
                     stream: audioHandler.mediaItem,
                     builder: (context, snapshot) {
                       final mediaItem = snapshot.data;

@@ -35,7 +35,7 @@ class MusicPlayerHomeController extends GetxController {
 
   final NeomAudioHandler audioHandler = GetIt.I<NeomAudioHandler>();
 
-  List preferredLanguage = Hive.box(AppHiveConstants.settings).get('preferredLanguage', defaultValue: ['Hindi']) as List;
+  List preferredLanguage = Hive.box(AppHiveConstants.settings).get('preferredLanguage', defaultValue: ['Español']) as List;
   List likedRadio = Hive.box(AppHiveConstants.settings).get('likedRadio', defaultValue: []) as List;
   Map<String, Itemlist> itemLists = {};
 
@@ -54,7 +54,7 @@ class MusicPlayerHomeController extends GetxController {
   @override
   void onInit() async {
     super.onInit();
-    logger.d("");
+    logger.d("Music Player Home Controller Init");
     await getHomePageData();
     try {
 
@@ -69,13 +69,14 @@ class MusicPlayerHomeController extends GetxController {
     super.onReady();
     try {
       if(recentSongs.isNotEmpty) {
+        logger.d("Retrieving recent songs from Hive.");
         for (final element in recentSongs) {
-          AppMediaItem recentMediaItem = AppMediaItem.fromMap(element);
+          AppMediaItem recentMediaItem = AppMediaItem.fromJSON(element);
           recentList[recentMediaItem.id] = recentMediaItem;
         }
       }
     } catch (e) {
-
+      AppUtilities.logger.e(e.toString());
     }
     isLoading = false;
     update();
@@ -89,7 +90,7 @@ class MusicPlayerHomeController extends GetxController {
     try {
       Map<String,Itemlist> myLists = await ItemlistFirestore().retrieveItemlists(userController.profile.id);
       myItemLists = myLists.values.toList();
-      publicItemlists = await ItemlistFirestore().fetchAll(excludeFirstlist: false, minItems: 2);
+      publicItemlists = await ItemlistFirestore().fetchAll(excludeMyFavorites: false, minItems: 2);
       for (final myItemlist in myItemLists) {
         publicItemlists.removeWhere((publicList) => myItemlist.id == publicList.id);
       }

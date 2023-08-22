@@ -442,7 +442,7 @@ class YtMusicService {
         }
         for (final item in section['items'] as List) {
           item['permaUrl'] = 'https://youtube.com/watch?v=${item["id"]}';
-          final songItem = AppMediaItem.fromMap(item as Map);
+          final songItem = AppMediaItem.fromJSON(item as Map);
           songs.add(songItem);
         }
       }

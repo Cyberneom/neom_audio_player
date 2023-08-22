@@ -21,17 +21,12 @@ class MusicPlaybackPage extends StatefulWidget {
 }
 
 class _MusicPlaybackPageState extends State<MusicPlaybackPage> {
-  String streamingMobileQuality = Hive.box(AppHiveConstants.settings)
-      .get('streamingQuality', defaultValue: '96 kbps') as String;
-  String streamingWifiQuality = Hive.box(AppHiveConstants.settings)
-      .get('streamingWifiQuality', defaultValue: '320 kbps') as String;
-  String ytQuality =
-      Hive.box(AppHiveConstants.settings).get('ytQuality', defaultValue: 'Low') as String;
-  String region =
-      Hive.box(AppHiveConstants.settings).get('region', defaultValue: 'México') as String;
+  String streamingMobileQuality = Hive.box(AppHiveConstants.settings).get('streamingQuality', defaultValue: '96 kbps') as String;
+  String streamingWifiQuality = Hive.box(AppHiveConstants.settings).get('streamingWifiQuality', defaultValue: '320 kbps') as String;
+  // String ytQuality = Hive.box(AppHiveConstants.settings).get('ytQuality', defaultValue: 'Low') as String;
+  String region = Hive.box(AppHiveConstants.settings).get('region', defaultValue: 'México') as String;
 
-  List preferredLanguage = Hive.box(AppHiveConstants.settings)
-      .get('preferredLanguage', defaultValue: ['Hindi'])?.toList() as List;
+  List preferredLanguage = Hive.box(AppHiveConstants.settings).get('preferredLanguage', defaultValue: ['Español'])?.toList() as List;
 
   @override
   Widget build(BuildContext context) {
@@ -292,41 +287,41 @@ class _MusicPlaybackPageState extends State<MusicPlaybackPage> {
               ),
               dense: true,
             ),
-            ListTile(
-              title: Text(
-                PlayerTranslationConstants.ytStreamQuality.tr,
-              ),
-              subtitle: Text(
-                PlayerTranslationConstants.ytStreamQualitySub.tr,
-              ),
-              onTap: () {},
-              trailing: DropdownButton(
-                value: ytQuality,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Theme.of(context).textTheme.bodyLarge!.color,
-                ),
-                underline: const SizedBox(),
-                onChanged: (String? newValue) {
-                  if (newValue != null) {
-                    setState(
-                      () {
-                        ytQuality = newValue;
-                        Hive.box(AppHiveConstants.settings).put('ytQuality', newValue);
-                      },
-                    );
-                  }
-                },
-                items: <String>['Low', 'High']
-                    .map<DropdownMenuItem<String>>((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
-              ),
-              dense: true,
-            ),
+            // ListTile(
+            //   title: Text(
+            //     PlayerTranslationConstants.ytStreamQuality.tr,
+            //   ),
+            //   subtitle: Text(
+            //     PlayerTranslationConstants.ytStreamQualitySub.tr,
+            //   ),
+            //   onTap: () {},
+            //   trailing: DropdownButton(
+            //     value: ytQuality,
+            //     style: TextStyle(
+            //       fontSize: 12,
+            //       color: Theme.of(context).textTheme.bodyLarge!.color,
+            //     ),
+            //     underline: const SizedBox(),
+            //     onChanged: (String? newValue) {
+            //       if (newValue != null) {
+            //         setState(
+            //           () {
+            //             ytQuality = newValue;
+            //             Hive.box(AppHiveConstants.settings).put('ytQuality', newValue);
+            //           },
+            //         );
+            //       }
+            //     },
+            //     items: <String>['Low', 'High']
+            //         .map<DropdownMenuItem<String>>((String value) {
+            //       return DropdownMenuItem<String>(
+            //         value: value,
+            //         child: Text(value),
+            //       );
+            //     }).toList(),
+            //   ),
+            //   dense: true,
+            // ),
             BoxSwitchTile(
               title: Text(
                 PlayerTranslationConstants.loadLast.tr,

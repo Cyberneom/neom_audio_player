@@ -20,14 +20,10 @@ class DownloadPage extends StatefulWidget {
 
 class _DownloadPageState extends State<DownloadPage> {
   final Box settingsBox = Hive.box(AppHiveConstants.settings);
-  String downloadPath = Hive.box(AppHiveConstants.settings)
-      .get('downloadPath', defaultValue: '/storage/emulated/0/Music') as String;
-  String downloadQuality = Hive.box(AppHiveConstants.settings)
-      .get('downloadQuality', defaultValue: '320 kbps') as String;
-  String ytDownloadQuality = Hive.box(AppHiveConstants.settings)
-      .get('ytDownloadQuality', defaultValue: 'High') as String;
-  int downFilename =
-      Hive.box(AppHiveConstants.settings).get('downFilename', defaultValue: 0) as int;
+  String downloadPath = Hive.box(AppHiveConstants.settings).get('downloadPath', defaultValue: '/storage/emulated/0/Music') as String;
+  String downloadQuality = Hive.box(AppHiveConstants.settings).get('downloadQuality', defaultValue: '320 kbps') as String;
+  // String ytDownloadQuality = Hive.box(AppHiveConstants.settings).get('ytDownloadQuality', defaultValue: 'High') as String;
+  int downFilename = Hive.box(AppHiveConstants.settings).get('downFilename', defaultValue: 0) as int;
 
   @override
   Widget build(BuildContext context) {
@@ -54,12 +50,8 @@ class _DownloadPageState extends State<DownloadPage> {
           padding: const EdgeInsets.all(10.0),
           children: [
             ListTile(
-              title: Text(
-                PlayerTranslationConstants.downQuality.tr,
-              ),
-              subtitle: Text(
-                PlayerTranslationConstants.downQualitySub.tr,
-              ),
+              title: Text(PlayerTranslationConstants.downQuality.tr,),
+              subtitle: Text(PlayerTranslationConstants.downQualitySub.tr,),
               onTap: () {},
               trailing: DropdownButton(
                 value: downloadQuality,
@@ -82,51 +74,45 @@ class _DownloadPageState extends State<DownloadPage> {
                     .map<DropdownMenuItem<String>>((String value) {
                   return DropdownMenuItem<String>(
                     value: value,
-                    child: Text(
-                      value,
-                    ),
+                    child: Text(value,),
                   );
                 }).toList(),
               ),
               dense: true,
             ),
-            ListTile(
-              title: Text(
-                PlayerTranslationConstants.ytDownQuality.tr,
-              ),
-              subtitle: Text(
-                PlayerTranslationConstants.ytDownQualitySub.tr,
-              ),
-              onTap: () {},
-              trailing: DropdownButton(
-                value: ytDownloadQuality,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Theme.of(context).textTheme.bodyLarge!.color,
-                ),
-                underline: const SizedBox(),
-                onChanged: (String? newValue) {
-                  if (newValue != null) {
-                    setState(
-                      () {
-                        ytDownloadQuality = newValue;
-                        Hive.box(AppHiveConstants.settings).put('ytDownloadQuality', newValue);
-                      },
-                    );
-                  }
-                },
-                items: <String>['Low', 'High']
-                    .map<DropdownMenuItem<String>>((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(
-                      value,
-                    ),
-                  );
-                }).toList(),
-              ),
-              dense: true,
-            ),
+            // ListTile(
+            //   title: Text(PlayerTranslationConstants.ytDownQuality.tr,),
+            //   subtitle: Text(PlayerTranslationConstants.ytDownQualitySub.tr,),
+            //   onTap: () {},
+            //   trailing: DropdownButton(
+            //     value: ytDownloadQuality,
+            //     style: TextStyle(
+            //       fontSize: 12,
+            //       color: Theme.of(context).textTheme.bodyLarge!.color,
+            //     ),
+            //     underline: const SizedBox(),
+            //     onChanged: (String? newValue) {
+            //       if (newValue != null) {
+            //         setState(
+            //           () {
+            //             ytDownloadQuality = newValue;
+            //             Hive.box(AppHiveConstants.settings).put('ytDownloadQuality', newValue);
+            //           },
+            //         );
+            //       }
+            //     },
+            //     items: <String>['Low', 'High']
+            //         .map<DropdownMenuItem<String>>((String value) {
+            //       return DropdownMenuItem<String>(
+            //         value: value,
+            //         child: Text(
+            //           value,
+            //         ),
+            //       );
+            //     }).toList(),
+            //   ),
+            //   dense: true,
+            // ),
             ListTile(
               title: Text(
                 PlayerTranslationConstants.downLocation.tr,

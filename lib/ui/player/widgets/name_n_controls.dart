@@ -112,16 +112,16 @@ class NameNControls extends StatelessWidget {
                         ),
                       );
                     } else {
-                      Navigator.push(
-                        context,
-                        PageRouteBuilder(
-                          opaque: false,
-                          pageBuilder: (_, __, ___) => AlbumSearchPage(
-                            query: value,
-                            type: 'Artists',
-                          ),
-                        ),
-                      );
+                      // Navigator.push(
+                      //   context,
+                      //   PageRouteBuilder(
+                      //     opaque: false,
+                      //     pageBuilder: (_, __, ___) => AlbumSearchPage(
+                      //       query: value,
+                      //       type: 'Artists',
+                      //     ),
+                      //   ),
+                      // );
                     }
                   },
                   itemBuilder: (BuildContext context) =>
@@ -355,9 +355,7 @@ class NameNControls extends StatelessWidget {
                               if (!offline)
                                 DownloadButton(
                                   size: 25.0,
-                                  data: MediaItemMapper.toJSON(
-                                    mediaItem,
-                                  ),
+                                  mediaItem: MediaItemMapper.fromMediaItem(mediaItem),
                                 )
                             ],
                           ),

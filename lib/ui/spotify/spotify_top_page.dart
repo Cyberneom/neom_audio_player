@@ -22,6 +22,7 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_music_player/data/implementations/spotify_hive_controller.dart';
+import 'package:neom_music_player/ui/drawer/music_player_drawer.dart';
 import 'package:neom_music_player/ui/spotify/top_page.dart';
 import 'package:neom_music_player/ui/widgets/custom_physics.dart';
 import 'package:neom_music_player/ui/widgets/drawer.dart';

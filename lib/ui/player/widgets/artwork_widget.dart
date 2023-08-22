@@ -8,12 +8,9 @@ import 'package:get/get.dart';
 import 'package:audio_service/audio_service.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flip_card/flip_card.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import 'package:flutter_lyric/lyric_ui/ui_netease.dart';
 import 'package:flutter_lyric/lyrics_model_builder.dart';
-import 'package:flutter_lyric/lyrics_reader_model.dart';
 import 'package:flutter_lyric/lyrics_reader_widget.dart';
 import 'package:hive/hive.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
@@ -80,7 +77,7 @@ class _ArtWorkWidgetState extends State<ArtWorkWidget> {
         if (value == '' && widget.getLyricsOnline) {
           Lyrics.getLyrics(
             id: widget.mediaItem.id,
-            saavnHas: widget.mediaItem.extras?['has_lyrics'] == 'true',
+            isInternalLyric: widget.mediaItem.extras?['has_lyrics'] == 'true',
             title: widget.mediaItem.title,
             artist: widget.mediaItem.artist.toString(),
           ).then((Map value) {
@@ -110,7 +107,7 @@ class _ArtWorkWidgetState extends State<ArtWorkWidget> {
     } else {
       Lyrics.getLyrics(
         id: widget.mediaItem.id,
-        saavnHas: widget.mediaItem.extras?['has_lyrics'] == 'true',
+        isInternalLyric: widget.mediaItem.extras?['has_lyrics'] == 'true',
         title: widget.mediaItem.title,
         artist: widget.mediaItem.artist.toString(),
       ).then((Map value) {

@@ -19,6 +19,7 @@
 
 import 'dart:io';
 
+import 'package:audio_service/audio_service.dart';
 import 'package:audiotagger/audiotagger.dart';
 import 'package:audiotagger/models/tag.dart';
 import 'package:flutter/foundation.dart';
@@ -29,12 +30,16 @@ import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart';
 import 'package:metadata_god/metadata_god.dart';
+import 'package:neom_commons/core/app_flavour.dart';
+import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
+import 'package:neom_commons/core/utils/enums/app_media_source.dart';
 import 'package:neom_music_player/domain/use_cases/ext_storage_provider.dart';
 import 'package:neom_music_player/ui/widgets/snackbar.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
 import 'package:neom_music_player/utils/helpers/lyrics.dart';
+import 'package:neom_music_player/utils/helpers/media_item_mapper.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -56,30 +61,23 @@ class Download with ChangeNotifier {
 
   int? rememberOption;
   final ValueNotifier<bool> remember = ValueNotifier<bool>(false);
-  String preferredDownloadQuality = Hive.box(AppHiveConstants.settings)
-      .get('downloadQuality', defaultValue: '320 kbps') as String;
-  String preferredYtDownloadQuality = Hive.box(AppHiveConstants.settings)
-      .get('ytDownloadQuality', defaultValue: 'High') as String;
-  String downloadFormat = Hive.box(AppHiveConstants.settings)
-      .get('downloadFormat', defaultValue: 'm4a')
-      .toString();
-  bool createDownloadFolder = Hive.box(AppHiveConstants.settings)
-      .get('createDownloadFolder', defaultValue: false) as bool;
-  bool createYoutubeFolder = Hive.box(AppHiveConstants.settings)
-      .get('createYoutubeFolder', defaultValue: false) as bool;
+  String preferredDownloadQuality = Hive.box(AppHiveConstants.settings).get('downloadQuality', defaultValue: '320 kbps') as String;
+  String preferredYtDownloadQuality = Hive.box(AppHiveConstants.settings).get('ytDownloadQuality', defaultValue: 'High') as String;
+  String downloadFormat = Hive.box(AppHiveConstants.settings).get('downloadFormat', defaultValue: 'm4a').toString();
+  bool createDownloadFolder = Hive.box(AppHiveConstants.settings).get('createDownloadFolder', defaultValue: false) as bool;
+  bool createYoutubeFolder = Hive.box(AppHiveConstants.settings).get('createYoutubeFolder', defaultValue: false) as bool;
   double? progress = 0.0;
   String lastDownloadId = '';
-  bool downloadLyrics =
-      Hive.box(AppHiveConstants.settings).get('downloadLyrics', defaultValue: false) as bool;
+  bool downloadLyrics = Hive.box(AppHiveConstants.settings).get('downloadLyrics', defaultValue: false) as bool;
   bool download = true;
 
   Future<void> prepareDownload(
     BuildContext context,
-    Map data, {
+    AppMediaItem mediaItem, {
     bool createFolder = false,
     String? folderName,
   }) async {
-    AppUtilities.logger.i('Preparing download for ${data['title']}');
+    AppUtilities.logger.i('Preparing download for ${mediaItem.name}');
     download = true;
     if (Platform.isAndroid || Platform.isIOS) {
       AppUtilities.logger.i('Requesting storage permission');
@@ -99,21 +97,19 @@ class Download with ChangeNotifier {
       }
     }
     final RegExp avoid = RegExp(r'[\.\\\*\:\"\?#/;\|]');
-    data['title'] = data['title'].toString().split('(From')[0].trim();
+    mediaItem.name = mediaItem.name.split('(From')[0].trim();
 
     String filename = '';
-    final int downFilename =
-        Hive.box(AppHiveConstants.settings).get('downFilename', defaultValue: 0) as int;
+    final int downFilename = Hive.box(AppHiveConstants.settings).get('downFilename', defaultValue: 0) as int;
     if (downFilename == 0) {
-      filename = '${data["title"]} - ${data["artist"]}';
+      filename = '${mediaItem.name} - ${mediaItem.artist}';
     } else if (downFilename == 1) {
-      filename = '${data["artist"]} - ${data["title"]}';
+      filename = '${mediaItem.artist} - ${mediaItem.name}';
     } else {
-      filename = '${data["title"]}';
+      filename = '${mediaItem.name}';
     }
     // String filename = '${data["title"]} - ${data["artist"]}';
-    String dlPath =
-        Hive.box(AppHiveConstants.settings).get('downloadPath', defaultValue: '') as String;
+    String dlPath = Hive.box(AppHiveConstants.settings).get('downloadPath', defaultValue: '') as String;
     AppUtilities.logger.i('Cached Download path: $dlPath');
     if (filename.length > 200) {
       final String temp = filename.substring(0, 200);
@@ -132,7 +128,7 @@ class Download with ChangeNotifier {
       dlPath = temp!;
     }
     AppUtilities.logger.i('New Download path: $dlPath');
-    if (data['url'].toString().contains('google') && createYoutubeFolder) {
+    if (mediaItem.url.contains('google') && createYoutubeFolder) {
       AppUtilities.logger.i('Youtube audio detected, creating Youtube folder');
       dlPath = '$dlPath/YouTube';
       if (!await Directory(dlPath).exists()) {
@@ -156,15 +152,15 @@ class Download with ChangeNotifier {
       if (remember.value == true && rememberOption != null) {
         switch (rememberOption) {
           case 0:
-            lastDownloadId = data['id'].toString();
+            lastDownloadId = mediaItem.id;
           case 1:
-            downloadSong(context, dlPath, filename, data);
+            downloadMediaItem(context, dlPath, filename, mediaItem);
           case 2:
             while (await File('$dlPath/$filename').exists()) {
               filename = filename.replaceAll('.m4a', ' (1).m4a');
             }
           default:
-            lastDownloadId = data['id'].toString();
+            lastDownloadId = mediaItem.id;
             break;
         }
       } else {
@@ -183,8 +179,7 @@ class Download with ChangeNotifier {
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
-                    '"${data['title']}" ${PlayerTranslationConstants.downAgain.tr}',
+                  Text('"${mediaItem.name}" ${PlayerTranslationConstants.downAgain.tr}',
                     softWrap: true,
                   ),
                   const SizedBox(
@@ -229,13 +224,11 @@ class Download with ChangeNotifier {
                         children: [
                           TextButton(
                             style: TextButton.styleFrom(
-                              foregroundColor: Theme.of(context).brightness ==
-                                      Brightness.dark
-                                  ? Colors.white
-                                  : Colors.grey[700],
+                              foregroundColor: Theme.of(context).brightness == Brightness.dark
+                                  ? Colors.white : Colors.grey[700],
                             ),
                             onPressed: () {
-                              lastDownloadId = data['id'].toString();
+                              lastDownloadId = mediaItem.id.toString();
                               Navigator.pop(context);
                               rememberOption = 0;
                             },
@@ -246,44 +239,35 @@ class Download with ChangeNotifier {
                           ),
                           TextButton(
                             style: TextButton.styleFrom(
-                              foregroundColor: Theme.of(context).brightness ==
-                                      Brightness.dark
-                                  ? Colors.white
-                                  : Colors.grey[700],
+                              foregroundColor: Theme.of(context).brightness == Brightness.dark
+                                  ? Colors.white : Colors.grey[700],
                             ),
                             onPressed: () async {
                               Navigator.pop(context);
-                              Hive.box(AppHiveConstants.downloads).delete(data['id']);
-                              downloadSong(context, dlPath, filename, data);
+                              Hive.box(AppHiveConstants.downloads).delete(mediaItem.id);
+                              downloadMediaItem(context, dlPath, filename, mediaItem);
                               rememberOption = 1;
                             },
-                            child:
-                                Text(PlayerTranslationConstants.yesReplace.tr),
+                            child: Text(PlayerTranslationConstants.yesReplace.tr),
                           ),
                           const SizedBox(width: 5.0),
                           TextButton(
                             style: TextButton.styleFrom(
                               foregroundColor: Colors.white,
-                              backgroundColor:
-                                  Theme.of(context).colorScheme.secondary,
+                              backgroundColor: Theme.of(context).colorScheme.secondary,
                             ),
                             onPressed: () async {
                               Navigator.pop(context);
                               while (await File('$dlPath/$filename').exists()) {
-                                filename =
-                                    filename.replaceAll('.m4a', ' (1).m4a');
+                                filename = filename.replaceAll('.m4a', ' (1).m4a');
                               }
                               rememberOption = 2;
-                              downloadSong(context, dlPath, filename, data);
+                              downloadMediaItem(context, dlPath, filename, mediaItem);
                             },
-                            child: Text(
-                              PlayerTranslationConstants.yes.tr,
+                            child: Text(PlayerTranslationConstants.yes.tr,
                               style: TextStyle(
-                                color:
-                                    Theme.of(context).colorScheme.secondary ==
-                                            Colors.white
-                                        ? Colors.black
-                                        : null,
+                                color: Theme.of(context).colorScheme.secondary == Colors.white
+                                    ? Colors.black : null,
                               ),
                             ),
                           ),
@@ -299,17 +283,17 @@ class Download with ChangeNotifier {
         );
       }
     } else {
-      downloadSong(context, dlPath, filename, data);
+      downloadMediaItem(context, dlPath, filename, mediaItem);
     }
   }
 
-  Future<void> downloadSong(
+  Future<void> downloadMediaItem(
     BuildContext context,
     String? dlPath,
     String fileName,
-    Map data,
+    AppMediaItem mediaItem,
   ) async {
-    AppUtilities.logger.i('processing download');
+    AppUtilities.logger.i('Processing download');
     progress = null;
     notifyListeners();
     String? filepath;
@@ -329,63 +313,49 @@ class Download with ChangeNotifier {
 
     try {
       AppUtilities.logger.i('Creating audio file $dlPath/$fileName');
-      await File('$dlPath/$fileName')
-          .create(recursive: true)
+      await File('$dlPath/$fileName').create(recursive: true)
           .then((value) => filepath = value.path);
       AppUtilities.logger.i('Creating image file $appPath/$artname');
-      await File('$appPath/$artname')
-          .create(recursive: true)
+      await File('$appPath/$artname').create(recursive: true)
           .then((value) => filepath2 = value.path);
     } catch (e) {
       AppUtilities.logger.i('Error creating files, requesting additional permission');
       if (Platform.isAndroid) {
         PermissionStatus status = await Permission.manageExternalStorage.status;
         if (status.isDenied) {
-          AppUtilities.logger.i(
-            'ManageExternalStorage permission is denied, requesting permission',
-          );
-          await [
-            Permission.manageExternalStorage,
-          ].request();
+          AppUtilities.logger.i('ManageExternalStorage permission is denied, requesting permission',);
+          await [Permission.manageExternalStorage,].request();
         }
         status = await Permission.manageExternalStorage.status;
         if (status.isPermanentlyDenied) {
-          AppUtilities.logger.i(
-            'ManageExternalStorage Request is permanently denied, opening settings',
-          );
+          AppUtilities.logger.i('ManageExternalStorage Request is permanently denied, opening settings',);
           await openAppSettings();
         }
       }
 
       AppUtilities.logger.i('Retrying to create audio file');
-      await File('$dlPath/$fileName')
-          .create(recursive: true)
+      await File('$dlPath/$fileName').create(recursive: true)
           .then((value) => filepath = value.path);
 
       AppUtilities.logger.i('Retrying to create image file');
-      await File('$appPath/$artname')
-          .create(recursive: true)
+      await File('$appPath/$artname').create(recursive: true)
           .then((value) => filepath2 = value.path);
     }
-    String kUrl = data['url'].toString();
+    String kUrl = mediaItem.url;
 
-    if (data['url'].toString().contains('google')) {
-      AppUtilities.logger.i('Fetching youtube download url with preferred quality');
-      // filename = filename.replaceAll('.m4a', '.opus');
-
-      kUrl = preferredYtDownloadQuality == 'High'
-          ? data['highUrl'].toString()
-          : data['lowUrl'].toString();
-      if (kUrl == 'null') {
-        kUrl = data['url'].toString();
-      }
-    } else {
-      AppUtilities.logger.i('Fetching jiosaavn download url with preferred quality');
-      kUrl = kUrl.replaceAll(
-        '_96.',
-        "_${preferredDownloadQuality.replaceAll(' kbps', '')}.",
-      );
-    }
+    //VERIFY HOW TO IMPLEMENT ONCE YOUTUBE SPOTIFY JIOSAAVN ARE USED
+    // if (mediaItem.url.toString().contains('google')) {
+    //   AppUtilities.logger.i('Fetching youtube download url with preferred quality');
+    //   // filename = filename.replaceAll('.m4a', '.opus');
+    //   // kUrl = preferredYtDownloadQuality == 'High' ? mediaItem.['highUrl'].toString() : mediaItem['lowUrl'].toString();
+    //   if (kUrl == 'null') {
+    //     kUrl = mediaItem.url;
+    //   }
+    // } else {
+    //   AppUtilities.logger.i('Fetching jiosaavn download url with preferred quality');
+    //   kUrl = kUrl.replaceAll('_96.', "_${preferredDownloadQuality.replaceAll(' kbps', '')}.",
+    //   );
+    // }
 
     AppUtilities.logger.i('Connecting to Client');
     final client = Client();
@@ -414,80 +384,46 @@ class Download with ChangeNotifier {
         await file.writeAsBytes(bytes);
 
         final client = HttpClient();
-        final HttpClientRequest request2 =
-            await client.getUrl(Uri.parse(data['image'].toString()));
+        final HttpClientRequest request2 = await client.getUrl(Uri.parse(mediaItem.imgUrl));
         final HttpClientResponse response2 = await request2.close();
         final bytes2 = await consolidateHttpClientResponseBytes(response2);
         final File file2 = File(filepath2);
-
         await file2.writeAsBytes(bytes2);
-        try {
-          AppUtilities.logger.i('Checking if lyrics required');
-          if (downloadLyrics) {
-            AppUtilities.logger.i('downloading lyrics');
-            final Map res = await Lyrics.getLyrics(
-              id: data['id'].toString(),
-              title: data['title'].toString(),
-              artist: data['artist'].toString(),
-              saavnHas: data['has_lyrics'] == 'true',
-            );
-            lyrics = res['lyrics'].toString();
-          }
-        } catch (e) {
-          AppUtilities.logger.e('Error fetching lyrics: $e');
-          lyrics = '';
-        }
-        // commented out not to use FFmpeg as it increases the size of the app
-        // can uncomment this if you want to use FFmpeg to convert the audio format
-        // to any desired codec instead of the default m4a one.
 
-        // final List<String> availableFormats = ['m4a'];
-        // if (downloadFormat != 'm4a' &&
-        //     availableFormats.contains(downloadFormat)) {
-        //   List<String>? argsList;
-        //   if (downloadFormat == 'mp3') {
-        //     argsList = [
-        //       '-y',
-        //       '-i',
-        //       '$filepath',
-        //       '-c:a',
-        //       'libmp3lame',
-        //       '-b:a',
-        //       '320k',
-        //       (filepath!.replaceAll('.m4a', '.mp3'))
-        //     ];
-        //   }
-        //   if (downloadFormat == 'm4a') {
-        //     argsList = [
-        //       '-y',
-        //       '-i',
-        //       filepath!,
-        //       '-c:a',
-        //       'aac',
-        //       '-b:a',
-        //       '320k',
-        //       filepath!.replaceAll('.m4a', '.m4a')
-        //     ];
-        //   }
-        //   // await FlutterFFmpeg().executeWithArguments(_argsList);
-        //   // await File(filepath!).delete();
-        //   // filepath = filepath!.replaceAll('.m4a', '.$downloadFormat');
-        // }
+          if(mediaItem.lyrics.isNotEmpty) {
+            lyrics = mediaItem.lyrics;
+          } else {
+            try {
+              AppUtilities.logger.i('Checking if lyrics required');
+              if (downloadLyrics) {
+                AppUtilities.logger.i('downloading lyrics');
+                final Map res = await Lyrics.getLyrics(
+                  id: mediaItem.id,
+                  title: mediaItem.name,
+                  artist: mediaItem.artist,
+                  isInternalLyric: mediaItem.lyrics.isEmpty,
+                );
+                lyrics = res['lyrics'].toString();
+                }
+            } catch (e) {
+              AppUtilities.logger.e('Error fetching lyrics: $e');
+              lyrics = '';
+            }
+          }
+
         AppUtilities.logger.i('Getting audio tags');
         if (Platform.isAndroid) {
           try {
             final Tag tag = Tag(
-              title: data['title'].toString(),
-              artist: data['artist'].toString(),
-              albumArtist: data['album_artist']?.toString() ??
-                  data['artist']?.toString().split(', ')[0] ??
-                  '',
+              title: mediaItem.name,
+              artist: mediaItem.artist,
+              albumArtist: mediaItem.artist,
               artwork: filepath2,
-              album: data['album'].toString(),
-              genre: data['language'].toString(),
-              year: data['year'].toString(),
-              lyrics: lyrics,
-              comment: 'Gigmeout',
+              album: mediaItem.album,
+              genre: mediaItem.genre,
+              year: DateTime.fromMillisecondsSinceEpoch(mediaItem.publishedDate).year.toString(),
+              lyrics: mediaItem.lyrics.isNotEmpty ? mediaItem.lyrics : lyrics,
+              comment: AppFlavour.appInUse.value,
             );
             AppUtilities.logger.i('Started tag editing');
             final tagger = Audiotagger();
@@ -508,21 +444,13 @@ class Download with ChangeNotifier {
           await MetadataGod.writeMetadata(
             file: filepath!,
             metadata: Metadata(
-              title: data['title'].toString(),
-              artist: data['artist'].toString(),
-              albumArtist: data['album_artist']?.toString() ??
-                  data['artist']?.toString().split(', ')[0] ??
-                  '',
-              album: data['album'].toString(),
-              genre: data['language'].toString(),
-              year: int.parse(data['year'].toString()),
-              // lyrics: lyrics,
-              // comment: 'BlackHole',
-              // trackNumber: 1,
-              // trackTotal: 12,
-              // discNumber: 1,
-              // discTotal: 5,
-              durationMs: int.parse(data['duration'].toString()) * 1000,
+              title: mediaItem.name,
+              artist: mediaItem.artist,
+              albumArtist: mediaItem.artist,
+              album: mediaItem.album,
+              genre: mediaItem.language,
+              year: DateTime.fromMillisecondsSinceEpoch(mediaItem.publishedDate).year,
+              durationMs: mediaItem.duration * 1000,
               fileSize: file.lengthSync(),
               picture: Picture(
                 data: File(filepath2).readAsBytesSync(),
@@ -533,39 +461,24 @@ class Download with ChangeNotifier {
         }
         AppUtilities.logger.i('Closing connection & notifying listeners');
         client.close();
-        lastDownloadId = data['id'].toString();
+        lastDownloadId = mediaItem.id;
         progress = 0.0;
         notifyListeners();
 
         AppUtilities.logger.i('Putting data to downloads database');
-        final songData = {
-          'id': data['id'].toString(),
-          'title': data['title'].toString(),
-          'subtitle': data['subtitle'].toString(),
-          'artist': data['artist'].toString(),
-          'albumArtist': data['album_artist']?.toString() ??
-              data['artist']?.toString().split(', ')[0],
-          'album': data['album'].toString(),
-          'genre': data['language'].toString(),
-          'year': data['year'].toString(),
-          'lyrics': lyrics,
-          'duration': data['duration'],
-          'release_date': data['release_date'].toString(),
-          'album_id': data['album_id'].toString(),
-          'perma_url': data['perma_url'].toString(),
-          'quality': preferredDownloadQuality,
-          'path': filepath,
-          'image': filepath2,
-          'image_url': data['image'].toString(),
-          'from_yt': data['language'].toString() == 'YouTube',
-          'dateAdded': DateTime.now().toString(),
-        };
-        Hive.box(AppHiveConstants.downloads).put(songData['id'].toString(), songData);
+        AppMediaItem downloadedMediaItem = mediaItem;
+
+        downloadedMediaItem.path = filepath;
+        downloadedMediaItem.imgUrl = filepath2;
+        downloadedMediaItem.mediaSource = AppMediaSource.offline;
+
+        Hive.box(AppHiveConstants.downloads).put(downloadedMediaItem.id, downloadedMediaItem.toJSON());
 
         AppUtilities.logger.i('Everything done, showing snackbar');
         ShowSnackBar().showSnackBar(
           context,
-          '"${data['title']}" ${PlayerTranslationConstants.downed.tr}',
+          '"${mediaItem.name}" ${PlayerTranslationConstants.downed.tr}',
+          duration: Duration(seconds: 3),
         );
       } else {
         download = true;

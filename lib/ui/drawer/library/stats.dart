@@ -44,12 +44,13 @@ class Stats extends StatelessWidget {
           backgroundColor: Colors.transparent,
           elevation: 0,
         ),
-        backgroundColor: AppColor.main75,
+        backgroundColor: AppColor.main50,
         body: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Wrap(
             children: [
               Card(
+                color: AppColor.getMain(),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(
                     10.0,
@@ -74,6 +75,7 @@ class Stats extends StatelessWidget {
                 ),
               ),
               Card(
+                color: AppColor.getMain(),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(
                     10.0,

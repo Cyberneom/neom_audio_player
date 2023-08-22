@@ -23,46 +23,18 @@ class NeomAudioUtilities {
   static List<AppMediaItem> sortSongs(List<AppMediaItem> appMediaItems, {required int sortVal, required int order}) {
     switch (sortVal) {
       case 0:
-        appMediaItems.sort(
-              (a, b) => a.title
-
-              .toUpperCase()
-              .compareTo(b.title.toUpperCase()),
-        );
+        appMediaItems.sort((a, b) => a.name.toUpperCase().compareTo(b.name.toUpperCase()),);
       case 1:
-        appMediaItems.sort(
-              (a, b) => a.releaseDate
-              .toString()
-              .toUpperCase()
-              .compareTo(b.releaseDate.toString().toUpperCase()),
-        );
+        appMediaItems.sort((a, b) => a.releaseDate.toString().toUpperCase()
+              .compareTo(b.releaseDate.toString().toUpperCase()),);
       case 2:
-        appMediaItems.sort(
-              (a, b) => a.album
-              .toUpperCase()
-              .compareTo(b.album.toUpperCase()),
-        );
+        appMediaItems.sort((a, b) => a.album.toUpperCase().compareTo(b.album.toUpperCase()),);
       case 3:
-        appMediaItems.sort(
-              (a, b) => a.artist
-
-              .toUpperCase()
-              .compareTo(b.artist.toUpperCase()),
-        );
+        appMediaItems.sort((a, b) => a.artist.toUpperCase().compareTo(b.artist.toUpperCase()),);
       case 4:
-        appMediaItems.sort(
-              (a, b) => a.duration
-              .toString()
-              .toUpperCase()
-              .compareTo(b.duration.toString().toUpperCase()),
-        );
+        appMediaItems.sort((a, b) => a.duration.toString().toUpperCase().compareTo(b.duration.toString().toUpperCase()),);
       default:
-        appMediaItems.sort(
-              (b, a) => a.releaseDate
-              .toString()
-              .toUpperCase()
-              .compareTo(b.releaseDate.toString().toUpperCase()),
-        );
+        appMediaItems.sort((b, a) => a.releaseDate.toString().toUpperCase().compareTo(b.releaseDate.toString().toUpperCase()),);
         break;
     }
 

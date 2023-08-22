@@ -139,7 +139,7 @@ class _MusicPlayerSettingsPageState extends State<MusicPlayerSettingsPage> {
           PlayerTranslationConstants.streamQuality.tr,
           PlayerTranslationConstants.chartLocation.tr,
           PlayerTranslationConstants.streamWifiQuality.tr,
-          PlayerTranslationConstants.ytStreamQuality.tr,
+          // PlayerTranslationConstants.ytStreamQuality.tr,
           PlayerTranslationConstants.loadLast.tr,
           PlayerTranslationConstants.resetOnSkip.tr,
           PlayerTranslationConstants.enforceRepeat.tr,

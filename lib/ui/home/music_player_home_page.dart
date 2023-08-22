@@ -7,6 +7,7 @@ import 'package:hive/hive.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_theme.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
+import 'package:neom_music_player/ui/drawer/music_player_drawer.dart';
 import 'package:neom_music_player/ui/home/music_player_home_content.dart';
 import 'package:neom_music_player/ui/home/music_player_home_controller.dart';
 import 'package:neom_music_player/ui/widgets/drawer.dart';
@@ -97,21 +98,10 @@ class _MusicPlayerHomePageState extends State<MusicPlayerHomePage> {
                           builder: (context, child) {
                             return GestureDetector(
                               child: AnimatedContainer(
-                                width: (!_scrollController.hasClients ||
-                                    _scrollController.positions.length > 1)
-                                    ? MediaQuery
-                                    .of(context)
-                                    .size
-                                    .width
-                                    : max(MediaQuery
-                                    .of(context)
-                                    .size
-                                    .width -
+                                width: (!_scrollController.hasClients || _scrollController.positions.length > 1)
+                                    ? MediaQuery.of(context).size.width : max(MediaQuery.of(context).size.width -
                                     _scrollController.offset.roundToDouble(),
-                                  MediaQuery
-                                      .of(context)
-                                      .size
-                                      .width - (rotated ? 0 : 75),),
+                                  MediaQuery.of(context).size.width - (rotated ? 0 : 75),),
                                 height: 55.0,
                                 duration: const Duration(milliseconds: 150,),
                                 padding: const EdgeInsets.all(2.0),
@@ -132,21 +122,14 @@ class _MusicPlayerHomePageState extends State<MusicPlayerHomePage> {
                                   children: [
                                     const SizedBox(width: 10.0,),
                                     Icon(CupertinoIcons.search,
-                                      color: Theme
-                                          .of(context)
-                                          .colorScheme
-                                          .secondary,
+                                      color: Theme.of(context).colorScheme.secondary,
                                     ),
                                     const SizedBox(width: 10.0,),
                                     Text(
                                       PlayerTranslationConstants.searchText.tr,
                                       style: TextStyle(
                                         fontSize: 16.0,
-                                        color: Theme
-                                            .of(context)
-                                            .textTheme
-                                            .bodySmall!
-                                            .color,
+                                        color: Theme.of(context).textTheme.bodySmall!.color,
                                         fontWeight: FontWeight.normal,
                                       ),
                                     ),
@@ -154,14 +137,10 @@ class _MusicPlayerHomePageState extends State<MusicPlayerHomePage> {
                                 ),
                               ),
                               onTap: () =>
-                                  Navigator.push(
-                                    context,
+                                  Navigator.push(context,
                                     MaterialPageRoute(
-                                      builder: (context) =>
-                                      const SearchPage(
-                                        query: '',
-                                        fromHome: true,
-                                        autofocus: true,
+                                      builder: (context) => const SearchPage(
+                                        query: '', fromHome: true, autofocus: true,
                                       ),
                                     ),
                                   ),

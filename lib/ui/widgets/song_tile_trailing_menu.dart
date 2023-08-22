@@ -22,6 +22,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:neom_commons/core/domain/model/item_list.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
+import 'package:neom_commons/core/utils/app_color.dart';
+import 'package:neom_commons/core/utils/enums/app_media_source.dart';
 
 import 'package:neom_music_player/ui/widgets/add_playlist.dart';
 import 'package:neom_music_player/utils/helpers/add_mediaitem_to_queue.dart';
@@ -57,6 +59,7 @@ class _SongTileTrailingMenuState extends State<SongTileTrailingMenu> {
   Widget build(BuildContext context) {
     final MediaItem mediaItem = MediaItemMapper.appMediaItemToMediaItem(appMediaItem: widget.appMediaItem);
     return PopupMenuButton(
+      color: AppColor.getMain(),
       icon: Icon(
         Icons.more_vert_rounded,
         color: Theme.of(context).iconTheme.color,
@@ -80,7 +83,7 @@ class _SongTileTrailingMenuState extends State<SongTileTrailingMenu> {
               ],
             ),
           ),
-        PopupMenuItem(
+        if(widget.appMediaItem.mediaSource == AppMediaSource.internal) PopupMenuItem(
           value: 2,
           child: Row(
             children: [
@@ -94,7 +97,7 @@ class _SongTileTrailingMenuState extends State<SongTileTrailingMenu> {
             ],
           ),
         ),
-        PopupMenuItem(
+        if(widget.appMediaItem.mediaSource == AppMediaSource.internal) PopupMenuItem(
           value: 1,
           child: Row(
             children: [
@@ -121,40 +124,6 @@ class _SongTileTrailingMenuState extends State<SongTileTrailingMenu> {
           ),
         ),
         PopupMenuItem(
-          value: 4,
-          child: Row(
-            children: [
-              Icon(
-                Icons.album_rounded,
-                color: Theme.of(context).iconTheme.color,
-              ),
-              const SizedBox(width: 10.0),
-              Text(PlayerTranslationConstants.viewAlbum.tr),
-            ],
-          ),
-        ),
-        if (mediaItem.artist != null)
-          ...mediaItem.artist.toString().split(', ').map(
-                (artist) => PopupMenuItem(
-                  value: artist,
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.person_rounded,
-                          color: Theme.of(context).iconTheme.color,
-                        ),
-                        const SizedBox(width: 10.0),
-                        Text(
-                          '${PlayerTranslationConstants.viewArtist.tr} ($artist)',
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-        PopupMenuItem(
           value: 3,
           child: Row(
             children: [
@@ -168,6 +137,40 @@ class _SongTileTrailingMenuState extends State<SongTileTrailingMenu> {
           ),
         ),
       ],
+      // PopupMenuItem(
+      //   value: 4,
+      //   child: Row(
+      //     children: [
+      //       Icon(
+      //         Icons.album_rounded,
+      //         color: Theme.of(context).iconTheme.color,
+      //       ),
+      //       const SizedBox(width: 10.0),
+      //       Text(PlayerTranslationConstants.viewAlbum.tr),
+      //     ],
+      //   ),
+      // ),
+      // if (mediaItem.artist != null)
+      //   ...mediaItem.artist.toString().split(', ').map(
+      //         (artist) => PopupMenuItem(
+      //           value: artist,
+      //           child: SingleChildScrollView(
+      //             scrollDirection: Axis.horizontal,
+      //             child: Row(
+      //               children: [
+      //                 Icon(
+      //                   Icons.person_rounded,
+      //                   color: Theme.of(context).iconTheme.color,
+      //                 ),
+      //                 const SizedBox(width: 10.0),
+      //                 Text(
+      //                   '${PlayerTranslationConstants.viewArtist.tr} ($artist)',
+      //                 ),
+      //               ],
+      //             ),
+      //           ),
+      //         ),
+      //   ),
       onSelected: (value) {
         switch (value) {
           case 3:
@@ -191,16 +194,16 @@ class _SongTileTrailingMenuState extends State<SongTileTrailingMenu> {
           case 2:
             playNext(mediaItem, context);
           default:
-            Navigator.push(
-              context,
-              PageRouteBuilder(
-                opaque: false,
-                pageBuilder: (_, __, ___) => AlbumSearchPage(
-                  query: value.toString(),
-                  type: 'Artists',
-                ),
-              ),
-            );
+            // Navigator.push(
+            //   context,
+            //   PageRouteBuilder(
+            //     opaque: false,
+            //     pageBuilder: (_, __, ___) => AlbumSearchPage(
+            //       query: value.toString(),
+            //       type: 'Artists',
+            //     ),
+            //   ),
+            // );
             break;
         }
       },

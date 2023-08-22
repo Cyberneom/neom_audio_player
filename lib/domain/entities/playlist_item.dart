@@ -1,5 +1,4 @@
 
-import 'dart:convert';
 
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_music_player/utils/enums/playlist_type.dart';
@@ -43,8 +42,8 @@ class PlaylistItem {
 
   PlaylistItem.fromJSON(data) :
         id = data["playlistId"].toString() ?? "",
-        title = data["title"].toString() ?? "",
-        subtitle = data["subtitle"].toString() ?? "",
+        title = data["title"].toString(),
+        subtitle = data["subtitle"].toString(),
         description = data["description"].toString() ?? "",
         firstItemId = data["firstItemId"].toString() ?? "",
         imgUrl = data['imgUrl'].toString() ?? "",

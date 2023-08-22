@@ -117,7 +117,7 @@ class DataSearch extends SearchDelegate {
             suggestionItems.add(AppMediaItem(
               id: element.id.toString(),
               album: element.album ?? '',
-              title: element.title ?? '',
+              name: element.title ?? '',
               duration: element.duration ?? 0,
               artist: element.artist ?? '',
               artistId: element.artistId.toString(),
@@ -293,11 +293,11 @@ class DownloadsSearch extends SearchDelegate {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   DownloadButton(
-                    data: suggestionList[index] as Map,
+                    mediaItem: AppMediaItem.fromJSON(suggestionList[index] as Map),
                     icon: 'download',
                   ),
                   SongTileTrailingMenu(
-                    appMediaItem: AppMediaItem.fromMap(suggestionList[index] as Map),
+                    appMediaItem: AppMediaItem.fromJSON(suggestionList[index] as Map),
                     itemlist: Itemlist(),
                     isPlaylist: true,
                   ),

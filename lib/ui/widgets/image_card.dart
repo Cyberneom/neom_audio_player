@@ -52,22 +52,15 @@ Widget imageCard({
         fit: StackFit.expand,
         children: [
           if (localImage)
-            Image(
+            Image.asset(
+              imageUrl,
               fit: BoxFit.cover,
               errorBuilder: (context, error, stacktrace) {
                 if (localErrorFunction != null) {
                   localErrorFunction(error, stacktrace);
                 }
-                return Image(
-                  fit: BoxFit.cover,
-                  image: placeholderImage,
-                );
+                return Image(fit: BoxFit.cover, image: placeholderImage,);
               },
-              image: FileImage(
-                File(
-                  imageUrl,
-                ),
-              ),
             )
           else
             CachedNetworkImage(

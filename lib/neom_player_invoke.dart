@@ -82,7 +82,7 @@ class NeomPlayerInvoke {
     await updateNowPlaying(queue, index);
   }
 
-  static void setOffValues(List response, int index) {
+  static void setOffValues(List<AppMediaItem> response, int index) {
     getTemporaryDirectory().then((tempDir) async {
       final File file = File('${tempDir.path}/cover.jpg');
       if (!await file.exists()) {
@@ -95,31 +95,32 @@ class NeomPlayerInvoke {
       final List<MediaItem> queue = [];
       for (int i = 0; i < response.length; i++) {
         queue.add(
-          await setTags(response[i] as SongModel, tempDir),
+          await setTags(response[i], tempDir),
         );
       }
       updateNowPlaying(queue, index);
     });
   }
 
-  static void setDownValues(List response, int index) {
+  static void setDownValues(List<AppMediaItem> response, int index) {
     final List<MediaItem> queue = [];
     queue.addAll(
-      response.map((song) => MediaItemMapper.downMapToMediaItem(song as Map),
-      ),
+      response.map((song) => MediaItemMapper.appMediaItemToMediaItem(appMediaItem: song),),
     );
     updateNowPlaying(queue, index);
   }
 
-  static Future<MediaItem> setTags(SongModel response, Directory tempDir,) async {
-    String playTitle = response.title;
-    playTitle == '' ? playTitle = response.displayNameWOExt : playTitle = response.title;
+  static Future<MediaItem> setTags(AppMediaItem response, Directory tempDir,) async {
+    String playTitle = response.name;
+    if(playTitle.isEmpty && response.album.isNotEmpty) {
+      playTitle = response.album;
+    }
     String playArtist = response.artist!;
     playArtist == '<unknown>' ? playArtist = 'Unknown' : playArtist = response.artist!;
 
     final String playAlbum = response.album!;
     final int playDuration = response.duration ?? 180000;
-    final String imagePath = '${tempDir.path}/${response.displayNameWOExt}.png';
+    final String imagePath = '${tempDir.path}/${response.name.removeAllWhitespace}.png';
 
     final MediaItem tempDict = MediaItem(
       id: response.id.toString(),
@@ -130,11 +131,11 @@ class NeomPlayerInvoke {
       genre: response.genre,
       artUri: Uri.file(imagePath),
       extras: {
-        'url': response.data,
-        'date_added': response.dateAdded,
-        'date_modified': response.dateModified,
-        'size': response.size,
-        'year': response.getMap['year'],
+        'url': response.url,
+        'date_added': response.publishedDate,
+        'date_modified': response.releaseDate,
+        // 'size': response.size,
+        'year': DateTime.fromMillisecondsSinceEpoch(response.publishedDate).year.toString(),
       },
     );
     return tempDict;
