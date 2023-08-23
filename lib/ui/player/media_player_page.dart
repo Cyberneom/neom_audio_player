@@ -47,7 +47,9 @@ import 'package:neom_music_player/utils/music_player_utilities.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 class MediaPlayerPage extends StatefulWidget {
-  const MediaPlayerPage({super.key});
+
+  AppMediaItem? appMediaItem;
+  MediaPlayerPage({super.key, this.appMediaItem});
   @override
   _MediaPlayerPageState createState() => _MediaPlayerPageState();
 }
@@ -71,22 +73,19 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
     return;
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     BuildContext? scaffoldContext;
 
     return Dismissible(
-      direction: DismissDirection.down,
+      direction: widget.appMediaItem == null ? DismissDirection.down : DismissDirection.endToStart,
       background: Container(
         height: MediaQuery.of(context).size.width/2,
         width: MediaQuery.of(context).size.width/2,
         color: AppColor.main75,
-        child: Image.asset(
-          AppFlavour.getIconPath(),
-          fit: BoxFit.fitWidth,
-      ),),
+        child: Image.asset(AppFlavour.getIconPath(),
+          fit: BoxFit.fitWidth,),
+      ),
       key: const Key('playScreen'),
       onDismissed: (direction) {
         Navigator.pop(context);
@@ -94,23 +93,24 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
       child: StreamBuilder<MediaItem?>(
         stream: audioHandler.mediaItem,
         builder: (context, snapshot) {
-          if(snapshot.data == null) {
+
+          MediaItem mediaItem;
+
+          if(widget.appMediaItem != null) {
+            mediaItem = MediaItemMapper.appMediaItemToMediaItem(appMediaItem: widget.appMediaItem!);
+          } else if(snapshot.data != null) {
+            mediaItem = snapshot.data!;
+          } else {
             return const SizedBox();
           }
-          final MediaItem mediaItem = snapshot.data!;
+
           final offline = !mediaItem.extras!['url'].toString().startsWith('http');
-          mediaItem.artUri.toString().startsWith('file')
-              ? getColors(
-                  imageProvider: FileImage(
-                    File(
-                      mediaItem.artUri!.toFilePath(),
-                    ),
-                  ),
-                ).then((value) => updateBackgroundColors(value))
-              : getColors(imageProvider: CachedNetworkImageProvider(
-                    mediaItem.artUri.toString(),
-                  ),
-                ).then((value) => updateBackgroundColors(value));
+
+          if(mediaItem.artUri.toString().isNotEmpty) {
+            mediaItem.artUri.toString().startsWith('file')
+                ? getColors(imageProvider: FileImage(File(mediaItem.artUri!.toFilePath(),),),).then((value) => updateBackgroundColors(value))
+                : getColors(imageProvider: CachedNetworkImageProvider(mediaItem.artUri.toString(),),).then((value) => updateBackgroundColors(value));
+          }
           return ValueListenableBuilder(
             valueListenable: gradientColor,
             child: SafeArea(
@@ -122,7 +122,7 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
                   backgroundColor: AppColor.main75,
                   centerTitle: true,
                   leading: IconButton(
-                    icon: const Icon(Icons.expand_more_rounded),
+                    icon: Icon(widget.appMediaItem == null ? Icons.expand_more_rounded : Icons.chevron_left),
                     tooltip: PlayerTranslationConstants.back.tr,
                     onPressed: () {
                       Navigator.pop(context);
@@ -131,7 +131,6 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
                   actions: [
                     IconButton(
                       icon: const Icon(Icons.lyrics_rounded),
-                      // Image.asset(AppAssets.musicPlayerLyrics),
                       tooltip: PlayerTranslationConstants.lyrics.tr,
                       onPressed: () => cardKey.currentState!.toggleCard(),
                     ),
@@ -142,7 +141,7 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
                         onPressed: () async {
                           if (!isSharePopupShown) {
                             isSharePopupShown = true;
-                            AppMediaItem item = MediaItemMapper.fromMediaItem(mediaItem);
+                            final AppMediaItem item = MediaItemMapper.fromMediaItem(mediaItem);
                             await CoreUtilities().shareAppWithMediaItem(item).whenComplete(() {
                               Timer(const Duration(milliseconds: 600), () {
                                 isSharePopupShown = false;
@@ -152,106 +151,11 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
                           
                         },
                       ),
-                    PopupMenuButton(
-                      icon: const Icon(Icons.more_vert_rounded,color: AppColor.white),
-                      color: AppColor.getMain(),
-                      shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(15.0),
-                        ),
-                      ),
-                      onSelected: (int? value) {
-                        if(value != null) {
-                          MusicPlayerUtilities.onSelectedPopUpMenu(context, value, mediaItem, _time);
-                        }
-                      },
-                      itemBuilder: (context) => offline ? [
-                        PopupMenuItem(
-                          value: 1,
-                          child: Row(
-                            children: [
-                              Icon(CupertinoIcons.timer,
-                                color: Theme.of(context).iconTheme.color,
-                              ),
-                              const SizedBox(width: 10.0),
-                              Text(PlayerTranslationConstants.sleepTimer.tr,),
-                            ],
-                          ),
-                        ),
-                        PopupMenuItem(
-                          value: 10,
-                          child: Row(
-                            children: [
-                              Icon(Icons.info_rounded,
-                                color: Theme.of(context).iconTheme.color,
-                              ),
-                              const SizedBox(width: 10.0),
-                              Text(PlayerTranslationConstants.songInfo.tr,),
-                            ],
-                          ),
-                        ),
-                      ] : [
-                        PopupMenuItem(
-                          value: 0,
-                          child: Row(
-                            children: [
-                              Icon(Icons.playlist_add_rounded,
-                                color: Theme.of(context).iconTheme.color,
-                              ),
-                              const SizedBox(width: 10.0),
-                              Text(PlayerTranslationConstants.addToPlaylist.tr,),],),
-                        ),
-                        PopupMenuItem(
-                          value: 1,
-                          child: Row(
-                            children: [
-                              Icon(
-                                CupertinoIcons.timer,
-                                color: Theme.of(context).iconTheme.color,
-                              ),
-                              const SizedBox(width: 10.0),
-                              Text(
-                                PlayerTranslationConstants.sleepTimer.tr,
-                              ),
-                            ],
-                          ),
-                        ),
-                        PopupMenuItem(
-                          value: 3,
-                          child: Row(
-                            children: [
-                              Icon(MdiIcons.youtube,
-                                color: Theme.of(context).iconTheme.color,
-                              ),
-                              const SizedBox(width: 10.0),
-                              Text(mediaItem.genre == 'YouTube'
-                                  ? PlayerTranslationConstants.watchVideo.tr
-                                  : PlayerTranslationConstants.searchVideo.tr,
-                              ),
-                            ],
-                          ),
-                        ),
-                        PopupMenuItem(
-                          value: 10,
-                          child: Row(
-                            children: [
-                              Icon(Icons.info_rounded,
-                                color: Theme.of(context).iconTheme.color,
-                              ),
-                              const SizedBox(width: 10.0),
-                              Text(PlayerTranslationConstants.songInfo.tr,),
-                            ],
-                          ),
-                        ),
-                      ],
-                    )
+                      createPopMenuOption(context, mediaItem, offline: offline)
                   ],
                 ),
                 body: LayoutBuilder(
-                  builder: (
-                    BuildContext context,
-                    BoxConstraints constraints,
-                  ) {
+                  builder: (BuildContext context, BoxConstraints constraints,) {
                     if (constraints.maxWidth > constraints.maxHeight) {
                       return Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -268,7 +172,6 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
                             offline: offline,
                             getLyricsOnline: getLyricsOnline,
                           ),
-
                           // title and controls
                           NameNControls(
                             mediaItem: mediaItem,
@@ -292,7 +195,6 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
                           offline: offline,
                           getLyricsOnline: getLyricsOnline,
                         ),
-
                         // title and controls
                         NameNControls(
                           mediaItem: mediaItem,
@@ -302,6 +204,7 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
                               (constraints.maxWidth * 0.85),
                           panelController: _panelController,
                           audioHandler: audioHandler,
+
                         ),
                       ],
                     );
@@ -310,8 +213,7 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
                 // }
               ),
             ),
-            builder:
-                (BuildContext context, List<Color?>? value, Widget? child) {
+            builder: (BuildContext context, List<Color?>? value, Widget? child) {
               return AnimatedContainer(
                 duration: const Duration(milliseconds: 600),
                 decoration: BoxDecoration(
@@ -326,30 +228,124 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
                             ? Alignment.center
                             : Alignment.bottomCenter,
                     colors: gradientType == 'simple'
-                        ? 
-                            currentTheme.getBackGradient()
-
-                        : 
-                            [
-                                if (gradientType == 'halfDark' ||
-                                    gradientType == 'fullDark')
-                                  value?[1] ?? Colors.grey[900]!
-                                else
-                                  value?[0] ?? Colors.grey[900]!,
-                                if (gradientType == 'fullMix')
-                                  value?[1] ?? Colors.black
-                                else
-                                  Colors.black
-                              ],
+                        ? currentTheme.getBackGradient() : [
+                          if (gradientType == 'halfDark' || gradientType == 'fullDark')
+                            value?[1] ?? Colors.grey[900]!
+                          else
+                            value?[0] ?? Colors.grey[900]!,
+                      if (gradientType == 'fullMix')
+                        value?[1] ?? Colors.black
+                      else
+                        Colors.black
+                    ],
                   ),
                 ),
                 child: child,
               );
             },
           );
-          // );
+          // );CachedNetworkImageProvider
         },
       ),
     );
   }
+
+  Widget createPopMenuOption(BuildContext context, MediaItem mediaItem, {bool offline = false}) {
+    return PopupMenuButton(
+      icon: const Icon(Icons.more_vert_rounded,color: AppColor.white),
+      color: AppColor.getMain(),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(
+          Radius.circular(15.0),
+        ),
+      ),
+      onSelected: (int? value) {
+        if(value != null) {
+          MusicPlayerUtilities.onSelectedPopUpMenu(context, value, mediaItem, _time);
+        }
+      },
+      itemBuilder: (context) => offline ? [
+        PopupMenuItem(
+          value: 1,
+          child: Row(
+            children: [
+              Icon(CupertinoIcons.timer,
+                color: Theme.of(context).iconTheme.color,
+              ),
+              const SizedBox(width: 10.0),
+              Text(PlayerTranslationConstants.sleepTimer.tr,),
+            ],
+          ),
+        ),
+        PopupMenuItem(
+          value: 10,
+          child: Row(
+            children: [
+              Icon(Icons.info_rounded,
+                color: Theme.of(context).iconTheme.color,
+              ),
+              const SizedBox(width: 10.0),
+              Text(PlayerTranslationConstants.songInfo.tr,),
+            ],
+          ),
+        ),
+      ] : [
+        PopupMenuItem(
+          value: 0,
+          child: Row(
+            children: [
+              Icon(Icons.playlist_add_rounded,
+                color: Theme.of(context).iconTheme.color,
+              ),
+              const SizedBox(width: 10.0),
+              Text(PlayerTranslationConstants.addToPlaylist.tr,),],),
+        ),
+        PopupMenuItem(
+          value: 1,
+          child: Row(
+            children: [
+              Icon(
+                CupertinoIcons.timer,
+                color: Theme.of(context).iconTheme.color,
+              ),
+              const SizedBox(width: 10.0),
+              Text(
+                PlayerTranslationConstants.sleepTimer.tr,
+              ),
+            ],
+          ),
+        ),
+        PopupMenuItem(
+          value: 3,
+          child: Row(
+            children: [
+              Icon(MdiIcons.youtube,
+                color: Theme.of(context).iconTheme.color,
+              ),
+              const SizedBox(width: 10.0),
+              Text(mediaItem.genre == 'YouTube'
+                  ? PlayerTranslationConstants.watchVideo.tr
+                  : PlayerTranslationConstants.searchVideo.tr,
+              ),
+            ],
+          ),
+        ),
+        PopupMenuItem(
+          value: 10,
+          child: Row(
+            children: [
+              Icon(Icons.info_rounded,
+                color: Theme.of(context).iconTheme.color,
+              ),
+              const SizedBox(width: 10.0),
+              Text(PlayerTranslationConstants.songInfo.tr,),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
 }
+
+

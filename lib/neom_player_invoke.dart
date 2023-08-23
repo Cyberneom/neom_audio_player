@@ -115,10 +115,10 @@ class NeomPlayerInvoke {
     if(playTitle.isEmpty && response.album.isNotEmpty) {
       playTitle = response.album;
     }
-    String playArtist = response.artist!;
-    playArtist == '<unknown>' ? playArtist = 'Unknown' : playArtist = response.artist!;
+    String playArtist = response.artist;
+    playArtist == '<unknown>' ? playArtist = 'Unknown' : playArtist = response.artist;
 
-    final String playAlbum = response.album!;
+    final String playAlbum = response.album;
     final int playDuration = response.duration ?? 180000;
     final String imagePath = '${tempDir.path}/${response.name.removeAllWhitespace}.png';
 
@@ -132,10 +132,10 @@ class NeomPlayerInvoke {
       artUri: Uri.file(imagePath),
       extras: {
         'url': response.url,
-        'date_added': response.publishedDate,
+        'date_added': response.publishedYear,
         'date_modified': response.releaseDate,
         // 'size': response.size,
-        'year': DateTime.fromMillisecondsSinceEpoch(response.publishedDate).year.toString(),
+        'year': response.publishedYear,
       },
     );
     return tempDict;

@@ -100,14 +100,7 @@ class NameNControls extends StatelessWidget {
                         context,
                         PageRouteBuilder(
                           opaque: false,
-                          pageBuilder: (_, __, ___) => SongsListPage(
-                              itemlist: Itemlist()
-                            // {
-                            //   'type': 'album',
-                            //   'id': mediaItem.extras?['album_id'],
-                            //   'title': mediaItem.album,
-                            //   'image': mediaItem.artUri,
-                            // },
+                          pageBuilder: (_, __, ___) => SongsListPage(itemlist: Itemlist()
                           ),
                         ),
                       );
@@ -131,9 +124,7 @@ class NameNControls extends StatelessWidget {
                         value: '0',
                         child: Row(
                           children: [
-                            const Icon(
-                              Icons.album_rounded,
-                            ),
+                            const Icon(Icons.album_rounded,),
                             const SizedBox(width: 10.0),
                             Text(
                               PlayerTranslationConstants.viewAlbum.tr,
@@ -149,13 +140,9 @@ class NameNControls extends StatelessWidget {
                             scrollDirection: Axis.horizontal,
                             child: Row(
                               children: [
-                                const Icon(
-                                  Icons.person_rounded,
-                                ),
+                                const Icon(Icons.person_rounded,),
                                 const SizedBox(width: 10.0),
-                                Text(
-                                  '${PlayerTranslationConstants.viewArtist.tr} ($artist)',
-                                ),
+                                Text('${PlayerTranslationConstants.viewArtist.tr} ($artist)',),
                               ],
                             ),
                           ),
@@ -168,23 +155,16 @@ class NameNControls extends StatelessWidget {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          SizedBox(
-                            height: titleBoxHeight / 10,
-                          ),
-
                           /// Title container
                           AnimatedText(
-                            text: mediaItem.title
-                            // .split(' (')[0]
-                            // .split('|')[0]
-                                .trim(),
+                            text: mediaItem.title.trim(),
                             pauseAfterRound: const Duration(seconds: 3),
                             showFadingOnlyWhenScrolling: false,
                             fadingEdgeEndFraction: 0.05,
                             fadingEdgeStartFraction: 0.05,
                             startAfter: const Duration(seconds: 2),
                             style: TextStyle(
-                              fontSize: titleBoxHeight / 2.75,
+                              fontSize: titleBoxHeight / 3,
                               fontWeight: FontWeight.bold,
                               // color: Theme.of(context).accentColor,
                             ),
@@ -264,27 +244,14 @@ class NameNControls extends StatelessWidget {
                               const SizedBox(height: 6.0),
                               StreamBuilder<bool>(
                                 stream: audioHandler.playbackState
-                                    .map(
-                                      (state) =>
-                                  state.shuffleMode ==
-                                      AudioServiceShuffleMode.all,
-                                )
-                                    .distinct(),
+                                    .map((state) => state.shuffleMode == AudioServiceShuffleMode.all,).distinct(),
                                 builder: (context, snapshot) {
                                   final shuffleModeEnabled =
                                       snapshot.data ?? false;
-                                  return IconButton(
-                                    icon: shuffleModeEnabled
-                                        ? const Icon(
-                                      Icons.shuffle_rounded,
-                                    )
-                                        : Icon(
-                                      Icons.shuffle_rounded,
-                                      color:
-                                      Theme.of(context).disabledColor,
-                                    ),
-                                    tooltip:
-                                    PlayerTranslationConstants.shuffle.tr,
+                                  return IconButton(icon: shuffleModeEnabled
+                                        ? const Icon(Icons.shuffle_rounded,)
+                                        : Icon(Icons.shuffle_rounded, color: Theme.of(context).disabledColor,),
+                                    tooltip: PlayerTranslationConstants.shuffle.tr,
                                     onPressed: () async {
                                       final enable = !shuffleModeEnabled;
                                       await audioHandler.setShuffleMode(
@@ -300,9 +267,7 @@ class NameNControls extends StatelessWidget {
                                 LikeButton(mediaItem: mediaItem, size: 25.0)
                             ],
                           ),
-                          ControlButtons(
-                            audioHandler,
-                          ),
+                          ControlButtons(audioHandler, mediaItem: mediaItem,),
                           Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
@@ -316,16 +281,11 @@ class NameNControls extends StatelessWidget {
                                       AudioServiceRepeatMode.none;
                                   const texts = ['None', 'All', 'One'];
                                   final icons = [
-                                    Icon(
-                                      Icons.repeat_rounded,
+                                    Icon(Icons.repeat_rounded,
                                       color: Theme.of(context).disabledColor,
                                     ),
-                                    const Icon(
-                                      Icons.repeat_rounded,
-                                    ),
-                                    const Icon(
-                                      Icons.repeat_one_rounded,
-                                    ),
+                                    const Icon(Icons.repeat_rounded,),
+                                    const Icon(Icons.repeat_one_rounded,),
                                   ];
                                   const cycleModes = [
                                     AudioServiceRepeatMode.none,
@@ -335,26 +295,18 @@ class NameNControls extends StatelessWidget {
                                   final index = cycleModes.indexOf(repeatMode);
                                   return IconButton(
                                     icon: icons[index],
-                                    tooltip:
-                                    'Repeat ${texts[(index + 1) % texts.length]}',
+                                    tooltip: 'Repeat ${texts[(index + 1) % texts.length]}',
                                     onPressed: () async {
-                                      await Hive.box(AppHiveConstants.settings).put(
-                                        'repeatMode',
-                                        texts[(index + 1) % texts.length],
-                                      );
-                                      await audioHandler.setRepeatMode(
-                                        cycleModes[
-                                        (cycleModes.indexOf(repeatMode) +
-                                            1) %
-                                            cycleModes.length],
+                                      await Hive.box(AppHiveConstants.settings).put('repeatMode', texts[(index + 1) % texts.length],);
+                                      await audioHandler.setRepeatMode(cycleModes[
+                                        (cycleModes.indexOf(repeatMode) + 1) % cycleModes.length],
                                       );
                                     },
                                   );
                                 },
                               ),
                               if (!offline)
-                                DownloadButton(
-                                  size: 25.0,
+                                DownloadButton(size: 25.0,
                                   mediaItem: MediaItemMapper.fromMediaItem(mediaItem),
                                 )
                             ],
@@ -393,10 +345,7 @@ class NameNControls extends StatelessWidget {
                   topRight: Radius.circular(15.0),
                 ),
                 child: BackdropFilter(
-                  filter: ui.ImageFilter.blur(
-                    sigmaX: 8.0,
-                    sigmaY: 8.0,
-                  ),
+                  filter: ui.ImageFilter.blur(sigmaX: 8.0, sigmaY: 8.0,),
                   child: ShaderMask(
                     shaderCallback: (rect) {
                       return const LinearGradient(
@@ -410,11 +359,7 @@ class NameNControls extends StatelessWidget {
                           Colors.transparent,
                         ],
                       ).createShader(
-                        Rect.fromLTRB(
-                          0,
-                          0,
-                          rect.width,
-                          rect.height,
+                        Rect.fromLTRB(0, 0, rect.width, rect.height,
                         ),
                       );
                     },
@@ -453,9 +398,7 @@ class NameNControls extends StatelessWidget {
                 color: Colors.transparent,
                 child: Column(
                   children: [
-                    const SizedBox(
-                      height: 5,
-                    ),
+                    const SizedBox(height: 5,),
                     Center(
                       child: Container(
                         width: 30,
@@ -478,9 +421,7 @@ class NameNControls extends StatelessWidget {
                         ),
                       ),
                     ),
-                    const SizedBox(
-                      height: 5,
-                    ),
+                    const SizedBox(height: 5,),
                   ],
                 ),
               ),

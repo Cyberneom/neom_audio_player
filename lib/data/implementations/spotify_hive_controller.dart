@@ -17,8 +17,6 @@ import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
 import 'package:neom_music_player/utils/constants/countrycodes.dart';
 import 'package:neom_music_player/utils/helpers/spotify_helper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:url_launcher/url_launcher.dart';
-
 
 class SpotifyHiveController extends GetxController  {
 

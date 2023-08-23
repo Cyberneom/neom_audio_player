@@ -143,7 +143,7 @@ class MediaItemMapper  {
       extras: {
         'url': appMediaItem.url,
         'allUrl': appMediaItem.allUrls,
-        'year': DateTime.fromMillisecondsSinceEpoch(appMediaItem.publishedDate).year,
+        'year': appMediaItem.publishedYear,
         'language': appMediaItem.language,
         '320kbps': appMediaItem.is320Kbps,
         'quality': appMediaItem.quality,
@@ -196,7 +196,7 @@ class MediaItemMapper  {
       extras: {
         'url': appMediaItem.url,
         'allUrl': [],
-        'year': DateTime.fromMillisecondsSinceEpoch(appMediaItem.publishedDate).year,
+        'year': appMediaItem.publishedYear,
         'language': appMediaItem.language,
         '320kbps': appMediaItem.is320Kbps,
         'quality': 0,
@@ -209,6 +209,7 @@ class MediaItemMapper  {
         'addedByAutoplay': addedByAutoplay,
         'autoplay': autoplay,
         'playlistBox': playlistBox,
+        'source': appMediaItem.mediaSource.name
       },
     );
   }

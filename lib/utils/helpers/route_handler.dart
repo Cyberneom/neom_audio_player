@@ -125,7 +125,7 @@ class SaavnUrlHandler extends StatelessWidget {
           context,
           PageRouteBuilder(
             opaque: false,
-            pageBuilder: (_, __, ___) => const MediaPlayerPage(),
+            pageBuilder: (_, __, ___) => MediaPlayerPage(),
           ),
         );
       }
@@ -197,7 +197,7 @@ class YtUrlHandler extends StatelessWidget {
           context,
           PageRouteBuilder(
             opaque: false,
-            pageBuilder: (_, __, ___) => const MediaPlayerPage(),
+            pageBuilder: (_, __, ___) => MediaPlayerPage(),
           ),
         );
       });
@@ -248,7 +248,7 @@ class OfflinePlayHandler extends StatelessWidget {
         context,
         PageRouteBuilder(
           opaque: false,
-          pageBuilder: (_, __, ___) => const MediaPlayerPage(),
+          pageBuilder: (_, __, ___) => MediaPlayerPage(),
         ),
       );
     });

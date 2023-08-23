@@ -41,7 +41,7 @@ class MusicPlayerRoutes {
     MusicPlayerRouteConstants.root: (context) => initialFunction(),
     MusicPlayerRouteConstants.pref: (context) => const WelcomePreferencePage(),
     MusicPlayerRouteConstants.setting: (context) => const MusicPlayerSettingsPage(),
-    MusicPlayerRouteConstants.player: (context) => const MediaPlayerPage(),
+    MusicPlayerRouteConstants.player: (context) => MediaPlayerPage(),
     // MusicPlayerRouteConstants.playlists: (context) => PlaylistPage(),
     MusicPlayerRouteConstants.nowPlaying: (context) => NowPlayingPage(),
     MusicPlayerRouteConstants.recent: (context) => RecentlyPlayed(),

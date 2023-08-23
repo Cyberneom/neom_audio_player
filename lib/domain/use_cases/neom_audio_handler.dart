@@ -645,9 +645,12 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
   @override
   Future<void> play() async {
     _player.play();
+    ///TO DEPRECATE
     // MiniPlayer miniPlayerInstance = GetIt.I<MiniPlayer>();
     // miniPlayerInstance.mediaItemController.add(currentMediaItem);
-    getx.Get.find<MiniPlayerController>().setMediaItem(currentMediaItem!);
+    if(currentMediaItem != null) {
+      getx.Get.find<MiniPlayerController>().setMediaItem(currentMediaItem!);
+    }
   }
 
 

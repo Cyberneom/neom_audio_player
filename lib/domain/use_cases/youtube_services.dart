@@ -337,7 +337,7 @@ class YouTubeServices {
       genre: 'YouTube',
       url: finalUrl,
       allUrls: urls,
-      publishedDate: video.uploadDate?.millisecondsSinceEpoch ?? 0,
+      publishedYear: video.uploadDate?.year ?? 0,
       albumId: video.channelId.value,
       permaUrl: video.url,
       mediaSource: AppMediaSource.youtube,

@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
-import 'package:logging/logging.dart';
 import 'package:neom_commons/core/app_flavour.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_itemlists/itemlists/utils/constants/app_spotify_constants.dart';

@@ -486,7 +486,7 @@ Future<AppMediaItem> editTags(AppMediaItem mediaItem, BuildContext context) asyn
       final artistcontroller = TextEditingController(text: mediaItem.artist.toString());
       final albumArtistController = TextEditingController(text: mediaItem.artist.toString());
       final genrecontroller = TextEditingController(text: mediaItem.genre.toString());
-      final yearcontroller = TextEditingController(text: DateTime.fromMillisecondsSinceEpoch(mediaItem.publishedDate).year.toString());
+      final yearcontroller = TextEditingController(text: mediaItem.publishedYear.toString());
       final pathcontroller = TextEditingController(text: mediaItem.path.toString());
 
       return AlertDialog(
@@ -698,7 +698,7 @@ Future<AppMediaItem> editTags(AppMediaItem mediaItem, BuildContext context) asyn
               mediaItem.album = albumcontroller.text;
               mediaItem.artist = artistcontroller.text;
               mediaItem.genre = genrecontroller.text;
-              mediaItem.publishedDate = DateTime(int.parse(yearcontroller.text)).millisecondsSinceEpoch;
+              mediaItem.publishedYear = DateTime(int.parse(yearcontroller.text)).millisecondsSinceEpoch;
               mediaItem.path = pathcontroller.text;
               final tag = Tag(
                 title: titlecontroller.text,

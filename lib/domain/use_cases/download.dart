@@ -421,7 +421,7 @@ class Download with ChangeNotifier {
               artwork: filepath2,
               album: mediaItem.album,
               genre: mediaItem.genre,
-              year: DateTime.fromMillisecondsSinceEpoch(mediaItem.publishedDate).year.toString(),
+              year: mediaItem.publishedYear.toString(),
               lyrics: mediaItem.lyrics.isNotEmpty ? mediaItem.lyrics : lyrics,
               comment: AppFlavour.appInUse.value,
             );
@@ -449,7 +449,7 @@ class Download with ChangeNotifier {
               albumArtist: mediaItem.artist,
               album: mediaItem.album,
               genre: mediaItem.language,
-              year: DateTime.fromMillisecondsSinceEpoch(mediaItem.publishedDate).year,
+              year: mediaItem.publishedYear,
               durationMs: mediaItem.duration * 1000,
               fileSize: file.lengthSync(),
               picture: Picture(

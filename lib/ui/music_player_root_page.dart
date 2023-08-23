@@ -87,7 +87,7 @@ class _MusicPlayerRootPageState extends State<MusicPlayerRootPage> {
                     if (settings.name == MusicPlayerRouteConstants.player) {
                       return PageRouteBuilder(
                         opaque: false,
-                        pageBuilder: (_, __, ___) => const MediaPlayerPage(),
+                        pageBuilder: (_, __, ___) => MediaPlayerPage(),
                       );
                     }
                     return HandleRoute.handleRoute(settings.name);

@@ -6,6 +6,7 @@ import 'package:neom_commons/core/app_flavour.dart';
 
 import 'package:neom_commons/core/data/firestore/user_firestore.dart';
 import 'package:neom_commons/core/domain/model/app_item.dart';
+import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/domain/model/app_profile.dart';
 import 'package:neom_commons/core/domain/model/item_list.dart';
 import 'package:neom_commons/core/data/implementations/user_controller.dart';
@@ -181,8 +182,8 @@ class SpotifyInternalController extends GetxController {
       }
 
       if(spotifyPlaylist.href?.isNotEmpty ?? false) {
-        itemlist.appItems = await AppItem.mapTracksToSongs(spotifyPlaylist.tracks!);
-        logger.d("${itemlist.appItems?.length ?? 0} songs were mapped from ${spotifyPlaylist.name}");
+        itemlist.appMediaItems = await AppMediaItem.mapTracksToSongs(spotifyPlaylist.tracks!);
+        logger.d("${itemlist.appMediaItems?.length ?? 0} songs were mapped from ${spotifyPlaylist.name}");
       }
     } catch (e) {
       logger.e(e.toString());

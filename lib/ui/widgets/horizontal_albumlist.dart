@@ -83,7 +83,7 @@ class HorizontalAlbumsList extends StatelessWidget {
         physics: const BouncingScrollPhysics(),
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 10),
-        itemCount: itemlist.appItems?.length ?? 0,
+        itemCount: itemlist.appMediaItems?.length ?? 0,
         itemBuilder: (context, index) {
           final AppMediaItem appMediaItem = AppMediaItem.mapItemsFromItemlist(itemlist).elementAt(index);
           final subTitle = getSubTitle(appMediaItem);
@@ -158,7 +158,7 @@ class HorizontalAlbumsList extends StatelessWidget {
                               child: child,
                             ),
                             if (isHover
-                                // && (appItem['type'] == 'song' || appItem['type'] == 'radio_station' || appItem['duration'] != null)
+                                // && (appMediaItem['type'] == 'song' || appMediaItem['type'] == 'radio_station' || appMediaItem['duration'] != null)
                             )
                               Positioned.fill(
                                 child: Container(
@@ -168,7 +168,7 @@ class HorizontalAlbumsList extends StatelessWidget {
                                   decoration: BoxDecoration(
                                     color: Colors.black54,
                                     borderRadius: BorderRadius.circular(10
-                                      // appItem['type'] == 'radio_station' ? 1000.0 : 10.0,
+                                      // appMediaItem['type'] == 'radio_station' ? 1000.0 : 10.0,
                                     ),
                                   ),
                                   child: Center(
@@ -187,7 +187,7 @@ class HorizontalAlbumsList extends StatelessWidget {
                                 ),
                               ),
                             if (isHover
-                                // && (appItem['type'] == 'song' || appItem['duration'] != null)
+                                // && (appMediaItem['type'] == 'song' || appMediaItem['duration'] != null)
                             )
                               Align(
                                 alignment: Alignment.topRight,
@@ -196,10 +196,10 @@ class HorizontalAlbumsList extends StatelessWidget {
                                   children: [
                                     LikeButton(
                                       mediaItem: null,
-                                      data: null, //appItem,
+                                      data: null, //appMediaItem,
                                     ),
                                     SongTileTrailingMenu(
-                                      appMediaItem: appMediaItem, //appItem,
+                                      appMediaItem: appMediaItem, //appMediaItem,
                                       itemlist: itemlist,
                                     ),
                                   ],

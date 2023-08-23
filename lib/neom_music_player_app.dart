@@ -186,7 +186,7 @@ class _NeomMusicPlayerAppState extends State<NeomMusicPlayerApp> {
         onGenerateRoute: (RouteSettings settings) {
           if (settings.name == '/player') {
             return PageRouteBuilder(
-              pageBuilder: (_, __, ___) => const MediaPlayerPage(), opaque: false,
+              pageBuilder: (_, __, ___) => MediaPlayerPage(), opaque: false,
             );
           }
           return HandleRoute.handleRoute(settings.name);
