@@ -194,10 +194,7 @@ class HorizontalAlbumsList extends StatelessWidget {
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    LikeButton(
-                                      mediaItem: null,
-                                      data: null, //appMediaItem,
-                                    ),
+                                    LikeButton(appMediaItem: null,),
                                     SongTileTrailingMenu(
                                       appMediaItem: appMediaItem, //appMediaItem,
                                       itemlist: itemlist,

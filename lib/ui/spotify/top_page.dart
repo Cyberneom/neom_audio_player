@@ -21,6 +21,7 @@ import 'package:flutter/material.dart';
 
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
+import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_music_player/data/implementations/spotify_hive_controller.dart';
 import 'package:neom_music_player/neom_player_invoke.dart';
 import 'package:neom_music_player/ui/widgets/empty_screen.dart';
@@ -126,7 +127,11 @@ class _TopPageState extends State<TopPage>
                         overflow: TextOverflow.ellipsis,
                       ),
                       trailing: PopupMenuButton(
-                        icon: const Icon(Icons.more_vert_rounded),
+                        color: AppColor.getMain(),
+                        icon: Icon(
+                          Icons.more_vert_rounded,
+                          color: Theme.of(context).iconTheme.color,
+                        ),
                         shape: const RoundedRectangleBorder(
                           borderRadius: BorderRadius.all(
                             Radius.circular(15.0),
@@ -143,15 +148,17 @@ class _TopPageState extends State<TopPage>
                         itemBuilder: (context) => [
                           PopupMenuItem(
                             value: 0,
-                            child: Row(
-                              children: [
-                                const Icon(Icons.open_in_new_rounded),
-                                const SizedBox(width: 10.0),
-                                Text(
-                                  PlayerTranslationConstants.openInSpotify.tr,
-                                ),
-                              ],
-                            ),
+                            child: Container(
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.open_in_new_rounded),
+                                  const SizedBox(width: 10.0),
+                                  Text(
+                                    PlayerTranslationConstants.openInSpotify.tr,
+                                  ),
+                                ],
+                              ),
+                            )
                           ),
                         ],
                       ),

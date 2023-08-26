@@ -206,10 +206,10 @@ class MusicPlayerUtilities {
     );
   }
 
-  static void onSelectedPopUpMenu(BuildContext context, int value, MediaItem mediaItem, Duration _time, {BuildContext? scaffoldContext}) {
+  static void onSelectedPopUpMenu(BuildContext context, int value, AppMediaItem appMediaItem, Duration _time, {BuildContext? scaffoldContext}) {
     switch(value) {
       case 0:
-        AddToPlaylist().addToPlaylist(context, mediaItem);
+        AddToPlaylist().addToPlaylist(context, appMediaItem);
         break;
       case 1:
         showDialog(
@@ -268,9 +268,9 @@ class MusicPlayerUtilities {
       case 3:
         launchUrl(
           Uri.parse(
-            mediaItem.genre == 'YouTube'
-                ? 'https://youtube.com/watch?v=${mediaItem.id}'
-                : 'https://www.youtube.com/results?search_query=${mediaItem.title} by ${mediaItem.artist}',
+            appMediaItem.genre == 'YouTube'
+                ? 'https://youtube.com/watch?v=${appMediaItem.id}'
+                : 'https://www.youtube.com/results?search_query=${appMediaItem.name} by ${appMediaItem.artist}',
           ),
           mode: LaunchMode.externalApplication,
         );
@@ -294,19 +294,9 @@ class MusicPlayerUtilities {
         );
         break;
       case 10:
-        final Map details = MediaItemMapper.toJSON(mediaItem);
+        final Map details = appMediaItem.toJSON();
         details['duration'] = '${(int.parse(details["duration"].toString()) ~/ 60).toString().padLeft(2, "0")}:${(int.parse(details["duration"].toString()) % 60).toString().padLeft(2, "0")}';
         // style: Theme.of(context).textTheme.caption,
-        if (mediaItem.extras?['size'] != null) {
-          details.addEntries([
-            MapEntry('date_modified',
-              DateTime.fromMillisecondsSinceEpoch(
-                int.parse(mediaItem.extras!['date_modified'].toString(),) * 1000,
-              ).toString().split('.').first,
-            ),
-            MapEntry('size', '${((mediaItem.extras!['size'] as int) / (1024 * 1024)).toStringAsFixed(2)} MB',),
-          ]);
-        }
         PopupDialog().showPopup(
           context: context,
           child: Container(

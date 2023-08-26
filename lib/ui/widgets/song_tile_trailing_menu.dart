@@ -24,6 +24,7 @@ import 'package:neom_commons/core/domain/model/item_list.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/enums/app_media_source.dart';
+import 'package:neom_itemlists/itemlists/ui/search/app_media_item_search_controller.dart';
 
 import 'package:neom_music_player/ui/widgets/add_playlist.dart';
 import 'package:neom_music_player/utils/helpers/add_mediaitem_to_queue.dart';
@@ -39,15 +40,18 @@ import 'package:get/get.dart';
 
 class SongTileTrailingMenu extends StatefulWidget {
   final AppMediaItem appMediaItem;
-  final Itemlist itemlist;
+  final Itemlist? itemlist;
   final bool isPlaylist;
   final Function(AppMediaItem)? deleteLiked;
+  final AppMediaItemSearchController? searchController;
+
   const SongTileTrailingMenu({
     super.key,
     required this.appMediaItem,
     required this.itemlist,
     this.isPlaylist = false,
     this.deleteLiked,
+    this.searchController
   });
 
   @override
@@ -70,6 +74,19 @@ class _SongTileTrailingMenuState extends State<SongTileTrailingMenu> {
         ),
       ),
       itemBuilder: (context) => [
+        PopupMenuItem(
+          value: 0,
+          child: Row(
+            children: [
+              Icon(
+                Icons.playlist_add_rounded,
+                color: Theme.of(context).iconTheme.color,
+              ),
+              const SizedBox(width: 10.0),
+              Text(PlayerTranslationConstants.addToPlaylist.tr),
+            ],
+          ),
+        ),
         if (widget.isPlaylist && widget.deleteLiked != null)
           PopupMenuItem(
             value: 6,
@@ -110,19 +127,7 @@ class _SongTileTrailingMenuState extends State<SongTileTrailingMenu> {
             ],
           ),
         ),
-        PopupMenuItem(
-          value: 0,
-          child: Row(
-            children: [
-              Icon(
-                Icons.playlist_add_rounded,
-                color: Theme.of(context).iconTheme.color,
-              ),
-              const SizedBox(width: 10.0),
-              Text(PlayerTranslationConstants.addToPlaylist.tr),
-            ],
-          ),
-        ),
+
         PopupMenuItem(
           value: 3,
           child: Row(
@@ -137,62 +142,30 @@ class _SongTileTrailingMenuState extends State<SongTileTrailingMenu> {
           ),
         ),
       ],
-      // PopupMenuItem(
-      //   value: 4,
-      //   child: Row(
-      //     children: [
-      //       Icon(
-      //         Icons.album_rounded,
-      //         color: Theme.of(context).iconTheme.color,
-      //       ),
-      //       const SizedBox(width: 10.0),
-      //       Text(PlayerTranslationConstants.viewAlbum.tr),
-      //     ],
-      //   ),
-      // ),
-      // if (mediaItem.artist != null)
-      //   ...mediaItem.artist.toString().split(', ').map(
-      //         (artist) => PopupMenuItem(
-      //           value: artist,
-      //           child: SingleChildScrollView(
-      //             scrollDirection: Axis.horizontal,
-      //             child: Row(
-      //               children: [
-      //                 Icon(
-      //                   Icons.person_rounded,
-      //                   color: Theme.of(context).iconTheme.color,
-      //                 ),
-      //                 const SizedBox(width: 10.0),
-      //                 Text(
-      //                   '${PlayerTranslationConstants.viewArtist.tr} ($artist)',
-      //                 ),
-      //               ],
-      //             ),
-      //           ),
-      //         ),
-      //   ),
       onSelected: (value) {
         switch (value) {
-          case 3:
-            Share.share(widget.appMediaItem.permaUrl);
-          case 4:
-            Navigator.push(
-              context,
-              PageRouteBuilder(
-                opaque: false,
-                pageBuilder: (_, __, ___) => SongsListPage(
-                  itemlist: widget.itemlist,
-                ),
-              ),
-            );
-          case 6:
-            widget.deleteLiked!(widget.appMediaItem);
           case 0:
-            AddToPlaylist().addToPlaylist(context, mediaItem);
+            AddToPlaylist().addToPlaylist(context, widget.appMediaItem);
           case 1:
             addToNowPlaying(context: context, mediaItem: mediaItem);
           case 2:
             playNext(mediaItem, context);
+          case 3:
+            Share.share(widget.appMediaItem.permaUrl);
+          case 4:
+            if(widget.itemlist != null) {
+              Navigator.push(
+                context,
+                PageRouteBuilder(
+                  opaque: false,
+                  pageBuilder: (_, __, ___) => SongsListPage(
+                    itemlist: widget.itemlist!,
+                  ),
+                ),
+              );
+            }
+          case 6:
+            widget.deleteLiked!(widget.appMediaItem);
           default:
             // Navigator.push(
             //   context,
@@ -205,6 +178,40 @@ class _SongTileTrailingMenuState extends State<SongTileTrailingMenu> {
             //   ),
             // );
             break;
+        // PopupMenuItem(
+        //   value: 4,
+        //   child: Row(
+        //     children: [
+        //       Icon(
+        //         Icons.album_rounded,
+        //         color: Theme.of(context).iconTheme.color,
+        //       ),
+        //       const SizedBox(width: 10.0),
+        //       Text(PlayerTranslationConstants.viewAlbum.tr),
+        //     ],
+        //   ),
+        // ),
+        // if (mediaItem.artist != null)
+        //   ...mediaItem.artist.toString().split(', ').map(
+        //         (artist) => PopupMenuItem(
+        //           value: artist,
+        //           child: SingleChildScrollView(
+        //             scrollDirection: Axis.horizontal,
+        //             child: Row(
+        //               children: [
+        //                 Icon(
+        //                   Icons.person_rounded,
+        //                   color: Theme.of(context).iconTheme.color,
+        //                 ),
+        //                 const SizedBox(width: 10.0),
+        //                 Text(
+        //                   '${PlayerTranslationConstants.viewArtist.tr} ($artist)',
+        //                 ),
+        //               ],
+        //             ),
+        //           ),
+        //         ),
+        //   ),
         }
       },
     );
@@ -340,13 +347,12 @@ class _YtSongTileTrailingMenuState extends State<YtSongTileTrailingMenu> {
               addToNowPlaying(context: context, mediaItem: mediaItem);
             }
             if (value == 3) {
-              AddToPlaylist().addToPlaylist(context, mediaItem);
+              // AddToPlaylist().addToPlaylist(context, mediaItem);
             }
           });
         }
         if (value == 4) {
-          launchUrl(
-            Uri.parse('https://youtube.com/watch?v=${widget.data["id"]}'),
+          launchUrl(Uri.parse('https://youtube.com/watch?v=${widget.data["id"]}'),
             mode: LaunchMode.externalApplication,
           );
         }

@@ -22,12 +22,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
 import 'package:hive/hive.dart';
+import 'package:neom_commons/core/domain/model/app_profile.dart';
 import 'package:neom_commons/core/domain/model/item_list.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
+import 'package:neom_commons/core/utils/enums/app_media_source.dart';
+import 'package:neom_itemlists/itemlists/data/firestore/app_media_item_firestore.dart';
+import 'package:neom_music_player/data/implementations/playlist_hive_controller.dart';
 import 'package:neom_music_player/ui/drawer/library/widgets/song_page_tab.dart';
 import 'package:neom_music_player/ui/widgets/custom_physics.dart';
-import 'package:neom_music_player/ui/widgets/data_search.dart';
+import 'package:neom_music_player/ui/drawer/downloads/data_search.dart';
 import 'package:neom_music_player/ui/widgets/download_button.dart';
 import 'package:neom_music_player/ui/widgets/gradient_containers.dart';
 import 'package:neom_music_player/ui/widgets/multi_download_button.dart';
@@ -59,18 +63,18 @@ class LikedMediaItems extends StatefulWidget {
 
 class _LikedMediaItemsState extends State<LikedMediaItems>
     with SingleTickerProviderStateMixin {
-  Box? likedBox;
   // bool added = false;
   // String? tempPath = Hive.box(AppHiveConstants.settings).get('tempDirPath')?.toString();
-  List<AppMediaItem> _appMediaItems = [];
   // final Map<String, List<Map>> _albums = {};
   // final Map<String, List<Map>> _artists = {};
   // final Map<String, List<Map>> _genres = {};
   // List _sortedAlbumKeysList = [];
   // List _sortedArtistKeysList = [];
   // List _sortedGenreKeysList = [];
-  TabController? _tcontroller;
   // int currentIndex = 0;
+  Box? likedBox;
+  List<AppMediaItem> _appMediaItems = [];
+  TabController? _tcontroller;
   int sortValue = Hive.box(AppHiveConstants.settings).get('sortValue', defaultValue: 1) as int;
   int orderValue = Hive.box(AppHiveConstants.settings).get('orderValue', defaultValue: 1) as int;
   int albumSortValue =   Hive.box(AppHiveConstants.settings).get('albumSortValue', defaultValue: 2) as int;
@@ -78,6 +82,8 @@ class _LikedMediaItemsState extends State<LikedMediaItems>
   final ValueNotifier<bool> _showShuffle = ValueNotifier<bool>(true);
   int _currentTabIndex = 0;
   final int defaultTabLength = 1;
+  PlaylistHiveController playlistHiveController = PlaylistHiveController();
+  AppProfile profile = AppProfile();
 
   Future<void> main() async {
     WidgetsFlutterBinding.ensureInitialized();
@@ -117,23 +123,29 @@ class _LikedMediaItemsState extends State<LikedMediaItems>
     _scrollController.dispose();
   }
 
-  void getLiked() {
-    likedBox = Hive.box(widget.itemlist != null ? widget.itemlist!.name : widget.alternativeName);
-    if (widget.itemlist != null) {
-      _appMediaItems = AppMediaItem.mapItemsFromItemlist(widget.itemlist!);
-    } else {
-      _appMediaItems = likedBox?.values.map((element) {
-        return AppMediaItem.fromJSON(element);
-      }).toList() ?? [];
+  Future<void> getLiked() async {
 
-      songs_count.addSongsCount(
-        widget.alternativeName,
-        _appMediaItems.length,
-        _appMediaItems.length >= 4
-            ? _appMediaItems.sublist(0, 4)
-            : _appMediaItems.sublist(0, _appMediaItems.length),
-      );
-    }
+    AppProfile profile = playlistHiveController.userController.profile;
+     Map<String, AppMediaItem> items = await AppMediaItemFirestore().fetchAll();
+    _appMediaItems = items.values.toList();
+    setState(() {});
+
+    // likedBox = Hive.box(widget.itemlist != null ? widget.itemlist!.name : widget.alternativeName);
+    // if (widget.itemlist != null) {
+    //   _appMediaItems = AppMediaItem.mapItemsFromItemlist(widget.itemlist!);
+    // } else {
+    //   _appMediaItems = likedBox?.values.map((element) {
+    //     return AppMediaItem.fromJSON(element);
+    //   }).toList() ?? [];
+    //
+    //   songs_count.addSongsCount(
+    //     widget.alternativeName,
+    //     _appMediaItems.length,
+    //     _appMediaItems.length >= 4
+    //         ? _appMediaItems.sublist(0, 4)
+    //         : _appMediaItems.sublist(0, _appMediaItems.length),
+    //   );
+    // }
     // setArtistAlbum();
   }
 
@@ -209,24 +221,12 @@ class _LikedMediaItemsState extends State<LikedMediaItems>
                 valueListenable: selectMode,
                 child: Row(
                   children: <Widget>[
-                    if (_appMediaItems.isNotEmpty)
+                    if (_appMediaItems.isNotEmpty && _appMediaItems.firstWhereOrNull((element) => element.mediaSource != AppMediaSource.internal) == null)
                       MultiDownloadButton(
                         data: _appMediaItems.map((e) => e.toJSON()).toList(),
                         playlistName: widget.itemlist != null
                             ? widget.itemlist!.name.toUpperCase()
-                            : widget.alternativeName.toUpperCase(),
-                      ),
-                    //TODO VERIFY IF OF USE
-                    // IconButton(
-                    //   icon: const Icon(CupertinoIcons.search),
-                    //   tooltip: PlayerTranslationConstants.search.tr,
-                    //   onPressed: () {
-                    //     showSearch(
-                    //       context: context,
-                    //       delegate: DownloadsSearch(data: _appMediaItems),
-                    //     );
-                    //   },
-                    // ),
+                            : widget.alternativeName.toUpperCase(),),                    
                     if (_currentTabIndex == 0)
                       PopupMenuButton(
                         icon: const Icon(Icons.sort_rounded),
@@ -282,23 +282,16 @@ class _LikedMediaItemsState extends State<LikedMediaItems>
                                         if (sortValue == sortTypes.indexOf(e))
                                           Icon(
                                             Icons.check_rounded,
-                                            color:
-                                                Theme.of(context).brightness ==
-                                                        Brightness.dark
-                                                    ? Colors.white
-                                                    : Colors.grey[700],
-                                          )
+                                            color: Theme.of(context).brightness ==
+                                                Brightness.dark ? Colors.white : Colors.grey[700],) 
                                         else
                                           const SizedBox(),
                                         const SizedBox(width: 10),
-                                        Text(
-                                          e,
-                                        ),
+                                        Text(e,),
                                       ],
                                     ),
                                   ),
-                                )
-                                .toList(),
+                                ).toList(),
                           );
                           menuList.add(const PopupMenuDivider(height: 10,),);
                           menuList.addAll(

@@ -118,12 +118,10 @@ class NowPlayingStream extends StatelessWidget {
                       )
                     ]
                         : [
-                      if (queue[index]
-                          .extras!['url']
-                          .toString()
+                      if (queue[index].extras!['url'].toString()
                           .startsWith('http')) ...[
                         LikeButton(
-                          mediaItem: queue[index],
+                          appMediaItem: MediaItemMapper.fromMediaItem(queue[index]),
                         ),
                         DownloadButton(
                           icon: 'download',

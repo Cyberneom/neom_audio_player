@@ -7,6 +7,7 @@ import 'package:get_it/get_it.dart';
 import 'package:neom_commons/core/app_flavour.dart';
 
 import 'package:neom_commons/core/data/implementations/user_controller.dart';
+import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/constants/app_route_constants.dart';
@@ -20,9 +21,14 @@ class MiniPlayerController extends GetxController {
   final logger = AppUtilities.logger;
   final userController = Get.find<UserController>();
 
+  final Rxn<AppMediaItem> _appMediaItem = Rxn<AppMediaItem>();
+  AppMediaItem? get appMediaItem => _appMediaItem.value;
+  set appMediaItem(AppMediaItem? appMediaItem) => _appMediaItem.value = appMediaItem;
+
   final Rxn<MediaItem> _mediaItem = Rxn<MediaItem>();
   MediaItem? get mediaItem => _mediaItem.value;
   set mediaItem(MediaItem? mediaItem) => _mediaItem.value = mediaItem;
+
   // final Rx<MediaItem> _itemlists = <Itemlist>.obs;
   // Map<String, Itemlist> get itemlists => _itemlists;
   // set itemlists(Map<String, Itemlist> itemlists) => _itemlists.value = itemlists;

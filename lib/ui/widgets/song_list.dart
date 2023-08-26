@@ -315,10 +315,7 @@ class _SongsListPageState extends State<SongsListPage> {
                               mediaItem: itemEntry,
                               icon: 'download',
                             ),
-                            LikeButton(
-                              mediaItem: null,
-                              data: itemEntry.toJSON(),
-                            ),
+                            LikeButton(appMediaItem: itemEntry,),
                             SongTileTrailingMenu(appMediaItem: itemEntry, itemlist: widget.itemlist),
                           ],
                         ),

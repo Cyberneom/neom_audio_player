@@ -20,9 +20,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:neom_commons/core/app_flavour.dart';
 
 import 'package:neom_commons/core/domain/model/item_list.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
+import 'package:neom_commons/core/utils/constants/app_translation_constants.dart';
+import 'package:neom_commons/core/utils/enums/app_in_use.dart';
+import 'package:neom_commons/core/utils/enums/app_media_source.dart';
+import 'package:neom_itemlists/itemlists/ui/widgets/app_item_widgets.dart';
 import 'package:neom_music_player/ui/drawer/library/liked_media_items.dart';
 import 'package:neom_music_player/ui/widgets/download_button.dart';
 import 'package:neom_music_player/ui/widgets/empty_screen.dart';
@@ -56,16 +61,11 @@ class SongsPageTab extends StatelessWidget {
   Widget build(BuildContext context) {    
     return (appMediaItems.isEmpty)
         ? TextButton(onPressed: ()=>Navigator.pushNamed(context, MusicPlayerRouteConstants.home),
-      child: emptyScreen(
-      context,
-      3,
-      PlayerTranslationConstants.nothingTo.tr,
-      15.0,
-      PlayerTranslationConstants.showHere.tr,
-      50,
-      PlayerTranslationConstants.addSomething.tr,
-      23.0,
-    ),) : Column(
+      child: emptyScreen(context, 3,
+        PlayerTranslationConstants.nothingTo.tr, 15.0,
+        PlayerTranslationConstants.showHere.tr, 50,
+        PlayerTranslationConstants.addSomething.tr, 23.0,),)
+        : Column(
       children: [
         PlaylistHead(
           songsList: appMediaItems,
@@ -85,78 +85,76 @@ class SongsPageTab extends StatelessWidget {
               return ValueListenableBuilder(
                 valueListenable: selectMode,
                 builder: (context, value, child) {
-                  final bool selected = selectedItems.contains(item.id);
-                  return ListTile(
-                    leading: imageCard(
-                      imageUrl: item.imgUrl,
-                      selected: selected,
-                    ),
-                    onTap: () {
-                      if (selectMode.value) {
-                        selectMode.value = false;
-                        if (selected) {
-                          selectedItems.remove(item.id,);
-                          selectMode.value = true;
-                          if (selectedItems.isEmpty) {
-                            selectMode.value = false;
-                          }
-                        } else {
-                          selectedItems.add(item.id);
-                          selectMode.value = true;
-                        }
-                      } else {
-                        NeomPlayerInvoke.init(
-                          appMediaItems: appMediaItems,
-                          index: index,
-                          isOffline: false,
-                          recommend: false,
-                          playlistBox: playlistName,
-                        );
-                      }
-                    },
-                    onLongPress: () {
-                      selectMode.value = false;
-                      if (selected) {
-                        selectedItems.remove(item.id);
-                        selectMode.value = true;
-                        if (selectedItems.isEmpty) {
-                          selectMode.value = false;
-                        }
-                      } else {
-                        selectedItems.add(item.id);
-                        selectMode.value = true;
-                      }
-                    },
-                    selected: selected,
-                    selectedTileColor: Colors.white10,
-                    title: Text('${item.name}',
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    subtitle: Text(
-                      '${item.artist ?? 'Unknown'} - ${item.album ?? 'Unknown'}',
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        if (playlistName != AppHiveConstants.favoriteSongs)
-                          LikeButton(
-                            mediaItem: null,
-                            data: item.toJSON(),
-                          ),
-                        DownloadButton(
-                          mediaItem: item,
-                          icon: 'download',
-                        ),
-                        SongTileTrailingMenu(
-                          appMediaItem: item,
-                          itemlist: Itemlist(),
-                          isPlaylist: true,
-                          deleteLiked: onDelete,
-                        ),
-                      ],
-                    ),
-                  );
+                  return createCoolMediaItemTile(context, item,);
+                  ///DEPRECATED
+                  // final bool selected = selectedItems.contains(item.id);
+                  // return createCoolMediaItemTile(context, item,) : ListTile(
+                  //   leading: imageCard(
+                  //     imageUrl: item.imgUrl,
+                  //     selected: selected,
+                  //   ),
+                  //   onTap: () {
+                  //     if (selectMode.value) {
+                  //       selectMode.value = false;
+                  //       if (selected) {
+                  //         selectedItems.remove(item.id,);
+                  //         selectMode.value = true;
+                  //         if (selectedItems.isEmpty) {
+                  //           selectMode.value = false;
+                  //         }
+                  //       } else {
+                  //         selectedItems.add(item.id);
+                  //         selectMode.value = true;
+                  //       }
+                  //     } else {
+                  //       NeomPlayerInvoke.init(
+                  //         appMediaItems: appMediaItems,
+                  //         index: index,
+                  //         isOffline: false,
+                  //         recommend: false,
+                  //         playlistBox: playlistName,
+                  //       );
+                  //     }
+                  //   },
+                  //   onLongPress: () {
+                  //     selectMode.value = false;
+                  //     if (selected) {
+                  //       selectedItems.remove(item.id);
+                  //       selectMode.value = true;
+                  //       if (selectedItems.isEmpty) {
+                  //         selectMode.value = false;
+                  //       }
+                  //     } else {
+                  //       selectedItems.add(item.id);
+                  //       selectMode.value = true;
+                  //     }
+                  //   },
+                  //   selected: selected,
+                  //   selectedTileColor: Colors.white10,
+                  //   title: Text(item.name,
+                  //     overflow: TextOverflow.ellipsis,
+                  //   ),
+                  //   subtitle: Text('${item.artist.isNotEmpty ? item.artist : AppFlavour.appInUse.value} '
+                  //     '- ${item.album.isNotEmpty ? item.album : AppTranslationConstants.thanksForYourAttention.tr}',
+                  //     overflow: TextOverflow.ellipsis,
+                  //   ),
+                  //   trailing: Row(
+                  //     mainAxisSize: MainAxisSize.min,
+                  //     children: [
+                  //       if (playlistName != AppHiveConstants.favoriteSongs)
+                  //         LikeButton(appMediaItem: item,),
+                  //       if (item.mediaSource == AppMediaSource.internal)
+                  //         DownloadButton(mediaItem: item,
+                  //           icon: 'download',),
+                  //       SongTileTrailingMenu(
+                  //         appMediaItem: item,
+                  //         itemlist: Itemlist(),
+                  //         isPlaylist: true,
+                  //         deleteLiked: onDelete,
+                  //       ),
+                  //     ],
+                  //   ),
+                  // );
                 },
               );
             },

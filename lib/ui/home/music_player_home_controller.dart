@@ -41,8 +41,8 @@ class MusicPlayerHomeController extends GetxController {
 
   List recentSongs = Hive.box(AppHiveConstants.cache).get('recentSongs', defaultValue: []) as List;
   Map<String, AppMediaItem> recentList = {};
-  List<Itemlist> myItemLists = [];
-  List<Itemlist> publicItemlists = [];
+  Map<String, Itemlist> myItemLists = {};
+  Map<String, Itemlist> publicItemlists = {};
   int recentIndex = 0;
   int playlistIndex = 1;
 
@@ -88,52 +88,35 @@ class MusicPlayerHomeController extends GetxController {
     final userController = Get.find<UserController>();
 
     try {
-      Map<String,Itemlist> myLists = await ItemlistFirestore().retrieveItemlists(userController.profile.id);
-      myItemLists = myLists.values.toList();
+      myItemLists = await ItemlistFirestore().fetchAll(profileId: userController.profile.id);
       publicItemlists = await ItemlistFirestore().fetchAll(excludeMyFavorites: false, minItems: 2);
-      for (final myItemlist in myItemLists) {
-        publicItemlists.removeWhere((publicList) => myItemlist.id == publicList.id);
+      for (final myItemlist in myItemLists.values) {
+        publicItemlists.removeWhere((key, publicList) => myItemlist.id == publicList.id);
       }
       myItemLists.addAll(publicItemlists);
     } catch(e) {
       AppUtilities.logger.e(e.toString());
     }
 
-    publicItemlists.sort((a, b) => b.getTotalItems().compareTo(a.getTotalItems()));
 
-    // Map recievedData = await SaavnAPI().fetchHomePageData();
-    // if (recievedData.isNotEmpty) {
-    //   Hive.box(AppHiveConstants.cache).put('homepage', recievedData);
-    //   data = recievedData;
-    //   lists = ['recent', 'playlist', ...?data['collections'] as List?];
-    //   lists.insert((lists.length / 2).round(), 'likedArtists');
-    // }
+    List<Itemlist> sortedList = publicItemlists.values.toList();
+    sortedList.sort((a, b) => b.getTotalItems().compareTo(a.getTotalItems()));
+    publicItemlists.clear();
 
-    // setState(() {});
-    // recievedData = await FormatResponse.formatPromoLists(data);
-    // if (recievedData.isNotEmpty) {
-    //   Hive.box(AppHiveConstants.cache).put('homepage', recievedData);
-    //   data = recievedData;
-    //   lists = ['recent', 'playlist', ...?data['collections'] as List?];
-    //   lists.insert((lists.length / 2).round(), 'likedArtists');
-    // }
-    // setState(() {});
+    for (var sortedItem in sortedList) {
+      publicItemlists[sortedItem.id] = sortedItem;
+    }
+
     update();
   }
-
 
   void clear() {
-
   }
 
-  void setMediaItem(MediaItem item) {
-    AppUtilities.logger.i("Setting new mediaitem)");
-    mediaItem = item;
-    update();
-  }
-
-
-
-
+  // void setMediaItem(MediaItem item) {
+  //   AppUtilities.logger.i("Setting new mediaitem)");
+  //   mediaItem = item;
+  //   update();
+  // }
 
 }

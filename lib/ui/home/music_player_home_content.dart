@@ -36,6 +36,7 @@ class MusicPlayerHomeContent extends StatelessWidget {
     double boxSize = MediaQuery.of(context).size.height > MediaQuery.of(context).size.width
         ? MediaQuery.of(context).size.width / 2 : MediaQuery.of(context).size.height / 2.5;
     if (boxSize > 250) boxSize = 250;
+    ///DEPRECATED
     // if (publicItemlists.length >= 3) {
     //   recentIndex = 0;
     //   playlistIndex = 1;
@@ -43,7 +44,6 @@ class MusicPlayerHomeContent extends StatelessWidget {
     //   recentIndex = 1;
     //   playlistIndex = 0;
     // }
-
     return GetBuilder<MusicPlayerHomeController>(
       id: "musicPlayerHome",
       builder: (_) =>
@@ -56,15 +56,14 @@ class MusicPlayerHomeContent extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
         itemCount: _.publicItemlists.isEmpty ? 2 : (_.publicItemlists.length + 2),
         itemBuilder: (context, idx) {
-          AppUtilities.logger.i("Building Music Home Index $idx");
+          AppUtilities.logger.d("Building Music Home Index $idx");
           if (idx == _.recentIndex) {
             return buildLastSessionContainer(context, _);
           }
           if (idx == _.playlistIndex) {
-            return buildMyPlaylistsContainer(
-                _.myItemLists, boxSize, _, context);
+            return buildMyPlaylistsContainer(_, context, boxSize);
           }
-          final Itemlist publicList = _.publicItemlists.elementAt(idx - 2);
+          final Itemlist publicList = _.publicItemlists.values.elementAt(idx - 2);
           if (publicList == null || publicList.getTotalItems() == 0) {
             return const SizedBox();
           } else if (publicList.name == 'likedArtists') {
@@ -214,11 +213,12 @@ class MusicPlayerHomeContent extends StatelessWidget {
                                           child: Row(
                                             mainAxisSize: MainAxisSize.min,
                                             children: [
-                                              if (isHover)
-                                                LikeButton(
-                                                  mediaItem: null,
-                                                  data: publicList.toJSON(),
-                                                ),
+                                              //TODO TO VERIFY
+                                              // if (isHover)
+                                              //   LikeButton(
+                                              //     appMediaItem: null,
+                                              //     data: publicList.toJSON(),
+                                              //   ),
                                               SongTileTrailingMenu(
                                                 appMediaItem: item,
                                                 itemlist: publicList,
@@ -406,11 +406,13 @@ class MusicPlayerHomeContent extends StatelessWidget {
     );
   }
 
-  Widget buildMyPlaylistsContainer(List<Itemlist> itemLists, double boxSize,
-      MusicPlayerHomeController _, BuildContext context) {
-    return ValueListenableBuilder(
-      valueListenable: Hive.box(AppHiveConstants.settings).listenable(),
-      child: Column(
+  Widget buildMyPlaylistsContainer(MusicPlayerHomeController _, BuildContext context, double boxSize) {
+    return
+      // ValueListenableBuilder(
+      // // valueListenable: Hive.box(AppHiveConstants.settings).listenable(),
+      // valueListenable: Hive.box(AppHiveConstants.settings).listenable(),
+      // child:
+      Column(
         children: [
           GestureDetector(
             child: Row(
@@ -441,7 +443,7 @@ class MusicPlayerHomeContent extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 10),
               itemCount: _.myItemLists.length,
               itemBuilder: (context, index) {
-                Itemlist itemlist = _.myItemLists.elementAt(index);
+                Itemlist itemlist = _.myItemLists.values.elementAt(index);
                 final String name = itemlist.name;
                 final String? subtitle = itemlist.getTotalItems() == 0 ? null :
                 '${itemlist.getTotalItems()} ${PlayerTranslationConstants.songs
@@ -543,9 +545,9 @@ class MusicPlayerHomeContent extends StatelessWidget {
             ),
           )
         ],
-      ),
-      builder: (BuildContext context, Box box, Widget? child) {
-        return child!;
+      // ),
+      // builder: (BuildContext context, Box box, Widget? child) {
+      //   return child!;
         // return (playlistNames.isEmpty ||
         //         !(box.get('showPlaylist', defaultValue: true)
         //             as bool) ||
@@ -554,7 +556,7 @@ class MusicPlayerHomeContent extends StatelessWidget {
         //             likedCount() == 0))
         //     ? const SizedBox()
         //     : child!;
-      },
+      // },
     );
   }
 

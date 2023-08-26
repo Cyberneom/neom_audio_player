@@ -30,6 +30,7 @@ import 'package:neom_music_player/domain/use_cases/neom_audio_handler.dart';
 import 'package:neom_music_player/ui/player/miniplayer_controller.dart';
 import 'package:neom_music_player/ui/player/media_player_page.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
+import 'package:neom_music_player/utils/helpers/media_item_mapper.dart';
 
 class MiniPlayer extends StatefulWidget {
   static MiniPlayer _instance = MiniPlayer._internal();
@@ -72,7 +73,7 @@ class _MiniPlayerState extends State<MiniPlayer> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => MediaPlayerPage(),
+                        builder: (context) => MediaPlayerPage(appMediaItem: MediaItemMapper.fromMediaItem(_.mediaItem!)),
                       ),
                     );
                   }

@@ -61,7 +61,7 @@ class ControlButtons extends StatelessWidget {
                 height: miniplayer ? miniPlayerHeight : musicPlayerHeight,
                 width: miniplayer ? miniPlayerWidth : musicPlayerWidth,
                 child: LikeButton(
-                mediaItem: mediaItem,
+                appMediaItem: MediaItemMapper.fromMediaItem(mediaItem!),
                 size: 22.0,),
               );
             case 'Previous':

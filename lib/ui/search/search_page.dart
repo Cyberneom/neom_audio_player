@@ -419,7 +419,7 @@ class _SearchPageState extends State<SearchPage> {
                                     // String countText = item.artist;
                                     // countText = count > 1 ? '$count ${PlayerTranslationConstants.songs.tr}'
                                     //     : '$count ${PlayerTranslationConstants.song.tr}';
-                                    return createCoolMediaItemTile(context, item, searchParam);
+                                    return createCoolMediaItemTile(context, item, query: searchParam);
                                     },
                                 ),
                               ],

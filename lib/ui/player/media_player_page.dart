@@ -55,6 +55,7 @@ class MediaPlayerPage extends StatefulWidget {
 }
 
 class _MediaPlayerPageState extends State<MediaPlayerPage> {
+
   final String gradientType = Hive.box(AppHiveConstants.settings).get('gradientType', defaultValue: 'halfDark').toString();
   final bool getLyricsOnline = Hive.box(AppHiveConstants.settings).get('getLyricsOnline', defaultValue: true) as bool;
 
@@ -62,7 +63,10 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
   final ValueNotifier<List<Color?>?> gradientColor = ValueNotifier<List<Color?>?>(MusicPlayerTheme().playGradientColor);
   final PanelController _panelController = PanelController();
   final NeomAudioHandler audioHandler = GetIt.I<NeomAudioHandler>();
-  GlobalKey<FlipCardState> cardKey = GlobalKey<FlipCardState>();
+
+  // GlobalKey<FlipCardState> onlineCardKey1 = GlobalKey<FlipCardState>();
+  // GlobalKey<FlipCardState> onlineCardKey2 = GlobalKey<FlipCardState>();
+
   Duration _time = Duration.zero;
 
   bool isSharePopupShown = false;
@@ -76,9 +80,10 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
   @override
   Widget build(BuildContext context) {
     BuildContext? scaffoldContext;
+    AppMediaItem? appMediaItem = widget.appMediaItem;
 
     return Dismissible(
-      direction: widget.appMediaItem == null ? DismissDirection.down : DismissDirection.endToStart,
+      direction: appMediaItem == null ? DismissDirection.down : DismissDirection.endToStart,
       background: Container(
         height: MediaQuery.of(context).size.width/2,
         width: MediaQuery.of(context).size.width/2,
@@ -96,8 +101,8 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
 
           MediaItem mediaItem;
 
-          if(widget.appMediaItem != null) {
-            mediaItem = MediaItemMapper.appMediaItemToMediaItem(appMediaItem: widget.appMediaItem!);
+          if(appMediaItem != null) {
+            mediaItem = MediaItemMapper.appMediaItemToMediaItem(appMediaItem: appMediaItem!);
           } else if(snapshot.data != null) {
             mediaItem = snapshot.data!;
           } else {
@@ -113,8 +118,7 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
           }
           return ValueListenableBuilder(
             valueListenable: gradientColor,
-            child: SafeArea(
-              child: Scaffold(
+            child: Scaffold(
                 resizeToAvoidBottomInset: false,
                 backgroundColor: AppColor.main75,
                 appBar: AppBar(
@@ -122,18 +126,18 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
                   backgroundColor: AppColor.main75,
                   centerTitle: true,
                   leading: IconButton(
-                    icon: Icon(widget.appMediaItem == null ? Icons.expand_more_rounded : Icons.chevron_left),
+                    icon: Icon(appMediaItem == null ? Icons.expand_more_rounded : Icons.chevron_left),
                     tooltip: PlayerTranslationConstants.back.tr,
                     onPressed: () {
                       Navigator.pop(context);
                     },
                   ),
                   actions: [
-                    IconButton(
-                      icon: const Icon(Icons.lyrics_rounded),
-                      tooltip: PlayerTranslationConstants.lyrics.tr,
-                      onPressed: () => cardKey.currentState!.toggleCard(),
-                    ),
+                    // IconButton(
+                    //   icon: const Icon(Icons.lyrics_rounded),
+                    //   tooltip: PlayerTranslationConstants.lyrics.tr,
+                    //   onPressed: () => onlineCardKey1.currentState!.toggleCard(),
+                    // ),
                     if (!offline)
                       IconButton(
                         icon: const Icon(Icons.share_rounded),
@@ -151,7 +155,7 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
                           
                         },
                       ),
-                      createPopMenuOption(context, mediaItem, offline: offline)
+                      if(appMediaItem != null) createPopMenuOption(context, appMediaItem!, offline: offline)
                   ],
                 ),
                 body: LayoutBuilder(
@@ -162,8 +166,8 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
                         children: [
                           // Artwork
                           ArtWorkWidget(
-                            cardKey: cardKey,
-                            mediaItem: mediaItem,
+                            // cardKey: onlineCardKey1,
+                            appMediaItem: appMediaItem!,
                             width: min(
                               constraints.maxHeight / 0.9,
                               constraints.maxWidth / 1.8,
@@ -174,7 +178,7 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
                           ),
                           // title and controls
                           NameNControls(
-                            mediaItem: mediaItem,
+                            appMediaItem: appMediaItem,
                             offline: offline,
                             width: constraints.maxWidth / 2,
                             height: constraints.maxHeight,
@@ -188,8 +192,8 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
                       children: [
                         // Artwork
                         ArtWorkWidget(
-                          cardKey: cardKey,
-                          mediaItem: mediaItem,
+                          // cardKey: onlineCardKey2,
+                          appMediaItem: appMediaItem!,
                           width: constraints.maxWidth,
                           audioHandler: audioHandler,
                           offline: offline,
@@ -197,7 +201,7 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
                         ),
                         // title and controls
                         NameNControls(
-                          mediaItem: mediaItem,
+                          appMediaItem: appMediaItem,
                           offline: offline,
                           width: constraints.maxWidth,
                           height: constraints.maxHeight -
@@ -210,8 +214,6 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
                     );
                   },
                 ),
-                // }
-              ),
             ),
             builder: (BuildContext context, List<Color?>? value, Widget? child) {
               return AnimatedContainer(
@@ -250,7 +252,7 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
     );
   }
 
-  Widget createPopMenuOption(BuildContext context, MediaItem mediaItem, {bool offline = false}) {
+  Widget createPopMenuOption(BuildContext context, AppMediaItem appMediaItem, {bool offline = false}) {
     return PopupMenuButton(
       icon: const Icon(Icons.more_vert_rounded,color: AppColor.white),
       color: AppColor.getMain(),
@@ -261,7 +263,7 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
       ),
       onSelected: (int? value) {
         if(value != null) {
-          MusicPlayerUtilities.onSelectedPopUpMenu(context, value, mediaItem, _time);
+          MusicPlayerUtilities.onSelectedPopUpMenu(context, value, appMediaItem, _time);
         }
       },
       itemBuilder: (context) => offline ? [
@@ -323,7 +325,7 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
                 color: Theme.of(context).iconTheme.color,
               ),
               const SizedBox(width: 10.0),
-              Text(mediaItem.genre == 'YouTube'
+              Text(appMediaItem.genre == 'YouTube'
                   ? PlayerTranslationConstants.watchVideo.tr
                   : PlayerTranslationConstants.searchVideo.tr,
               ),

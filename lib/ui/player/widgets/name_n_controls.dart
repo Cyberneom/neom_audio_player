@@ -8,6 +8,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:hive/hive.dart';
+import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/domain/model/item_list.dart';
 import 'package:neom_music_player/domain/entities/position_data.dart';
 import 'package:neom_music_player/ui/player/widgets/control_buttons.dart';
@@ -26,7 +27,7 @@ import 'package:rxdart/rxdart.dart' as rx;
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 class NameNControls extends StatelessWidget {
-  final MediaItem mediaItem;
+  final AppMediaItem appMediaItem;
   final bool offline;
   final double width;
   final double height;
@@ -37,7 +38,7 @@ class NameNControls extends StatelessWidget {
   const NameNControls({
     required this.width,
     required this.height,
-    required this.mediaItem,
+    required this.appMediaItem,
     // required this.gradientColor,
     required this.audioHandler,
     required this.panelController,
@@ -63,21 +64,18 @@ class NameNControls extends StatelessWidget {
     final double titleBoxHeight = height * 0.25;
     final double seekBoxHeight = height > 500 ? height * 0.15 : height * 0.2;
     final double controlBoxHeight = offline
-        ? height > 500
-        ? height * 0.2
-        : height * 0.25
-        : (height < 350
-        ? height * 0.4
-        : height > 500
-        ? height * 0.2
-        : height * 0.3);
+        ? height > 500 ? height * 0.2 : height * 0.25
+        : (height < 350 ? height * 0.4 : height > 500
+        ? height * 0.2 : height * 0.3);
     final double nowplayingBoxHeight = min(70, height * 0.15);
-    // height > 500 ? height * 0.4 : height * 0.15;
-    // final double minNowplayingBoxHeight = height * 0.15;
     final String gradientType = Hive.box(AppHiveConstants.settings)
-        .get('gradientType', defaultValue: 'halfDark')
-        .toString();
+        .get('gradientType', defaultValue: 'halfDark').toString();
+
+    MediaItem mediaItem = MediaItemMapper.appMediaItemToMediaItem(appMediaItem: appMediaItem);
     final List<String> artists = mediaItem.artist.toString().split(', ');
+
+
+
     return SizedBox(
       width: width,
       height: height,
@@ -164,7 +162,7 @@ class NameNControls extends StatelessWidget {
                             fadingEdgeStartFraction: 0.05,
                             startAfter: const Duration(seconds: 2),
                             style: TextStyle(
-                              fontSize: titleBoxHeight / 3,
+                              fontSize: titleBoxHeight / 3.5,
                               fontWeight: FontWeight.bold,
                               // color: Theme.of(context).accentColor,
                             ),
@@ -264,7 +262,9 @@ class NameNControls extends StatelessWidget {
                                 },
                               ),
                               if (!offline)
-                                LikeButton(mediaItem: mediaItem, size: 25.0)
+                                LikeButton(appMediaItem: appMediaItem,
+                                    size: 25.0
+                                ),
                             ],
                           ),
                           ControlButtons(audioHandler, mediaItem: mediaItem,),

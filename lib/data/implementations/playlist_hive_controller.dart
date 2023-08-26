@@ -1,7 +1,9 @@
 
 import 'package:get/get.dart';
 import 'package:neom_commons/core/data/implementations/user_controller.dart';
+import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
+import 'package:neom_itemlists/itemlists/data/firestore/app_media_item_firestore.dart';
 import 'package:neom_music_player/data/implementations/app_hive_controller.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -21,7 +23,7 @@ class PlaylistHiveController extends GetxController  {
   final logger = AppUtilities.logger;
   final userController = Get.find<UserController>();
   final appHiveController = Get.find<AppHiveController>();
-
+  Map<String, AppMediaItem> globalMediaItems = {};
   late SharedPreferences prefs;
 
   bool firstTime = false;
@@ -29,8 +31,10 @@ class PlaylistHiveController extends GetxController  {
 
   @override
   void onInit() async {
-    logger.d("");
     super.onInit();
+    logger.d("");
+    globalMediaItems = await AppMediaItemFirestore().fetchAll();
+
   }
 
   bool checkPlaylist(String name, String key) {

@@ -13,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_lyric/lyrics_model_builder.dart';
 import 'package:flutter_lyric/lyrics_reader_widget.dart';
 import 'package:hive/hive.dart';
+import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
 import 'package:neom_music_player/domain/entities/queue_state.dart';
@@ -30,16 +31,16 @@ import 'package:neom_music_player/utils/constants/player_translation_constants.d
 import 'package:rxdart/rxdart.dart' as rx;
 
 class ArtWorkWidget extends StatefulWidget {
-  final GlobalKey<FlipCardState> cardKey;
-  final MediaItem mediaItem;
+  // final GlobalKey<FlipCardState>? cardKey;
+  final AppMediaItem appMediaItem;
   final bool offline;
   final bool getLyricsOnline;
   final double width;
   final NeomAudioHandler audioHandler;
 
   const ArtWorkWidget({
-    required this.cardKey,
-    required this.mediaItem,
+    // this.cardKey,
+    required this.appMediaItem,
     required this.width,
     this.offline = false,
     required this.getLyricsOnline,
@@ -67,24 +68,23 @@ class _ArtWorkWidgetState extends State<ArtWorkWidget> {
   bool flipped = false;
 
   void fetchLyrics() {
-    AppUtilities.logger.i('Fetching lyrics for ${widget.mediaItem.title}');
+    AppUtilities.logger.i('Fetching lyrics for ${widget.appMediaItem.name}');
     done.value = false;
     lyricsSource.value = '';
     if (widget.offline) {
-      Lyrics.getOffLyrics(
-        widget.mediaItem.extras!['url'].toString(),
+      Lyrics.getOffLyrics(widget.appMediaItem.permaUrl,
       ).then((value) {
         if (value == '' && widget.getLyricsOnline) {
           Lyrics.getLyrics(
-            id: widget.mediaItem.id,
-            isInternalLyric: widget.mediaItem.extras?['has_lyrics'] == 'true',
-            title: widget.mediaItem.title,
-            artist: widget.mediaItem.artist.toString(),
+            id: widget.appMediaItem.id,
+            isInternalLyric: widget.appMediaItem.lyrics.isNotEmpty,
+            title: widget.appMediaItem.name,
+            artist: widget.appMediaItem.artist,
           ).then((Map value) {
             lyrics['lyrics'] = value['lyrics'];
             lyrics['type'] = value['type'];
             lyrics['source'] = value['source'];
-            lyrics['id'] = widget.mediaItem.id;
+            lyrics['id'] = widget.appMediaItem.id;
             done.value = true;
             lyricsSource.value = lyrics['source'].toString();
             lyricsReaderModel = LyricsModelBuilder.create()
@@ -96,7 +96,7 @@ class _ArtWorkWidgetState extends State<ArtWorkWidget> {
           lyrics['lyrics'] = value;
           lyrics['type'] = value.startsWith('[00') ? 'lrc' : 'text';
           lyrics['source'] = 'Local';
-          lyrics['id'] = widget.mediaItem.id;
+          lyrics['id'] = widget.appMediaItem.id;
           done.value = true;
           lyricsSource.value = lyrics['source'].toString();
           lyricsReaderModel = LyricsModelBuilder.create()
@@ -106,19 +106,19 @@ class _ArtWorkWidgetState extends State<ArtWorkWidget> {
       });
     } else {
       Lyrics.getLyrics(
-        id: widget.mediaItem.id,
-        isInternalLyric: widget.mediaItem.extras?['has_lyrics'] == 'true',
-        title: widget.mediaItem.title,
-        artist: widget.mediaItem.artist.toString(),
+        id: widget.appMediaItem.id,
+        isInternalLyric: widget.appMediaItem.lyrics.isNotEmpty == 'true',
+        title: widget.appMediaItem.name,
+        artist: widget.appMediaItem.artist.toString(),
       ).then((Map value) {
-        if (widget.mediaItem.id != value['id']) {
+        if (widget.appMediaItem.id != value['id']) {
           done.value = true;
           return;
         }
         lyrics['lyrics'] = value['lyrics'];
         lyrics['type'] = value['type'];
         lyrics['source'] = value['source'];
-        lyrics['id'] = widget.mediaItem.id;
+        lyrics['id'] = widget.appMediaItem.id;
         done.value = true;
         lyricsSource.value = lyrics['source'].toString();
         lyricsReaderModel = LyricsModelBuilder.create()
@@ -130,7 +130,7 @@ class _ArtWorkWidgetState extends State<ArtWorkWidget> {
 
   @override
   Widget build(BuildContext context) {
-    if (flipped && lyrics['id'] != widget.mediaItem.id) {
+    if (flipped && lyrics['id'] != widget.appMediaItem.id) {
       fetchLyrics();
     }
     return SizedBox(
@@ -139,17 +139,17 @@ class _ArtWorkWidgetState extends State<ArtWorkWidget> {
       child: Hero(
         tag: 'currentArtwork',
         child: FlipCard(
-          key: widget.cardKey,
+          // key: widget.cardKey,
           flipOnTouch: false,
           onFlipDone: (value) {
             flipped = value;
-            if (flipped && lyrics['id'] != widget.mediaItem.id) {
+            if (flipped && lyrics['id'] != widget.appMediaItem.id) {
               fetchLyrics();
             }
           },
           back: GestureDetector(
-            onTap: () => widget.cardKey.currentState!.toggleCard(),
-            onDoubleTap: () => widget.cardKey.currentState!.toggleCard(),
+            // onTap: () => widget.cardKey?.currentState!.toggleCard(),
+            // onDoubleTap: () => widget.cardKey?.currentState!.toggleCard(),
             child: Stack(
               children: [
                 ShaderMask(
@@ -313,7 +313,7 @@ class _ArtWorkWidgetState extends State<ArtWorkWidget> {
                   }
                   if (details.globalPosition.dx > widget.width * 2 / 5 &&
                       details.globalPosition.dx < widget.width * 3 / 5) {
-                    widget.cardKey.currentState!.toggleCard();
+                    // widget.cardKey?.currentState!.toggleCard();
                   }
                   if (details.globalPosition.dx >= widget.width * 3 / 5) {
                     widget.audioHandler.customAction('fastForward');
@@ -348,8 +348,7 @@ class _ArtWorkWidgetState extends State<ArtWorkWidget> {
                     : () {
                   if (!widget.offline) {
                     Feedback.forLongPress(context);
-                    AddToPlaylist()
-                        .addToPlaylist(context, widget.mediaItem);
+                    // AddToPlaylist().addToPlaylist(context, MediaItemMapper.appMediaItemToMediaItem(appMediaItem: widget.appMediaItem));
                   }
                 },
                 onVerticalDragStart: !enabled
@@ -386,8 +385,7 @@ class _ArtWorkWidgetState extends State<ArtWorkWidget> {
                         borderRadius: BorderRadius.circular(15.0),
                       ),
                       clipBehavior: Clip.antiAlias,
-                      child:
-                      widget.mediaItem.artUri.toString().startsWith('file')
+                      child: widget.appMediaItem.imgUrl.startsWith('file')
                           ? Image(
                         fit: BoxFit.contain,
                         width: widget.width * 0.85,
@@ -403,9 +401,7 @@ class _ArtWorkWidgetState extends State<ArtWorkWidget> {
                           );
                         },
                         image: FileImage(
-                          File(
-                            widget.mediaItem.artUri!.toFilePath(),
-                          ),
+                          File(widget.appMediaItem.imgUrl ?? '',),
                         ),
                       )
                           : CachedNetworkImage(
@@ -420,7 +416,7 @@ class _ArtWorkWidgetState extends State<ArtWorkWidget> {
                           fit: BoxFit.cover,
                           image: AssetImage(AppAssets.musicPlayerCover),
                         ),
-                        imageUrl: widget.mediaItem.artUri.toString(),
+                        imageUrl: widget.appMediaItem.imgUrl,
                         width: widget.width * 0.85,
                       ),
                     ),
@@ -599,36 +595,10 @@ class _ArtWorkWidgetState extends State<ArtWorkWidget> {
                                     child: IconButton(
                                       tooltip: PlayerTranslationConstants.songInfo.tr,
                                       onPressed: () {
-                                        final Map details =
-                                        MediaItemMapper.toJSON(
-                                          widget.mediaItem,
-                                        );
-                                        details['duration'] =
-                                        '${(int.parse(details["duration"].toString()) ~/ 60).toString().padLeft(2, "0")}:${(int.parse(details["duration"].toString()) % 60).toString().padLeft(2, "0")}';
-                                        // style: Theme.of(context).textTheme.caption,
-                                        if (widget.mediaItem.extras?['size'] !=
-                                            null) {
-                                          details.addEntries([
-                                            MapEntry(
-                                              'date_modified',
-                                              DateTime
-                                                  .fromMillisecondsSinceEpoch(
-                                                int.parse(
-                                                  widget
-                                                      .mediaItem
-                                                      .extras![
-                                                  'date_modified']
-                                                      .toString(),
-                                                ) *
-                                                    1000,
-                                              ).toString().split('.').first,
-                                            ),
-                                            MapEntry(
-                                              'size',
-                                              '${((widget.mediaItem.extras!['size'] as int) / (1024 * 1024)).toStringAsFixed(2)} MB',
-                                            ),
-                                          ]);
-                                        }
+                                        final Map details = widget.appMediaItem.toJSON();
+
+                                        details['duration'] = '${(int.parse(details["duration"].toString()) ~/ 60).toString()
+                                            .padLeft(2, "0")}:${(int.parse(details["duration"].toString()) % 60).toString().padLeft(2, "0")}';
                                         PopupDialog().showPopup(
                                           context: context,
                                           child: GradientCard(
@@ -708,10 +678,7 @@ class _ArtWorkWidgetState extends State<ArtWorkWidget> {
                                     child: IconButton(
                                       tooltip: PlayerTranslationConstants.addToPlaylist.tr,
                                       onPressed: () {
-                                        AddToPlaylist().addToPlaylist(
-                                          context,
-                                          widget.mediaItem,
-                                        );
+                                        AddToPlaylist().addToPlaylist(context, widget.appMediaItem,);
                                       },
                                       icon: const Icon(
                                         Icons.playlist_add_rounded,

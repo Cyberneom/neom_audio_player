@@ -127,29 +127,24 @@ class _RecentlyPlayedState extends State<RecentlyPlayed> {
                             trailing: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
+                                ///DEPRECATED
                                 // DownloadButton(
                                 //   data: _songs[index] as Map,
                                 //   icon: 'download',
                                 // ),
-                                LikeButton(
-                                  mediaItem: null,
-                                  data: item.toJSON() as Map,
-                                ),
+                                LikeButton(appMediaItem: item,),
                               ],
                             ),
-                            title: Text(
-                              '${item.name}',
+                            title: Text(item.name,
                               overflow: TextOverflow.ellipsis,
                             ),
-                            subtitle: Text(
-                              '${item.artist}',
+                            subtitle: Text(item.artist,
                               overflow: TextOverflow.ellipsis,
                             ),
                             onTap: () {
                               NeomPlayerInvoke.init(
                                 appMediaItems: _songs.values.toList(),
                                 index: index,
-                                isOffline: false,
                               );
                             },
                           ),
