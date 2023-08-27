@@ -10,9 +10,12 @@ import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/domain/model/item_list.dart';
+import 'package:neom_commons/core/utils/app_color.dart';
+import 'package:neom_commons/core/utils/enums/app_media_source.dart';
 import 'package:neom_music_player/domain/entities/position_data.dart';
 import 'package:neom_music_player/ui/player/widgets/control_buttons.dart';
 import 'package:neom_music_player/ui/player/widgets/now_playing_stream.dart';
+import 'package:neom_music_player/ui/widgets/go_spotify_button.dart';
 import 'package:neom_music_player/utils/helpers/media_item_mapper.dart';
 import 'package:neom_music_player/domain/use_cases/neom_audio_handler.dart';
 import 'package:neom_music_player/ui/Search/album_search_page.dart';
@@ -74,8 +77,6 @@ class NameNControls extends StatelessWidget {
     MediaItem mediaItem = MediaItemMapper.appMediaItemToMediaItem(appMediaItem: appMediaItem);
     final List<String> artists = mediaItem.artist.toString().split(', ');
 
-
-
     return SizedBox(
       width: width,
       height: height,
@@ -94,8 +95,7 @@ class NameNControls extends StatelessWidget {
                   offset: const Offset(1.0, 0.0),
                   onSelected: (String value) {
                     if (value == '0') {
-                      Navigator.push(
-                        context,
+                      Navigator.push(context,
                         PageRouteBuilder(
                           opaque: false,
                           pageBuilder: (_, __, ___) => SongsListPage(itemlist: Itemlist()
@@ -267,7 +267,16 @@ class NameNControls extends StatelessWidget {
                                 ),
                             ],
                           ),
-                          ControlButtons(audioHandler, mediaItem: mediaItem,),
+                          Column(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              ControlButtons(audioHandler, mediaItem: mediaItem,),
+                              // TextButton(
+                              //     onPressed: () => {}, child: Text(
+                              //   "Escuchar en Spotify", style: TextStyle(decoration: TextDecoration.underline, fontSize: 15, color: AppColor.white),))
+                            ],
+                          ),
                           Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
@@ -305,10 +314,13 @@ class NameNControls extends StatelessWidget {
                                   );
                                 },
                               ),
-                              if (!offline)
+                              if((appMediaItem.url.contains("gig-me-out") || appMediaItem.url.contains("firebasestorage.googleapis.com"))
+                                  && appMediaItem.mediaSource == AppMediaSource.internal && !offline)
                                 DownloadButton(size: 25.0,
                                   mediaItem: MediaItemMapper.fromMediaItem(mediaItem),
                                 )
+                              else GoSpotifyButton(appMediaItem: appMediaItem)
+
                             ],
                           ),
                         ],
@@ -317,14 +329,12 @@ class NameNControls extends StatelessWidget {
                   ),
                 ),
               ),
-              SizedBox(
-                height: nowplayingBoxHeight,
-              ),
+              SizedBox(height: nowplayingBoxHeight,),
             ],
           ),
 
           // Up Next with blur background
-          SlidingUpPanel(
+          true ? Container() : SlidingUpPanel(
             minHeight: nowplayingBoxHeight,
             maxHeight: 350,
             borderRadius: const BorderRadius.only(
@@ -351,14 +361,8 @@ class NameNControls extends StatelessWidget {
                       return const LinearGradient(
                         end: Alignment.topCenter,
                         begin: Alignment.center,
-                        colors: [
-                          Colors.black,
-                          Colors.black,
-                          Colors.black,
-                          Colors.transparent,
-                          Colors.transparent,
-                        ],
-                      ).createShader(
+                        colors: [Colors.black, Colors.black, Colors.black,
+                          Colors.transparent, Colors.transparent,],).createShader(
                         Rect.fromLTRB(0, 0, rect.width, rect.height,
                         ),
                       );

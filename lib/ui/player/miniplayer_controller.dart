@@ -12,8 +12,10 @@ import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/constants/app_route_constants.dart';
 import 'package:neom_music_player/domain/use_cases/neom_audio_handler.dart';
+import 'package:neom_music_player/ui/player/media_player_page.dart';
 import 'package:neom_music_player/ui/player/widgets/control_buttons.dart';
 import 'package:neom_music_player/ui/widgets/image_card.dart';
+import 'package:neom_music_player/utils/helpers/media_item_mapper.dart';
 
 
 class MiniPlayerController extends GetxController {
@@ -220,7 +222,12 @@ class MiniPlayerController extends GetxController {
   }) {
     return ListTile(
       tileColor: AppColor.main75,
-      onTap: item == null ? null : () => Navigator.pushNamed(context, '/player'),
+      onTap: item == null ? null : () => Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => MediaPlayerPage(appMediaItem: MediaItemMapper.fromMediaItem(item)),
+        ),
+      ),
       leading: Row(
         mainAxisSize: MainAxisSize.min,
         children: [

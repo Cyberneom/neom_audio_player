@@ -64,13 +64,11 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
   final PanelController _panelController = PanelController();
   final NeomAudioHandler audioHandler = GetIt.I<NeomAudioHandler>();
 
-  // GlobalKey<FlipCardState> onlineCardKey1 = GlobalKey<FlipCardState>();
-  // GlobalKey<FlipCardState> onlineCardKey2 = GlobalKey<FlipCardState>();
+  GlobalKey<FlipCardState> onlineCardKey = GlobalKey<FlipCardState>();
 
   Duration _time = Duration.zero;
 
   bool isSharePopupShown = false;
-
 
   void updateBackgroundColors(List<Color?> value) {
     gradientColor.value = value;
@@ -100,7 +98,6 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
         builder: (context, snapshot) {
 
           MediaItem mediaItem;
-
           if(appMediaItem != null) {
             mediaItem = MediaItemMapper.appMediaItemToMediaItem(appMediaItem: appMediaItem!);
           } else if(snapshot.data != null) {
@@ -133,11 +130,11 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
                     },
                   ),
                   actions: [
-                    // IconButton(
-                    //   icon: const Icon(Icons.lyrics_rounded),
-                    //   tooltip: PlayerTranslationConstants.lyrics.tr,
-                    //   onPressed: () => onlineCardKey1.currentState!.toggleCard(),
-                    // ),
+                    IconButton(
+                      icon: const Icon(Icons.lyrics_rounded),
+                      tooltip: PlayerTranslationConstants.lyrics.tr,
+                      onPressed: () => onlineCardKey.currentState!.toggleCard(),
+                    ),
                     if (!offline)
                       IconButton(
                         icon: const Icon(Icons.share_rounded),
@@ -152,47 +149,18 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
                               });
                             });
                           }
-                          
                         },
                       ),
-                      if(appMediaItem != null) createPopMenuOption(context, appMediaItem!, offline: offline)
+                    if(appMediaItem != null) createPopMenuOption(context, appMediaItem!, offline: offline)
                   ],
                 ),
                 body: LayoutBuilder(
                   builder: (BuildContext context, BoxConstraints constraints,) {
-                    if (constraints.maxWidth > constraints.maxHeight) {
-                      return Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          // Artwork
-                          ArtWorkWidget(
-                            // cardKey: onlineCardKey1,
-                            appMediaItem: appMediaItem!,
-                            width: min(
-                              constraints.maxHeight / 0.9,
-                              constraints.maxWidth / 1.8,
-                            ),
-                            audioHandler: audioHandler,
-                            offline: offline,
-                            getLyricsOnline: getLyricsOnline,
-                          ),
-                          // title and controls
-                          NameNControls(
-                            appMediaItem: appMediaItem,
-                            offline: offline,
-                            width: constraints.maxWidth / 2,
-                            height: constraints.maxHeight,
-                            panelController: _panelController,
-                            audioHandler: audioHandler,
-                          ),
-                        ],
-                      );
-                    }
-                    return Column(
+                    return appMediaItem != null ? Column(
                       children: [
                         // Artwork
                         ArtWorkWidget(
-                          // cardKey: onlineCardKey2,
+                          cardKey: onlineCardKey,
                           appMediaItem: appMediaItem!,
                           width: constraints.maxWidth,
                           audioHandler: audioHandler,
@@ -204,14 +172,13 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
                           appMediaItem: appMediaItem,
                           offline: offline,
                           width: constraints.maxWidth,
-                          height: constraints.maxHeight -
-                              (constraints.maxWidth * 0.85),
+                          height: constraints.maxHeight - (constraints.maxWidth * 0.85),
                           panelController: _panelController,
                           audioHandler: audioHandler,
 
                         ),
                       ],
-                    );
+                    ) : Container();
                   },
                 ),
             ),
@@ -220,15 +187,10 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
                 duration: const Duration(milliseconds: 600),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    begin: gradientType == 'simple'
-                        ? Alignment.topLeft
-                        : Alignment.topCenter,
-                    end: gradientType == 'simple'
-                        ? Alignment.bottomRight
-                        : (gradientType == 'halfLight' ||
-                                gradientType == 'halfDark')
-                            ? Alignment.center
-                            : Alignment.bottomCenter,
+                    begin: gradientType == 'simple' ? Alignment.topLeft : Alignment.topCenter,
+                    end: gradientType == 'simple' ? Alignment.bottomRight
+                        : (gradientType == 'halfLight' || gradientType == 'halfDark')
+                        ? Alignment.center : Alignment.bottomCenter,
                     colors: gradientType == 'simple'
                         ? currentTheme.getBackGradient() : [
                           if (gradientType == 'halfDark' || gradientType == 'fullDark')
@@ -318,21 +280,6 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
           ),
         ),
         PopupMenuItem(
-          value: 3,
-          child: Row(
-            children: [
-              Icon(MdiIcons.youtube,
-                color: Theme.of(context).iconTheme.color,
-              ),
-              const SizedBox(width: 10.0),
-              Text(appMediaItem.genre == 'YouTube'
-                  ? PlayerTranslationConstants.watchVideo.tr
-                  : PlayerTranslationConstants.searchVideo.tr,
-              ),
-            ],
-          ),
-        ),
-        PopupMenuItem(
           value: 10,
           child: Row(
             children: [
@@ -344,6 +291,22 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
             ],
           ),
         ),
+        ///FUTURE IMPLEMENTATION
+        // PopupMenuItem(
+        //   value: 3,
+        //   child: Row(
+        //     children: [
+        //       Icon(MdiIcons.youtube,
+        //         color: Theme.of(context).iconTheme.color,
+        //       ),
+        //       const SizedBox(width: 10.0),
+        //       Text(appMediaItem.genre == 'YouTube'
+        //           ? PlayerTranslationConstants.watchVideo.tr
+        //           : PlayerTranslationConstants.searchVideo.tr,
+        //       ),
+        //     ],
+        //   ),
+        // ),
       ],
     );
   }

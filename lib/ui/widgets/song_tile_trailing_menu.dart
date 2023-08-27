@@ -42,6 +42,7 @@ class SongTileTrailingMenu extends StatefulWidget {
   final AppMediaItem appMediaItem;
   final Itemlist? itemlist;
   final bool isPlaylist;
+  final bool showAddToPlaylist;
   final Function(AppMediaItem)? deleteLiked;
   final AppMediaItemSearchController? searchController;
 
@@ -50,6 +51,7 @@ class SongTileTrailingMenu extends StatefulWidget {
     required this.appMediaItem,
     required this.itemlist,
     this.isPlaylist = false,
+    this.showAddToPlaylist = true,
     this.deleteLiked,
     this.searchController
   });
@@ -74,7 +76,7 @@ class _SongTileTrailingMenuState extends State<SongTileTrailingMenu> {
         ),
       ),
       itemBuilder: (context) => [
-        PopupMenuItem(
+        if(widget.showAddToPlaylist) PopupMenuItem(
           value: 0,
           child: Row(
             children: [

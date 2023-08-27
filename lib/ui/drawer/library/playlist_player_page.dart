@@ -46,23 +46,25 @@ import 'package:neom_music_player/utils/neom_audio_utilities.dart';
 final ValueNotifier<bool> selectMode = ValueNotifier<bool>(false);
 final Set<String> selectedItems = <String>{};
 
-class LikedMediaItems extends StatefulWidget {
+class PlaylistPlayerPage extends StatefulWidget {
   final Itemlist? itemlist;
   final String alternativeName;
   final List<AppMediaItem>? appMediaItems;
 
-  const LikedMediaItems({
+  const PlaylistPlayerPage({
     super.key,
     this.itemlist,
     this.alternativeName = "",
     this.appMediaItems
   });
   @override
-  _LikedMediaItemsState createState() => _LikedMediaItemsState();
+  _PlaylistPlayerPageState createState() => _PlaylistPlayerPageState();
 }
 
-class _LikedMediaItemsState extends State<LikedMediaItems>
+class _PlaylistPlayerPageState extends State<PlaylistPlayerPage>
     with SingleTickerProviderStateMixin {
+
+  ///VERIFY IF NEEDED
   // bool added = false;
   // String? tempPath = Hive.box(AppHiveConstants.settings).get('tempDirPath')?.toString();
   // final Map<String, List<Map>> _albums = {};
@@ -106,13 +108,21 @@ class _LikedMediaItemsState extends State<LikedMediaItems>
         _showShuffle.value = true;
       }
     });
+
+    ///DEPRECATED
     // if (tempPath == null) {
     //   getTemporaryDirectory().then((value) {
     //     Hive.box(AppHiveConstants.settings).put('tempDirPath', value.path);
     //   });
     // }
     // _tcontroller!.addListener(changeTitle);
-    getLiked();
+    if (widget.itemlist != null) {
+      _appMediaItems = AppMediaItem.mapItemsFromItemlist(widget.itemlist!);
+    } else {
+      getLiked();
+    }
+
+
     super.initState();
   }
 

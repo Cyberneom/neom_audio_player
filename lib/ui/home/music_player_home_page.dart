@@ -1,49 +1,27 @@
 import 'dart:math';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
-
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_theme.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
+import 'package:neom_commons/core/utils/constants/app_page_id_constants.dart';
 import 'package:neom_music_player/ui/drawer/music_player_drawer.dart';
 import 'package:neom_music_player/ui/home/music_player_home_content.dart';
 import 'package:neom_music_player/ui/home/music_player_home_controller.dart';
-import 'package:neom_music_player/ui/widgets/drawer.dart';
 import 'package:neom_music_player/ui/Search/search_page.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
 import 'package:get/get.dart';
 
-class MusicPlayerHomePage extends StatefulWidget {
-  const MusicPlayerHomePage({
-    super.key,
-  });
+class MusicPlayerHomePage extends StatelessWidget {
 
-  @override
-  State<MusicPlayerHomePage> createState() => _MusicPlayerHomePageState();
-}
+  const MusicPlayerHomePage({super.key,});
 
-class _MusicPlayerHomePageState extends State<MusicPlayerHomePage> {
-  final ScrollController _scrollController = ScrollController();
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final double screenWidth = MediaQuery.of(context).size.width;
     final bool rotated = MediaQuery.of(context).size.height < screenWidth;
     return GetBuilder<MusicPlayerHomeController>(
-        id: "musicPlayerHome",
+        id: AppPageIdConstants.musicPlayerHome,
+        init: MusicPlayerHomeController(),
         builder: (_) {
           return Container(
             decoration: AppTheme.appBoxDecoration,
@@ -51,7 +29,7 @@ class _MusicPlayerHomePageState extends State<MusicPlayerHomePage> {
             children: [
               NestedScrollView(
                 physics: const BouncingScrollPhysics(),
-                controller: _scrollController,
+                controller: _.scrollController,
                 headerSliverBuilder: (BuildContext context,
                     bool innerBoxScrolled,) {
                   return <Widget>[
@@ -94,13 +72,13 @@ class _MusicPlayerHomePageState extends State<MusicPlayerHomePage> {
                       title: Align(
                         alignment: Alignment.centerRight,
                         child: AnimatedBuilder(
-                          animation: _scrollController,
+                          animation: _.scrollController,
                           builder: (context, child) {
                             return GestureDetector(
                               child: AnimatedContainer(
-                                width: (!_scrollController.hasClients || _scrollController.positions.length > 1)
+                                width: (!_.scrollController.hasClients || _.scrollController.positions.length > 1)
                                     ? MediaQuery.of(context).size.width : max(MediaQuery.of(context).size.width -
-                                    _scrollController.offset.roundToDouble(),
+                                    _.scrollController.offset.roundToDouble(),
                                   MediaQuery.of(context).size.width - (rotated ? 0 : 75),),
                                 height: 55.0,
                                 duration: const Duration(milliseconds: 150,),
@@ -137,13 +115,11 @@ class _MusicPlayerHomePageState extends State<MusicPlayerHomePage> {
                                 ),
                               ),
                               onTap: () =>
-                                  Navigator.push(context,
-                                    MaterialPageRoute(
-                                      builder: (context) => const SearchPage(
-                                        query: '', fromHome: true, autofocus: true,
-                                      ),
+                                  Navigator.push(context, MaterialPageRoute(
+                                    builder: (context) => const SearchPage(
+                                      query: '', fromHome: true, autofocus: true,
                                     ),
-                                  ),
+                                  ),),
                             );
                           },
                         ),
@@ -151,7 +127,7 @@ class _MusicPlayerHomePageState extends State<MusicPlayerHomePage> {
                     ),
                   ];
                 },
-                body: MusicPlayerHomeContent(),
+                body: Obx(()=> _.isLoading ? Container() : MusicPlayerHomeContent()),
               ),
               if (!rotated)
                 homeDrawer(

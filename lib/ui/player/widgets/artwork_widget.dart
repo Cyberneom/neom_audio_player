@@ -31,7 +31,7 @@ import 'package:neom_music_player/utils/constants/player_translation_constants.d
 import 'package:rxdart/rxdart.dart' as rx;
 
 class ArtWorkWidget extends StatefulWidget {
-  // final GlobalKey<FlipCardState>? cardKey;
+  final GlobalKey<FlipCardState>? cardKey;
   final AppMediaItem appMediaItem;
   final bool offline;
   final bool getLyricsOnline;
@@ -39,7 +39,7 @@ class ArtWorkWidget extends StatefulWidget {
   final NeomAudioHandler audioHandler;
 
   const ArtWorkWidget({
-    // this.cardKey,
+    this.cardKey,
     required this.appMediaItem,
     required this.width,
     this.offline = false,
@@ -137,9 +137,9 @@ class _ArtWorkWidgetState extends State<ArtWorkWidget> {
       height: widget.width * 0.85,
       width: widget.width * 0.85,
       child: Hero(
-        tag: 'currentArtwork',
+        tag: 'currentArtwork_',
         child: FlipCard(
-          // key: widget.cardKey,
+          key: widget.cardKey,
           flipOnTouch: false,
           onFlipDone: (value) {
             flipped = value;
@@ -148,8 +148,8 @@ class _ArtWorkWidgetState extends State<ArtWorkWidget> {
             }
           },
           back: GestureDetector(
-            // onTap: () => widget.cardKey?.currentState!.toggleCard(),
-            // onDoubleTap: () => widget.cardKey?.currentState!.toggleCard(),
+            onTap: () => widget.cardKey?.currentState!.toggleCard(),
+            onDoubleTap: () => widget.cardKey?.currentState!.toggleCard(),
             child: Stack(
               children: [
                 ShaderMask(
@@ -184,15 +184,13 @@ class _ArtWorkWidgetState extends State<ArtWorkWidget> {
                             bool value,
                             Widget? child,
                             ) {
-                          return value
-                              ? lyrics['lyrics'] == ''
-                              ? emptyScreen(
+                          return value ? lyrics['lyrics'] == '' ? emptyScreen(
                             context,
                             0,
                             ':( ',
-                            100.0,
+                            80.0,
                             PlayerTranslationConstants.lyrics.tr,
-                            60.0,
+                            40.0,
                             PlayerTranslationConstants.notAvailable.tr,
                             20.0,
                             useWhite: true,
@@ -313,7 +311,7 @@ class _ArtWorkWidgetState extends State<ArtWorkWidget> {
                   }
                   if (details.globalPosition.dx > widget.width * 2 / 5 &&
                       details.globalPosition.dx < widget.width * 3 / 5) {
-                    // widget.cardKey?.currentState!.toggleCard();
+                    widget.cardKey?.currentState!.toggleCard();
                   }
                   if (details.globalPosition.dx >= widget.width * 3 / 5) {
                     widget.audioHandler.customAction('fastForward');

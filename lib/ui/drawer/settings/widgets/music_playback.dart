@@ -159,10 +159,7 @@ class _MusicPlaybackPageState extends State<MusicPlaybackPage> {
                                         () {
                                           preferredLanguage = checked;
                                           Navigator.pop(context);
-                                          Hive.box(AppHiveConstants.settings).put(
-                                            'preferredLanguage',
-                                            checked,
-                                          );
+                                          Hive.box(AppHiveConstants.settings).put('preferredLanguage', checked,);
                                           //TODO VERIFY FUNCTIONALITY
                                           // widget.fetched = false;
                                           // widget.preferredLanguage = preferredLanguage;

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:audio_service/audio_service.dart';
 import 'package:get/get.dart';
 
 import 'package:cached_network_image/cached_network_image.dart';
@@ -91,19 +92,20 @@ class NowPlayingStream extends StatelessWidget {
           shrinkWrap: true,
           itemCount: queue.length,
           itemBuilder: (context, index) {
+            MediaItem item = queue[index];
             return Dismissible(
-              key: ValueKey(queue[index].id),
+              key: ValueKey(item.id),
               direction: index == queueState.queueIndex
                   ? DismissDirection.none
                   : DismissDirection.horizontal,
               onDismissed: (dir) {
                 audioHandler.removeQueueItemAt(index);
               },
-              child: ListTileTheme(
+              child:
+              ListTileTheme(
                 selectedColor: Theme.of(context).colorScheme.secondary,
                 child: ListTile(
-                  contentPadding:
-                  const EdgeInsets.only(left: 16.0, right: 10.0),
+                  contentPadding: const EdgeInsets.only(left: 16.0, right: 10.0),
                   selected: index == queueState.queueIndex,
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -116,9 +118,8 @@ class NowPlayingStream extends StatelessWidget {
                         tooltip: PlayerTranslationConstants.playing.tr,
                         onPressed: () {},
                       )
-                    ]
-                        : [
-                      if (queue[index].extras!['url'].toString()
+                    ] : [
+                      if (item.extras!['url'].toString()
                           .startsWith('http')) ...[
                         LikeButton(
                           appMediaItem: MediaItemMapper.fromMediaItem(queue[index]),
@@ -130,7 +131,7 @@ class NowPlayingStream extends StatelessWidget {
                         )
                       ],
                       ReorderableDragStartListener(
-                        key: Key(queue[index].id),
+                        key: Key(item.id),
                         index: index,
                         enabled: index != queueState.queueIndex,
                         child: const Icon(Icons.drag_handle_rounded),
@@ -141,7 +142,7 @@ class NowPlayingStream extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      if (queue[index].extras?['addedByAutoplay'] as bool? ??
+                      if (item.extras?['addedByAutoplay'] as bool? ??
                           false)
                         Column(
                           mainAxisAlignment: MainAxisAlignment.end,
@@ -187,7 +188,7 @@ class NowPlayingStream extends StatelessWidget {
                           borderRadius: BorderRadius.circular(7.0),
                         ),
                         clipBehavior: Clip.antiAlias,
-                        child: (queue[index].artUri == null)
+                        child: (item.artUri == null)
                             ? const SizedBox.square(
                           dimension: 50,
                           child: Image(
@@ -204,7 +205,7 @@ class NowPlayingStream extends StatelessWidget {
                             fit: BoxFit.cover,
                             image: FileImage(
                               File(
-                                queue[index].artUri!.toFilePath(),
+                                item.artUri!.toFilePath(),
                               ),
                             ),
                           )
@@ -227,14 +228,14 @@ class NowPlayingStream extends StatelessWidget {
                               ),
                             ),
                             imageUrl:
-                            queue[index].artUri.toString(),
+                            item.artUri.toString(),
                           ),
                         ),
                       ),
                     ],
                   ),
                   title: Text(
-                    queue[index].title,
+                    item.title,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       fontWeight: index == queueState.queueIndex
@@ -243,7 +244,7 @@ class NowPlayingStream extends StatelessWidget {
                     ),
                   ),
                   subtitle: Text(
-                    queue[index].artist!,
+                    item.artist!,
                     overflow: TextOverflow.ellipsis,
                   ),
                   onTap: () {

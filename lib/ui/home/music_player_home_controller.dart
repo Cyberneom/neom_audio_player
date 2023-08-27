@@ -1,14 +1,18 @@
 
 import 'package:audio_service/audio_service.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
 import 'package:neom_commons/core/data/firestore/itemlist_firestore.dart';
+import 'package:neom_commons/core/domain/model/app_profile.dart';
 
 import 'package:neom_commons/core/domain/model/item_list.dart';
 import 'package:neom_commons/core/data/implementations/user_controller.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
+import 'package:neom_commons/core/utils/constants/app_page_id_constants.dart';
+import 'package:neom_itemlists/itemlists/data/firestore/app_media_item_firestore.dart';
 import 'package:neom_music_player/domain/use_cases/neom_audio_handler.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
 
@@ -17,7 +21,7 @@ class MusicPlayerHomeController extends GetxController {
 
   final logger = AppUtilities.logger;
   final userController = Get.find<UserController>();
-
+  final ScrollController scrollController = ScrollController();
   final Rxn<MediaItem> _mediaItem = Rxn<MediaItem>();
   MediaItem? get mediaItem => _mediaItem.value;
   set mediaItem(MediaItem? mediaItem) => _mediaItem.value = mediaItem;
@@ -44,8 +48,12 @@ class MusicPlayerHomeController extends GetxController {
   Map<String, Itemlist> myItemLists = {};
   Map<String, Itemlist> publicItemlists = {};
   int recentIndex = 0;
-  int playlistIndex = 1;
+  int myPlaylistsIndex = 1;
+  int favoriteItemsIndex = 2;
 
+  AppProfile profile = AppProfile();
+  Map<String, AppMediaItem> globalMediaItems = {};
+  List<AppMediaItem> favoriteItems = [];
   // Map data = Hive.box(AppHiveConstants.cache).get('homepage', defaultValue: {}) as Map;
   // Map likedArtists = Hive.box(AppHiveConstants.settings).get('likedArtists', defaultValue: {}) as Map;
   // List playlistNames = Hive.box(AppHiveConstants.settings).get('playlistNames')?.toList() as List? ?? [AppHiveConstants.favoriteSongs];
@@ -55,9 +63,10 @@ class MusicPlayerHomeController extends GetxController {
   void onInit() async {
     super.onInit();
     logger.d("Music Player Home Controller Init");
-    await getHomePageData();
     try {
-
+      final userController = Get.find<UserController>();
+      profile = userController.profile;
+      await getHomePageData();
     } catch (e) {
       logger.e(e.toString());
     }
@@ -75,21 +84,33 @@ class MusicPlayerHomeController extends GetxController {
           recentList[recentMediaItem.id] = recentMediaItem;
         }
       }
+
+      globalMediaItems = await AppMediaItemFirestore().fetchAll();
+
+      profile.favoriteItems?.forEach((favItem) {
+        if(globalMediaItems.containsKey(favItem)) {
+          AppMediaItem globalItem = globalMediaItems.values.firstWhere((item) => favItem == item.id);
+          favoriteItems.add(globalItem);
+        }
+      });
     } catch (e) {
       AppUtilities.logger.e(e.toString());
     }
     isLoading = false;
-    update();
+    update([AppPageIdConstants.musicPlayerHome]);
+  }
+
+  @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
   }
 
   Future<void> getHomePageData() async {
     AppUtilities.logger.i("Get ItemLists Home Data");
-
-    final userController = Get.find<UserController>();
-
     try {
-      myItemLists = await ItemlistFirestore().fetchAll(profileId: userController.profile.id);
-      publicItemlists = await ItemlistFirestore().fetchAll(excludeMyFavorites: false, minItems: 2);
+      myItemLists = await ItemlistFirestore().fetchAll(profileId: profile.id);
+      publicItemlists = await ItemlistFirestore().fetchAll(excludeMyFavorites: true, minItems: 0);
       for (final myItemlist in myItemLists.values) {
         publicItemlists.removeWhere((key, publicList) => myItemlist.id == publicList.id);
       }
@@ -97,7 +118,6 @@ class MusicPlayerHomeController extends GetxController {
     } catch(e) {
       AppUtilities.logger.e(e.toString());
     }
-
 
     List<Itemlist> sortedList = publicItemlists.values.toList();
     sortedList.sort((a, b) => b.getTotalItems().compareTo(a.getTotalItems()));
@@ -107,7 +127,7 @@ class MusicPlayerHomeController extends GetxController {
       publicItemlists[sortedItem.id] = sortedItem;
     }
 
-    update();
+    update([AppPageIdConstants.musicPlayerHome]);
   }
 
   void clear() {

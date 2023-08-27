@@ -133,7 +133,7 @@ class MediaItemMapper  {
     return MediaItem(
       id: appMediaItem.id,
       album: appMediaItem.album,
-      artist: '${appMediaItem.artist} ${appMediaItem.featArtists?.join(', ')}',
+      artist: '${appMediaItem.artist} ${appMediaItem.externalArtists?.join(', ')}',
       duration: Duration(seconds: appMediaItem.duration),
       title: appMediaItem.name,
       artUri: Uri.parse(
@@ -225,6 +225,7 @@ class MediaItemMapper  {
       genre: mediaItem.genre ?? '',
       description: mediaItem.displayDescription,
       url: mediaItem.extras?['url'].toString() ?? '',
+      permaUrl: mediaItem.extras?['perma_url'].toString() ?? '',
     );
   }
 

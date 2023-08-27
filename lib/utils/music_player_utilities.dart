@@ -265,34 +265,6 @@ class MusicPlayerUtilities {
           },
         );
         break;
-      case 3:
-        launchUrl(
-          Uri.parse(
-            appMediaItem.genre == 'YouTube'
-                ? 'https://youtube.com/watch?v=${appMediaItem.id}'
-                : 'https://www.youtube.com/results?search_query=${appMediaItem.name} by ${appMediaItem.artist}',
-          ),
-          mode: LaunchMode.externalApplication,
-        );
-        break;
-      case 5:
-        Navigator.push(
-          context,
-          PageRouteBuilder(
-            opaque: false,
-            pageBuilder: (_, __, ___) => SongsListPage(
-                itemlist: Itemlist()
-              //TODO TO VERIFY
-              // {
-              //   'type': 'album',
-              //   'id': mediaItem.extras?['album_id'],
-              //   'title': mediaItem.album,
-              //   'image': mediaItem.artUri,
-              // },
-            ),
-          ),
-        );
-        break;
       case 10:
         final Map details = appMediaItem.toJSON();
         details['duration'] = '${(int.parse(details["duration"].toString()) ~/ 60).toString().padLeft(2, "0")}:${(int.parse(details["duration"].toString()) % 60).toString().padLeft(2, "0")}';
@@ -338,6 +310,34 @@ class MusicPlayerUtilities {
           ),
         );
         break;
+    // case 5:
+    //   Navigator.push(
+    //     context,
+    //     PageRouteBuilder(
+    //       opaque: false,
+    //       pageBuilder: (_, __, ___) => SongsListPage(
+    //           itemlist: Itemlist()
+    //         //TODO TO VERIFY
+    //         // {
+    //         //   'type': 'album',
+    //         //   'id': mediaItem.extras?['album_id'],
+    //         //   'title': mediaItem.album,
+    //         //   'image': mediaItem.artUri,
+    //         // },
+    //       ),
+    //     ),
+    //   );
+    //   break;
+    // case 3:
+    //   launchUrl(
+    //     Uri.parse(
+    //       appMediaItem.genre == 'YouTube'
+    //           ? 'https://youtube.com/watch?v=${appMediaItem.id}'
+    //           : 'https://www.youtube.com/results?search_query=${appMediaItem.name} by ${appMediaItem.artist}',
+    //     ),
+    //     mode: LaunchMode.externalApplication,
+    //   );
+    //   break;
       default:
         break;
     }

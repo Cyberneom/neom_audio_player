@@ -120,6 +120,7 @@ class HorizontalAlbumsListSeparated extends StatelessWidget {
                     trailing: SongTileTrailingMenu(
                       appMediaItem: item,//.getTotalItems() > 0 ? AppMediaItem.mapItemsFromItemlist(item).first : AppMediaItem(),
                       itemlist: itemlist ?? Itemlist(),
+                      showAddToPlaylist: false
                     ),
                     onTap: () => onTap(songsList.indexOf(item)),
                   );

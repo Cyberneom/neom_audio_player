@@ -28,7 +28,8 @@ import 'package:neom_commons/core/utils/constants/app_translation_constants.dart
 import 'package:neom_commons/core/utils/enums/app_in_use.dart';
 import 'package:neom_commons/core/utils/enums/app_media_source.dart';
 import 'package:neom_itemlists/itemlists/ui/widgets/app_item_widgets.dart';
-import 'package:neom_music_player/ui/drawer/library/liked_media_items.dart';
+import 'package:neom_music_player/ui/Search/search_page.dart';
+import 'package:neom_music_player/ui/drawer/library/playlist_player_page.dart';
 import 'package:neom_music_player/ui/widgets/download_button.dart';
 import 'package:neom_music_player/ui/widgets/empty_screen.dart';
 import 'package:neom_music_player/ui/widgets/image_card.dart';
@@ -60,7 +61,12 @@ class SongsPageTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {    
     return (appMediaItems.isEmpty)
-        ? TextButton(onPressed: ()=>Navigator.pushNamed(context, MusicPlayerRouteConstants.home),
+        ? TextButton(
+      onPressed: ()=>Navigator.push(context, MaterialPageRoute(
+        builder: (context) => const SearchPage(
+          query: '', fromHome: true, autofocus: true,
+        ),),
+      ),
       child: emptyScreen(context, 3,
         PlayerTranslationConstants.nothingTo.tr, 15.0,
         PlayerTranslationConstants.showHere.tr, 50,

@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:neom_commons/core/utils/constants/app_translation_constants.dart';
 
 import 'package:neom_music_player/domain/entities/queue_state.dart';
 import 'package:neom_music_player/neom_player_invoke.dart';
@@ -20,6 +21,7 @@ class ControlButtons extends StatelessWidget {
   final List<String> buttons;
   final Color? dominantColor;
   MediaItem? mediaItem;
+  bool showPlay = true;
 
   ControlButtons(
       this.audioHandler, {
@@ -46,11 +48,17 @@ class ControlButtons extends StatelessWidget {
     double musicPlayerHeight= 65;
     double musicPlayerWidth= 65;
 
-    final bool isOnline = mediaItem?.extras!['url'].toString().startsWith('http') ?? false;
+    final String url = mediaItem?.extras?['url'].toString() ?? '';
+
+    if(url.isEmpty || url.toLowerCase().contains("null")) {
+      showPlay = false;
+    }
+
+    final bool isOnline = url.startsWith('http');
     return SizedBox(
       height: 80,
       width: miniplayer ? MediaQuery.of(context).size.width/3 : null,
-      child: Row(
+      child: showPlay ? Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: buttons.map((e) {
           switch (e) {
@@ -104,51 +112,51 @@ class ControlButtons extends StatelessWidget {
                                 ),
                             ),
                           ),
-                        if (miniplayer)
-                          Center(
-                            child: playing ? IconButton(
-                              tooltip: PlayerTranslationConstants.pause.tr,
-                              onPressed: audioHandler.pause,
-                              icon: const Icon(Icons.pause_rounded,),
-                              color: Theme.of(context).iconTheme.color,
-                            ) : IconButton(
-                              tooltip: PlayerTranslationConstants.play.tr,
-                              onPressed: audioHandler.play,
-                              icon: const Icon(Icons.play_arrow_rounded,),
-                              color: Theme.of(context).iconTheme.color,
-                            ),
-                          )
-                        else
-                          Center(
-                            child: SizedBox(
-                              height: 59,
-                              width: 59,
-                              child: Center(
-                                child: playing ? FloatingActionButton(
-                                  elevation: 10,
-                                  tooltip: PlayerTranslationConstants.pause.tr,
-                                  backgroundColor: Colors.white,
-                                  onPressed: audioHandler.pause,
-                                  child: const Icon(
-                                    Icons.pause_rounded,
-                                    size: 40.0,
-                                    color: Colors.black,
-                                  ),
-                                ) : FloatingActionButton(
-                                  elevation: 10,
-                                  tooltip:
-                                  PlayerTranslationConstants.play.tr,
-                                  backgroundColor: Colors.white,
-                                  onPressed: audioHandler.play,
-                                  child: const Icon(
-                                    Icons.play_arrow_rounded,
-                                    size: 40.0,
-                                    color: Colors.black,
+                          if (miniplayer)
+                            Center(
+                              child: playing ? IconButton(
+                                tooltip: PlayerTranslationConstants.pause.tr,
+                                onPressed: audioHandler.pause,
+                                icon: const Icon(Icons.pause_rounded,),
+                                color: Theme.of(context).iconTheme.color,
+                              ) : IconButton(
+                                tooltip: PlayerTranslationConstants.play.tr,
+                                onPressed: audioHandler.play,
+                                icon: const Icon(Icons.play_arrow_rounded,),
+                                color: Theme.of(context).iconTheme.color,
+                              ),
+                            )
+                          else
+                            Center(
+                              child: SizedBox(
+                                height: 59,
+                                width: 59,
+                                child: Center(
+                                  child: playing ? FloatingActionButton(
+                                    elevation: 10,
+                                    tooltip: PlayerTranslationConstants.pause.tr,
+                                    backgroundColor: Colors.white,
+                                    onPressed: audioHandler.pause,
+                                    child: const Icon(
+                                      Icons.pause_rounded,
+                                      size: 40.0,
+                                      color: Colors.black,
+                                    ),
+                                  ) : FloatingActionButton(
+                                    elevation: 10,
+                                    tooltip:
+                                    PlayerTranslationConstants.play.tr,
+                                    backgroundColor: Colors.white,
+                                    onPressed: audioHandler.play,
+                                    child: const Icon(
+                                      Icons.play_arrow_rounded,
+                                      size: 40.0,
+                                      color: Colors.black,
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
-                          ),
                       ],
                     );
                   },
@@ -188,7 +196,7 @@ class ControlButtons extends StatelessWidget {
           }
           return const SizedBox();
         }).toList(),
-      ),
+      ) : Center(child: Text(AppTranslationConstants.noAvailablePreviewUrl.tr),),
     );
   }
 }

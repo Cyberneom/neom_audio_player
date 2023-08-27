@@ -360,5 +360,6 @@ class PlayerTranslationConstants {
   static const String minFourRequired = 'minFourRequired';
   static const String navTabs = 'navTabs';
   static const String navTabsSub = 'navTabsSub';
+  static const String startSearch = 'startSearch';
 
 }
