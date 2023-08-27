@@ -268,7 +268,7 @@ class _SongsListPageState extends State<SongsListPage> {
                   shuffle: true,
                 ),
                 placeholderImage: AppAssets.musicPlayerAlbum,
-                imageUrl: UrlImageGetter([widget.itemlist.imgUrl?.toString()]).mediumQuality,
+                imageUrl: UrlImageGetter([widget.itemlist.getImgUrls().firstOrNull]).mediumQuality,
                 sliverList: SliverList(
                   delegate: SliverChildListDelegate([
                     if (songList.isNotEmpty)

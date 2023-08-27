@@ -8,7 +8,7 @@ import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_music_player/domain/use_cases/neom_audio_handler.dart';
-import 'package:neom_music_player/ui/widgets/add_playlist.dart';
+import 'package:neom_music_player/ui/widgets/add_to_playlist.dart';
 import 'package:neom_music_player/ui/widgets/popup.dart';
 import 'package:neom_music_player/ui/widgets/snackbar.dart';
 import 'package:neom_music_player/ui/widgets/song_list.dart';

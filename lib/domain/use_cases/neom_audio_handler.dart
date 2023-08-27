@@ -122,30 +122,31 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
         playbackState.add(playbackState.value!.copyWith(speed: speed));
       });
 
-      AppUtilities.logger.i('Checking connectivity & setting quality');
-      Connectivity().onConnectivityChanged.listen((ConnectivityResult result) {
-        if (result == ConnectivityResult.mobile) {
-          connectionType = 'mobile';
-          AppUtilities.logger.i(
-            'player | switched to mobile data, changing quality to $preferredMobileQuality',
-          );
-          preferredQuality = preferredMobileQuality;
-        } else if (result == ConnectivityResult.wifi) {
-          connectionType = 'wifi';
-          AppUtilities.logger.i(
-            'player | wifi connected, changing quality to $preferredWifiQuality',
-          );
-          preferredQuality = preferredWifiQuality;
-        } else if (result == ConnectivityResult.none) {
-          AppUtilities.logger.e(
-            'player | internet connection not available',
-          );
-        } else {
-          AppUtilities.logger.i(
-            'player | unidentified network connection',
-          );
-        }
-      });
+      //TODO IMPLEMENT IN NEXT VERSION
+      // AppUtilities.logger.i('Checking connectivity & setting quality');
+      // Connectivity().onConnectivityChanged.listen((ConnectivityResult result) {
+      //   if (result == ConnectivityResult.mobile) {
+      //     connectionType = 'mobile';
+      //     AppUtilities.logger.i(
+      //       'player | switched to mobile data, changing quality to $preferredMobileQuality',
+      //     );
+      //     preferredQuality = preferredMobileQuality;
+      //   } else if (result == ConnectivityResult.wifi) {
+      //     connectionType = 'wifi';
+      //     AppUtilities.logger.i(
+      //       'player | wifi connected, changing quality to $preferredWifiQuality',
+      //     );
+      //     preferredQuality = preferredWifiQuality;
+      //   } else if (result == ConnectivityResult.none) {
+      //     AppUtilities.logger.e(
+      //       'player | internet connection not available',
+      //     );
+      //   } else {
+      //     AppUtilities.logger.i(
+      //       'player | unidentified network connection',
+      //     );
+      //   }
+      // });
 
       preferredQuality = connectionType == 'wifi' ? preferredWifiQuality : preferredMobileQuality;
 

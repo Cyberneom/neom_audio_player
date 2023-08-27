@@ -59,7 +59,7 @@ class AddToOffPlaylist {
 
   Future<void> addToOffPlaylist(BuildContext context, int audioId) async {
     List<PlaylistModel> playlistDetails =
-        await offlineAudioQuery.getPlaylists();
+    await offlineAudioQuery.getPlaylists();
     showModalBottomSheet(
       isDismissible: true,
       backgroundColor: AppColor.main75,
@@ -93,7 +93,7 @@ class AddToOffPlaylist {
                       onSubmitted: (String value, BuildContext context) async {
                         await offlineAudioQuery.createPlaylist(name: value);
                         playlistDetails =
-                            await offlineAudioQuery.getPlaylists();
+                        await offlineAudioQuery.getPlaylists();
                         Navigator.pop(context);
                       },
                     );
@@ -157,150 +157,5 @@ class AddToOffPlaylist {
         );
       },
     );
-  }
-}
-
-class AddToPlaylist {
-  // Box settingsBox = Hive.box(AppHiveConstants.settings);
-  // List playlistNames = Hive.box(AppHiveConstants.settings).get('playlistNames', defaultValue: [AppHiveConstants.favoriteSongs]) as List;
-  // Map playlistDetails = Hive.box(AppHiveConstants.settings).get('playlistDetails', defaultValue: {}) as Map;
-
-  Future<void> addToPlaylist(BuildContext context, AppMediaItem appMediaItem, {fromSearch = false}) async {
-
-    List<Itemlist> itemlists = []; ///GET INFO FROM CONTROLLER
-    ProfileType type = ProfileType.fan; ///GET INFO FROM CONTROLLER
-    AppMediaItemSearchController searchController;
-    try {
-      // Check if the controller is active
-      if (Get.isRegistered<AppMediaItemSearchController>()) {
-        searchController = Get.find<AppMediaItemSearchController>();
-      } else {
-        searchController = Get.put(AppMediaItemSearchController());
-      }
-      itemlists = searchController.profile.itemlists!.values.toList();
-      if(itemlists.isEmpty) return;
-      searchController.setSelectedItemlist(itemlists.first.id);
-      type = searchController.profile.type;
-      searchController.appMediaItem = appMediaItem;
-
-      itemlists.length > 1 ? Alert(
-        context: context,
-        style: AlertStyle(
-          backgroundColor: AppColor.main75,
-          titleStyle: const TextStyle(color: Colors.white),
-        ),
-        title: type == ProfileType.instrumentist ? AppTranslationConstants.appItemPrefs.tr
-            : AppTranslationConstants.playlistToChoose.tr,
-        content: Column(
-          children: <Widget>[
-            if (type == ProfileType.instrumentist) Obx(()=>
-                DropdownButton<String>(
-                  items: AppItemState.values.map((AppItemState itemState) {
-                    return DropdownMenuItem<String>(
-                        value: itemState.name,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            Text(itemState.name.tr),
-                            itemState.value == 0 ? Container() : const Text(" - "),
-                            itemState.value == 0 ? Container() :
-                            RatingBar(
-                              initialRating: itemState.value.toDouble(),
-                              minRating: 1,
-                              ignoreGestures: true,
-                              direction: Axis.horizontal,
-                              allowHalfRating: false,
-                              itemCount: 5,
-                              ratingWidget: RatingWidget(
-                                full: CoreUtilities.ratingImage(AppAssets.heart),
-                                half: CoreUtilities.ratingImage(AppAssets.heartHalf),
-                                empty: CoreUtilities.ratingImage(AppAssets.heartBorder),
-                              ),
-                              itemPadding: const EdgeInsets.symmetric(horizontal: 1.0),
-                              itemSize: 12,
-                              onRatingUpdate: (rating) {
-                                AppUtilities.logger.i("New Rating set to $rating");
-                              },
-                            ),
-                          ],
-                        )
-                    );
-                  }).toList(),
-                  onChanged: (String? newState) {
-                    searchController.setAppItemState(EnumToString.fromString(AppItemState.values, newState!) ?? AppItemState.noState);
-                  },
-                  value: CoreUtilities.getItemState(searchController.appItemState).name,
-                  alignment: Alignment.center,
-                  icon: const Icon(Icons.arrow_downward),
-                  iconSize: 20,
-                  elevation: 16,
-                  style: const TextStyle(color: Colors.white),
-                  dropdownColor: AppColor.getMain(),
-                  underline: Container(
-                    height: 1,
-                    color: Colors.grey,
-                  ),
-                ),
-            ) else Container(),
-            if (itemlists.length > 1) Obx(()=> DropdownButton<String>(
-              items: itemlists.map((itemlist) =>
-                  DropdownMenuItem<String>(
-                    value: itemlist.id,
-                    child: Center(
-                      child: Text(
-                        itemlist.name.length > AppConstants.maxItemlistNameLength
-                            ? '${itemlist.name.substring(0,AppConstants.maxItemlistNameLength)}...'
-                            : itemlist.name,
-                      ),
-                    ),
-                  ),
-              ).toList(),
-              onChanged: (String? selectedItemlist) {
-                searchController.setSelectedItemlist(selectedItemlist!);
-              },
-              value: searchController.itemlistId,
-              icon: const Icon(Icons.arrow_downward),
-              alignment: Alignment.center,
-              iconSize: 20,
-              elevation: 16,
-              style: const TextStyle(color: Colors.white),
-              dropdownColor: AppColor.main75,
-              underline: Container(
-                height: 1,
-                color: Colors.grey,
-              ),),
-            ) else Column(
-              children: [
-                AppTheme.heightSpace10,
-                Center(
-                    child: Text(itemlists.first.name.length > AppConstants.maxItemlistNameLength
-                        ? '${itemlists.first.name.substring(0,AppConstants.maxItemlistNameLength)}...'
-                        : itemlists.first.name, style: TextStyle(fontSize: 15,))
-                ),
-              ],
-            ),
-          ],
-        ),
-        buttons: [
-          DialogButton(
-            color: AppColor.bondiBlue75,
-            child: Obx(()=>searchController.isLoading ? const Center(child: CircularProgressIndicator())
-                : Text(AppTranslationConstants.add.tr,
-            )),
-            onPressed: () async => {
-              if (type == ProfileType.instrumentist) searchController.appItemState > 0 ? await searchController.addItemlistItem(context, fanItemState: searchController.appItemState)
-                  : Get.snackbar(AppTranslationConstants.appItemPrefs.tr,
-                  MessageTranslationConstants.selectItemStateMsg.tr,
-                  snackPosition: SnackPosition.bottom
-              ) else await searchController.addItemlistItem(context, fanItemState: AppItemState.heardIt.value)
-            },
-          )
-        ],
-      ).show() : await searchController.addItemlistItem(context,
-        fanItemState: AppItemState.heardIt.value,);
-    } catch(e) {
-      AppUtilities.logger.e(e.toString());
-    }
-
   }
 }

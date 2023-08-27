@@ -26,7 +26,7 @@ import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/enums/app_media_source.dart';
 import 'package:neom_itemlists/itemlists/ui/search/app_media_item_search_controller.dart';
 
-import 'package:neom_music_player/ui/widgets/add_playlist.dart';
+import 'package:neom_music_player/ui/widgets/add_to_playlist.dart';
 import 'package:neom_music_player/utils/helpers/add_mediaitem_to_queue.dart';
 import 'package:neom_music_player/utils/helpers/media_item_mapper.dart';
 import 'package:neom_music_player/domain/use_cases/youtube_services.dart';

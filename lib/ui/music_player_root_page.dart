@@ -7,7 +7,7 @@ import 'package:neom_commons/core/utils/app_theme.dart';
 import 'package:neom_itemlists/itemlists/ui/itemlist_page.dart';
 import 'package:neom_music_player/ui/home/music_player_home_page.dart';
 import 'package:neom_music_player/ui/spotify/spotify_top_page.dart';
-import 'package:neom_music_player/ui/widgets/bottom_nav_bar.dart';
+import 'package:neom_music_player/ui/home/widgets/bottom_nav_bar.dart';
 import 'package:neom_music_player/ui/widgets/drawer.dart';
 import 'package:neom_music_player/ui/widgets/gradient_containers.dart';
 import 'package:neom_music_player/ui/player/miniplayer.dart';

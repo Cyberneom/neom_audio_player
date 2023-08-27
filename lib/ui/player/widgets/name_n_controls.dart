@@ -19,7 +19,7 @@ import 'package:neom_music_player/ui/widgets/go_spotify_button.dart';
 import 'package:neom_music_player/utils/helpers/media_item_mapper.dart';
 import 'package:neom_music_player/domain/use_cases/neom_audio_handler.dart';
 import 'package:neom_music_player/ui/Search/album_search_page.dart';
-import 'package:neom_music_player/ui/widgets/animated_text.dart';
+import 'package:neom_music_player/ui/player/widgets/animated_text.dart';
 import 'package:neom_music_player/ui/widgets/download_button.dart';
 import 'package:neom_music_player/ui/widgets/like_button.dart';
 import 'package:neom_music_player/ui/widgets/seek_bar.dart';

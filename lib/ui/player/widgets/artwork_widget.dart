@@ -19,7 +19,7 @@ import 'package:neom_commons/core/utils/constants/app_assets.dart';
 import 'package:neom_music_player/domain/entities/queue_state.dart';
 import 'package:neom_music_player/utils/helpers/media_item_mapper.dart';
 import 'package:neom_music_player/domain/use_cases/neom_audio_handler.dart';
-import 'package:neom_music_player/ui/widgets/add_playlist.dart';
+import 'package:neom_music_player/ui/widgets/add_to_playlist.dart';
 import 'package:neom_music_player/ui/widgets/copy_clipboard.dart';
 import 'package:neom_music_player/ui/widgets/empty_screen.dart';
 import 'package:neom_music_player/ui/widgets/gradient_containers.dart';
