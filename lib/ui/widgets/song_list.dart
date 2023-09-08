@@ -25,12 +25,14 @@ import 'package:neom_commons/core/domain/model/item_list.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
+import 'package:neom_commons/core/utils/enums/app_media_source.dart';
 import 'package:neom_commons/core/utils/enums/itemlist_type.dart';
 import 'package:neom_music_player/data/api_services/APIs/saavn_api.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_music_player/ui/widgets/bouncy_playlist_header_scroll_view.dart';
 import 'package:neom_music_player/ui/widgets/copy_clipboard.dart';
 import 'package:neom_music_player/ui/widgets/download_button.dart';
+import 'package:neom_music_player/ui/widgets/go_spotify_button.dart';
 import 'package:neom_music_player/ui/widgets/gradient_containers.dart';
 import 'package:neom_music_player/ui/widgets/image_card.dart';
 import 'package:neom_music_player/ui/widgets/like_button.dart';
@@ -39,9 +41,10 @@ import 'package:neom_music_player/ui/widgets/playlist_popupmenu.dart';
 import 'package:neom_music_player/ui/widgets/snackbar.dart';
 import 'package:neom_music_player/ui/widgets/song_tile_trailing_menu.dart';
 import 'package:neom_music_player/utils/helpers/extensions.dart';
-import 'package:neom_music_player/neom_player_invoke.dart';
+import 'package:neom_music_player/neom_player_invoker.dart';
 import 'package:neom_music_player/domain/entities/url_image_generator.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
+import 'package:neom_music_player/utils/helpers/media_item_mapper.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:get/get.dart';
 
@@ -256,12 +259,12 @@ class _SongsListPageState extends State<SongsListPage> {
                 subtitle: '${songList.length} Songs',
                 secondarySubtitle: widget.itemlist.description?.toString() ??
                     widget.itemlist.description?.toString(),
-                onPlayTap: () => NeomPlayerInvoke.init(
+                onPlayTap: () => NeomPlayerInvoker.init(
                   appMediaItems: songList,
                   index: 0,
                   isOffline: false,
                 ),
-                onShuffleTap: () => NeomPlayerInvoke.init(
+                onShuffleTap: () => NeomPlayerInvoker.init(
                   appMediaItems: songList,
                   index: 0,
                   isOffline: false,
@@ -287,11 +290,10 @@ class _SongsListPageState extends State<SongsListPage> {
                           ),
                         ),
                       ),
-                    ...songList.map((itemEntry) {
+                    ...songList.map((appMediaItem) {
                       return ListTile(
                         contentPadding: const EdgeInsets.only(left: 15.0),
-                        title: Text(
-                          '${itemEntry.name}',
+                        title: Text(appMediaItem.name,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
                             fontWeight: FontWeight.w500,
@@ -300,30 +302,33 @@ class _SongsListPageState extends State<SongsListPage> {
                         onLongPress: () {
                           copyToClipboard(
                             context: context,
-                            text: '${itemEntry.name}',
+                            text: '${appMediaItem.name}',
                           );
                         },
                         subtitle: Text(
-                          '${itemEntry.description}',
+                          '${appMediaItem.description}',
                           overflow: TextOverflow.ellipsis,
                         ),
-                        leading: imageCard(imageUrl: itemEntry.imgUrl),
+                        leading: imageCard(imageUrl: appMediaItem.imgUrl),
                         trailing: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            DownloadButton(
-                              mediaItem: itemEntry,
-                              icon: 'download',
-                            ),
-                            LikeButton(appMediaItem: itemEntry,),
-                            SongTileTrailingMenu(appMediaItem: itemEntry, itemlist: widget.itemlist),
+                            if((appMediaItem.url.contains("gig-me-out") || appMediaItem.url.contains("firebasestorage.googleapis.com"))
+                                && appMediaItem.mediaSource == AppMediaSource.internal)
+                              DownloadButton(size: 25.0,
+                                mediaItem: appMediaItem,
+                                icon: 'download',
+                              )
+                            else GoSpotifyButton(appMediaItem: appMediaItem),
+                            LikeButton(appMediaItem: appMediaItem,),
+                            SongTileTrailingMenu(appMediaItem: appMediaItem, itemlist: widget.itemlist),
                           ],
                         ),
                         onTap: () {
-                          NeomPlayerInvoke.init(
+                          NeomPlayerInvoker.init(
                             appMediaItems: songList,
                             index: songList.indexWhere(
-                              (element) => element == itemEntry,
+                              (element) => element == appMediaItem,
                             ),
                             isOffline: false,
                           );

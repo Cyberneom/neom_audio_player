@@ -45,7 +45,7 @@ import 'package:neom_music_player/ui/widgets/multi_download_button.dart';
 import 'package:neom_music_player/ui/widgets/music_search_bar.dart' as searchbar;
 import 'package:neom_music_player/ui/widgets/snackbar.dart';
 import 'package:neom_music_player/ui/widgets/song_tile_trailing_menu.dart';
-import 'package:neom_music_player/neom_player_invoke.dart';
+import 'package:neom_music_player/neom_player_invoker.dart';
 import 'package:neom_music_player/ui/widgets/song_list.dart';
 import 'package:neom_music_player/ui/search/artist_search_page.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';

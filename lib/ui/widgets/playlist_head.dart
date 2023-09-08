@@ -20,7 +20,7 @@
 import 'package:flutter/material.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 
-import 'package:neom_music_player/neom_player_invoke.dart';
+import 'package:neom_music_player/neom_player_invoker.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
 import 'package:get/get.dart';
 
@@ -53,7 +53,7 @@ class PlaylistHead extends StatelessWidget {
           const Spacer(),
           TextButton.icon(
             onPressed: () {
-              NeomPlayerInvoke.init(
+              NeomPlayerInvoker.init(
                 appMediaItems: songsList,
                 index: 0,
                 isOffline: offline,
@@ -70,7 +70,7 @@ class PlaylistHead extends StatelessWidget {
           ),
           IconButton(
             onPressed: () {
-              NeomPlayerInvoke.init(
+              NeomPlayerInvoker.init(
                 appMediaItems: songsList,
                 index: 0,
                 isOffline: offline,

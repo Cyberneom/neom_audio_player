@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:neom_commons/core/utils/constants/app_translation_constants.dart';
 
 import 'package:neom_music_player/domain/entities/queue_state.dart';
-import 'package:neom_music_player/neom_player_invoke.dart';
+import 'package:neom_music_player/neom_player_invoker.dart';
 import 'package:neom_music_player/utils/helpers/media_item_mapper.dart';
 import 'package:neom_music_player/domain/use_cases/neom_audio_handler.dart';
 import 'package:neom_music_player/ui/widgets/download_button.dart';
@@ -37,7 +37,7 @@ class ControlButtons extends StatelessWidget {
     if(mediaItem == null && audioHandler.mediaItem.value != null) {
        mediaItem = audioHandler.mediaItem.value;
     } else {
-      NeomPlayerInvoke.init(
+      NeomPlayerInvoker.init(
         appMediaItems: [MediaItemMapper.fromMediaItem(mediaItem!)],
         index: 0,
       );

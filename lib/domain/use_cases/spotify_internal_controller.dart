@@ -5,7 +5,6 @@ import 'package:get/get.dart';
 import 'package:neom_commons/core/app_flavour.dart';
 
 import 'package:neom_commons/core/data/firestore/user_firestore.dart';
-import 'package:neom_commons/core/domain/model/app_item.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/domain/model/app_profile.dart';
 import 'package:neom_commons/core/domain/model/item_list.dart';

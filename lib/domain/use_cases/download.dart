@@ -33,6 +33,7 @@ import 'package:metadata_god/metadata_god.dart';
 import 'package:neom_commons/core/app_flavour.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
+import 'package:neom_commons/core/utils/core_utilities.dart';
 import 'package:neom_commons/core/utils/enums/app_media_source.dart';
 import 'package:neom_music_player/domain/use_cases/ext_storage_provider.dart';
 import 'package:neom_music_player/ui/widgets/snackbar.dart';
@@ -287,17 +288,13 @@ class Download with ChangeNotifier {
     }
   }
 
-  Future<void> downloadMediaItem(
-    BuildContext context,
-    String? dlPath,
-    String fileName,
-    AppMediaItem mediaItem,
-  ) async {
+  Future<void> downloadMediaItem(BuildContext context, String? dlPath,
+    String fileName, AppMediaItem mediaItem,) async {
     AppUtilities.logger.i('Processing download');
     progress = null;
     notifyListeners();
-    String? filepath;
-    late String filepath2;
+    String? mediaPath = '';
+    String imgPath = '';
     String? appPath;
     final List<int> bytes = [];
     String lyrics = '';
@@ -314,10 +311,10 @@ class Download with ChangeNotifier {
     try {
       AppUtilities.logger.i('Creating audio file $dlPath/$fileName');
       await File('$dlPath/$fileName').create(recursive: true)
-          .then((value) => filepath = value.path);
+          .then((value) => mediaPath = value.path);
       AppUtilities.logger.i('Creating image file $appPath/$artname');
       await File('$appPath/$artname').create(recursive: true)
-          .then((value) => filepath2 = value.path);
+          .then((value) => imgPath = value.path);
     } catch (e) {
       AppUtilities.logger.i('Error creating files, requesting additional permission');
       if (Platform.isAndroid) {
@@ -335,11 +332,11 @@ class Download with ChangeNotifier {
 
       AppUtilities.logger.i('Retrying to create audio file');
       await File('$dlPath/$fileName').create(recursive: true)
-          .then((value) => filepath = value.path);
+          .then((value) => mediaPath = value.path);
 
       AppUtilities.logger.i('Retrying to create image file');
       await File('$appPath/$artname').create(recursive: true)
-          .then((value) => filepath2 = value.path);
+          .then((value) => imgPath = value.path);
     }
     String kUrl = mediaItem.url;
 
@@ -380,15 +377,10 @@ class Download with ChangeNotifier {
     }).onDone(() async {
       if (download) {
         AppUtilities.logger.i('Download complete, modifying file');
-        final file = File(filepath!);
+        final file = File(mediaPath!);
         await file.writeAsBytes(bytes);
 
-        final client = HttpClient();
-        final HttpClientRequest request2 = await client.getUrl(Uri.parse(mediaItem.imgUrl));
-        final HttpClientResponse response2 = await request2.close();
-        final bytes2 = await consolidateHttpClientResponseBytes(response2);
-        final File file2 = File(filepath2);
-        await file2.writeAsBytes(bytes2);
+        imgPath = await CoreUtilities.downloadImage(mediaItem.imgUrl);
 
           if(mediaItem.lyrics.isNotEmpty) {
             lyrics = mediaItem.lyrics;
@@ -418,7 +410,7 @@ class Download with ChangeNotifier {
               title: mediaItem.name,
               artist: mediaItem.artist,
               albumArtist: mediaItem.artist,
-              artwork: filepath2,
+              artwork: imgPath,
               album: mediaItem.album,
               genre: mediaItem.genre,
               year: mediaItem.publishedYear.toString(),
@@ -428,7 +420,7 @@ class Download with ChangeNotifier {
             AppUtilities.logger.i('Started tag editing');
             final tagger = Audiotagger();
             await tagger.writeTags(
-              path: filepath!,
+              path: mediaPath!,
               tag: tag,
             );
             // await Future.delayed(const Duration(seconds: 1), () async {
@@ -442,7 +434,7 @@ class Download with ChangeNotifier {
         } else {
           // Set metadata to file
           await MetadataGod.writeMetadata(
-            file: filepath!,
+            file: mediaPath!,
             metadata: Metadata(
               title: mediaItem.name,
               artist: mediaItem.artist,
@@ -453,7 +445,7 @@ class Download with ChangeNotifier {
               durationMs: mediaItem.duration * 1000,
               fileSize: file.lengthSync(),
               picture: Picture(
-                data: File(filepath2).readAsBytesSync(),
+                data: File(imgPath).readAsBytesSync(),
                 mimeType: 'image/jpeg',
               ),
             ),
@@ -468,23 +460,22 @@ class Download with ChangeNotifier {
         AppUtilities.logger.i('Putting data to downloads database');
         AppMediaItem downloadedMediaItem = mediaItem;
 
-        downloadedMediaItem.path = filepath;
-        downloadedMediaItem.imgUrl = filepath2;
+        downloadedMediaItem.path = mediaPath;
+        downloadedMediaItem.imgUrl = imgPath;
         downloadedMediaItem.mediaSource = AppMediaSource.offline;
 
         Hive.box(AppHiveConstants.downloads).put(downloadedMediaItem.id, downloadedMediaItem.toJSON());
 
         AppUtilities.logger.i('Everything done, showing snackbar');
-        ShowSnackBar().showSnackBar(
-          context,
+        ShowSnackBar().showSnackBar(context,
           '"${mediaItem.name}" ${PlayerTranslationConstants.downed.tr}',
           duration: Duration(seconds: 3),
         );
       } else {
         download = true;
         progress = 0.0;
-        File(filepath!).delete();
-        File(filepath2).delete();
+        File(mediaPath!).delete();
+        File(imgPath).delete();
       }
     });
   }

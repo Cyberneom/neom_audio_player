@@ -26,7 +26,7 @@ import 'package:neom_music_player/ui/widgets/empty_screen.dart';
 import 'package:neom_music_player/ui/widgets/gradient_containers.dart';
 import 'package:neom_music_player/ui/widgets/image_card.dart';
 import 'package:neom_music_player/ui/widgets/like_button.dart';
-import 'package:neom_music_player/neom_player_invoke.dart';
+import 'package:neom_music_player/neom_player_invoker.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
 import 'package:neom_music_player/utils/constants/music_player_route_constants.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
@@ -142,7 +142,7 @@ class _RecentlyPlayedState extends State<RecentlyPlayed> {
                               overflow: TextOverflow.ellipsis,
                             ),
                             onTap: () {
-                              NeomPlayerInvoke.init(
+                              NeomPlayerInvoker.init(
                                 appMediaItems: _songs.values.toList(),
                                 index: index,
                               );

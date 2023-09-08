@@ -37,7 +37,7 @@ import 'package:neom_music_player/ui/widgets/gradient_containers.dart';
 import 'package:neom_music_player/ui/widgets/multi_download_button.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
 import 'package:neom_music_player/utils/helpers/songs_count.dart' as songs_count;
-import 'package:neom_music_player/neom_player_invoke.dart';
+import 'package:neom_music_player/neom_player_invoker.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
 // import 'package:path_provider/path_provider.dart';
 import 'package:get/get.dart';
@@ -408,7 +408,7 @@ class _PlaylistPlayerPageState extends State<PlaylistPlayerPage>
               ),
               onPressed: () {
                 if (_appMediaItems.isNotEmpty) {
-                  NeomPlayerInvoke.init(
+                  NeomPlayerInvoker.init(
                     appMediaItems: _appMediaItems,
                     index: 0,
                     isOffline: false,

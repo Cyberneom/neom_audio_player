@@ -23,7 +23,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_music_player/data/implementations/spotify_hive_controller.dart';
-import 'package:neom_music_player/neom_player_invoke.dart';
+import 'package:neom_music_player/neom_player_invoker.dart';
 import 'package:neom_music_player/ui/widgets/empty_screen.dart';
 import 'package:neom_music_player/ui/widgets/image_card.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';

@@ -24,7 +24,7 @@ import 'package:neom_music_player/ui/widgets/on_hover.dart';
 import 'package:neom_music_player/ui/widgets/song_tile_trailing_menu.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
 import 'package:neom_music_player/utils/constants/music_player_route_constants.dart';
-import 'package:neom_music_player/neom_player_invoke.dart';
+import 'package:neom_music_player/neom_player_invoker.dart';
 import 'package:neom_music_player/ui/widgets/song_list.dart';
 import 'package:neom_music_player/ui/drawer/library/playlist_player_page.dart';
 import 'package:neom_music_player/ui/Search/artist_search_page.dart';
@@ -394,7 +394,7 @@ class MusicPlayerHomeContent extends StatelessWidget {
           HorizontalAlbumsListSeparated(
             songsList: _.recentList.values.toList(),
             onTap: (int idx) {
-              NeomPlayerInvoke.init(
+              NeomPlayerInvoker.init(
                 appMediaItems: [_.recentList.values.elementAt(idx)],
                 index: 0,
                 isOffline: false,

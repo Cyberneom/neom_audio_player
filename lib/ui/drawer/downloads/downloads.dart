@@ -30,7 +30,7 @@ import 'package:hive/hive.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
-import 'package:neom_music_player/neom_player_invoke.dart';
+import 'package:neom_music_player/neom_player_invoker.dart';
 import 'package:neom_music_player/ui/drawer/library/playlist_player_page.dart';
 import 'package:neom_music_player/ui/widgets/custom_physics.dart';
 import 'package:neom_music_player/ui/drawer/downloads/data_search.dart';
@@ -440,7 +440,7 @@ class _DownloadsState extends State<Downloads>
               ),
               onPressed: () {
                 if (_appMediaItems.isNotEmpty) {
-                  NeomPlayerInvoke.init(
+                  NeomPlayerInvoker.init(
                     appMediaItems: _appMediaItems,
                     index: 0,
                     isOffline: true,
@@ -832,7 +832,7 @@ class _DownSongsTabState extends State<DownSongsTab>
                     }},
                 ),
                 onTap: () {
-                  NeomPlayerInvoke.init(
+                  NeomPlayerInvoker.init(
                     appMediaItems: widget.appMediaItems,
                     index: index,
                     isOffline: true,

@@ -26,7 +26,7 @@ import 'package:neom_music_player/ui/widgets/download_button.dart';
 import 'package:neom_music_player/ui/widgets/image_card.dart';
 import 'package:neom_music_player/ui/widgets/song_tile_trailing_menu.dart';
 import 'package:neom_music_player/utils/helpers/audio_query.dart';
-import 'package:neom_music_player/neom_player_invoke.dart';
+import 'package:neom_music_player/neom_player_invoker.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 
@@ -127,7 +127,7 @@ class DataSearch extends SearchDelegate {
               permaUrl: element.uri ?? '')
             );
           }
-          NeomPlayerInvoke.init(
+          NeomPlayerInvoker.init(
             appMediaItems: suggestionItems,
             index: index,
             isOffline: true,
@@ -177,7 +177,7 @@ class DataSearch extends SearchDelegate {
           overflow: TextOverflow.ellipsis,
         ),
         onTap: () async {
-          NeomPlayerInvoke.init(
+          NeomPlayerInvoker.init(
             appMediaItems: AppMediaItem.listFromSongModel(suggestionList),
             index: index,
             isOffline: true,
@@ -304,7 +304,7 @@ class DownloadsSearch extends SearchDelegate {
                 ],
               ),
         onTap: () {
-          NeomPlayerInvoke.init(
+          NeomPlayerInvoker.init(
             appMediaItems: AppMediaItem.listFromList(suggestionList),
             index: index,
             isOffline: isDowns,
@@ -358,7 +358,7 @@ class DownloadsSearch extends SearchDelegate {
           overflow: TextOverflow.ellipsis,
         ),
         onTap: () {
-          NeomPlayerInvoke.init(
+          NeomPlayerInvoker.init(
             appMediaItems: AppMediaItem.listFromList(suggestionList),
             index: index,
             isOffline: isDowns,

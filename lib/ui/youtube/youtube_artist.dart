@@ -27,7 +27,7 @@ import 'package:neom_music_player/ui/widgets/copy_clipboard.dart';
 import 'package:neom_music_player/ui/widgets/gradient_containers.dart';
 import 'package:neom_music_player/ui/widgets/image_card.dart';
 import 'package:neom_music_player/ui/widgets/song_tile_trailing_menu.dart';
-import 'package:neom_music_player/neom_player_invoke.dart';
+import 'package:neom_music_player/neom_player_invoker.dart';
 import 'package:neom_music_player/domain/use_cases/youtube_services.dart';
 import 'package:neom_music_player/domain/use_cases/yt_music.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
@@ -171,7 +171,7 @@ class _YouTubeArtistState extends State<YouTubeArtist> {
                                 });
 
                                 if(response != null) {
-                                  NeomPlayerInvoke.init(
+                                  NeomPlayerInvoker.init(
                                     appMediaItems: [response],
                                     index: 0,
                                     isOffline: false,

@@ -37,7 +37,7 @@ import 'package:neom_music_player/ui/widgets/like_button.dart';
 import 'package:neom_music_player/ui/widgets/playlist_head.dart';
 import 'package:neom_music_player/ui/widgets/song_tile_trailing_menu.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
-import 'package:neom_music_player/neom_player_invoke.dart';
+import 'package:neom_music_player/neom_player_invoker.dart';
 import 'package:neom_music_player/utils/constants/music_player_route_constants.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
 // import 'package:path_provider/path_provider.dart';

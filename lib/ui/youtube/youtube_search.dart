@@ -31,7 +31,7 @@ import 'package:neom_music_player/ui/widgets/image_card.dart';
 import 'package:neom_music_player/ui/widgets/music_search_bar.dart' as searchbar;
 import 'package:neom_music_player/ui/widgets/snackbar.dart';
 import 'package:neom_music_player/ui/widgets/song_tile_trailing_menu.dart';
-import 'package:neom_music_player/neom_player_invoke.dart';
+import 'package:neom_music_player/neom_player_invoker.dart';
 import 'package:neom_music_player/domain/use_cases/youtube_services.dart';
 import 'package:neom_music_player/domain/use_cases/yt_music.dart';
 import 'package:neom_music_player/ui/widgets/song_list_view.dart';
@@ -433,7 +433,7 @@ class _YouTubeSearchPageState extends State<YouTubeSearchPage> {
                                                   });
 
                                                   if (response != null) {
-                                                    NeomPlayerInvoke.init(appMediaItems: [response],
+                                                    NeomPlayerInvoker.init(appMediaItems: [response],
                                                       index: 0, isOffline: false,
                                                     );
                                                   }
@@ -455,7 +455,7 @@ class _YouTubeSearchPageState extends State<YouTubeSearchPage> {
                                                   });
 
                                                   if (response != null) {
-                                                    NeomPlayerInvoke.init(
+                                                    NeomPlayerInvoker.init(
                                                       appMediaItems: [response],
                                                       index: 0, isOffline: false,
                                                     );

@@ -23,6 +23,7 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:get_it/get_it.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
+import 'package:neom_commons/core/utils/constants/message_translation_constants.dart';
 import 'package:neom_music_player/data/implementations/app_hive_controller.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/enums/app_media_source.dart';
@@ -35,7 +36,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:get/get.dart' as getx;
 
 // ignore: avoid_classes_with_only_static_members
-class NeomPlayerInvoke {
+class NeomPlayerInvoker {
   static final NeomAudioHandler audioHandler = GetIt.I<NeomAudioHandler>();
 
   static Future<void> init({required List<AppMediaItem> appMediaItems, required int index,
@@ -146,39 +147,51 @@ class NeomPlayerInvoke {
 
     try {
       // await audioHandler.startService();
+      if(Platform.isAndroid) {
+        await audioHandler.setShuffleMode(AudioServiceShuffleMode.none);
+        await audioHandler.updateQueue(queue);
 
-      await audioHandler.setShuffleMode(AudioServiceShuffleMode.none);
-      await audioHandler.updateQueue(queue);
+        int nextIndex = 0;
+        if (queue.indexWhere((item) => item.id == queue[index].id) >= 0) {
+          nextIndex = queue.indexWhere((item) => item.id == queue[index].id);
+          AppUtilities.logger.d("MediaItem found in Queue with Index $index");
+        }
 
-      int nextIndex = 0;
-      if(queue.indexWhere((item) => item.id == queue[index].id) >= 0) {
-        nextIndex = queue.indexWhere((item) => item.id == queue[index].id);
-        AppUtilities.logger.d("MediaItem found in Queue with Index $index");
-      }
+        await audioHandler.customAction(
+            'skipToMediaItem', {'id': queue[index].id, 'index': nextIndex});
+        audioHandler.currentMediaItem = queue.elementAt(index);
+        AppUtilities.logger.d(
+            "Starting stream for ${queue[index].title} and URL ${queue[index]
+                .extras!['url'].toString()}");
+        await audioHandler.play();
 
-      await audioHandler.customAction('skipToMediaItem', {'id': queue[index].id, 'index': nextIndex});
-      audioHandler.currentMediaItem = queue.elementAt(index);
-      AppUtilities.logger.d("Starting stream for ${queue[index].title} and URL ${queue[index].extras!['url'].toString()}");
-      await audioHandler.play();
-
-      getx.Get.find<MiniPlayerController>().setMediaItem(queue.elementAt(index));
-      // await audioHandler.playFromUri(Uri.parse(queue[index].extras!['url'].toString()));
-      final bool enforceRepeat = AppHiveController().enforceRepeat;
-      if (enforceRepeat) {
-        final AudioServiceRepeatMode repeatMode = AppHiveController().repeatMode;
-        switch (repeatMode) {
-          case AudioServiceRepeatMode.none:
-            audioHandler.setRepeatMode(AudioServiceRepeatMode.none);
-          case AudioServiceRepeatMode.all:
-            audioHandler.setRepeatMode(AudioServiceRepeatMode.all);
-          case AudioServiceRepeatMode.one:
-            audioHandler.setRepeatMode(AudioServiceRepeatMode.one);
-          default:
-            break;
+        getx.Get.find<MiniPlayerController>().setMediaItem(
+            queue.elementAt(index));
+        // await audioHandler.playFromUri(Uri.parse(queue[index].extras!['url'].toString()));
+        final bool enforceRepeat = AppHiveController().enforceRepeat;
+        if (enforceRepeat) {
+          final AudioServiceRepeatMode repeatMode = AppHiveController()
+              .repeatMode;
+          switch (repeatMode) {
+            case AudioServiceRepeatMode.none:
+              audioHandler.setRepeatMode(AudioServiceRepeatMode.none);
+            case AudioServiceRepeatMode.all:
+              audioHandler.setRepeatMode(AudioServiceRepeatMode.all);
+            case AudioServiceRepeatMode.one:
+              audioHandler.setRepeatMode(AudioServiceRepeatMode.one);
+            default:
+              break;
+          }
+        } else {
+          audioHandler.setRepeatMode(AudioServiceRepeatMode.none);
+          AppHiveController().updateRepeatMode(AudioServiceRepeatMode.none);
         }
       } else {
-        audioHandler.setRepeatMode(AudioServiceRepeatMode.none);
-        AppHiveController().updateRepeatMode(AudioServiceRepeatMode.none);
+        AppUtilities.logger.i("MusicPlayer not available for iOS yet.");
+        AppUtilities.showSnackBar(
+          MessageTranslationConstants.underConstruction.tr,
+          MessageTranslationConstants.featureAvailableSoon.tr,
+        );
       }
     } catch(e) {
       AppUtilities.logger.e(e.toString());

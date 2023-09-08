@@ -24,7 +24,7 @@ import 'package:neom_music_player/data/api_services/APIs/saavn_api.dart';
 import 'package:neom_music_player/data/api_services/spotify/spotify_api_calls.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_music_player/domain/use_cases/youtube_services.dart';
-import 'package:neom_music_player/neom_player_invoke.dart';
+import 'package:neom_music_player/neom_player_invoker.dart';
 import 'package:neom_music_player/ui/Search/search_page.dart';
 import 'package:neom_music_player/ui/YouTube/youtube_playlist.dart';
 import 'package:neom_music_player/ui/player/media_player_page.dart';
@@ -116,7 +116,7 @@ class SaavnUrlHandler extends StatelessWidget {
   Widget build(BuildContext context) {
     SaavnAPI().getSongFromToken(token, type).then((value) {
       if (type == 'song') {
-        NeomPlayerInvoke.init(
+        NeomPlayerInvoker.init(
           appMediaItems: AppMediaItem.listFromList(value['songs'] as List),
           index: 0,
           isOffline: false,
@@ -186,7 +186,7 @@ class YtUrlHandler extends StatelessWidget {
     if (type == 'v') {
       YouTubeServices().formatVideoFromId(id: id).then((AppMediaItem? response) async {
         if (response != null) {
-          NeomPlayerInvoke.init(
+          NeomPlayerInvoker.init(
             appMediaItems: [response],
             index: 0,
             isOffline: false,
@@ -238,7 +238,7 @@ class OfflinePlayHandler extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     playOfflineSong(id).then((value) {
-      NeomPlayerInvoke.init(
+      NeomPlayerInvoker.init(
         appMediaItems: AppMediaItem.listFromSongModel(value[1] as List<SongModel>),
         index: value[0] as int,
         isOffline: true,

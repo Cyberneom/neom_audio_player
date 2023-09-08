@@ -45,6 +45,7 @@ class NeomAudioProvider {
         notificationColor: Colors.grey[900],
       ),
     );
+
   }
 
   Future<NeomAudioHandler> getAudioHandler() async {

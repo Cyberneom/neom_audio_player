@@ -55,11 +55,10 @@ Future<void> _backgroundProcess(SendPort sendPort) async {
       //   continue;
       // }
       AppUtilities.logger.d('IsolateReceivePort. Refreshing link for message: ${message.toString()}');
-      if(!message.toString().contains("data")){
-        final newData = await YouTubeServices().refreshLink(message.toString());
-        sendPort.send(newData);
-      }
-
+      // if(!message.toString().contains("data")){
+      //   final newData = await YouTubeServices().refreshLink(message.toString());
+      //   sendPort.send(newData);
+      // }
     }
   } catch(e) {
     AppUtilities.logger.e(e.toString());

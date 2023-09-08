@@ -24,7 +24,7 @@ import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_music_player/ui/widgets/gradient_containers.dart';
 import 'package:neom_music_player/ui/widgets/image_card.dart';
-import 'package:neom_music_player/neom_player_invoke.dart';
+import 'package:neom_music_player/neom_player_invoker.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
 import 'package:get/get.dart';
@@ -191,7 +191,7 @@ class _SongsListState extends State<SongsList> {
                             localImage: offline,
                             imageUrl: offline
                                 ? _songs[index].imgUrl.toString()
-                                : _songs[index].imgUrl.toString(),
+                                : _songs[index].imgUrl,
                           ),
                           title: Text(
                             '${_songs[index].name}',
@@ -202,7 +202,7 @@ class _SongsListState extends State<SongsList> {
                             overflow: TextOverflow.ellipsis,
                           ),
                           onTap: () {
-                            NeomPlayerInvoke.init(
+                            NeomPlayerInvoker.init(
                               appMediaItems: _songs,
                               index: index,
                               isOffline: offline,

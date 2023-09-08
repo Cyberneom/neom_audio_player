@@ -19,6 +19,7 @@
 
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'package:get/get.dart' as getx;
 
 import 'package:audio_service/audio_service.dart';
@@ -28,6 +29,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
+import 'package:neom_commons/core/utils/constants/message_translation_constants.dart';
 import 'package:neom_music_player/data/implementations/app_hive_controller.dart';
 import 'package:neom_music_player/data/implementations/playlist_hive_controller.dart';
 import 'package:neom_music_player/domain/entities/queue_state.dart';
@@ -482,6 +484,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
 
   Future<void> startService() async {
     AppUtilities.logger.i('Starting AudioPlayer Service');
+    if(_player.playing) _player.dispose();
     _player = AudioPlayer();
   }
 
@@ -644,12 +647,21 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
 
   @override
   Future<void> play() async {
-    _player.play();
-    ///TO DEPRECATE
-    // MiniPlayer miniPlayerInstance = GetIt.I<MiniPlayer>();
-    // miniPlayerInstance.mediaItemController.add(currentMediaItem);
-    if(currentMediaItem != null) {
-      getx.Get.find<MiniPlayerController>().setMediaItem(currentMediaItem!);
+    AppUtilities.logger.d("NeomAudioHandler Dispose and Play");
+    try {
+      if(Platform.isAndroid) {
+        _player.play();
+        if(currentMediaItem != null) {
+          getx.Get.find<MiniPlayerController>().setMediaItem(currentMediaItem!);
+        }
+      } else {
+        AppUtilities.showSnackBar(
+          MessageTranslationConstants.underConstruction.tr,
+          MessageTranslationConstants.featureAvailableSoon.tr,
+        );
+      }
+    } catch(e) {
+      AppUtilities.logger.e(e.toString());
     }
   }
 

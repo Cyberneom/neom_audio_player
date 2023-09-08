@@ -52,8 +52,7 @@ Widget imageCard({
         fit: StackFit.expand,
         children: [
           if (localImage)
-            Image.asset(
-              imageUrl,
+            Image.file(File(imageUrl,),
               fit: BoxFit.cover,
               errorBuilder: (context, error, stacktrace) {
                 if (localErrorFunction != null) {
