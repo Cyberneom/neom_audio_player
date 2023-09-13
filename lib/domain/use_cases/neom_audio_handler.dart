@@ -539,8 +539,8 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
   Future<void> skipToMediaItem(String id, {int index = 0}) async {
     AppUtilities.logger.v('skipToMediaItem $id');
 
-    if(queue.valueWrapper!.value!.indexWhere((item) => item.id == id) >= 0) {
-      index = queue.valueWrapper!.value!.indexWhere((item) => item.id == id);
+    if(queue.valueWrapper!.value.indexWhere((item) => item.id == id) >= 0) {
+      index = queue.valueWrapper!.value.indexWhere((item) => item.id == id);
       AppUtilities.logger.d("MediaItem found in Queue with Index $index");
     }
 
@@ -628,7 +628,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
     resetOnSkip =
         Hive.box(AppHiveConstants.settings).get('resetOnSkip', defaultValue: false) as bool;
     if (resetOnSkip) {
-      if ((_player?.position.inSeconds ?? 5) <= 5) {
+      if ((_player.position.inSeconds) <= 5) {
         _player.seekToPrevious();
       } else {
         _player.seek(Duration.zero);
@@ -649,16 +649,9 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
   Future<void> play() async {
     AppUtilities.logger.d("NeomAudioHandler Dispose and Play");
     try {
-      if(Platform.isAndroid) {
-        _player.play();
-        if(currentMediaItem != null) {
-          getx.Get.find<MiniPlayerController>().setMediaItem(currentMediaItem!);
-        }
-      } else {
-        AppUtilities.showSnackBar(
-          MessageTranslationConstants.underConstruction.tr,
-          MessageTranslationConstants.featureAvailableSoon.tr,
-        );
+      _player.play();
+      if(currentMediaItem != null) {
+        getx.Get.find<MiniPlayerController>().setMediaItem(currentMediaItem!);
       }
     } catch(e) {
       AppUtilities.logger.e(e.toString());

@@ -16,10 +16,8 @@ import 'package:neom_music_player/ui/home/music_player_home_controller.dart';
 import 'package:neom_music_player/ui/player/media_player_page.dart';
 import 'package:neom_music_player/ui/widgets/collage.dart';
 import 'package:neom_music_player/ui/widgets/empty_screen.dart';
-import 'package:neom_music_player/ui/widgets/horizontal_albumlist.dart';
 import 'package:neom_music_player/ui/widgets/horizontal_albumlist_separated.dart';
 import 'package:neom_music_player/ui/widgets/image_card.dart';
-import 'package:neom_music_player/ui/widgets/like_button.dart';
 import 'package:neom_music_player/ui/widgets/on_hover.dart';
 import 'package:neom_music_player/ui/widgets/song_tile_trailing_menu.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
@@ -27,7 +25,6 @@ import 'package:neom_music_player/utils/constants/music_player_route_constants.d
 import 'package:neom_music_player/neom_player_invoker.dart';
 import 'package:neom_music_player/ui/widgets/song_list.dart';
 import 'package:neom_music_player/ui/drawer/library/playlist_player_page.dart';
-import 'package:neom_music_player/ui/Search/artist_search_page.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
 import 'package:neom_music_player/utils/enums/image_quality.dart';
 
@@ -40,23 +37,17 @@ class MusicPlayerHomeContent extends StatelessWidget {
     double boxSize = MediaQuery.of(context).size.height > MediaQuery.of(context).size.width
         ? MediaQuery.of(context).size.width / 2 : MediaQuery.of(context).size.height / 2.5;
     if (boxSize > 250) boxSize = 250;
-    ///DEPRECATED
-    // if (publicItemlists.length >= 3) {
-    //   recentIndex = 0;
-    //   playlistIndex = 1;
-    // } else {
-    //   recentIndex = 1;
-    //   playlistIndex = 0;
-    // }
+
     return GetBuilder<MusicPlayerHomeController>(
       id: AppPageIdConstants.musicPlayerHome,
       builder: (_) => _.isLoading ? const Center(child: CircularProgressIndicator(),)
         : (_.myItemLists.isEmpty && _.recentList.isEmpty && _.publicItemlists.isEmpty)
         ? TextButton(
-        onPressed: ()=>Navigator.push(context, MaterialPageRoute(
-          builder: (context) => const SearchPage(
-            query: '', fromHome: true, autofocus: true,
-          ),),
+          onPressed: ()=>Navigator.push(context, MaterialPageRoute(
+            builder: (context) => const SearchPage(
+              query: '', fromHome: true, autofocus: true,
+            ),
+          ),
         ),
         child: emptyScreen(context, 3,
         PlayerTranslationConstants.nothingTo.tr, 15.0,
@@ -67,7 +58,7 @@ class MusicPlayerHomeContent extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
         itemCount: _.publicItemlists.isEmpty ? 3 : (_.publicItemlists.length + 3),
         itemBuilder: (context, idx) {
-          AppUtilities.logger.d("Building Music Home Index $idx");
+          AppUtilities.logger.v("Building Music Home Index $idx");
           if (idx == _.recentIndex) {
             return buildLastSessionContainer(context, _);
           }
@@ -456,10 +447,8 @@ class MusicPlayerHomeContent extends StatelessWidget {
                             .circular(10.0,),),
                         clipBehavior: Clip.antiAlias,
                         child: name == AppHiveConstants.favoriteSongs
-                            ? const Image(
-                          image: AssetImage(AppAssets.musicPlayerCover,),)
-                            : const Image(
-                          image: AssetImage(AppAssets.musicPlayerAlbum,),),
+                            ? const Image(image: AssetImage(AppAssets.musicPlayerCover,),)
+                            : const Image(image: AssetImage(AppAssets.musicPlayerAlbum,),),
                       ) : Collage(
                         borderRadius: 10.0,
                         imageList: itemlist.getImgUrls(),
@@ -660,13 +649,9 @@ class MusicPlayerHomeContent extends StatelessWidget {
             Padding(
               padding:
               const EdgeInsets.fromLTRB(15, 10, 0, 5),
-              child: Text(
-                'Liked Artists',
+              child: Text('Liked Artists',
                 style: TextStyle(
-                  color: Theme
-                      .of(context)
-                      .colorScheme
-                      .secondary,
+                  color: Theme.of(context).colorScheme.secondary,
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                 ),

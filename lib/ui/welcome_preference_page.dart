@@ -21,7 +21,9 @@ import 'package:flutter/material.dart';
 
 import 'package:hive/hive.dart';
 import 'package:neom_commons/core/app_flavour.dart';
+import 'package:neom_commons/core/data/implementations/user_controller.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
+import 'package:neom_commons/core/utils/enums/app_in_use.dart';
 import 'package:neom_music_player/ui/widgets/gradient_containers.dart';
 import 'package:neom_music_player/ui/widgets/snackbar.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
@@ -109,7 +111,7 @@ class _WelcomePreferencePageState extends State<WelcomePreferencePage> {
                                     TextSpan(
                                       text:
                                           PlayerTranslationConstants.aboard.tr,
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 52,
                                         color: Colors.white,
@@ -271,12 +273,8 @@ class _WelcomePreferencePageState extends State<WelcomePreferencePage> {
                                   ),
                                   const SizedBox(height: 20.0,),
                                   ListTile(
-                                    contentPadding: const EdgeInsets.symmetric(
-                                      horizontal: 5.0,
-                                    ),
-                                    title: Text(
-                                      PlayerTranslationConstants.countryQue.tr,
-                                    ),
+                                    contentPadding: const EdgeInsets.symmetric(horizontal: 5.0,),
+                                    title: Text(PlayerTranslationConstants.countryQue.tr,),
                                     trailing: Container(
                                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                                       height: 57.0,
@@ -301,85 +299,27 @@ class _WelcomePreferencePageState extends State<WelcomePreferencePage> {
                                         backgroundColor: AppColor.main75,
                                         context: context,
                                         builder: (BuildContext context) {
-                                          const Map<String, String> codes =
-                                              CountryCodes.localChartCodes;
-                                          final List<String> countries =
-                                              codes.keys.toList();
+                                          const Map<String, String> codes = CountryCodes.localChartCodes;
+                                          final List<String> countries = codes.keys.toList();
                                           return BottomGradientContainer(
-                                            borderRadius:
-                                                BorderRadius.circular(20.0),
+                                            borderRadius: BorderRadius.circular(20.0),
                                             child: ListView.builder(
-                                              physics:
-                                                  const BouncingScrollPhysics(),
+                                              physics: const BouncingScrollPhysics(),
                                               shrinkWrap: true,
-                                              padding:
-                                                  const EdgeInsets.fromLTRB(
-                                                0,
-                                                10,
-                                                0,
-                                                10,
-                                              ),
+                                              padding: const EdgeInsets.fromLTRB(0, 10, 0, 10,),
                                               itemCount: countries.length,
                                               itemBuilder: (context, idx) {
                                                 return ListTileTheme(
-                                                  selectedColor:
-                                                      Theme.of(context)
-                                                          .colorScheme
-                                                          .secondary,
+                                                  selectedColor: Theme.of(context).colorScheme.secondary,
                                                   child: ListTile(
-                                                    contentPadding:
-                                                        const EdgeInsets.only(
-                                                      left: 25.0,
-                                                      right: 25.0,
-                                                    ),
-                                                    title: Text(
-                                                      countries[idx],
-                                                    ),
-                                                    trailing: region ==
-                                                            countries[idx]
-                                                        ? const Icon(
-                                                            Icons.check_rounded,
-                                                          )
-                                                        : const SizedBox(),
-                                                    selected: region ==
-                                                        countries[idx],
+                                                    contentPadding: const EdgeInsets.only(left: 25.0, right: 25.0,),
+                                                    title: Text(countries[idx],),
+                                                    trailing: region == countries[idx] ? const Icon(Icons.check_rounded,) : const SizedBox(),
+                                                    selected: region == countries[idx],
                                                     onTap: () {
                                                       region = countries[idx];
-                                                      Hive.box(AppHiveConstants.settings).put(
-                                                        'region',
-                                                        region,
-                                                      );
-                                                      Navigator.pop(
-                                                        context,
-                                                      );
-                                                      if (region != 'India') {
-                                                        ShowSnackBar()
-                                                            .showSnackBar(
-                                                          context,
-                                                          "PlayerTranslationConstants.useVpn.tr",
-                                                          duration:
-                                                              const Duration(
-                                                            seconds: 10,
-                                                          ),
-                                                          action:
-                                                              SnackBarAction(
-                                                            textColor: Theme.of(
-                                                              context,
-                                                            )
-                                                                .colorScheme
-                                                                .secondary,
-                                                            label: PlayerTranslationConstants.useProxy.tr,
-                                                            onPressed: () {
-                                                              Hive.box(
-                                                                'settings',
-                                                              ).put(
-                                                                'useProxy',
-                                                                true,
-                                                              );
-                                                            },
-                                                          ),
-                                                        );
-                                                      }
+                                                      Hive.box(AppHiveConstants.settings).put('region', region,);
+                                                      Navigator.pop(context,);
                                                       setState(() {});
                                                     },
                                                   ),
@@ -394,7 +334,8 @@ class _WelcomePreferencePageState extends State<WelcomePreferencePage> {
                                   const SizedBox(height: 20.0,),
                                   GestureDetector(
                                     onTap: () {
-                                      Hive.box(AppHiveConstants.settings).put('userId', "123456",);
+                                      final userController = Get.find<UserController>();
+                                      Hive.box(AppHiveConstants.settings).put('userId', userController.user!.id,);
                                       Navigator.popAndPushNamed(context, '/',);
                                     },
                                     child: Container(

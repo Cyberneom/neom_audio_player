@@ -99,7 +99,7 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
 
           MediaItem mediaItem;
           if(appMediaItem != null) {
-            mediaItem = MediaItemMapper.appMediaItemToMediaItem(appMediaItem: appMediaItem!);
+            mediaItem = MediaItemMapper.appMediaItemToMediaItem(appMediaItem: appMediaItem);
           } else if(snapshot.data != null) {
             mediaItem = snapshot.data!;
           } else {
@@ -151,7 +151,7 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
                           }
                         },
                       ),
-                    if(appMediaItem != null) createPopMenuOption(context, appMediaItem!, offline: offline)
+                    if(appMediaItem != null) createPopMenuOption(context, appMediaItem, offline: offline)
                   ],
                 ),
                 body: LayoutBuilder(
@@ -161,7 +161,7 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
                         // Artwork
                         ArtWorkWidget(
                           cardKey: onlineCardKey,
-                          appMediaItem: appMediaItem!,
+                          appMediaItem: appMediaItem,
                           width: constraints.maxWidth,
                           audioHandler: audioHandler,
                           offline: offline,

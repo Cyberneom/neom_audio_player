@@ -22,7 +22,6 @@ import 'dart:typed_data';
 
 import 'package:dart_des/dart_des.dart';
 import 'package:hive/hive.dart';
-import 'package:logging/logging.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_music_player/data/api_services/APIs/saavn_api.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';

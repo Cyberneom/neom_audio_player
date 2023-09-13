@@ -17,41 +17,22 @@
  * Copyright (c) 2021-2023, Ankit Sangwan
  */
 
-import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 
 import 'package:hive/hive.dart';
 import 'package:neom_commons/core/data/firestore/app_release_item_firestore.dart';
 import 'package:neom_commons/core/domain/model/app_release_item.dart';
-import 'package:neom_commons/core/domain/model/item_list.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
-import 'package:neom_commons/core/utils/constants/app_assets.dart';
 import 'package:neom_commons/core/utils/constants/app_translation_constants.dart';
-import 'package:neom_commons/core/utils/enums/app_media_type.dart';
-import 'package:neom_commons/core/utils/enums/media_item_type.dart';
 import 'package:neom_itemlists/itemlists/data/api_services/spotify/spotify_search.dart';
-import 'package:neom_itemlists/itemlists/ui/app_media_item/app_media_item_controller.dart';
 import 'package:neom_itemlists/itemlists/ui/widgets/app_item_widgets.dart';
-import 'package:neom_music_player/data/api_services/APIs/saavn_api.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
-import 'package:neom_music_player/ui/Search/album_search_page.dart';
-import 'package:neom_music_player/ui/widgets/copy_clipboard.dart';
-import 'package:neom_music_player/ui/widgets/download_button.dart';
 import 'package:neom_music_player/ui/widgets/empty_screen.dart';
 import 'package:neom_music_player/ui/widgets/gradient_containers.dart';
-import 'package:neom_music_player/ui/widgets/image_card.dart';
-import 'package:neom_music_player/ui/widgets/like_button.dart';
-import 'package:neom_music_player/ui/widgets/multi_download_button.dart';
 import 'package:neom_music_player/ui/widgets/music_search_bar.dart' as searchbar;
-import 'package:neom_music_player/ui/widgets/snackbar.dart';
-import 'package:neom_music_player/ui/widgets/song_tile_trailing_menu.dart';
-import 'package:neom_music_player/neom_player_invoker.dart';
-import 'package:neom_music_player/ui/widgets/song_list.dart';
-import 'package:neom_music_player/ui/search/artist_search_page.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
 import 'package:get/get.dart';
-import 'package:neom_music_player/utils/helpers/media_item_mapper.dart';
 
 class SearchPage extends StatefulWidget {
   final String query;

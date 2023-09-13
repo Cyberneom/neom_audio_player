@@ -1,16 +1,17 @@
 import 'dart:math';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_theme.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
 import 'package:neom_commons/core/utils/constants/app_page_id_constants.dart';
+import 'package:neom_music_player/ui/Search/search_page.dart';
 import 'package:neom_music_player/ui/drawer/music_player_drawer.dart';
 import 'package:neom_music_player/ui/home/music_player_home_content.dart';
 import 'package:neom_music_player/ui/home/music_player_home_controller.dart';
-import 'package:neom_music_player/ui/Search/search_page.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
-import 'package:get/get.dart';
 
 class MusicPlayerHomePage extends StatelessWidget {
 
@@ -49,12 +50,12 @@ class MusicPlayerHomePage extends StatelessWidget {
                               mainAxisSize: MainAxisSize.min,
                               children: <Widget>[
                                 Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 20),
                                   child: Image.asset(
                                     AppAssets.logoCompanyWhite,
                                     height: 70,
                                     width: 150,
                                   ),
-                                  padding: EdgeInsets.symmetric(horizontal: 20),
                                 )
                               ],
                             ),

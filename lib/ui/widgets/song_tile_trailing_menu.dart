@@ -31,7 +31,6 @@ import 'package:neom_music_player/utils/helpers/add_mediaitem_to_queue.dart';
 import 'package:neom_music_player/utils/helpers/media_item_mapper.dart';
 import 'package:neom_music_player/domain/use_cases/youtube_services.dart';
 import 'package:neom_music_player/ui/widgets/song_list.dart';
-import 'package:neom_music_player/ui/Search/album_search_page.dart';
 import 'package:neom_music_player/ui/Search/search_page.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
 import 'package:share_plus/share_plus.dart';

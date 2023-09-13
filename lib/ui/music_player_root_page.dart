@@ -1,9 +1,13 @@
 
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:neom_commons/core/app_flavour.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_theme.dart';
+import 'package:neom_commons/core/utils/enums/app_in_use.dart';
 import 'package:neom_itemlists/itemlists/ui/itemlist_page.dart';
 import 'package:neom_music_player/ui/home/music_player_home_page.dart';
 import 'package:neom_music_player/ui/spotify/spotify_top_page.dart';
@@ -28,12 +32,14 @@ class MusicPlayerRootPage extends StatefulWidget {
 
 class _MusicPlayerRootPageState extends State<MusicPlayerRootPage> {
   final ValueNotifier<int> _selectedIndex = ValueNotifier<int>(0);
-  List sectionsToShow = ['Music', 'Playlists', 'Spotify'];
+  List<String> shortSectionsToShow = ['Music', 'Playlists',];
+  List<String> sectionsToShow = ['Music', 'Playlists', 'Spotify'];
   DateTime? backButtonPressTime;
   final bool useDense = false;
 
   void callback() {
-    List sectionsToShow = ['Music', 'Playlists', 'Spotify'];
+    List<String> shortSectionsToShow = ['Music', 'Playlists',];
+    List<String> sectionsToShow = ['Music', 'Playlists', 'Spotify'];
     onItemTapped(0);
     setState(() {});
   }
@@ -64,6 +70,8 @@ class _MusicPlayerRootPageState extends State<MusicPlayerRootPage> {
   Widget build(BuildContext context) {
     final double screenWidth = MediaQuery.of(context).size.width;
     final bool isRotated = MediaQuery.of(context).size.height < screenWidth;
+
+    List<String> sections = AppFlavour.appInUse != AppInUse.gigmeout || Platform.isIOS ? shortSectionsToShow : sectionsToShow;
     return GradientContainer(
       child: Scaffold(
         resizeToAvoidBottomInset: false,
@@ -72,12 +80,12 @@ class _MusicPlayerRootPageState extends State<MusicPlayerRootPage> {
           decoration: AppTheme.appBoxDecoration,
           child: Row(
           children: [
-            if (isRotated) getRotatedDrawer(),
+            if (isRotated) getRotatedDrawer(sections),
             Expanded(
               child: PersistentTabView.custom(
                 context,
                 controller: _controller,
-                itemCount: sectionsToShow.length,
+                itemCount: sections.length,
                 navBarHeight: (isRotated ? 55 : 55 + 70) + (useDense ? 0 : 15),
                 // confineInSafeArea: false,
                 onItemTapped: onItemTapped,
@@ -116,7 +124,7 @@ class _MusicPlayerRootPageState extends State<MusicPlayerRootPage> {
                                 onTap: (index) {
                                   onItemTapped(index);
                                 },
-                                items: _navBarItems(context),
+                                items: _navBarItems(context, sections),
                               ),
                             );
                           },
@@ -124,7 +132,7 @@ class _MusicPlayerRootPageState extends State<MusicPlayerRootPage> {
                     ],
                   ),
                 ),
-                screens: sectionsToShow.map((e) {
+                screens: sections.map((e) {
                   switch (e) {
                     case 'Home':
                       return const SafeArea(child: MusicPlayerHomePage());
@@ -149,7 +157,7 @@ class _MusicPlayerRootPageState extends State<MusicPlayerRootPage> {
     );
   }
 
-  Widget getRotatedDrawer() {
+  Widget getRotatedDrawer(List<String> sections) {
     final double screenWidth = MediaQuery.of(context).size.width;
     return SafeArea(
       child: ValueListenableBuilder(
@@ -182,7 +190,7 @@ class _MusicPlayerRootPageState extends State<MusicPlayerRootPage> {
               context: context,
               padding: const EdgeInsets.symmetric(vertical: 5.0),
             ),
-            destinations: sectionsToShow.map((e) {
+            destinations: sections.map((e) {
               switch (e) {
                 case 'Home':
                   return NavigationRailDestination(
@@ -201,12 +209,12 @@ class _MusicPlayerRootPageState extends State<MusicPlayerRootPage> {
                       PlayerTranslationConstants.spotifyTopCharts.tr,
                     ),
                   );
-                // case 'YouTube':
-                //   return NavigationRailDestination(
-                //     icon: const Icon(MdiIcons.youtube),
-                //     label:
-                //     Text(PlayerTranslationConstants.youTube.tr),
-                //   );
+                case 'YouTube':
+                  return NavigationRailDestination(
+                    icon: const Icon(MdiIcons.youtube),
+                    label:
+                    Text(PlayerTranslationConstants.youTube.tr),
+                  );
                 default:
                   return NavigationRailDestination(
                     icon: const Icon(Icons.home_rounded),
@@ -220,8 +228,8 @@ class _MusicPlayerRootPageState extends State<MusicPlayerRootPage> {
     );
   }
 
-  List<CustomBottomNavBarItem> _navBarItems(BuildContext context) {
-    return sectionsToShow.map((section) {
+  List<CustomBottomNavBarItem> _navBarItems(BuildContext context, List<String> sections) {
+    return sections.map((section) {
       switch (section) {
         case 'Music':
           return CustomBottomNavBarItem(

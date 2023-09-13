@@ -20,7 +20,6 @@
 import 'dart:convert';
 
 import 'package:http/http.dart';
-import 'package:logging/logging.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 
 class GitHub {

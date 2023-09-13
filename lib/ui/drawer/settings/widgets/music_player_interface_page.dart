@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'package:hive/hive.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
+import 'package:neom_commons/core/utils/app_theme.dart';
 import 'package:neom_music_player/ui/widgets/box_switch_tile.dart';
 import 'package:neom_music_player/ui/widgets/gradient_containers.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
@@ -86,6 +87,7 @@ class _MusicPlayerInterfacePageState extends State<MusicPlayerInterfacePage> {
                         StateSetter setStt,
                       ) {
                         return AlertDialog(
+                          backgroundColor: AppColor.main75,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(
                               15.0,
@@ -96,12 +98,7 @@ class _MusicPlayerInterfacePageState extends State<MusicPlayerInterfacePage> {
                             child: ReorderableListView(
                               physics: const BouncingScrollPhysics(),
                               shrinkWrap: true,
-                              padding: const EdgeInsets.fromLTRB(
-                                0,
-                                10,
-                                0,
-                                10,
-                              ),
+                              padding: const EdgeInsets.symmetric(vertical: 10),
                               onReorder: (int oldIndex, int newIndex) {
                                 if (oldIndex < newIndex) {
                                   newIndex--;

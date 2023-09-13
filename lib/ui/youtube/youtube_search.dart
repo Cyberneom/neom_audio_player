@@ -24,7 +24,6 @@ import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/constants/app_translation_constants.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
-import 'package:neom_music_player/domain/entities/youtube_item.dart';
 import 'package:neom_music_player/ui/widgets/empty_screen.dart';
 import 'package:neom_music_player/ui/widgets/gradient_containers.dart';
 import 'package:neom_music_player/ui/widgets/image_card.dart';
@@ -426,7 +425,7 @@ class _YouTubeSearchPageState extends State<YouTubeSearchPage> {
                                                     videoId: section['items'][idx]['id'].toString(),
                                                   );
                                                   if (response != null && response2['image'] != null) {
-                                                    response.imgUrl = response2['image'].toString() ?? response.imgUrl;
+                                                    response.imgUrl = response2['image'].toString();
                                                   }
                                                   setState(() {
                                                     done = true;

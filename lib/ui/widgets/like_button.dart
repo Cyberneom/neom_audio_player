@@ -17,21 +17,15 @@
  * Copyright (c) 2021-2023, Ankit Sangwan
  */
 
-import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 
-import 'package:logging/logging.dart';
-import 'package:neom_commons/core/data/firestore/itemlist_firestore.dart';
 import 'package:neom_commons/core/data/firestore/profile_firestore.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/domain/model/app_profile.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
-import 'package:neom_commons/core/utils/constants/app_constants.dart';
 import 'package:neom_itemlists/itemlists/data/firestore/app_media_item_firestore.dart';
 import 'package:neom_music_player/data/implementations/playlist_hive_controller.dart';
-import 'package:neom_music_player/utils/helpers/media_item_mapper.dart';
 import 'package:neom_music_player/ui/widgets/snackbar.dart';
-import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
 import 'package:get/get.dart';
 

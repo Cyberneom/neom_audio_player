@@ -272,7 +272,7 @@ class YouTubeServices {
   Future<AppMediaItem?> formatVideo({required Video video, required String quality,
     Map? data, bool getUrl = true,}) async {
 
-    AppUtilities.logger.i('FormatVideo for ${data.toString()}');
+    AppUtilities.logger.i('FormatVideo for $data');
 
     if (video.duration?.inSeconds == null) return null;
     List<String> urls = [];

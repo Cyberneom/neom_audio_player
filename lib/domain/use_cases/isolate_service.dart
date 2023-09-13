@@ -1,12 +1,8 @@
 import 'dart:isolate';
 
 import 'package:get_it/get_it.dart';
-import 'package:hive_flutter/hive_flutter.dart';
-import 'package:logging/logging.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_music_player/domain/use_cases/neom_audio_handler.dart';
-import 'package:neom_music_player/domain/use_cases/youtube_services.dart';
-import 'package:neom_music_player/ui/player/media_player_page.dart';
 import 'package:path_provider/path_provider.dart';
 
 SendPort? isolateSendPort;

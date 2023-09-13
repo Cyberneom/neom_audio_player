@@ -2,7 +2,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart' as getx;
 import 'package:get/get.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:neom_commons/core/app_flavour.dart';
 import 'package:neom_commons/core/data/implementations/app_drawer_controller.dart';
 import 'package:neom_commons/core/ui/widgets/custom_widgets.dart';
@@ -17,7 +16,6 @@ import 'package:neom_music_player/ui/drawer/settings/widgets/music_player_settin
 import 'package:neom_music_player/ui/player/miniplayer_controller.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
 import 'package:neom_music_player/utils/constants/music_player_route_constants.dart';
-import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
 import 'package:neom_music_player/utils/enums/music_player_drawer_menu.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 

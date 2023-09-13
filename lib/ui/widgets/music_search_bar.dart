@@ -20,16 +20,12 @@
 import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 import 'package:hive/hive.dart';
 import 'package:neom_commons/core/utils/app_theme.dart';
 import 'package:neom_music_player/data/implementations/app_hive_controller.dart';
-import 'package:neom_music_player/ui/YouTube/youtube_search.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
-import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
-import 'package:get/get.dart';
 
 class MusicSearchBar extends StatefulWidget {
 

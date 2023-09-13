@@ -1,9 +1,7 @@
-import 'package:audio_service/audio_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:neom_commons/core/domain/model/item_list.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
@@ -11,15 +9,12 @@ import 'package:neom_music_player/domain/use_cases/neom_audio_handler.dart';
 import 'package:neom_music_player/ui/widgets/add_to_playlist.dart';
 import 'package:neom_music_player/ui/widgets/popup.dart';
 import 'package:neom_music_player/ui/widgets/snackbar.dart';
-import 'package:neom_music_player/ui/widgets/song_list.dart';
 import 'package:neom_music_player/ui/widgets/textinput_dialog.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
 import 'package:neom_music_player/utils/helpers/extensions.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
 import 'package:neom_music_player/domain/use_cases/youtube_services.dart';
 import 'package:get/get.dart';
-import 'package:neom_music_player/utils/helpers/media_item_mapper.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class MusicPlayerUtilities {
 

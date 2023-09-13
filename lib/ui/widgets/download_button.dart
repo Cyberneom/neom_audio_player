@@ -17,14 +17,11 @@
  * Copyright (c) 2021-2023, Ankit Sangwan
  */
 
-import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 
 import 'package:hive/hive.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
-import 'package:neom_music_player/ui/widgets/snackbar.dart';
 import 'package:neom_music_player/domain/use_cases/download.dart';
-import 'package:neom_music_player/data/api_services/APIs/saavn_api.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
 import 'package:get/get.dart';
 

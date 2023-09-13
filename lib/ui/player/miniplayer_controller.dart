@@ -11,6 +11,7 @@ import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/constants/app_route_constants.dart';
+import 'package:neom_commons/core/utils/constants/app_translation_constants.dart';
 import 'package:neom_music_player/domain/use_cases/neom_audio_handler.dart';
 import 'package:neom_music_player/ui/player/media_player_page.dart';
 import 'package:neom_music_player/ui/player/widgets/control_buttons.dart';
@@ -252,13 +253,13 @@ class MiniPlayerController extends GetxController {
         ],
       ),
       title: Text(
-        item == null ? (isTimeline ? '¿Buscando nueva música?' : '¿Buscando nuevas influencias?') : item.title,
+        item == null ? (isTimeline ? AppTranslationConstants.lookingForNewMusic.tr : AppTranslationConstants.lookingForInspiration.tr) : item.title,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
         textAlign: isTimeline || item != null ? TextAlign.left : TextAlign.right,
       ),
       subtitle: Text(
-        item == null ? (isTimeline ? 'Prueba nuestra nueva plataforma' : 'Volver al inicio') : item.artist ?? '',
+        item == null ? (isTimeline ? AppTranslationConstants.tryOurPlatform.tr : AppTranslationConstants.goBackHome.tr) : item.artist ?? '',
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
         textAlign: isTimeline || item != null ? TextAlign.left : TextAlign.right,

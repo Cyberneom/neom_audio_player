@@ -80,7 +80,7 @@ class NeomPlayerInvoker {
         ),
       ),
     );
-    await updateNowPlaying(queue, index);
+    await updateNowPlaying(queue, index, playItem: false);
   }
 
   static void setOffValues(List<AppMediaItem> response, int index) {
@@ -120,7 +120,7 @@ class NeomPlayerInvoker {
     playArtist == '<unknown>' ? playArtist = 'Unknown' : playArtist = response.artist;
 
     final String playAlbum = response.album;
-    final int playDuration = response.duration ?? 180000;
+    final int playDuration = response.duration;
     final String imagePath = '${tempDir.path}/${response.name.removeAllWhitespace}.png';
 
     final MediaItem tempDict = MediaItem(
@@ -142,12 +142,12 @@ class NeomPlayerInvoker {
     return tempDict;
   }
 
-  static Future<void> updateNowPlaying(List<MediaItem> queue, int index) async {
+  static Future<void> updateNowPlaying(List<MediaItem> queue, int index, {bool playItem = true}) async {
     AppUtilities.logger.i("Updating Now Playing info.");
 
     try {
       // await audioHandler.startService();
-      if(Platform.isAndroid) {
+      if(Platform.isAndroid || Platform.isIOS) {
         await audioHandler.setShuffleMode(AudioServiceShuffleMode.none);
         await audioHandler.updateQueue(queue);
 
@@ -163,7 +163,10 @@ class NeomPlayerInvoker {
         AppUtilities.logger.d(
             "Starting stream for ${queue[index].title} and URL ${queue[index]
                 .extras!['url'].toString()}");
-        await audioHandler.play();
+
+        if(playItem || (audioHandler.playbackState.valueWrapper?.value?.playing ?? false)) {
+          await audioHandler.play();
+        }
 
         getx.Get.find<MiniPlayerController>().setMediaItem(
             queue.elementAt(index));
@@ -187,7 +190,7 @@ class NeomPlayerInvoker {
           AppHiveController().updateRepeatMode(AudioServiceRepeatMode.none);
         }
       } else {
-        AppUtilities.logger.i("MusicPlayer not available for iOS yet.");
+        AppUtilities.logger.i("MusicPlayer not available yet.");
         AppUtilities.showSnackBar(
           MessageTranslationConstants.underConstruction.tr,
           MessageTranslationConstants.featureAvailableSoon.tr,
