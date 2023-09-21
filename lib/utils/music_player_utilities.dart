@@ -5,6 +5,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
+import 'package:neom_commons/core/utils/enums/app_media_source.dart';
 import 'package:neom_music_player/domain/use_cases/neom_audio_handler.dart';
 import 'package:neom_music_player/ui/widgets/add_to_playlist.dart';
 import 'package:neom_music_player/ui/widgets/popup.dart';
@@ -338,4 +339,15 @@ class MusicPlayerUtilities {
     }
 
   }
+
+  static bool isOwnMediaItem(AppMediaItem appMediaItem) {
+
+    bool isOwnMediaItem = (appMediaItem.url.contains("gig-me-out")
+        || appMediaItem.url.contains("firebasestorage.googleapis.com"))
+        && appMediaItem.mediaSource == AppMediaSource.internal;
+
+    return isOwnMediaItem;
+
+  }
+
 }

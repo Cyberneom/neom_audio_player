@@ -21,6 +21,7 @@ import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_music_player/domain/use_cases/neom_audio_handler.dart';
 
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
@@ -260,6 +261,7 @@ void showSliderDialog({
   showDialog<void>(
     context: context,
     builder: (context) => AlertDialog(
+      backgroundColor: AppColor.main75,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15.0),
       ),

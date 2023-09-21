@@ -168,8 +168,7 @@ class NeomPlayerInvoker {
           await audioHandler.play();
         }
 
-        getx.Get.find<MiniPlayerController>().setMediaItem(
-            queue.elementAt(index));
+        getx.Get.find<MiniPlayerController>().setMediaItem(queue.elementAt(index));
         // await audioHandler.playFromUri(Uri.parse(queue[index].extras!['url'].toString()));
         final bool enforceRepeat = AppHiveController().enforceRepeat;
         if (enforceRepeat) {

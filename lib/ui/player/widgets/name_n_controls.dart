@@ -24,6 +24,7 @@ import 'package:neom_music_player/ui/widgets/seek_bar.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
 import 'package:neom_music_player/ui/widgets/song_list.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
+import 'package:neom_music_player/utils/music_player_utilities.dart';
 import 'package:rxdart/rxdart.dart' as rx;
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
@@ -47,10 +48,10 @@ class NameNControls extends StatelessWidget {
   });
 
   Stream<Duration> get _bufferedPositionStream => audioHandler.playbackState
-      .map((state) => state.bufferedPosition)
-      .distinct();
-  Stream<Duration?> get _durationStream =>
-      audioHandler.mediaItem.map((item) => item?.duration).distinct();
+      .map((state) => state.bufferedPosition).distinct();
+
+  Stream<Duration?> get _durationStream => audioHandler.mediaItem.map((item) => item?.duration).distinct();
+
   Stream<PositionData> get _positionDataStream =>
       rx.Rx.combineLatest3<Duration, Duration, Duration?, PositionData>(
         AudioService.position,
@@ -128,22 +129,22 @@ class NameNControls extends StatelessWidget {
                           ],
                         ),
                       ),
-                    if (mediaItem.artist != null)
-                      ...artists.map(
-                            (String artist) => PopupMenuItem<String>(
-                          value: artist,
-                          child: SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            child: Row(
-                              children: [
-                                const Icon(Icons.person_rounded,),
-                                const SizedBox(width: 10.0),
-                                Text('${PlayerTranslationConstants.viewArtist.tr} ($artist)',),
-                              ],
-                            ),
-                          ),
-                        ),
-                      )
+                    // if (mediaItem.artist != null)
+                    //   ...artists.map(
+                    //         (String artist) => PopupMenuItem<String>(
+                    //       value: artist,
+                    //       child: SingleChildScrollView(
+                    //         scrollDirection: Axis.horizontal,
+                    //         child: Row(
+                    //           children: [
+                    //             const Icon(Icons.person_rounded,),
+                    //             const SizedBox(width: 10.0),
+                    //             Text('${PlayerTranslationConstants.viewArtist.tr} ($artist)',),
+                    //           ],
+                    //         ),
+                    //       ),
+                    //     ),
+                    //   )
                   ],
                   child: Center(
                     child: Padding(
@@ -205,11 +206,11 @@ class NameNControls extends StatelessWidget {
                         PositionData(
                           Duration.zero,
                           Duration.zero,
-                          mediaItem.duration ?? Duration.zero,
+                          MusicPlayerUtilities.isOwnMediaItem(appMediaItem)
+                              ? (mediaItem.duration ?? Duration.zero)
+                              : Duration(seconds: 30),
                         );
                     return SeekBar(
-                      // width: width,
-                      // height: height,
                       duration: positionData.duration,
                       position: positionData.position,
                       bufferedPosition: positionData.bufferedPosition,
@@ -312,12 +313,10 @@ class NameNControls extends StatelessWidget {
                                   );
                                 },
                               ),
-                              if((appMediaItem.url.contains("gig-me-out") || appMediaItem.url.contains("firebasestorage.googleapis.com"))
-                                  && appMediaItem.mediaSource == AppMediaSource.internal && !offline)
+                              MusicPlayerUtilities.isOwnMediaItem(appMediaItem) ?
                                 DownloadButton(size: 25.0,
                                   mediaItem: MediaItemMapper.fromMediaItem(mediaItem),
-                                )
-                              else GoSpotifyButton(appMediaItem: appMediaItem)
+                                ) : GoSpotifyButton(appMediaItem: appMediaItem)
 
                             ],
                           ),
