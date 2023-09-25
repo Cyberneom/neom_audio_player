@@ -136,83 +136,6 @@ class MiniPlayerController extends GetxController {
     );
   }
 
-  // Container miniplayerTile({
-  //   required BuildContext context,
-  //   MediaItem? item,
-  //   required List<String> preferredMiniButtons,
-  //   bool useDense = false,
-  //   bool isLocalImage = false,
-  //   bool isTimeline = true,
-  // }) {
-  //   return Container(
-  //     color: AppColor.main75,
-  //     height: 75,
-  //     width: MediaQuery.of(context).size.width,
-  //     // onTap: item == null ? null : () => Navigator.pushNamed(context, '/player'),
-  //     child:
-  //     Row(children: [
-  //       Row(
-  //         children: [
-  //           if(!isTimeline)
-  //             IconButton(
-  //                 padding: EdgeInsets.zero,
-  //                 onPressed: () => goToTimeline(context), icon: Icon(Icons.arrow_back_ios)),
-  //           if(item != null || isTimeline)
-  //             Container(
-  //               height: item == null ? 80 : 78,
-  //               width: isTimeline && item == null ? (MediaQuery.of(context).size.width/6) : null,
-  //               child: Hero(tag: 'currentArtwork',
-  //                 child: imageCard(
-  //                   elevation: 8,
-  //                   boxDimension: useDense ? 40.0 : 50.0,
-  //                   localImage: item == null ? false : item.artUri?.toString().startsWith('file:') ?? false,
-  //                   imageUrl: item == null ? AppFlavour.getAppLogoUrl() : (item?.artUri?.toString().startsWith('file:') ?? false
-  //                       ? item?.artUri?.toFilePath() : item?.artUri?.toString()) ?? '',
-  //                 ),
-  //               ),
-  //             )
-  //         ],
-  //       ),
-  //       Column(
-  //         children: [
-  //           Text(
-  //             item == null ? (isTimeline ? '¿Buscando nueva música?' : '¿Buscando nuevas influencias?') : item.title,
-  //             maxLines: 1,
-  //             overflow: TextOverflow.ellipsis,
-  //             textAlign: isTimeline || item != null ? TextAlign.left : TextAlign.right,
-  //           ),
-  //           Text(
-  //             item == null ? (isTimeline ? 'Prueba nuestra nueva plataforma' : 'Volver al inicio') : item.artist ?? '',
-  //             maxLines: 1,
-  //             overflow: TextOverflow.ellipsis,
-  //             textAlign: isTimeline || item != null ? TextAlign.left : TextAlign.right,
-  //           ),
-  //         ],
-  //       ),
-  //       Container(
-  //         height: item == null ? 80 : 78,
-  //         width: item != null || isTimeline ? null : (MediaQuery.of(context).size.width/(item == null ? 6 : 3)),
-  //         child: item == null ? (isTimeline
-  //             ? IconButton(onPressed: () => goToMusicPlayerHome(), icon: Icon(Icons.arrow_forward_ios))
-  //             : Hero(tag: 'currentArtwork',
-  //           child: imageCard(
-  //             elevation: 8,
-  //             boxDimension: useDense ? 40.0 : 50.0,
-  //             localImage: item == null ? false : item.artUri?.toString().startsWith('file:') ?? false,
-  //             imageUrl: item == null ? AppFlavour.getAppLogoUrl() : (item?.artUri?.toString().startsWith('file:') ?? false
-  //                 ? item?.artUri?.toFilePath() : item?.artUri?.toString()) ?? '',
-  //           ),
-  //         ))
-  //             : ControlButtons(audioHandler, miniplayer: true,
-  //           buttons: isLocalImage ? <String>['Like', 'Play/Pause', 'Next'] : preferredMiniButtons,
-  //         ),),
-  //     ],),
-  //
-  //
-  //
-  //   );
-  // }
-
   ListTile miniplayerTile({
     required BuildContext context,
     MediaItem? item,
@@ -235,7 +158,7 @@ class MiniPlayerController extends GetxController {
           if(!isTimeline)
             IconButton(
               padding: EdgeInsets.zero,
-                onPressed: () => goToTimeline(context), icon: Icon(Icons.arrow_back_ios)),
+                onPressed: () => goToTimeline(context), icon: const Icon(Icons.arrow_back_ios)),
           if(item != null || isTimeline)
             Container(
               height: item == null ? 80 : 78,

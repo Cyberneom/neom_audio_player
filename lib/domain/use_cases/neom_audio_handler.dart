@@ -34,6 +34,7 @@ import 'package:neom_music_player/data/implementations/app_hive_controller.dart'
 import 'package:neom_music_player/data/implementations/playlist_hive_controller.dart';
 import 'package:neom_music_player/domain/entities/queue_state.dart';
 import 'package:neom_music_player/ui/player/miniplayer_controller.dart';
+import 'package:neom_music_player/utils/constants/music_player_constants.dart';
 import 'package:neom_music_player/utils/helpers/media_item_mapper.dart';
 import 'package:neom_music_player/domain/use_cases/neom_audio_service.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
@@ -50,7 +51,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
   MediaItem? currentMediaItem;
   final _playlist = ConcatenatingAudioSource(children: []);
 
-  String connectionType = 'wifi';
+  String connectionType = MusicPlayerConstants.wifi;
 
   Box? downloadsBox = AppHiveController().getBox(AppHiveConstants.downloads);
   final List<String> refreshLinks = [];
@@ -107,49 +108,22 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
     AppUtilities.logger.i('Starting audio service');
 
     try {
+
       preferredCompactNotificationButtons = AppHiveController().preferredCompactNotificationButtons;
       preferredMobileQuality = AppHiveController().preferredMobileQuality;
       preferredWifiQuality = AppHiveController().preferredWifiQuality;
-      preferredQuality = connectionType == 'wifi' ? preferredWifiQuality : preferredMobileQuality;
+      preferredQuality = connectionType == MusicPlayerConstants.wifi ? preferredWifiQuality : preferredMobileQuality;
       cacheSong = AppHiveController().cacheSong;
       useDownload = AppHiveController().useDownload;
+
       final session = await AudioSession.instance;
       await session.configure(const AudioSessionConfiguration.music());
-
       await startService();
       await startBackgroundProcessing();
 
       speed.debounceTime(const Duration(milliseconds: 250)).listen((speed) {
         playbackState.add(playbackState.value!.copyWith(speed: speed));
       });
-
-      //TODO IMPLEMENT IN NEXT VERSION
-      // AppUtilities.logger.i('Checking connectivity & setting quality');
-      // Connectivity().onConnectivityChanged.listen((ConnectivityResult result) {
-      //   if (result == ConnectivityResult.mobile) {
-      //     connectionType = 'mobile';
-      //     AppUtilities.logger.i(
-      //       'player | switched to mobile data, changing quality to $preferredMobileQuality',
-      //     );
-      //     preferredQuality = preferredMobileQuality;
-      //   } else if (result == ConnectivityResult.wifi) {
-      //     connectionType = 'wifi';
-      //     AppUtilities.logger.i(
-      //       'player | wifi connected, changing quality to $preferredWifiQuality',
-      //     );
-      //     preferredQuality = preferredWifiQuality;
-      //   } else if (result == ConnectivityResult.none) {
-      //     AppUtilities.logger.e(
-      //       'player | internet connection not available',
-      //     );
-      //   } else {
-      //     AppUtilities.logger.i(
-      //       'player | unidentified network connection',
-      //     );
-      //   }
-      // });
-
-      preferredQuality = connectionType == 'wifi' ? preferredWifiQuality : preferredMobileQuality;
 
       mediaItem.whereType<MediaItem>().listen((item) {
         if (count != null) {
@@ -169,30 +143,6 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
             final int index = mediaQueue.indexOf(item);
             if ((mediaQueue.length - index) < 3) {
               AppUtilities.logger.i('Less than 5 songs remaining, this would add more songs');
-              // Future.delayed(const Duration(seconds: 1), () async {
-              //   if (item == mediaItem.value) {
-              //     if (item.genre != 'YouTube') {
-              //       final List value = await SaavnAPI().getReco(item.id);
-              //       value.shuffle();
-              //       for (int i = 0; i < value.length; i++) {
-              //         final element = MediaItemMapper.fromJSON(
-              //           value[i] as Map,
-              //           addedByAutoplay: true,
-              //         );
-              //         if (!mediaQueue.contains(element)) {
-              //           addQueueItem(element);
-              //         }
-              //       }
-              //     } else {
-              //       final res = await YtMusicService().getWatchPlaylist(videoId: item.id, limit: 5);
-              //       AppUtilities.logger.i('Recieved recommendations: $res');
-              //       refreshLinks.addAll(res);
-              //       if (!jobRunning) {
-              //         refreshJob();
-              //       }
-              //     }
-              //   }
-              // });
             }
           }
         }
@@ -209,7 +159,6 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
       _player.playbackEventStream.listen(_broadcastState);
       _player.shuffleModeEnabledStream.listen((enabled) => _broadcastState(_player.playbackEvent));
       _player.loopModeStream.listen((event) => _broadcastState(_player.playbackEvent));
-
       _player.processingStateStream.listen((state) {
         AppUtilities.logger.i("Music Player - Processing Stream: ${state.name}");
         switch(state) {
@@ -674,72 +623,72 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
   Future<void> stop() async {
     AppUtilities.logger.d('stopping player');
     await _player.stop();
-    await playbackState.firstWhere(
-          (state) => state.processingState == AudioProcessingState.idle,
-      );
-      AppUtilities.logger.v('Caching last index ${_player.currentIndex} and position ${_player.position.inSeconds}');
-      await Hive.box(AppHiveConstants.cache).put('lastIndex', _player.currentIndex);
-      await Hive.box(AppHiveConstants.cache).put('lastPos', _player.position.inSeconds);
-      await addLastQueue(queue.valueWrapper!.value);
+    await playbackState.firstWhere((state) => state.processingState == AudioProcessingState.idle,);
+
+    AppUtilities.logger.v('Caching last index ${_player.currentIndex} and position ${_player.position.inSeconds}');
+    await Hive.box(AppHiveConstants.cache).put('lastIndex', _player.currentIndex);
+    await Hive.box(AppHiveConstants.cache).put('lastPos', _player.position.inSeconds);
+    await addLastQueue(queue.valueWrapper!.value);
+
   }
 
-    @override
-    Future customAction(String name, [Map<String, dynamic>? extras]) async {
-      AppUtilities.logger.d('customAction $name called');
+  @override
+  Future customAction(String name, [Map<String, dynamic>? extras]) async {
+    AppUtilities.logger.d('customAction $name called');
 
-      switch(name) {
-        case 'sleepTimer':
-          _sleepTimer?.cancel();
-          if (extras?['time'] != null && extras!['time'].runtimeType == int &&
-              extras['time'] > 0 as bool) {
-            _sleepTimer = Timer(Duration(minutes: extras['time'] as int), () {
-              stop();
-            });
-          }
-          break;
-        case 'sleepCounter':
-          if (extras?['count'] != null &&
-              extras!['count'].runtimeType == int &&
-              extras['count'] > 0 as bool) {
-            count = extras['count'] as int;
-          }
-          break;
-        case 'fastForward':
-          try {
-            const stepInterval = Duration(seconds: 10);
-            Duration newPosition = _player.position + stepInterval;
-            if (newPosition < Duration.zero) newPosition = Duration.zero;
-            if (newPosition > _player.duration!) newPosition = _player.duration!;
-            await _player.seek(newPosition);
-          } catch (e) {
-            AppUtilities.logger.e('Error in fastForward', e);
-          }
-          break;
-        case 'rewind':
-          try {
-            const stepInterval = Duration(seconds: 10);
-            Duration newPosition = _player.position - stepInterval;
-            if (newPosition < Duration.zero) newPosition = Duration.zero;
-            if (newPosition > _player.duration!) newPosition = _player.duration!;
-            await _player.seek(newPosition);
-          } catch (e) {
-            AppUtilities.logger.e('Error in rewind', e);
-          }
-          break;
-        case 'refreshLink':
-          if (extras?['newData'] != null) {
-            await refreshLink(extras!['newData'] as Map);
-          }
-          break;
-        case 'skipToMediaItem':
-          await skipToMediaItem(extras!['id'].toString(), index: extras['index'] != null ? int.parse(extras['index'].toString()) : 0);
-          break;
-        default:
-          break;
-      }
-
-      return super.customAction(name, extras);
+    switch(name) {
+      case 'sleepTimer':
+        _sleepTimer?.cancel();
+        if (extras?['time'] != null && extras!['time'].runtimeType == int &&
+            extras['time'] > 0 as bool) {
+          _sleepTimer = Timer(Duration(minutes: extras['time'] as int), () {
+            stop();
+          });
+        }
+        break;
+      case 'sleepCounter':
+        if (extras?['count'] != null &&
+            extras!['count'].runtimeType == int &&
+            extras['count'] > 0 as bool) {
+          count = extras['count'] as int;
+        }
+        break;
+      case 'fastForward':
+        try {
+          const stepInterval = Duration(seconds: 10);
+          Duration newPosition = _player.position + stepInterval;
+          if (newPosition < Duration.zero) newPosition = Duration.zero;
+          if (newPosition > _player.duration!) newPosition = _player.duration!;
+          await _player.seek(newPosition);
+        } catch (e) {
+          AppUtilities.logger.e('Error in fastForward', e);
+        }
+        break;
+      case 'rewind':
+        try {
+          final stepInterval = Duration(seconds: MusicPlayerConstants.rewindSeconds);
+          Duration newPosition = _player.position - stepInterval;
+          if (newPosition < Duration.zero) newPosition = Duration.zero;
+          if (newPosition > _player.duration!) newPosition = _player.duration!;
+          await _player.seek(newPosition);
+        } catch (e) {
+          AppUtilities.logger.e('Error in rewind', e);
+        }
+        break;
+      case 'refreshLink':
+        if (extras?['newData'] != null) {
+          await refreshLink(extras!['newData'] as Map);
+        }
+        break;
+      case 'skipToMediaItem':
+        await skipToMediaItem(extras!['id'].toString(), index: extras['index'] != null ? int.parse(extras['index'].toString()) : 0);
+        break;
+      default:
+        break;
     }
+
+    return super.customAction(name, extras);
+  }
 
     @override
     Future<void> setShuffleMode(AudioServiceShuffleMode mode) async {

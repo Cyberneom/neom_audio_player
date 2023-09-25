@@ -19,6 +19,8 @@
 
 class MusicPlayerConstants {
 
+  static int rewindSeconds = 5;
+  static String wifi = 'wifi';
   static List<String> musicLanguages = [
     'English',
     'Español',

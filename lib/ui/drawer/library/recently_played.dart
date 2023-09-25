@@ -95,7 +95,7 @@ class _RecentlyPlayedState extends State<RecentlyPlayed> {
                 itemCount: _songs.length,
                 itemExtent: 70.0,
                 itemBuilder: (context, index) {
-                  AppMediaItem item = _songs.values.elementAt(index);
+                  final AppMediaItem item = _songs.values.elementAt(index);
                   return _songs.isEmpty
                       ? const SizedBox()
                       : Dismissible(

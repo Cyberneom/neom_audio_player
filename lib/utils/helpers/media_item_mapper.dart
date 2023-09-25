@@ -209,7 +209,11 @@ class MediaItemMapper  {
         'addedByAutoplay': addedByAutoplay,
         'autoplay': autoplay,
         'playlistBox': playlistBox,
-        'source': appMediaItem.mediaSource.name
+        'source': appMediaItem.mediaSource.name,
+        'description': appMediaItem.description,
+        'lyrics': appMediaItem.lyrics,
+        'artistId': appMediaItem.artistId,
+
       },
     );
   }
@@ -223,9 +227,10 @@ class MediaItemMapper  {
       name: mediaItem.title,
       imgUrl: mediaItem.artUri?.toString() ?? '',
       genre: mediaItem.genre ?? '',
-      description: mediaItem.displayDescription,
       url: mediaItem.extras?['url'].toString() ?? '',
-      permaUrl: mediaItem.extras?['perma_url'].toString() ?? '',
+      description: mediaItem.extras?['description'].toString() ?? '',
+      lyrics: mediaItem.extras?['lyrics'].toString() ?? '',
+      artistId: mediaItem.extras?['artistId'].toString() ?? '',
     );
   }
 

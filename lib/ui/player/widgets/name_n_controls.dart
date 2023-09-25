@@ -8,8 +8,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:hive/hive.dart';
+import 'package:neom_commons/core/data/implementations/user_controller.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/domain/model/item_list.dart';
+import 'package:neom_commons/core/utils/constants/app_route_constants.dart';
 import 'package:neom_commons/core/utils/enums/app_media_source.dart';
 import 'package:neom_music_player/domain/entities/position_data.dart';
 import 'package:neom_music_player/ui/player/widgets/control_buttons.dart';
@@ -116,19 +118,19 @@ class NameNControls extends StatelessWidget {
                   },
                   itemBuilder: (BuildContext context) =>
                   <PopupMenuEntry<String>>[
-                    if (mediaItem.extras?['album_id'] != null)
-                      PopupMenuItem<String>(
-                        value: '0',
-                        child: Row(
-                          children: [
-                            const Icon(Icons.album_rounded,),
-                            const SizedBox(width: 10.0),
-                            Text(
-                              PlayerTranslationConstants.viewAlbum.tr,
-                            ),
-                          ],
-                        ),
-                      ),
+                    // if (mediaItem.extras?['album_id'] != null)
+                    //   PopupMenuItem<String>(
+                    //     value: '0',
+                    //     child: Row(
+                    //       children: [
+                    //         const Icon(Icons.album_rounded,),
+                    //         const SizedBox(width: 10.0),
+                    //         Text(
+                    //           PlayerTranslationConstants.viewAlbum.tr,
+                    //         ),
+                    //       ],
+                    //     ),
+                    //   ),
                     // if (mediaItem.artist != null)
                     //   ...artists.map(
                     //         (String artist) => PopupMenuItem<String>(
@@ -166,28 +168,30 @@ class NameNControls extends StatelessWidget {
                               // color: Theme.of(context).accentColor,
                             ),
                           ),
-
                           SizedBox(
                             height: titleBoxHeight / 40,
                           ),
-
                           /// Subtitle container
-                          AnimatedText(
-                            text: ((mediaItem.album ?? '').isEmpty ||
-                                ((mediaItem.album ?? '') ==
-                                    (mediaItem.artist ?? '')))
-                                ? '${(mediaItem.artist ?? "").isEmpty ? "Unknown" : mediaItem.artist}'
-                                : '${(mediaItem.artist ?? "").isEmpty ? "Unknown" : mediaItem.artist} • ${mediaItem.album}',
-                            pauseAfterRound: const Duration(seconds: 3),
-                            showFadingOnlyWhenScrolling: false,
-                            fadingEdgeEndFraction: 0.05,
-                            fadingEdgeStartFraction: 0.05,
-                            startAfter: const Duration(seconds: 2),
-                            style: TextStyle(
-                              fontSize: titleBoxHeight / 6.75,
-                              fontWeight: FontWeight.w400,
-                            ),
-                          ),
+                          GestureDetector(
+                           child: AnimatedText(
+                             text: ((mediaItem.album ?? '').isEmpty ||
+                                 ((mediaItem.album ?? '') ==
+                                     (mediaItem.artist ?? '')))
+                                 ? '${(mediaItem.artist ?? "").isEmpty ? "Unknown" : mediaItem.artist}'
+                                 : '${(mediaItem.artist ?? "").isEmpty ? "Unknown" : mediaItem.artist} • ${mediaItem.album}',
+                             pauseAfterRound: const Duration(seconds: 3),
+                             showFadingOnlyWhenScrolling: false,
+                             fadingEdgeEndFraction: 0.05,
+                             fadingEdgeStartFraction: 0.05,
+                             startAfter: const Duration(seconds: 2),
+                             style: TextStyle(
+                               fontSize: titleBoxHeight / 6.75,
+                               fontWeight: FontWeight.w600,
+                             ),
+                           ),
+                            onTap: () => Get.find<UserController>().profile.id == appMediaItem.artistId ? Get.toNamed(AppRouteConstants.profile)
+                                : Get.toNamed(AppRouteConstants.mateDetails, arguments: appMediaItem.artistId),
+                          )
                         ],
                       ),
                     ),

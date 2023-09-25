@@ -44,7 +44,7 @@ dependencies:
   hive_flutter: ^1.1.0
   home_widget: ^0.3.0
   html_unescape: ^2.0.0
-  just_audio: ^0.9.34
+  just_audio: 0.9.35
   marquee: ^2.2.3
 
   metadata_god: ^0.5.0
@@ -77,9 +77,9 @@ flutter:
 
 
 dependency_overrides:
+  flutter_rust_bridge: 1.81.0
   intl: 0.18.1
   neom_commons:
     path: ../neom_commons
   neom_itemlists:
     path: ../neom_itemlists
-

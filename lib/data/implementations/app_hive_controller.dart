@@ -50,7 +50,7 @@ class AppHiveController extends GetxController {
   @override
   void onInit() async {
     super.onInit();
-    logger.d('');
+    logger.d('AppHive Controller');
 
     try {
       // await fetchCachedData();

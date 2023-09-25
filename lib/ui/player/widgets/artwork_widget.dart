@@ -14,8 +14,10 @@ import 'package:flutter_lyric/lyrics_model_builder.dart';
 import 'package:flutter_lyric/lyrics_reader_widget.dart';
 import 'package:hive/hive.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
+import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
+import 'package:neom_commons/core/utils/enums/app_in_use.dart';
 import 'package:neom_music_player/domain/entities/queue_state.dart';
 import 'package:neom_music_player/utils/helpers/media_item_mapper.dart';
 import 'package:neom_music_player/domain/use_cases/neom_audio_handler.dart';
@@ -71,61 +73,84 @@ class _ArtWorkWidgetState extends State<ArtWorkWidget> {
     AppUtilities.logger.i('Fetching lyrics for ${widget.appMediaItem.name}');
     done.value = false;
     lyricsSource.value = '';
+    String appMediaItemLyric = widget.appMediaItem.lyrics.isNotEmpty || (widget.appMediaItem.description?.isNotEmpty ?? false)  ? (widget.appMediaItem.lyrics.isNotEmpty ? widget.appMediaItem.lyrics : widget.appMediaItem.description ?? '') : '';
     if (widget.offline) {
-      Lyrics.getOffLyrics(widget.appMediaItem.permaUrl,
-      ).then((value) {
-        if (value == '' && widget.getLyricsOnline) {
-          Lyrics.getLyrics(
-            id: widget.appMediaItem.id,
-            isInternalLyric: widget.appMediaItem.lyrics.isNotEmpty,
-            title: widget.appMediaItem.name,
-            artist: widget.appMediaItem.artist,
-          ).then((Map value) {
-            lyrics['lyrics'] = value['lyrics'];
-            lyrics['type'] = value['type'];
-            lyrics['source'] = value['source'];
+      if(appMediaItemLyric.isNotEmpty) {
+        lyricsReaderModel = LyricsModelBuilder.create()
+            .bindLyricToMain(appMediaItemLyric).getModel();
+      } else {
+        Lyrics.getOffLyrics(widget.appMediaItem.permaUrl,
+        ).then((value) {
+          if (value == '' && widget.getLyricsOnline) {
+            Lyrics.getLyrics(
+              id: widget.appMediaItem.id,
+              isInternalLyric: widget.appMediaItem.lyrics.isNotEmpty,
+              title: widget.appMediaItem.name,
+              artist: widget.appMediaItem.artist,
+            ).then((Map value) {
+              lyrics['lyrics'] = value['lyrics'];
+              lyrics['type'] = value['type'];
+              lyrics['source'] = value['source'];
+              lyrics['id'] = widget.appMediaItem.id;
+              done.value = true;
+              lyricsSource.value = lyrics['source'].toString();
+              lyricsReaderModel = LyricsModelBuilder.create()
+                  .bindLyricToMain(lyrics['lyrics'].toString())
+                  .getModel();
+            });
+          } else {
+            AppUtilities.logger.i('Lyrics found offline');
+            lyrics['lyrics'] = value;
+            lyrics['type'] = value.startsWith('[00') ? 'lrc' : 'text';
+            lyrics['source'] = 'Local';
             lyrics['id'] = widget.appMediaItem.id;
             done.value = true;
             lyricsSource.value = lyrics['source'].toString();
             lyricsReaderModel = LyricsModelBuilder.create()
                 .bindLyricToMain(lyrics['lyrics'].toString())
                 .getModel();
-          });
-        } else {
-          AppUtilities.logger.i('Lyrics found offline');
-          lyrics['lyrics'] = value;
-          lyrics['type'] = value.startsWith('[00') ? 'lrc' : 'text';
-          lyrics['source'] = 'Local';
+          }
+        });
+      }
+
+    } else {
+      if(appMediaItemLyric.isNotEmpty) {
+        lyrics['lyrics'] = appMediaItemLyric;
+        lyrics['source'] = 'Gigmeout';
+        lyrics['type'] = 'text';
+        lyrics['id'] = widget.appMediaItem.id;
+
+        done.value = true;
+        lyricsSource.value = lyrics['source'].toString();
+        lyricsReaderModel = LyricsModelBuilder.create()
+            .bindLyricToMain(lyrics['lyrics'].toString())
+            .getModel();
+      } else {
+        Lyrics.getLyrics(
+          id: widget.appMediaItem.id,
+          isInternalLyric: widget.appMediaItem.lyrics.isNotEmpty == 'true',
+          title: widget.appMediaItem.name,
+          artist: widget.appMediaItem.artist.toString(),
+        ).then((Map value) {
+          if (widget.appMediaItem.id != value['id']) {
+            done.value = true;
+            return;
+          }
+          lyrics['lyrics'] = value['lyrics'];
+          lyrics['type'] = value['type'];
+          lyrics['source'] = value['source'];
           lyrics['id'] = widget.appMediaItem.id;
           done.value = true;
           lyricsSource.value = lyrics['source'].toString();
           lyricsReaderModel = LyricsModelBuilder.create()
               .bindLyricToMain(lyrics['lyrics'].toString())
               .getModel();
-        }
-      });
-    } else {
-      Lyrics.getLyrics(
-        id: widget.appMediaItem.id,
-        isInternalLyric: widget.appMediaItem.lyrics.isNotEmpty == 'true',
-        title: widget.appMediaItem.name,
-        artist: widget.appMediaItem.artist.toString(),
-      ).then((Map value) {
-        if (widget.appMediaItem.id != value['id']) {
-          done.value = true;
-          return;
-        }
-        lyrics['lyrics'] = value['lyrics'];
-        lyrics['type'] = value['type'];
-        lyrics['source'] = value['source'];
-        lyrics['id'] = widget.appMediaItem.id;
-        done.value = true;
-        lyricsSource.value = lyrics['source'].toString();
-        lyricsReaderModel = LyricsModelBuilder.create()
-            .bindLyricToMain(lyrics['lyrics'].toString())
-            .getModel();
-      });
+        });
+      }
     }
+
+    done.value = true;
+
   }
 
   @override
@@ -185,25 +210,19 @@ class _ArtWorkWidgetState extends State<ArtWorkWidget> {
                             Widget? child,
                             ) {
                           return value ? lyrics['lyrics'] == '' ? emptyScreen(
-                            context,
-                            0,
-                            ':( ',
-                            80.0,
-                            PlayerTranslationConstants.lyrics.tr,
-                            40.0,
-                            PlayerTranslationConstants.notAvailable.tr,
-                            20.0,
+                            context, 0,
+                            ':( ', 80.0,
+                            PlayerTranslationConstants.lyrics.tr, 40.0,
+                            PlayerTranslationConstants.notAvailable.tr, 20.0,
                             useWhite: true,
-                          )
-                              : lyrics['type'] == 'text'
+                          ) : lyrics['type'] == 'text'
                               ? SelectableText(
                             lyrics['lyrics'].toString(),
                             textAlign: TextAlign.center,
                             style: const TextStyle(
                               fontSize: 16.0,
                             ),
-                          )
-                              : StreamBuilder<Duration>(
+                          ) : StreamBuilder<Duration>(
                             stream: AudioService.position,
                             builder: (context, snapshot) {
                               final position =
@@ -211,24 +230,20 @@ class _ArtWorkWidgetState extends State<ArtWorkWidget> {
                               return LyricsReader(
                                 model: lyricsReaderModel,
                                 position: position.inMilliseconds,
-                                lyricUi:
-                                UINetease(highlight: false),
+                                lyricUi: UINetease(highlight: false),
                                 playing: true,
                                 size: Size(
                                   widget.width * 0.85,
                                   widget.width * 0.85,
                                 ),
                                 emptyBuilder: () => Center(
-                                  child: Text(
-                                    'Lyrics Not Found',
-                                    style: lyricUI
-                                        .getOtherMainTextStyle(),
+                                  child: Text('Lyrics Not Found',
+                                    style: lyricUI.getOtherMainTextStyle(),
                                   ),
                                 ),
                               );
                             },
-                          )
-                              : child!;
+                          ) : child!;
                         },
                       ),
                     ),
@@ -242,7 +257,7 @@ class _ArtWorkWidgetState extends State<ArtWorkWidget> {
                       String value,
                       Widget? child,
                       ) {
-                    if (value == '') {
+                    if (value == '' || value == AppInUse.gigmeout.value) {
                       return const SizedBox();
                     }
                     return Align(
@@ -265,7 +280,7 @@ class _ArtWorkWidgetState extends State<ArtWorkWidget> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10.0),
                     ),
-                    color: Theme.of(context).cardColor.withOpacity(0.6),
+                    color: AppColor.main75,
                     clipBehavior: Clip.antiAlias,
                     child: IconButton(
                       tooltip: PlayerTranslationConstants.copy.tr,
@@ -293,13 +308,13 @@ class _ArtWorkWidgetState extends State<ArtWorkWidget> {
               final bool enabled = Hive.box(AppHiveConstants.settings)
                   .get('enableGesture', defaultValue: true) as bool;
               return GestureDetector(
-                onTap: !enabled
-                    ? null
-                    : () {
-                  tapped.value = true;
-                  Future.delayed(const Duration(seconds: 2), () async {
-                    tapped.value = false;
-                  });
+                onTap: !enabled ? null : () {
+                  AddToPlaylist().addToPlaylist(context, widget.appMediaItem,);
+                  //TODO WHEN ADDING MORE FUNCTIONS
+                  // tapped.value = true;
+                  // Future.delayed(const Duration(seconds: 2), () async {
+                  //   tapped.value = false;
+                  // });
                 },
                 onDoubleTapDown: (details) {
                   if (details.globalPosition.dx <= widget.width * 2 / 5) {
@@ -562,145 +577,146 @@ class _ArtWorkWidgetState extends State<ArtWorkWidget> {
                         );
                       },
                     ),
-                    ValueListenableBuilder(
-                      valueListenable: tapped,
-                      child: GestureDetector(
-                        onTap: () {
-                          tapped.value = false;
-                        },
-                        child: Card(
-                          color: Colors.black26,
-                          elevation: 0.0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(15.0),
-                          ),
-                          clipBehavior: Clip.antiAlias,
-                          child: DecoratedBox(
-                            decoration: BoxDecoration(
-                              gradient: RadialGradient(
-                                colors: [
-                                  Colors.black.withOpacity(0.4),
-                                  Colors.black.withOpacity(0.7),
-                                ],
-                              ),
-                            ),
-                            child: Column(
-                              children: [
-                                Align(
-                                  alignment: Alignment.topRight,
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(10.0),
-                                    child: IconButton(
-                                      tooltip: PlayerTranslationConstants.songInfo.tr,
-                                      onPressed: () {
-                                        final Map details = widget.appMediaItem.toJSON();
-
-                                        details['duration'] = '${(int.parse(details["duration"].toString()) ~/ 60).toString()
-                                            .padLeft(2, "0")}:${(int.parse(details["duration"].toString()) % 60).toString().padLeft(2, "0")}';
-                                        PopupDialog().showPopup(
-                                          context: context,
-                                          child: GradientCard(
-                                            child: SingleChildScrollView(
-                                              physics:
-                                              const BouncingScrollPhysics(),
-                                              padding:
-                                              const EdgeInsets.all(25.0),
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                                children: details.keys.map((e) {
-                                                  return Padding(
-                                                    padding:
-                                                    const EdgeInsets.only(
-                                                      bottom: 10.0,
-                                                    ),
-                                                    child: SelectableText.rich(
-                                                      TextSpan(
-                                                        children: <TextSpan>[
-                                                          TextSpan(
-                                                            text:
-                                                            '${e[0].toUpperCase()}${e.substring(1)}\n'
-                                                                .replaceAll(
-                                                              '_',
-                                                              ' ',
-                                                            ),
-                                                            style: TextStyle(
-                                                              fontWeight:
-                                                              FontWeight
-                                                                  .normal,
-                                                              fontSize: 12,
-                                                              color: Theme.of(
-                                                                context,
-                                                              )
-                                                                  .textTheme
-                                                                  .bodySmall!
-                                                                  .color,
-                                                            ),
-                                                          ),
-                                                          TextSpan(
-                                                            text: details[e]
-                                                                .toString(),
-                                                            style:
-                                                            const TextStyle(
-                                                              fontWeight:
-                                                              FontWeight
-                                                                  .normal,
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                      showCursor: true,
-                                                      cursorColor: Colors.black,
-                                                      cursorRadius:
-                                                      const Radius.circular(
-                                                        5,
-                                                      ),
-                                                    ),
-                                                  );
-                                                }).toList(),
-                                              ),
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                      icon: const Icon(Icons.info_rounded),
-                                      color: Theme.of(context).iconTheme.color,
-                                    ),
-                                  ),
-                                ),
-                                const Spacer(),
-                                Align(
-                                  alignment: Alignment.bottomRight,
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(10.0),
-                                    child: IconButton(
-                                      tooltip: PlayerTranslationConstants.addToPlaylist.tr,
-                                      onPressed: () {
-                                        AddToPlaylist().addToPlaylist(context, widget.appMediaItem,);
-                                      },
-                                      icon: const Icon(
-                                        Icons.playlist_add_rounded,
-                                      ),
-                                      color: Theme.of(context).iconTheme.color,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                      builder: (context, bool value, Widget? child) {
-                        return AnimatedContainer(
-                          duration: const Duration(milliseconds: 250),
-                          clipBehavior: Clip.antiAlias,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
-                          child: Visibility(visible: value, child: child!),
-                        );
-                      },
-                    ),
+                    ///FUTURE INTEGRATION FOR MORE MEDIA INFO
+                    // ValueListenableBuilder(
+                    //   valueListenable: tapped,
+                    //   child: GestureDetector(
+                    //     onTap: () {
+                    //       tapped.value = false;
+                    //     },
+                    //     child: Card(
+                    //       color: Colors.black26,
+                    //       elevation: 0.0,
+                    //       shape: RoundedRectangleBorder(
+                    //         borderRadius: BorderRadius.circular(15.0),
+                    //       ),
+                    //       clipBehavior: Clip.antiAlias,
+                    //       child: DecoratedBox(
+                    //         decoration: BoxDecoration(
+                    //           gradient: RadialGradient(
+                    //             colors: [
+                    //               Colors.black.withOpacity(0.4),
+                    //               Colors.black.withOpacity(0.7),
+                    //             ],
+                    //           ),
+                    //         ),
+                    //         child: Column(
+                    //           children: [
+                    //             Align(
+                    //               alignment: Alignment.topRight,
+                    //               child: Padding(
+                    //                 padding: const EdgeInsets.all(10.0),
+                    //                 child: IconButton(
+                    //                   tooltip: PlayerTranslationConstants.songInfo.tr,
+                    //                   onPressed: () {
+                    //                     final Map details = widget.appMediaItem.toJSON();
+                    //
+                    //                     details['duration'] = '${(int.parse(details["duration"].toString()) ~/ 60).toString()
+                    //                         .padLeft(2, "0")}:${(int.parse(details["duration"].toString()) % 60).toString().padLeft(2, "0")}';
+                    //                     PopupDialog().showPopup(
+                    //                       context: context,
+                    //                       child: GradientCard(
+                    //                         child: SingleChildScrollView(
+                    //                           physics:
+                    //                           const BouncingScrollPhysics(),
+                    //                           padding:
+                    //                           const EdgeInsets.all(25.0),
+                    //                           child: Column(
+                    //                             crossAxisAlignment:
+                    //                             CrossAxisAlignment.start,
+                    //                             children: details.keys.map((e) {
+                    //                               return Padding(
+                    //                                 padding:
+                    //                                 const EdgeInsets.only(
+                    //                                   bottom: 10.0,
+                    //                                 ),
+                    //                                 child: SelectableText.rich(
+                    //                                   TextSpan(
+                    //                                     children: <TextSpan>[
+                    //                                       TextSpan(
+                    //                                         text:
+                    //                                         '${e[0].toUpperCase()}${e.substring(1)}\n'
+                    //                                             .replaceAll(
+                    //                                           '_',
+                    //                                           ' ',
+                    //                                         ),
+                    //                                         style: TextStyle(
+                    //                                           fontWeight:
+                    //                                           FontWeight
+                    //                                               .normal,
+                    //                                           fontSize: 12,
+                    //                                           color: Theme.of(
+                    //                                             context,
+                    //                                           )
+                    //                                               .textTheme
+                    //                                               .bodySmall!
+                    //                                               .color,
+                    //                                         ),
+                    //                                       ),
+                    //                                       TextSpan(
+                    //                                         text: details[e]
+                    //                                             .toString(),
+                    //                                         style:
+                    //                                         const TextStyle(
+                    //                                           fontWeight:
+                    //                                           FontWeight
+                    //                                               .normal,
+                    //                                         ),
+                    //                                       ),
+                    //                                     ],
+                    //                                   ),
+                    //                                   showCursor: true,
+                    //                                   cursorColor: Colors.black,
+                    //                                   cursorRadius:
+                    //                                   const Radius.circular(
+                    //                                     5,
+                    //                                   ),
+                    //                                 ),
+                    //                               );
+                    //                             }).toList(),
+                    //                           ),
+                    //                         ),
+                    //                       ),
+                    //                     );
+                    //                   },
+                    //                   icon: const Icon(Icons.info_rounded),
+                    //                   color: Theme.of(context).iconTheme.color,
+                    //                 ),
+                    //               ),
+                    //             ),
+                    //             const Spacer(),
+                    //             Align(
+                    //               alignment: Alignment.bottomRight,
+                    //               child: Padding(
+                    //                 padding: const EdgeInsets.all(10.0),
+                    //                 child: IconButton(
+                    //                   tooltip: PlayerTranslationConstants.addToPlaylist.tr,
+                    //                   onPressed: () {
+                    //                     AddToPlaylist().addToPlaylist(context, widget.appMediaItem,);
+                    //                   },
+                    //                   icon: const Icon(
+                    //                     Icons.playlist_add_rounded,
+                    //                   ),
+                    //                   color: Theme.of(context).iconTheme.color,
+                    //                 ),
+                    //               ),
+                    //             ),
+                    //           ],
+                    //         ),
+                    //       ),
+                    //     ),
+                    //   ),
+                    //   builder: (context, bool value, Widget? child) {
+                    //     return AnimatedContainer(
+                    //       duration: const Duration(milliseconds: 250),
+                    //       clipBehavior: Clip.antiAlias,
+                    //       decoration: BoxDecoration(
+                    //         borderRadius: BorderRadius.circular(10.0),
+                    //       ),
+                    //       child: Visibility(visible: value, child: child!),
+                    //     );
+                    //   },
+                    // ),
                   ],
                 ),
               );

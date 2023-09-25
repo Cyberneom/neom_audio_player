@@ -73,7 +73,7 @@ class _MiniPlayerState extends State<MiniPlayer> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => MediaPlayerPage(appMediaItem: MediaItemMapper.fromMediaItem(_.mediaItem!)),
+                        builder: (context) => MediaPlayerPage(appMediaItem: MediaItemMapper.fromMediaItem(_.mediaItem!), reproduceItem: false),
                       ),
                     );
                   }
@@ -96,7 +96,7 @@ class _MiniPlayerState extends State<MiniPlayer> {
                   margin: EdgeInsets.zero,
                   color: AppColor.getMain(),
                   elevation: 1,
-                  child: Container(
+                  child: SizedBox(
                     height: _.mediaItem == null ? 80 : 78,
                     width: AppTheme.fullWidth(context),
                   child: Column(

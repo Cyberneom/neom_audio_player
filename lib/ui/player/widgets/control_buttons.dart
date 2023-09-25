@@ -37,10 +37,10 @@ class ControlButtons extends StatelessWidget {
     if(mediaItem == null && audioHandler.mediaItem.value != null) {
        mediaItem = audioHandler.mediaItem.value;
     } else {
-      NeomPlayerInvoker.init(
-        appMediaItems: [MediaItemMapper.fromMediaItem(mediaItem!)],
-        index: 0,
-      );
+      // NeomPlayerInvoker.init(
+      //   appMediaItems: [MediaItemMapper.fromMediaItem(mediaItem!)],
+      //   index: 0,
+      // );
     }
 
     double miniPlayerHeight = 40;

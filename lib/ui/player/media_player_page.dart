@@ -35,6 +35,7 @@ import 'package:neom_commons/core/app_flavour.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/core_utilities.dart';
+import 'package:neom_music_player/neom_player_invoker.dart';
 import 'package:neom_music_player/ui/player/widgets/artwork_widget.dart';
 import 'package:neom_music_player/ui/player/widgets/name_n_controls.dart';
 import 'package:neom_music_player/utils/helpers/media_item_mapper.dart';
@@ -49,14 +50,14 @@ import 'package:sliding_up_panel/sliding_up_panel.dart';
 class MediaPlayerPage extends StatefulWidget {
 
   AppMediaItem? appMediaItem;
-  MediaPlayerPage({super.key, this.appMediaItem});
+  bool reproduceItem;
+  MediaPlayerPage({super.key, this.appMediaItem, this.reproduceItem = true});
   @override
   _MediaPlayerPageState createState() => _MediaPlayerPageState();
 }
 
 class _MediaPlayerPageState extends State<MediaPlayerPage> {
 
-  final String gradientType = Hive.box(AppHiveConstants.settings).get('gradientType', defaultValue: 'halfDark').toString();
   final bool getLyricsOnline = Hive.box(AppHiveConstants.settings).get('getLyricsOnline', defaultValue: true) as bool;
 
   final MusicPlayerTheme currentTheme = MusicPlayerTheme();
@@ -73,6 +74,25 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
   void updateBackgroundColors(List<Color?> value) {
     gradientColor.value = value;
     return;
+  }
+
+  void initState() {
+    if(widget.appMediaItem != null) {
+      bool alreadyPlaying = audioHandler.currentMediaItem != null && audioHandler.currentMediaItem!.id == widget.appMediaItem!.id;
+      if(widget.reproduceItem && !alreadyPlaying) {
+        Future.delayed(Duration(milliseconds: 500)).then((value) {
+          NeomPlayerInvoker.init(
+            appMediaItems: [widget.appMediaItem!],
+            index: 0,
+          );
+          // audioHandler.play();
+        });
+      }
+    }
+
+
+
+
   }
 
   @override
@@ -96,7 +116,6 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
       child: StreamBuilder<MediaItem?>(
         stream: audioHandler.mediaItem,
         builder: (context, snapshot) {
-
           MediaItem mediaItem;
           if(appMediaItem != null) {
             mediaItem = MediaItemMapper.appMediaItemToMediaItem(appMediaItem: appMediaItem);
@@ -107,7 +126,6 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
           }
 
           final offline = !mediaItem.extras!['url'].toString().startsWith('http');
-
           if(mediaItem.artUri.toString().isNotEmpty) {
             mediaItem.artUri.toString().startsWith('file')
                 ? getColors(imageProvider: FileImage(File(mediaItem.artUri!.toFilePath(),),),).then((value) => updateBackgroundColors(value))
@@ -160,22 +178,16 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
                       children: [
                         // Artwork
                         ArtWorkWidget(
-                          cardKey: onlineCardKey,
-                          appMediaItem: appMediaItem,
-                          width: constraints.maxWidth,
-                          audioHandler: audioHandler,
-                          offline: offline,
-                          getLyricsOnline: getLyricsOnline,
+                          cardKey: onlineCardKey, appMediaItem: appMediaItem,
+                          width: constraints.maxWidth, audioHandler: audioHandler,
+                          offline: offline, getLyricsOnline: getLyricsOnline,
                         ),
                         // title and controls
                         NameNControls(
-                          appMediaItem: appMediaItem,
-                          offline: offline,
+                          appMediaItem: appMediaItem, offline: offline,
                           width: constraints.maxWidth,
                           height: constraints.maxHeight - (constraints.maxWidth * 0.85),
-                          panelController: _panelController,
-                          audioHandler: audioHandler,
-
+                          panelController: _panelController, audioHandler: audioHandler,
                         ),
                       ],
                     ) : Container();
@@ -187,21 +199,9 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
                 duration: const Duration(milliseconds: 600),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    begin: gradientType == 'simple' ? Alignment.topLeft : Alignment.topCenter,
-                    end: gradientType == 'simple' ? Alignment.bottomRight
-                        : (gradientType == 'halfLight' || gradientType == 'halfDark')
-                        ? Alignment.center : Alignment.bottomCenter,
-                    colors: gradientType == 'simple'
-                        ? currentTheme.getBackGradient() : [
-                          if (gradientType == 'halfDark' || gradientType == 'fullDark')
-                            value?[1] ?? Colors.grey[900]!
-                          else
-                            value?[0] ?? Colors.grey[900]!,
-                      if (gradientType == 'fullMix')
-                        value?[1] ?? Colors.black
-                      else
-                        Colors.black
-                    ],
+                    begin: Alignment.topCenter,
+                    end: Alignment.center,
+                    colors: [value?[1] ?? Colors.grey[900]!, Colors.black],
                   ),
                 ),
                 child: child,
@@ -265,6 +265,18 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
               Text(PlayerTranslationConstants.addToPlaylist.tr,),],),
         ),
         PopupMenuItem(
+          value: 10,
+          child: Row(
+            children: [
+              Icon(Icons.info_rounded,
+                color: Theme.of(context).iconTheme.color,
+              ),
+              const SizedBox(width: 10.0),
+              Text(PlayerTranslationConstants.songInfo.tr,),
+            ],
+          ),
+        ),
+        PopupMenuItem(
           value: 1,
           child: Row(
             children: [
@@ -276,18 +288,6 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
               Text(
                 PlayerTranslationConstants.sleepTimer.tr,
               ),
-            ],
-          ),
-        ),
-        PopupMenuItem(
-          value: 10,
-          child: Row(
-            children: [
-              Icon(Icons.info_rounded,
-                color: Theme.of(context).iconTheme.color,
-              ),
-              const SizedBox(width: 10.0),
-              Text(PlayerTranslationConstants.songInfo.tr,),
             ],
           ),
         ),
