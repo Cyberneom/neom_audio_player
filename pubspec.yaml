@@ -39,7 +39,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   flutter_lyric: ^2.0.4+6
-  get_it: ^7.6.0
+  get_it: ^7.6.4
   hive: ^2.2.3
   hive_flutter: ^1.1.0
   home_widget: ^0.3.0
@@ -47,11 +47,11 @@ dependencies:
   just_audio: 0.9.35
   marquee: ^2.2.3
 
-  metadata_god: ^0.5.0
+  metadata_god: ^0.5.2+1
   on_audio_query: ^2.9.0
-  palette_generator: ^0.3.3+2
-  path_provider: ^2.0.15
-  permission_handler: ^10.3.0
+  palette_generator: ^0.3.3+3
+  path_provider: ^2.1.1
+  permission_handler: ^11.0.1
   persistent_bottom_nav_bar:
     git:
       url: https://github.com/Sangwan5688/PersistentBottomNavBar
@@ -59,16 +59,16 @@ dependencies:
 #  receive_sharing_intent: ^1.4.5
 #  sizer: ^2.0.15
   sliding_up_panel: ^2.0.0+1
-  url_launcher: ^6.1.12
-  uuid: ^3.0.7
-  workmanager: ^0.5.1
-  youtube_explode_dart: ^1.12.4
+  url_launcher: ^6.1.14
+  uuid: ^4.1.0
+  workmanager: ^0.5.2
+  youtube_explode_dart: ^2.0.2
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   lint: ^2.1.2
-  msix: ^3.14.2
+  msix: ^3.16.4
 
 flutter:
   uses-material-design: true
@@ -77,9 +77,11 @@ flutter:
 
 
 dependency_overrides:
-  flutter_rust_bridge: 1.81.0
-  intl: 0.18.1
   neom_commons:
     path: ../neom_commons
   neom_itemlists:
     path: ../neom_itemlists
+  flutter_rust_bridge: 1.82.3
+  intl: 0.18.1
+  uuid: 4.1.0
+  http: 1.1.0

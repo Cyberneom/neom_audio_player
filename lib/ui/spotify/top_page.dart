@@ -108,7 +108,7 @@ class _TopPageState extends State<TopPage>
                   itemExtent: 70.0,
                   itemBuilder: (context, index) {
                     AppMediaItem appMediaItem = AppMediaItem(
-                      name: showList[index]["name"].toString(),
+                      name: showList[index]['name'].toString(),
                       imgUrl: showList[index]['image_url_small'].toString(),
                       artist: showList[index]['artist'].toString(),
                       permaUrl: showList[index]['spotifyUrl'].toString(),
@@ -146,17 +146,15 @@ class _TopPageState extends State<TopPage>
                         itemBuilder: (context) => [
                           PopupMenuItem(
                             value: 0,
-                            child: Container(
-                              child: Row(
-                                children: [
-                                  const Icon(Icons.open_in_new_rounded),
-                                  const SizedBox(width: 10.0),
-                                  Text(
-                                    PlayerTranslationConstants.openInSpotify.tr,
-                                  ),
-                                ],
-                              ),
-                            )
+                            child: Row(
+                              children: [
+                                const Icon(Icons.open_in_new_rounded),
+                                const SizedBox(width: 10.0),
+                                Text(
+                                  PlayerTranslationConstants.openInSpotify.tr,
+                                ),
+                              ],
+                            ),
                           ),
                         ],
                       ),

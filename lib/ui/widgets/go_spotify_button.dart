@@ -18,10 +18,9 @@
  */
 
 import 'package:flutter/material.dart';
-
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class GoSpotifyButton extends StatelessWidget {
@@ -50,7 +49,7 @@ class GoSpotifyButton extends StatelessWidget {
           ],
         ),
         iconSize: size ?? 24.0,
-        tooltip: "Escuchar en Spotify",
+        tooltip: 'Escuchar en Spotify',
         onPressed: () async {
           await launchUrl(
             Uri.parse(appMediaItem!.permaUrl),

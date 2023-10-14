@@ -27,13 +27,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
+import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
-import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_music_player/neom_player_invoker.dart';
-import 'package:neom_music_player/ui/drawer/library/playlist_player_page.dart';
-import 'package:neom_music_player/ui/widgets/custom_physics.dart';
 import 'package:neom_music_player/ui/drawer/downloads/data_search.dart';
+import 'package:neom_music_player/ui/widgets/custom_physics.dart';
 import 'package:neom_music_player/ui/widgets/empty_screen.dart';
 import 'package:neom_music_player/ui/widgets/gradient_containers.dart';
 import 'package:neom_music_player/ui/widgets/image_card.dart';
@@ -169,13 +168,13 @@ class _DownloadsState extends State<Downloads>
   void sortSongs({required int sortVal, required int order}) {
     switch (sortVal) {
       case 0:
-        _appMediaItems.sort((a, b) => a.name.toString().toUpperCase().compareTo(b.name.toString().toUpperCase()),);
+        _appMediaItems.sort((a, b) => a.name.toUpperCase().compareTo(b.name.toUpperCase()),);
       case 1:
         _appMediaItems.sort((a, b) => a.releaseDate.toString().toUpperCase().compareTo(b.releaseDate.toString().toUpperCase()),);
       case 2:
-        _appMediaItems.sort((a, b) => a.album.toString().toUpperCase().compareTo(b.album.toString().toUpperCase()),);
+        _appMediaItems.sort((a, b) => a.album.toUpperCase().compareTo(b.album.toUpperCase()),);
       case 3:
-        _appMediaItems.sort((a, b) => a.artist.toString().toUpperCase().compareTo(b.artist.toString().toUpperCase()),);
+        _appMediaItems.sort((a, b) => a.artist.toUpperCase().compareTo(b.artist.toUpperCase()),);
       case 4:
         _appMediaItems.sort((a, b) => a.duration.toString().toUpperCase().compareTo(b.duration.toString().toUpperCase()),
         );
@@ -481,10 +480,10 @@ Future<AppMediaItem> editTags(AppMediaItem mediaItem, BuildContext context) asyn
 
       FileImage songImage = FileImage(File(mediaItem.imgUrl));
 
-      final titlecontroller = TextEditingController(text: mediaItem.name.toString());
-      final albumcontroller = TextEditingController(text: mediaItem.album.toString());
-      final artistcontroller = TextEditingController(text: mediaItem.artist.toString());
-      final albumArtistController = TextEditingController(text: mediaItem.artist.toString());
+      final titlecontroller = TextEditingController(text: mediaItem.name);
+      final albumcontroller = TextEditingController(text: mediaItem.album);
+      final artistcontroller = TextEditingController(text: mediaItem.artist);
+      final albumArtistController = TextEditingController(text: mediaItem.artist);
       final genrecontroller = TextEditingController(text: mediaItem.genre.toString());
       final yearcontroller = TextEditingController(text: mediaItem.publishedYear.toString());
       final pathcontroller = TextEditingController(text: mediaItem.path.toString());
@@ -510,7 +509,7 @@ Future<AppMediaItem> editTags(AppMediaItem mediaItem, BuildContext context) asyn
                     );
                     if (filePath != '') {
                       final imagePath = filePath;
-                      File(imagePath).copy(mediaItem.imgUrl.toString());
+                      File(imagePath).copy(mediaItem.imgUrl);
 
                       songImage = FileImage(File(imagePath));
 
@@ -827,7 +826,7 @@ class _DownSongsTabState extends State<DownSongsTab>
                   localImage: true,
                   localErrorFunction: (_, __) {
                     if (item.imgUrl.isNotEmpty) {
-                      downImage(songFilePath: '', imageFilePath: '', url: item.imgUrl.toString(),
+                      downImage(songFilePath: '', imageFilePath: '', url: item.imgUrl,
                       );
                     }},
                 ),

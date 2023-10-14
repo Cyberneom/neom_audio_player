@@ -1,18 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
 import 'package:neom_music_player/ui/widgets/gradient_containers.dart';
 import 'package:neom_music_player/ui/widgets/snackbar.dart';
 import 'package:neom_music_player/ui/widgets/textinput_dialog.dart';
-import 'package:neom_music_player/utils/helpers/audio_query.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
+import 'package:neom_music_player/utils/helpers/audio_query.dart';
 import 'package:on_audio_query/on_audio_query.dart';
-import 'package:get/get.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:neom_commons/core/utils/app_color.dart';
-import 'package:neom_commons/core/utils/constants/app_assets.dart';
 
 class AddToOffPlaylist {
   OfflineAudioQuery offlineAudioQuery = OfflineAudioQuery();
@@ -32,17 +27,12 @@ class AddToOffPlaylist {
               children: [
                 ListTile(
                   title: Text(PlayerTranslationConstants.createPlaylist.tr),
-                  leading: Card(
+                  leading: const Card(
                     elevation: 0,
                     color: Colors.transparent,
                     child: SizedBox.square(
                       dimension: 50,
-                      child: Center(
-                        child: Icon(
-                          Icons.add_rounded,
-                          color: null,
-                        ),
-                      ),
+                      child: Center(child: Icon(Icons.add_rounded,),),
                     ),
                   ),
                   onTap: () {

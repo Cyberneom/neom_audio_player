@@ -105,7 +105,7 @@ class Download with ChangeNotifier {
     } else if (downFilename == 1) {
       filename = '${mediaItem.artist} - ${mediaItem.name}';
     } else {
-      filename = '${mediaItem.name}';
+      filename = mediaItem.name;
     }
     // String filename = '${data["title"]} - ${data["artist"]}';
     String dlPath = Hive.box(AppHiveConstants.settings).get('downloadPath', defaultValue: '') as String;
@@ -227,7 +227,7 @@ class Download with ChangeNotifier {
                                   ? Colors.white : Colors.grey[700],
                             ),
                             onPressed: () {
-                              lastDownloadId = mediaItem.id.toString();
+                              lastDownloadId = mediaItem.id;
                               Navigator.pop(context);
                               rememberOption = 0;
                             },

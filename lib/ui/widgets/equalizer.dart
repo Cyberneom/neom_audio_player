@@ -20,13 +20,12 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-
+import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
 import 'package:neom_music_player/domain/use_cases/neom_audio_handler.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
-import 'package:get/get.dart';
 
 class Equalizer extends StatefulWidget {
   const Equalizer({super.key});

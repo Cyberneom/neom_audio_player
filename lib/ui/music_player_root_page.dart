@@ -2,28 +2,25 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-
+import 'package:get/get.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:neom_commons/core/app_flavour.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_theme.dart';
 import 'package:neom_commons/core/utils/enums/app_in_use.dart';
 import 'package:neom_itemlists/itemlists/ui/itemlist_page.dart';
+import 'package:neom_music_player/ui/drawer/music_player_drawer.dart';
 import 'package:neom_music_player/ui/home/music_player_home_page.dart';
-import 'package:neom_music_player/ui/spotify/spotify_top_page.dart';
 import 'package:neom_music_player/ui/home/widgets/bottom_nav_bar.dart';
-import 'package:neom_music_player/ui/widgets/drawer.dart';
-import 'package:neom_music_player/ui/widgets/gradient_containers.dart';
-import 'package:neom_music_player/ui/player/miniplayer.dart';
-import 'package:neom_music_player/utils/constants/music_player_route_constants.dart';
-import 'package:neom_music_player/utils/helpers/route_handler.dart';
 import 'package:neom_music_player/ui/music_player_routes.dart';
 import 'package:neom_music_player/ui/player/media_player_page.dart';
-import 'package:neom_music_player/ui/YouTube/youtube_home.dart';
-import 'package:neom_music_player/ui/drawer/music_player_drawer.dart';
+import 'package:neom_music_player/ui/player/miniplayer.dart';
+import 'package:neom_music_player/ui/spotify/spotify_top_page.dart';
+import 'package:neom_music_player/ui/widgets/gradient_containers.dart';
+import 'package:neom_music_player/utils/constants/music_player_route_constants.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
+import 'package:neom_music_player/utils/helpers/route_handler.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
-import 'package:get/get.dart';
 
 class MusicPlayerRootPage extends StatefulWidget {
   @override
@@ -101,36 +98,33 @@ class _MusicPlayerRootPageState extends State<MusicPlayerRootPage> {
                     return HandleRoute.handleRoute(settings.name);
                   },
                 ),
-                customWidget: Container(
-
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      MiniPlayer(),
-                      if (!isRotated)
-                        ValueListenableBuilder(
-                          valueListenable: _selectedIndex,
-                          builder: (
-                              BuildContext context,
-                              int indexValue,
-                              Widget? child,
-                              ) {
-                            return AnimatedContainer(
-                              duration: const Duration(milliseconds: 100),
-                              height: 60,
-                              child: CustomBottomNavBar(
-                                currentIndex: indexValue,
-                                backgroundColor: AppColor.main75,
-                                onTap: (index) {
-                                  onItemTapped(index);
-                                },
-                                items: _navBarItems(context, sections),
-                              ),
-                            );
-                          },
-                        ),
-                    ],
-                  ),
+                customWidget: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    MiniPlayer(),
+                    if (!isRotated)
+                      ValueListenableBuilder(
+                        valueListenable: _selectedIndex,
+                        builder: (
+                            BuildContext context,
+                            int indexValue,
+                            Widget? child,
+                            ) {
+                          return AnimatedContainer(
+                            duration: const Duration(milliseconds: 100),
+                            height: 60,
+                            child: CustomBottomNavBar(
+                              currentIndex: indexValue,
+                              backgroundColor: AppColor.main75,
+                              onTap: (index) {
+                                onItemTapped(index);
+                              },
+                              items: _navBarItems(context, sections),
+                            ),
+                          );
+                        },
+                      ),
+                  ],
                 ),
                 screens: sections.map((e) {
                   switch (e) {

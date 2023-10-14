@@ -20,18 +20,17 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
 import 'package:get/get.dart' as getx;
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:neom_commons/core/app_flavour.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_theme.dart';
+import 'package:neom_music_player/ui/music_player_routes.dart';
+import 'package:neom_music_player/ui/player/media_player_page.dart';
 import 'package:neom_music_player/ui/player/miniplayer_controller.dart';
 import 'package:neom_music_player/utils/helpers/route_handler.dart';
 import 'package:neom_music_player/utils/theme/music_app_theme.dart';
-import 'package:neom_music_player/ui/music_player_routes.dart';
-import 'package:neom_music_player/ui/player/media_player_page.dart';
 
 class NeomMusicPlayerApp extends StatefulWidget {
 
@@ -167,7 +166,7 @@ class _NeomMusicPlayerAppState extends State<NeomMusicPlayerApp> {
         brightness: Brightness.dark,
         fontFamily: AppTheme.fontFamily,
         timePickerTheme: TimePickerThemeData(
-            backgroundColor: AppColor.getMain()
+            backgroundColor: AppColor.getMain(),
         ),
       ),
         localizationsDelegates: const [

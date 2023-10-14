@@ -19,31 +19,28 @@
 
 import 'dart:async';
 import 'dart:io';
-import 'dart:math';
-import 'package:get/get.dart';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flip_card/flip_card.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
+import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:neom_commons/core/app_flavour.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/core_utilities.dart';
+import 'package:neom_music_player/domain/use_cases/neom_audio_handler.dart';
 import 'package:neom_music_player/neom_player_invoker.dart';
 import 'package:neom_music_player/ui/player/widgets/artwork_widget.dart';
 import 'package:neom_music_player/ui/player/widgets/name_n_controls.dart';
-import 'package:neom_music_player/utils/helpers/media_item_mapper.dart';
-import 'package:neom_music_player/domain/use_cases/neom_audio_handler.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
-import 'package:neom_music_player/utils/music_player_theme.dart';
-import 'package:neom_music_player/utils/helpers/dominant_color.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
+import 'package:neom_music_player/utils/helpers/dominant_color.dart';
+import 'package:neom_music_player/utils/helpers/media_item_mapper.dart';
+import 'package:neom_music_player/utils/music_player_theme.dart';
 import 'package:neom_music_player/utils/music_player_utilities.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
@@ -89,16 +86,11 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
         });
       }
     }
-
-
-
-
   }
 
   @override
   Widget build(BuildContext context) {
-    BuildContext? scaffoldContext;
-    AppMediaItem? appMediaItem = widget.appMediaItem;
+    final AppMediaItem? appMediaItem = widget.appMediaItem;
 
     return Dismissible(
       direction: appMediaItem == null ? DismissDirection.down : DismissDirection.endToStart,
@@ -169,7 +161,7 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
                           }
                         },
                       ),
-                    if(appMediaItem != null) createPopMenuOption(context, appMediaItem, offline: offline)
+                    if(appMediaItem != null) createPopMenuOption(context, appMediaItem, offline: offline),
                   ],
                 ),
                 body: LayoutBuilder(
@@ -312,5 +304,3 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
   }
 
 }
-
-

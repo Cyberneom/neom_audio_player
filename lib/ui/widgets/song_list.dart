@@ -20,15 +20,19 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-
+import 'package:get/get.dart';
+import 'package:neom_commons/core/app_flavour.dart';
+import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/domain/model/item_list.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
+import 'package:neom_commons/core/utils/constants/app_constants.dart';
+import 'package:neom_commons/core/utils/constants/url_constants.dart';
 import 'package:neom_commons/core/utils/enums/app_media_source.dart';
 import 'package:neom_commons/core/utils/enums/itemlist_type.dart';
-import 'package:neom_music_player/data/api_services/APIs/saavn_api.dart';
-import 'package:neom_commons/core/domain/model/app_media_item.dart';
+import 'package:neom_music_player/domain/entities/url_image_generator.dart';
+import 'package:neom_music_player/neom_player_invoker.dart';
 import 'package:neom_music_player/ui/widgets/bouncy_playlist_header_scroll_view.dart';
 import 'package:neom_music_player/ui/widgets/copy_clipboard.dart';
 import 'package:neom_music_player/ui/widgets/download_button.dart';
@@ -40,13 +44,9 @@ import 'package:neom_music_player/ui/widgets/multi_download_button.dart';
 import 'package:neom_music_player/ui/widgets/playlist_popupmenu.dart';
 import 'package:neom_music_player/ui/widgets/snackbar.dart';
 import 'package:neom_music_player/ui/widgets/song_tile_trailing_menu.dart';
-import 'package:neom_music_player/utils/helpers/extensions.dart';
-import 'package:neom_music_player/neom_player_invoker.dart';
-import 'package:neom_music_player/domain/entities/url_image_generator.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
-import 'package:neom_music_player/utils/helpers/media_item_mapper.dart';
+import 'package:neom_music_player/utils/helpers/extensions.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:get/get.dart';
 
 class SongsListPage extends StatefulWidget {
   final Itemlist itemlist;
@@ -230,7 +230,7 @@ class _SongsListPageState extends State<SongsListPage> {
                     MultiDownloadButton(
                       data: songList.map((e) => e.toJSON()).toList(),
                       playlistName:
-                          widget.itemlist.name?.toString() ?? 'Songs',
+                          widget.itemlist.name ?? 'Songs',
                     ),
                   IconButton(
                     icon: const Icon(Icons.share_rounded),
@@ -240,7 +240,7 @@ class _SongsListPageState extends State<SongsListPage> {
                         isSharePopupShown = true;
 
                         Share.share(
-                          widget.itemlist.uri.toString(),
+                          widget.itemlist.uri,
                         ).whenComplete(() {
                           Timer(const Duration(milliseconds: 500), () {
                             isSharePopupShown = false;
@@ -251,14 +251,14 @@ class _SongsListPageState extends State<SongsListPage> {
                   ),
                   PlaylistPopupMenu(
                     data: songList,
-                    title: widget.itemlist.name?.toString() ?? 'Songs',
+                    title: widget.itemlist.name ?? 'Songs',
                   ),
                 ],
                 title:
-                    widget.itemlist.name?.toString().unescape() ?? 'Songs',
+                    widget.itemlist.name.unescape() ?? 'Songs',
                 subtitle: '${songList.length} Songs',
-                secondarySubtitle: widget.itemlist.description?.toString() ??
-                    widget.itemlist.description?.toString(),
+                secondarySubtitle: widget.itemlist.description ??
+                    widget.itemlist.description,
                 onPlayTap: () => NeomPlayerInvoker.init(
                   appMediaItems: songList,
                   index: 0,
@@ -302,7 +302,7 @@ class _SongsListPageState extends State<SongsListPage> {
                         onLongPress: () {
                           copyToClipboard(
                             context: context,
-                            text: '${appMediaItem.name}',
+                            text: appMediaItem.name,
                           );
                         },
                         subtitle: Text(
@@ -313,7 +313,7 @@ class _SongsListPageState extends State<SongsListPage> {
                         trailing: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            if((appMediaItem.url.contains("gig-me-out") || appMediaItem.url.contains("firebasestorage.googleapis.com"))
+                            if((appMediaItem.url.contains(AppFlavour.getHubName()) || appMediaItem.url.contains(UrlConstants.firebaseURL))
                                 && appMediaItem.mediaSource == AppMediaSource.internal)
                               DownloadButton(size: 25.0,
                                 mediaItem: appMediaItem,
@@ -330,11 +330,10 @@ class _SongsListPageState extends State<SongsListPage> {
                             index: songList.indexWhere(
                               (element) => element == appMediaItem,
                             ),
-                            isOffline: false,
                           );
                         },
                       );
-                    })
+                    }),
                   ]),
                 ),
               ),

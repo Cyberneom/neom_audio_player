@@ -20,14 +20,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:neom_commons/core/domain/model/item_list.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
+import 'package:neom_commons/core/domain/model/item_list.dart';
+import 'package:neom_music_player/neom_player_invoker.dart';
 import 'package:neom_music_player/ui/widgets/download_button.dart';
 import 'package:neom_music_player/ui/widgets/image_card.dart';
 import 'package:neom_music_player/ui/widgets/song_tile_trailing_menu.dart';
-import 'package:neom_music_player/utils/helpers/audio_query.dart';
-import 'package:neom_music_player/neom_player_invoker.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
+import 'package:neom_music_player/utils/helpers/audio_query.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 
 class DataSearch extends SearchDelegate {
@@ -83,7 +83,7 @@ class DataSearch extends SearchDelegate {
                 (element) =>
                     element.artist!.toLowerCase().contains(query.toLowerCase()),
               ),
-            }
+            },
           ];
     return ListView.builder(
       physics: const BouncingScrollPhysics(),
@@ -124,7 +124,7 @@ class DataSearch extends SearchDelegate {
               genre: element.genre ?? '',
               albumId: element.albumId.toString(),
               url: element.uri ?? '',
-              permaUrl: element.uri ?? '')
+              permaUrl: element.uri ?? '',),
             );
           }
           NeomPlayerInvoker.init(
@@ -150,7 +150,7 @@ class DataSearch extends SearchDelegate {
           ...data.where((element) =>
               element.artist!.toLowerCase().contains(query.toLowerCase()),
           ),
-          }];
+          },];
     return ListView.builder(
       physics: const BouncingScrollPhysics(),
       padding: const EdgeInsets.only(top: 10, bottom: 10),
@@ -264,7 +264,7 @@ class DownloadsSearch extends SearchDelegate {
                     .toLowerCase()
                     .contains(query.toLowerCase()),
               ),
-            }
+            },
           ];
     return ListView.builder(
       physics: const BouncingScrollPhysics(),
@@ -334,7 +334,7 @@ class DownloadsSearch extends SearchDelegate {
                     .toLowerCase()
                     .contains(query.toLowerCase()),
               ),
-            }
+            },
           ];
     return ListView.builder(
       physics: const BouncingScrollPhysics(),

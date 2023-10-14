@@ -17,30 +17,26 @@
  * Copyright (c) 2021-2023, Ankit Sangwan
  */
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-
+// import 'package:path_provider/path_provider.dart';
+import 'package:get/get.dart';
 import 'package:hive/hive.dart';
+import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/domain/model/app_profile.dart';
 import 'package:neom_commons/core/domain/model/item_list.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
-import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/enums/app_media_source.dart';
 import 'package:neom_itemlists/itemlists/data/firestore/app_media_item_firestore.dart';
 import 'package:neom_music_player/data/implementations/playlist_hive_controller.dart';
+import 'package:neom_music_player/neom_player_invoker.dart';
 import 'package:neom_music_player/ui/drawer/library/widgets/song_page_tab.dart';
 import 'package:neom_music_player/ui/widgets/custom_physics.dart';
-import 'package:neom_music_player/ui/drawer/downloads/data_search.dart';
-import 'package:neom_music_player/ui/widgets/download_button.dart';
 import 'package:neom_music_player/ui/widgets/gradient_containers.dart';
 import 'package:neom_music_player/ui/widgets/multi_download_button.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
-import 'package:neom_music_player/utils/helpers/songs_count.dart' as songs_count;
-import 'package:neom_music_player/neom_player_invoker.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
-// import 'package:path_provider/path_provider.dart';
-import 'package:get/get.dart';
+import 'package:neom_music_player/utils/helpers/songs_count.dart' as songs_count;
 import 'package:neom_music_player/utils/neom_audio_utilities.dart';
 
 final ValueNotifier<bool> selectMode = ValueNotifier<bool>(false);
@@ -54,8 +50,8 @@ class PlaylistPlayerPage extends StatefulWidget {
   const PlaylistPlayerPage({
     super.key,
     this.itemlist,
-    this.alternativeName = "",
-    this.appMediaItems
+    this.alternativeName = '',
+    this.appMediaItems,
   });
   @override
   _PlaylistPlayerPageState createState() => _PlaylistPlayerPageState();
@@ -355,7 +351,7 @@ class _PlaylistPlayerPageState extends State<PlaylistPlayerPage>
                                 selectMode.value = false;
                               },
                               icon: const Icon(Icons.clear_rounded),
-                            )
+                            ),
                           ],
                   ) : child!;
                 },
@@ -371,7 +367,7 @@ class _PlaylistPlayerPageState extends State<PlaylistPlayerPage>
                 onDelete: (AppMediaItem item) {
                   deleteLiked(item);
                   },
-                playlistName: widget.itemlist?.name ?? "",
+                playlistName: widget.itemlist?.name ?? '',
                 scrollController: _scrollController,
               ),
                     // AlbumsTab(
@@ -539,4 +535,3 @@ class _PlaylistPlayerPageState extends State<PlaylistPlayerPage>
 // }
 
 }
-

@@ -18,12 +18,12 @@
  */
 
 
-import 'package:get/get.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/domain/model/item_list.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
 import 'package:neom_commons/core/utils/enums/itemlist_type.dart';
-import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_music_player/ui/player/media_player_page.dart';
 import 'package:neom_music_player/ui/widgets/custom_physics.dart';
 import 'package:neom_music_player/ui/widgets/image_card.dart';
@@ -37,7 +37,7 @@ class HorizontalAlbumsListSeparated extends StatelessWidget {
     super.key,
     required this.songsList,
     required this.onTap,
-    this.itemlist
+    this.itemlist,
   });
 
   String formatString(String? text) {
@@ -102,10 +102,10 @@ class HorizontalAlbumsListSeparated extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: itemGroup.map((item) {
-                  final subTitle = item.name ?? "";// getSubTitle(item as Map);
+                  final subTitle = item.name ?? '';// getSubTitle(item as Map);
                   return ListTile(
                     title: Text(
-                      formatString(item.name?.toString()),
+                      formatString(item.name),
                       overflow: TextOverflow.ellipsis,
                     ),
                     subtitle: Text(
@@ -113,7 +113,7 @@ class HorizontalAlbumsListSeparated extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                     leading: imageCard(
-                      imageUrl: item.imgUrl.toString(),
+                      imageUrl: item.imgUrl,
                       placeholderImage: (itemlist?.type == ItemlistType.playlist ||
                               itemlist?.type == ItemlistType.album)
                           ? const AssetImage(AppAssets.musicPlayerAlbum,)
@@ -123,7 +123,7 @@ class HorizontalAlbumsListSeparated extends StatelessWidget {
                     trailing: SongTileTrailingMenu(
                       appMediaItem: item,//.getTotalItems() > 0 ? AppMediaItem.mapItemsFromItemlist(item).first : AppMediaItem(),
                       itemlist: itemlist ?? Itemlist(),
-                      showAddToPlaylist: false
+                      showAddToPlaylist: false,
                     ),
                     onTap: () => onTap(songsList.indexOf(item)),
                     onLongPress: () {

@@ -21,10 +21,9 @@ import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-
+import 'package:get/get.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
-import 'package:get/get.dart';
 
 class BouncyPlaylistHeaderScrollView extends StatelessWidget {
   final ScrollController scrollController;
@@ -217,7 +216,7 @@ class BouncyPlaylistHeaderScrollView extends StatelessWidget {
                                                 color: Colors.black26,
                                                 blurRadius: 5.0,
                                                 offset: Offset(0.0, 3.0),
-                                              )
+                                              ),
                                             ],
                                           ),
                                           child: Padding(

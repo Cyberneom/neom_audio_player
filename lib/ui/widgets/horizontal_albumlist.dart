@@ -18,12 +18,11 @@
  */
 
 import 'package:flutter/material.dart';
-import 'package:neom_commons/core/domain/model/app_item.dart';
+import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/domain/model/item_list.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
 import 'package:neom_commons/core/utils/enums/itemlist_type.dart';
-import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_music_player/ui/widgets/image_card.dart';
 import 'package:neom_music_player/ui/widgets/like_button.dart';
 import 'package:neom_music_player/ui/widgets/on_hover.dart';
@@ -104,7 +103,7 @@ class HorizontalAlbumsList extends StatelessWidget {
                       imageUrl: appMediaItem.imgUrl,
                       boxDimension: MediaQuery.of(context).size.width * 0.8,
                       imageQuality: ImageQuality.high,
-                      placeholderImage: const AssetImage(AppAssets.musicPlayerAlbum,)
+                      placeholderImage: const AssetImage(AppAssets.musicPlayerAlbum,),
                       // (appMediaItem['type'] == 'playlist' || appMediaItem['type'] == 'album')
                       //     ? const AssetImage(AppAssets.musicPlayerAlbum,)
                       //     : appMediaItem['type'] == 'artist'
@@ -167,7 +166,7 @@ class HorizontalAlbumsList extends StatelessWidget {
                                   ),
                                   decoration: BoxDecoration(
                                     color: Colors.black54,
-                                    borderRadius: BorderRadius.circular(10
+                                    borderRadius: BorderRadius.circular(10,
                                       // appMediaItem['type'] == 'radio_station' ? 1000.0 : 10.0,
                                     ),
                                   ),
@@ -194,7 +193,7 @@ class HorizontalAlbumsList extends StatelessWidget {
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    LikeButton(appMediaItem: null,),
+                                    const LikeButton(),
                                     SongTileTrailingMenu(
                                       appMediaItem: appMediaItem, //appMediaItem,
                                       itemlist: itemlist,
@@ -230,7 +229,7 @@ class HorizontalAlbumsList extends StatelessWidget {
                                         .bodySmall!
                                         .color,
                                   ),
-                                )
+                                ),
                             ],
                           ),
                         ),

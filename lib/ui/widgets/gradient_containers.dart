@@ -121,7 +121,7 @@ class _GradientCardState extends State<GradientCard> {
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: currentTheme.getCardGradient()
+            colors: currentTheme.getCardGradient(),
           ),
         ),
         child: widget.child,

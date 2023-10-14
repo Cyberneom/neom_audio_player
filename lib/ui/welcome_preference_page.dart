@@ -18,19 +18,17 @@
  */
 
 import 'package:flutter/material.dart';
-
+import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:neom_commons/core/app_flavour.dart';
 import 'package:neom_commons/core/data/implementations/user_controller.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
-import 'package:neom_commons/core/utils/enums/app_in_use.dart';
 import 'package:neom_music_player/ui/widgets/gradient_containers.dart';
 import 'package:neom_music_player/ui/widgets/snackbar.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
 import 'package:neom_music_player/utils/constants/countrycodes.dart';
 import 'package:neom_music_player/utils/constants/music_player_constants.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
-import 'package:get/get.dart';
 
 class WelcomePreferencePage extends StatefulWidget {
   const WelcomePreferencePage({super.key});
@@ -174,7 +172,7 @@ class _WelcomePreferencePageState extends State<WelcomePreferencePage> {
                                             color: Colors.black26,
                                             blurRadius: 5.0,
                                             offset: Offset(0.0, 3.0),
-                                          )
+                                          ),
                                         ],
                                       ),
                                       child: Center(
@@ -287,7 +285,7 @@ class _WelcomePreferencePageState extends State<WelcomePreferencePage> {
                                             color: Colors.black26,
                                             blurRadius: 5.0,
                                             offset: Offset(0.0, 3.0),
-                                          )
+                                          ),
                                         ],
                                       ),
                                       child: Center(child: Text(region, textAlign: TextAlign.end,),),
@@ -354,7 +352,7 @@ class _WelcomePreferencePageState extends State<WelcomePreferencePage> {
                                             color: Colors.black26,
                                             blurRadius: 5.0,
                                             offset: Offset(0.0, 3.0),
-                                          )
+                                          ),
                                         ],
                                       ),
                                       child: Center(

@@ -1,21 +1,19 @@
 
+import 'dart:async';
+
+import 'package:audio_service/audio_service.dart';
 import 'package:get/get.dart';
+import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:neom_commons/core/data/implementations/user_controller.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_itemlists/itemlists/data/firestore/app_media_item_firestore.dart';
 import 'package:neom_music_player/data/implementations/app_hive_controller.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
-import 'dart:async';
-
-
-import 'package:hive_flutter/hive_flutter.dart';
-import 'package:audio_service/audio_service.dart';
-import 'package:hive/hive.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
 import 'package:neom_music_player/utils/helpers/media_item_mapper.dart';
 import 'package:neom_music_player/utils/helpers/songs_count.dart' as songs_count;
+import 'package:shared_preferences/shared_preferences.dart';
 
 
 class PlaylistHiveController extends GetxController  {
@@ -32,7 +30,7 @@ class PlaylistHiveController extends GetxController  {
   @override
   void onInit() async {
     super.onInit();
-    logger.d("");
+    logger.d('');
     globalMediaItems = await AppMediaItemFirestore().fetchAll();
 
   }
@@ -91,7 +89,7 @@ class PlaylistHiveController extends GetxController  {
       data.length,
       data.length >= 4 ? data.sublist(0, 4) : data.sublist(0, data.length),
     );
-    final Map result = {for (var v in data) v['id'].toString(): v};
+    final Map result = {for (final v in data) v['id'].toString(): v};
     playlistBox.putAll(result);
 
     final List playlistNames =

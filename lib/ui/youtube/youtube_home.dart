@@ -1,6 +1,6 @@
 /*
  *  This file is part of BlackHole (https://github.com/Sangwan5688/BlackHole).
- * 
+ *
  * BlackHole is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -13,26 +13,24 @@
  *
  * You should have received a copy of the GNU Lesser General Public License
  * along with BlackHole.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  * Copyright (c) 2021-2023, Ankit Sangwan
  */
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
-
+import 'package:get/get.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_theme.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
 import 'package:neom_music_player/domain/entities/playlist_section.dart';
-import 'package:neom_music_player/ui/drawer/music_player_drawer.dart';
-import 'package:neom_music_player/ui/widgets/drawer.dart';
-import 'package:neom_music_player/domain/use_cases/youtube_services.dart';
+import 'package:neom_music_player/domain/use_cases/ytmusic/youtube_services.dart';
 import 'package:neom_music_player/ui/YouTube/youtube_search.dart';
+import 'package:neom_music_player/ui/drawer/music_player_drawer.dart';
 import 'package:neom_music_player/ui/youtube/playlist_card.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
-import 'package:get/get.dart';
 
 class YouTube extends StatefulWidget {
   const YouTube({super.key});
@@ -55,7 +53,7 @@ class _YouTubeState extends State<YouTube> with AutomaticKeepAliveClientMixin<Yo
   @override
   void initState() {
 
-    AppUtilities.logger.i("Initializing Youtube Feature");
+    AppUtilities.logger.i('Initializing Youtube Feature');
     // searchedList = AppHiveController().searchedList;
     // headList = AppHiveController().headList;
 
@@ -118,11 +116,11 @@ class _YouTubeState extends State<YouTube> with AutomaticKeepAliveClientMixin<Yo
                       ),
                       itemBuilder: (BuildContext context,
                         int index, int pageViewIndex,) {
-                        String headlistTitle = headList?.playlistItems![index].title ?? "";
-                        if(headlistTitle.toLowerCase() == "null") {
-                          headlistTitle = "";
+                        String headlistTitle = headList?.playlistItems![index].title ?? '';
+                        if(headlistTitle.toLowerCase() == 'null') {
+                          headlistTitle = '';
                         }
-                        String headlistImgUrl = headList?.playlistItems![index].imgUrl ?? "";
+                        String headlistImgUrl = headList?.playlistItems![index].imgUrl ?? '';
                         return GestureDetector(
                           child: Card(
                             elevation: 5,
@@ -155,7 +153,7 @@ class _YouTubeState extends State<YouTube> with AutomaticKeepAliveClientMixin<Yo
                             );
                           },
                         );
-                      }
+                      },
                     ),
                   ListView.builder(
                     itemCount: searchedList?.length ?? 0,
@@ -218,7 +216,7 @@ class _YouTubeState extends State<YouTube> with AutomaticKeepAliveClientMixin<Yo
                     blurRadius: 5.0,
                     offset: Offset(1.5, 1.5),
                     // shadow direction: bottom right
-                  )
+                  ),
                 ],
               ),
               child: Row(

@@ -18,13 +18,12 @@
  */
 
 import 'package:flutter/material.dart';
-
+import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_music_player/ui/widgets/gradient_containers.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
-import 'package:get/get.dart';
 
 class Stats extends StatelessWidget {
   const Stats({super.key});

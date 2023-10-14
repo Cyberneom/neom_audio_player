@@ -23,7 +23,7 @@ import 'dart:typed_data';
 import 'package:dart_des/dart_des.dart';
 import 'package:hive/hive.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
-import 'package:neom_music_player/data/api_services/APIs/saavn_api.dart';
+import 'package:neom_music_player/to_delete/APIs/saavn_api.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
 import 'package:neom_music_player/utils/helpers/extensions.dart';
 import 'package:neom_music_player/utils/helpers/image_resolution_modifier.dart';
@@ -209,7 +209,7 @@ class FormatResponse {
             : response['more_info']['music'],
         'image': getImageUrl(response['image'].toString()),
         'perma_url': response['perma_url'],
-        'url': decode(response['encrypted_media_url'].toString())
+        'url': decode(response['encrypted_media_url'].toString()),
       };
     } catch (e) {
       AppUtilities.logger.e('Error inside FormatSingleAlbumSongResponse: $e');
@@ -521,7 +521,7 @@ class FormatResponse {
         'radio',
         'city_mod',
         'artist_recos',
-        ...promoList
+        ...promoList,
       ];
       data['collections_temp'] = promoListTemp;
     } catch (e) {

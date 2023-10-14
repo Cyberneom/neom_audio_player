@@ -1,12 +1,11 @@
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
 import 'package:neom_music_player/domain/entities/playlist_item.dart';
 import 'package:neom_music_player/ui/YouTube/youtube_playlist.dart';
 import 'package:neom_music_player/ui/YouTube/youtube_search.dart';
 import 'package:neom_music_player/utils/enums/playlist_type.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 
 class PlaylistCard extends StatelessWidget {
 
@@ -98,7 +97,7 @@ class PlaylistCard extends StatelessWidget {
                                 icon: Icon(Icons.playlist_play_rounded,
                                   size: 40,
                                 ),
-                              )
+                              ),
                             ],
                           ),
                         ),
@@ -129,7 +128,7 @@ class PlaylistCard extends StatelessWidget {
                             .color,
                       ),
                     ),
-                    const SizedBox(height: 5.0,)
+                    const SizedBox(height: 5.0,),
                   ],
                 ),
               ),

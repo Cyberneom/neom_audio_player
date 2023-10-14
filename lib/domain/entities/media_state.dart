@@ -5,4 +5,5 @@ class MediaState {
   final Duration position;
 
   MediaState(this.mediaItem, this.position);
+
 }

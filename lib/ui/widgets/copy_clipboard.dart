@@ -19,10 +19,9 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
-
+import 'package:get/get.dart';
 import 'package:neom_music_player/ui/widgets/snackbar.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
-import 'package:get/get.dart';
 
 void copyToClipboard({
   required BuildContext context,

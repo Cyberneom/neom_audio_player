@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
+import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_music_player/ui/widgets/box_switch_tile.dart';
@@ -10,9 +10,8 @@ import 'package:neom_music_player/ui/widgets/gradient_containers.dart';
 import 'package:neom_music_player/ui/widgets/snackbar.dart';
 import 'package:neom_music_player/ui/widgets/textinput_dialog.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
-import 'package:neom_music_player/utils/helpers/picker.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
-import 'package:get/get.dart';
+import 'package:neom_music_player/utils/helpers/picker.dart';
 
 class OthersPage extends StatefulWidget {
   const OthersPage({super.key});
@@ -104,7 +103,7 @@ class _OthersPageState extends State<OthersPage> {
             const BoxSwitchTile(
               title: Text('Remove Service from foreground when paused'),
               subtitle: Text(
-                  "If turned on, you can slide notification when paused to stop the service. But Service can also be stopped by android to release memory. If you don't want android to stop service while paused, turn it off\nDefault: On\n"),
+                  "If turned on, you can slide notification when paused to stop the service. But Service can also be stopped by android to release memory. If you don't want android to stop service while paused, turn it off\nDefault: On\n",),
               isThreeLine: true,
               keyName: 'stopServiceOnPause',
               defaultValue: false,

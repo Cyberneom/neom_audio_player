@@ -1,29 +1,28 @@
-import 'package:flutter/material.dart';
-import 'package:neom_commons/core/utils/app_utilities.dart';
-import 'package:neom_commons/core/utils/constants/app_translation_constants.dart';
-import 'package:neom_commons/core/utils/constants/message_translation_constants.dart';
-import 'package:neom_commons/core/utils/enums/app_item_state.dart';
-import 'package:neom_itemlists/itemlists/ui/search/app_media_item_search_controller.dart';
-import 'package:rflutter_alert/rflutter_alert.dart';
-import 'package:neom_commons/core/utils/app_color.dart';
-import 'package:neom_commons/core/utils/constants/app_assets.dart';
-import 'package:get/get.dart';
 import 'package:enum_to_string/enum_to_string.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:get/get.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/domain/model/item_list.dart';
+import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_theme.dart';
+import 'package:neom_commons/core/utils/app_utilities.dart';
+import 'package:neom_commons/core/utils/constants/app_assets.dart';
 import 'package:neom_commons/core/utils/constants/app_constants.dart';
+import 'package:neom_commons/core/utils/constants/app_translation_constants.dart';
+import 'package:neom_commons/core/utils/constants/message_translation_constants.dart';
 import 'package:neom_commons/core/utils/core_utilities.dart';
+import 'package:neom_commons/core/utils/enums/app_item_state.dart';
 import 'package:neom_commons/core/utils/enums/profile_type.dart';
+import 'package:neom_itemlists/itemlists/ui/search/app_media_item_search_controller.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
 
 class AddToPlaylist {
   // Box settingsBox = Hive.box(AppHiveConstants.settings);
   // List playlistNames = Hive.box(AppHiveConstants.settings).get('playlistNames', defaultValue: [AppHiveConstants.favoriteSongs]) as List;
   // Map playlistDetails = Hive.box(AppHiveConstants.settings).get('playlistDetails', defaultValue: {}) as Map;
 
-  Future<void> addToPlaylist(BuildContext context, AppMediaItem appMediaItem, {fromSearch = false}) async {
+  Future<void> addToPlaylist(BuildContext context, AppMediaItem appMediaItem, {bool fromSearch = false}) async {
 
     List<Itemlist> itemlists = []; ///GET INFO FROM CONTROLLER
     ProfileType type = ProfileType.fan; ///GET INFO FROM CONTROLLER
@@ -60,7 +59,7 @@ class AddToPlaylist {
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
                             Text(itemState.name.tr),
-                            itemState.value == 0 ? Container() : const Text(" - "),
+                            if(itemState.value != 0) const Text(' - '),
                             if (itemState.value == 0) Container() else RatingBar(
                               initialRating: itemState.value.toDouble(),
                               minRating: 1,
@@ -76,11 +75,11 @@ class AddToPlaylist {
                               itemPadding: const EdgeInsets.symmetric(horizontal: 1.0),
                               itemSize: 12,
                               onRatingUpdate: (rating) {
-                                AppUtilities.logger.i("New Rating set to $rating");
+                                AppUtilities.logger.i('New Rating set to $rating');
                               },
                             ),
                           ],
-                        )
+                        ),
                     );
                   }).toList(),
                   onChanged: (String? newState) {
@@ -132,7 +131,7 @@ class AddToPlaylist {
                 Center(
                     child: Text(itemlists.first.name.length > AppConstants.maxItemlistNameLength
                         ? '${itemlists.first.name.substring(0,AppConstants.maxItemlistNameLength)}...'
-                        : itemlists.first.name, style: TextStyle(fontSize: 15,))
+                        : itemlists.first.name, style: TextStyle(fontSize: 15,),),
                 ),
               ],
             ),
@@ -143,15 +142,15 @@ class AddToPlaylist {
             color: AppColor.bondiBlue75,
             child: Obx(()=>searchController.isLoading ? const Center(child: CircularProgressIndicator())
                 : Text(AppTranslationConstants.add.tr,
-            )),
+            ),),
             onPressed: () async => {
               if (type == ProfileType.instrumentist) searchController.appItemState > 0 ? await searchController.addItemlistItem(context, fanItemState: searchController.appItemState)
                   : Get.snackbar(AppTranslationConstants.appItemPrefs.tr,
                   MessageTranslationConstants.selectItemStateMsg.tr,
-                  snackPosition: SnackPosition.bottom
-              ) else await searchController.addItemlistItem(context, fanItemState: AppItemState.heardIt.value)
+                  snackPosition: SnackPosition.bottom,
+              ) else await searchController.addItemlistItem(context, fanItemState: AppItemState.heardIt.value),
             },
-          )
+          ),
         ],
       ).show() : await searchController.addItemlistItem(context,
         fanItemState: AppItemState.heardIt.value,);

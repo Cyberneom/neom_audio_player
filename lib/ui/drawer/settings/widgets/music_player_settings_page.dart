@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_theme.dart';
+import 'package:neom_music_player/ui/drawer/settings/widgets/download.dart';
 import 'package:neom_music_player/ui/drawer/settings/widgets/music_playback.dart';
 import 'package:neom_music_player/ui/drawer/settings/widgets/music_player_interface_page.dart';
-import 'package:neom_music_player/ui/widgets/gradient_containers.dart';
-import 'package:neom_music_player/ui/drawer/settings/widgets/download.dart';
 import 'package:neom_music_player/ui/drawer/settings/widgets/others.dart';
+import 'package:neom_music_player/ui/widgets/gradient_containers.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
 
 class MusicPlayerSettingsPage extends StatefulWidget {
@@ -125,7 +125,7 @@ class _MusicPlayerSettingsPageState extends State<MusicPlayerSettingsPage> {
           PlayerTranslationConstants.showLast.tr,
           PlayerTranslationConstants.enableGesture.tr,
           PlayerTranslationConstants.useLessDataImage.tr,
-        ]
+        ],
       },
       {
         'title': PlayerTranslationConstants.musicPlayback.tr,
@@ -139,13 +139,13 @@ class _MusicPlayerSettingsPageState extends State<MusicPlayerSettingsPage> {
           PlayerTranslationConstants.streamQuality.tr,
           PlayerTranslationConstants.chartLocation.tr,
           PlayerTranslationConstants.streamWifiQuality.tr,
-          // PlayerTranslationConstants.ytStreamQuality.tr,
+          /// PlayerTranslationConstants.ytStreamQuality.tr,
           PlayerTranslationConstants.loadLast.tr,
           PlayerTranslationConstants.resetOnSkip.tr,
           PlayerTranslationConstants.enforceRepeat.tr,
           PlayerTranslationConstants.autoplay.tr,
           PlayerTranslationConstants.cacheSong.tr,
-        ]
+        ],
       },
       {
         'title': PlayerTranslationConstants.down.tr,
@@ -159,7 +159,7 @@ class _MusicPlayerSettingsPageState extends State<MusicPlayerSettingsPage> {
           PlayerTranslationConstants.ytDownQuality.tr,
           PlayerTranslationConstants.createAlbumFold.tr,
           PlayerTranslationConstants.createYtFold.tr,
-        ]
+        ],
       },
       {
         'title': PlayerTranslationConstants.others.tr,
@@ -177,7 +177,7 @@ class _MusicPlayerSettingsPageState extends State<MusicPlayerSettingsPage> {
           PlayerTranslationConstants.checkUpdate.tr,
           PlayerTranslationConstants.clearCache.tr,
           PlayerTranslationConstants.shareLogs.tr,
-        ]
+        ],
       },
     ];
 

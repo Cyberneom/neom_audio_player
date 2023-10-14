@@ -18,22 +18,22 @@
  */
 
 import 'dart:io';
+
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:get/get.dart' as getx;
 import 'package:get_it/get_it.dart';
+import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
 import 'package:neom_commons/core/utils/constants/message_translation_constants.dart';
-import 'package:neom_music_player/data/implementations/app_hive_controller.dart';
-import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/enums/app_media_source.dart';
+import 'package:neom_music_player/data/implementations/app_hive_controller.dart';
+import 'package:neom_music_player/domain/use_cases/neom_audio_handler.dart';
 import 'package:neom_music_player/ui/player/miniplayer_controller.dart';
 import 'package:neom_music_player/utils/helpers/media_item_mapper.dart';
-import 'package:neom_music_player/domain/use_cases/neom_audio_handler.dart';
 import 'package:neom_music_player/utils/music_player_utilities.dart';
-import 'package:on_audio_query/on_audio_query.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:get/get.dart' as getx;
 
 // ignore: avoid_classes_with_only_static_members
 class NeomPlayerInvoker {
@@ -41,7 +41,7 @@ class NeomPlayerInvoker {
 
   static Future<void> init({required List<AppMediaItem> appMediaItems, required int index,
     bool fromMiniPlayer = false, bool isOffline = false, bool recommend = true,
-    bool fromDownloads = false, bool shuffle = false, String? playlistBox, bool playItem = true}) async {
+    bool fromDownloads = false, bool shuffle = false, String? playlistBox, bool playItem = true,}) async {
 
     final int globalIndex = index < 0 ? 0 : index;
     final List<AppMediaItem> finalList = appMediaItems;
@@ -60,12 +60,12 @@ class NeomPlayerInvoker {
   }
 
   static Future<void> setValues(List<AppMediaItem> response, int index, {bool recommend = true, bool playItem = false}) async {
-    AppUtilities.logger.v("Settings Values for index $index");
+    AppUtilities.logger.v('Settings Values for index $index');
 
     try {
       final List<MediaItem> queue = [];
       AppMediaItem appMediaItem = response[index];
-      AppUtilities.logger.v("Loading media ${appMediaItem.name} for music player with index $index");
+      AppUtilities.logger.v('Loading media ${appMediaItem.name} for music player with index $index');
       if (appMediaItem.mediaSource == AppMediaSource.youtube) {
         appMediaItem = await MusicPlayerUtilities.refreshYtLink(appMediaItem);
       }
@@ -144,7 +144,7 @@ class NeomPlayerInvoker {
   }
 
   static Future<void> updateNowPlaying(List<MediaItem> queue, int index, {bool playItem = true}) async {
-    AppUtilities.logger.v("Updating Now Playing info.");
+    AppUtilities.logger.v('Updating Now Playing info.');
 
     try {
       // await audioHandler.startService();
@@ -155,16 +155,16 @@ class NeomPlayerInvoker {
         int nextIndex = 0;
         if (queue.indexWhere((item) => item.id == queue[index].id) >= 0) {
           nextIndex = queue.indexWhere((item) => item.id == queue[index].id);
-          AppUtilities.logger.d("MediaItem found in Queue with Index $index");
+          AppUtilities.logger.d('MediaItem found in Queue with Index $index');
         }
 
         await audioHandler.customAction('skipToMediaItem',
-            {'id': queue[index].id, 'index': nextIndex}
+            {'id': queue[index].id, 'index': nextIndex},
         );
 
         audioHandler.currentMediaItem = queue.elementAt(index);
 
-        if(playItem || (audioHandler.playbackState.valueWrapper?.value?.playing ?? false)) {
+        if(playItem || (audioHandler.playbackState.valueWrapper?.value.playing ?? false)) {
           AppUtilities.logger.d("Starting stream for ${queue[index].title} and URL ${queue[index].extras!['url'].toString()}");
           await audioHandler.play();
         }
@@ -173,7 +173,7 @@ class NeomPlayerInvoker {
         // await audioHandler.playFromUri(Uri.parse(queue[index].extras!['url'].toString()));
         enforceRepeat();
       } else {
-        AppUtilities.logger.i("MusicPlayer not available yet.");
+        AppUtilities.logger.i('MusicPlayer not available yet.');
         AppUtilities.showSnackBar(
           MessageTranslationConstants.underConstruction.tr,
           MessageTranslationConstants.featureAvailableSoon.tr,

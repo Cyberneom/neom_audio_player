@@ -18,15 +18,14 @@
  */
 
 import 'package:flutter/material.dart';
-
+import 'package:get/get.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
+import 'package:neom_music_player/ui/drawer/local_music/downloaded_songs.dart';
 import 'package:neom_music_player/ui/widgets/snackbar.dart';
 import 'package:neom_music_player/ui/widgets/textinput_dialog.dart';
-import 'package:neom_music_player/utils/helpers/audio_query.dart';
-import 'package:neom_music_player/ui/drawer/local_music/downloaded_songs.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
+import 'package:neom_music_player/utils/helpers/audio_query.dart';
 import 'package:on_audio_query/on_audio_query.dart';
-import 'package:get/get.dart';
 
 class LocalPlaylists extends StatefulWidget {
   final List<PlaylistModel> playlistDetails;
@@ -221,7 +220,7 @@ class _LocalPlaylistsState extends State<LocalPlaylists> {
                   },
                 );
               },
-            )
+            ),
         ],
       ),
     );

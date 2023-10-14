@@ -38,7 +38,7 @@ const menuLikeStatus = [
   'topLevelButtons',
   0,
   'likeButtonRenderer',
-  'likeStatus'
+  'likeStatus',
 ];
 const menuService = ['menuServiceItemRenderer', 'serviceEndpoint'];
 const toggleMenu = 'toggleMenuServiceItemRenderer';
@@ -46,31 +46,31 @@ const playButton = [
   'overlay',
   'musicItemThumbnailOverlayRenderer',
   'content',
-  'musicPlayButtonRenderer'
+  'musicPlayButtonRenderer',
 ];
 const navigationBrowse = ['navigationEndpoint', 'browseEndpoint'];
 const navigationBrowseId = [...navigationBrowse, 'browseId'];
 const pageType = [
   'browseEndpointContextSupportedConfigs',
   'browseEndpointContextMusicConfig',
-  'pageType'
+  'pageType',
 ];
 const navigationVideoId = ['navigationEndpoint', 'watchEndpoint', 'videoId'];
 const navigationPlaylistId = [
   'navigationEndpoint',
   'watchEndpoint',
-  'playlistId'
+  'playlistId',
 ];
 const navigationWatchPlaylistId = [
   'navigationEndpoint',
   'watchPlaylistEndpoint',
-  'playlistId'
+  'playlistId',
 ];
 const navigationVideoType = [
   'watchEndpoint',
   'watchEndpointMusicSupportedConfigs',
   'watchEndpointMusicConfig',
-  'musicVideoType'
+  'musicVideoType',
 ];
 const headerDetail = ['header', 'musicDetailHeaderRenderer'];
 const immersiveHeaderDetail = ['header', 'musicImmersiveHeaderRenderer'];
@@ -84,12 +84,12 @@ const carouselTitle = [
   'musicCarouselShelfBasicHeaderRenderer',
   'title',
   'runs',
-  0
+  0,
 ];
 const frameworkMutations = [
   'frameworkUpdates',
   'entityBatchUpdate',
-  'mutations'
+  'mutations',
 ];
 const title = ['title', 'runs', 0];
 final titleText = ['title', ...runText];
@@ -106,12 +106,12 @@ const thumbnails = ['thumbnail', 'musicThumbnailRenderer', ...thumbnail];
 const thumbnailRenderer = [
   'thumbnailRenderer',
   'musicThumbnailRenderer',
-  ...thumbnail
+  ...thumbnail,
 ];
 const thumbnailCropped = [
   'thumbnail',
   'croppedSquareThumbnailRenderer',
-  ...thumbnail
+  ...thumbnail,
 ];
 const feedbackToken = ['feedbackEndpoint', 'feedbackToken'];
 const badgePath = [
@@ -119,20 +119,20 @@ const badgePath = [
   'musicInlineBadgeRenderer',
   'accessibilityData',
   'accessibilityData',
-  'label'
+  'label',
 ];
 const badgeLabel = ['badges', ...badgePath];
 const subtitleBadgeLabel = ['subtitleBadges', ...badgePath];
 const categoryTitle = [
   'musicNavigationButtonRenderer',
   'buttonText',
-  ...runText
+  ...runText,
 ];
 const categoryParams = [
   'musicNavigationButtonRenderer',
   'clickCommand',
   'browseEndpoint',
-  'params'
+  'params',
 ];
 const mTRIR = 'musicTwoRowItemRenderer';
 const mRLIR = 'musicResponsiveListItemRenderer';
@@ -142,13 +142,13 @@ const tasteProfileItems = ['contents', 'tastebuilderRenderer', 'contents'];
 const tasteProfileArtist = ['title', 'runs'];
 const sectionListContinuation = [
   'continuationContents',
-  'sectionListContinuation'
+  'sectionListContinuation',
 ];
 const menuPlaylistId = [
   ...menuItems,
   0,
   'menuNavigationItemRenderer',
-  ...navigationWatchPlaylistId
+  ...navigationWatchPlaylistId,
 ];
 
 dynamic nav(dynamic root, List items) {

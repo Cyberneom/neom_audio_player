@@ -1,31 +1,28 @@
 import 'dart:async';
 import 'dart:math';
 import 'dart:ui' as ui;
-import 'package:get/get.dart';
 
 import 'package:audio_service/audio_service.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
+import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:neom_commons/core/data/implementations/user_controller.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/domain/model/item_list.dart';
 import 'package:neom_commons/core/utils/constants/app_route_constants.dart';
-import 'package:neom_commons/core/utils/enums/app_media_source.dart';
 import 'package:neom_music_player/domain/entities/position_data.dart';
-import 'package:neom_music_player/ui/player/widgets/control_buttons.dart';
-import 'package:neom_music_player/ui/player/widgets/now_playing_stream.dart';
-import 'package:neom_music_player/ui/widgets/go_spotify_button.dart';
-import 'package:neom_music_player/utils/helpers/media_item_mapper.dart';
 import 'package:neom_music_player/domain/use_cases/neom_audio_handler.dart';
 import 'package:neom_music_player/ui/player/widgets/animated_text.dart';
+import 'package:neom_music_player/ui/player/widgets/control_buttons.dart';
+import 'package:neom_music_player/ui/player/widgets/now_playing_stream.dart';
 import 'package:neom_music_player/ui/widgets/download_button.dart';
+import 'package:neom_music_player/ui/widgets/go_spotify_button.dart';
 import 'package:neom_music_player/ui/widgets/like_button.dart';
 import 'package:neom_music_player/ui/widgets/seek_bar.dart';
-import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
 import 'package:neom_music_player/ui/widgets/song_list.dart';
+import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
+import 'package:neom_music_player/utils/helpers/media_item_mapper.dart';
 import 'package:neom_music_player/utils/music_player_utilities.dart';
 import 'package:rxdart/rxdart.dart' as rx;
 import 'package:sliding_up_panel/sliding_up_panel.dart';
@@ -99,7 +96,7 @@ class NameNControls extends StatelessWidget {
                       Navigator.push(context,
                         PageRouteBuilder(
                           opaque: false,
-                          pageBuilder: (_, __, ___) => SongsListPage(itemlist: Itemlist()
+                          pageBuilder: (_, __, ___) => SongsListPage(itemlist: Itemlist(),
                           ),
                         ),
                       );
@@ -191,7 +188,7 @@ class NameNControls extends StatelessWidget {
                            ),
                             onTap: () => Get.find<UserController>().profile.id == appMediaItem.artistId ? Get.toNamed(AppRouteConstants.profile)
                                 : Get.toNamed(AppRouteConstants.mateDetails, arguments: appMediaItem.artistId),
-                          )
+                          ),
                         ],
                       ),
                     ),
@@ -266,7 +263,7 @@ class NameNControls extends StatelessWidget {
                               ),
                               if (!offline)
                                 LikeButton(appMediaItem: appMediaItem,
-                                    size: 25.0
+                                    size: 25.0,
                                 ),
                             ],
                           ),
@@ -320,7 +317,7 @@ class NameNControls extends StatelessWidget {
                               MusicPlayerUtilities.isOwnMediaItem(appMediaItem) ?
                                 DownloadButton(size: 25.0,
                                   mediaItem: MediaItemMapper.fromMediaItem(mediaItem),
-                                ) : GoSpotifyButton(appMediaItem: appMediaItem)
+                                ) : GoSpotifyButton(appMediaItem: appMediaItem),
 
                             ],
                           ),

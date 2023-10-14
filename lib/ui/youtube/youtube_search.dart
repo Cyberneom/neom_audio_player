@@ -1,46 +1,26 @@
-/*
- *  This file is part of BlackHole (https://github.com/Sangwan5688/BlackHole).
- * 
- * BlackHole is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * BlackHole is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with BlackHole.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * Copyright (c) 2021-2023, Ankit Sangwan
- */
-
+import 'package:enum_to_string/enum_to_string.dart';
 import 'package:flutter/material.dart';
-
+import 'package:get/get.dart';
 import 'package:hive/hive.dart';
+import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/constants/app_translation_constants.dart';
-import 'package:neom_commons/core/domain/model/app_media_item.dart';
+import 'package:neom_music_player/domain/use_cases/ytmusic/youtube_services.dart';
+import 'package:neom_music_player/domain/use_cases/ytmusic/yt_music.dart';
+import 'package:neom_music_player/neom_player_invoker.dart';
+import 'package:neom_music_player/ui/YouTube/youtube_artist.dart';
+import 'package:neom_music_player/ui/YouTube/youtube_playlist.dart';
 import 'package:neom_music_player/ui/widgets/empty_screen.dart';
 import 'package:neom_music_player/ui/widgets/gradient_containers.dart';
 import 'package:neom_music_player/ui/widgets/image_card.dart';
 import 'package:neom_music_player/ui/widgets/music_search_bar.dart' as searchbar;
 import 'package:neom_music_player/ui/widgets/snackbar.dart';
-import 'package:neom_music_player/ui/widgets/song_tile_trailing_menu.dart';
-import 'package:neom_music_player/neom_player_invoker.dart';
-import 'package:neom_music_player/domain/use_cases/youtube_services.dart';
-import 'package:neom_music_player/domain/use_cases/yt_music.dart';
 import 'package:neom_music_player/ui/widgets/song_list_view.dart';
-import 'package:neom_music_player/ui/YouTube/youtube_artist.dart';
-import 'package:neom_music_player/ui/YouTube/youtube_playlist.dart';
+import 'package:neom_music_player/ui/widgets/song_tile_trailing_menu.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
-import 'package:get/get.dart';
 import 'package:neom_music_player/utils/enums/youtube_item_type.dart';
-import 'package:enum_to_string/enum_to_string.dart';
 
 class YouTubeSearchPage extends StatefulWidget {
   final String query;
@@ -393,7 +373,7 @@ class _YouTubeSearchPageState extends State<YouTubeSearchPage> {
                                               data: section['items']
                                               [idx] as Map,) : null,
                                             onTap: () async {
-                                              AppUtilities.logger.d("Tapping Search Result");
+                                              AppUtilities.logger.d('Tapping Search Result');
                                               switch(ytItemType) {
                                                 case YoutubeItemType.artist:
                                                   Navigator.push(context,
@@ -403,7 +383,6 @@ class _YouTubeSearchPageState extends State<YouTubeSearchPage> {
                                                           ),
                                                     ),
                                                   );
-                                                  break;
                                                 case YoutubeItemType.playlist:
                                                   Navigator.push(context,
                                                     MaterialPageRoute(builder: (context) =>
@@ -412,7 +391,6 @@ class _YouTubeSearchPageState extends State<YouTubeSearchPage> {
                                                         ),
                                                     ),
                                                   );
-                                                  break;
                                                 case YoutubeItemType.song:
                                                   setState(() {
                                                     done = false;
@@ -439,7 +417,6 @@ class _YouTubeSearchPageState extends State<YouTubeSearchPage> {
                                                   if (response == null) {
                                                     ShowSnackBar().showSnackBar(context, PlayerTranslationConstants.ytLiveAlert.tr,);
                                                   }
-                                                  break;
                                                 case YoutubeItemType.video:
                                                   setState(() {
                                                     done = false;
@@ -462,7 +439,6 @@ class _YouTubeSearchPageState extends State<YouTubeSearchPage> {
                                                   if (response == null) {
                                                     ShowSnackBar().showSnackBar(context, PlayerTranslationConstants.ytLiveAlert.tr,);
                                                   }
-                                                  break;
                                                 case YoutubeItemType.album:
                                                   Navigator.push(context,
                                                     MaterialPageRoute(builder: (context) =>
@@ -470,7 +446,6 @@ class _YouTubeSearchPageState extends State<YouTubeSearchPage> {
                                                           type: 'album',),
                                                     ),
                                                   );
-                                                  break;
                                                 case YoutubeItemType.single:
                                                   Navigator.push(context,
                                                     MaterialPageRoute(builder: (context) =>
@@ -478,7 +453,6 @@ class _YouTubeSearchPageState extends State<YouTubeSearchPage> {
                                                           type: 'album',),
                                                     ),
                                                   );
-                                                  break;
                                                 default:
                                                   break;
                                               }
@@ -532,7 +506,7 @@ class _YouTubeSearchPageState extends State<YouTubeSearchPage> {
                               ),
                             ),
                           ),
-                        )
+                        ),
                     ],
                   ),
                 ),

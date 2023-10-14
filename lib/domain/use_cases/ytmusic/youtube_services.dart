@@ -23,13 +23,13 @@ import 'dart:io';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:html_unescape/html_unescape_small.dart';
 import 'package:http/http.dart';
-import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
+import 'package:neom_commons/core/utils/app_utilities.dart';
+import 'package:neom_commons/core/utils/enums/app_media_source.dart';
 import 'package:neom_music_player/domain/entities/playlist_item.dart';
 import 'package:neom_music_player/domain/entities/playlist_section.dart';
 import 'package:neom_music_player/domain/entities/youtube_music_home.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
-import 'package:neom_commons/core/utils/enums/app_media_source.dart';
 import 'package:neom_music_player/utils/enums/playlist_type.dart';
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 
@@ -39,10 +39,10 @@ class YouTubeServices {
     'search': '/results',
     'channel': '/channel',
     'music': '/music',
-    'playlist': '/playlist'
+    'playlist': '/playlist',
   };
   static const Map<String, String> headers = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; rv:96.0) Gecko/20100101 Firefox/96.0'
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; rv:96.0) Gecko/20100101 Firefox/96.0',
   };
   final YoutubeExplode yt = YoutubeExplode();
 
@@ -131,8 +131,8 @@ class YouTubeServices {
         }).toList();
 
         final List<PlaylistSection> bodySection = shelfRenderer.map((element) {
-          String resultTitle = element['title']['runs'][0]['text'].toString().trim();
-          List shelfRendererItems = element['content']['horizontalListRenderer']['items'] as List;
+          final String resultTitle = element['title']['runs'][0]['text'].toString().trim();
+          final List shelfRendererItems = element['content']['horizontalListRenderer']['items'] as List;
 
           final playlistItems = resultTitle == 'Charts' || resultTitle == 'Classements' || resultTitle.contains('Las más escuchadas')
               ? formatItems(shelfRendererItems, type: PlaylistType.chart)
@@ -153,7 +153,7 @@ class YouTubeServices {
           }
         }).toList();
 
-        PlaylistSection headSection = PlaylistSection(
+        final PlaylistSection headSection = PlaylistSection(
           playlistItems: formatItems(headResult, isHead: true),
         );
 
@@ -186,8 +186,8 @@ class YouTubeServices {
 
   List<PlaylistItem> formatItems(List itemsList, {PlaylistType type = PlaylistType.playlist, bool isHead = false}) {
 
-    List<PlaylistItem> playlistItems = [];
-    String typeRenderer = "";
+    final List<PlaylistItem> playlistItems = [];
+    String typeRenderer = '';
 
     try {
 
@@ -197,24 +197,21 @@ class YouTubeServices {
       } else {
         switch(type) {
           case PlaylistType.video:
-            typeRenderer = "gridVideoRenderer";
-            break;
+            typeRenderer = 'gridVideoRenderer';
           case PlaylistType.chart:
-            typeRenderer = "gridPlaylistRenderer";
-            break;
+            typeRenderer = 'gridPlaylistRenderer';
           case PlaylistType.playlist:
-            typeRenderer = "compactStationRenderer";
-            break;
+            typeRenderer = 'compactStationRenderer';
           case PlaylistType.audio:
             break;
           default:
-            typeRenderer = "compactStationRenderer";
+            typeRenderer = 'compactStationRenderer';
             break;
         }
       }
 
       itemsList.forEach((e) {
-        String eTitle = "";
+        String eTitle = '';
         if(e[typeRenderer]['title']['simpleText'] != null) {
            eTitle = e[typeRenderer]['title']['simpleText'].toString();
         } else {
@@ -222,14 +219,14 @@ class YouTubeServices {
         }
 
 
-        String eDescription = "";
+        String eDescription = '';
         if(e[typeRenderer]['description'] != null) {
           eDescription = isHead ? (e[typeRenderer]['description']['runs'] as List)
               .map((e) => e['text']).toList().join() : e[typeRenderer]['description']['simpleText'] != null
               ? e[typeRenderer]['description']['simpleText'].toString() : e[typeRenderer]['shortBylineText']['runs'][0]['text'].toString();
         }
 
-        String eImgUrl = isHead ? e[typeRenderer]['largeFormFactorBackgroundThumbnail']
+        final String eImgUrl = isHead ? e[typeRenderer]['largeFormFactorBackgroundThumbnail']
           ['thumbnailLandscapePortraitRenderer']['landscape']['thumbnails'].last['url'].toString()
             : e[typeRenderer]['thumbnail']['thumbnails'][0]['url'].toString();
 
@@ -242,11 +239,11 @@ class YouTubeServices {
           eDescription = eDescription + e[typeRenderer]['viewCountText']['simpleText'].toString();
         }
 
-        String eId = type == PlaylistType.video ? (isHead ? e[typeRenderer]['navigationEndpoint']['watchEndpoint']['videoId'].toString()
+        final String eId = type == PlaylistType.video ? (isHead ? e[typeRenderer]['navigationEndpoint']['watchEndpoint']['videoId'].toString()
             : e[typeRenderer]['videoId'].toString())
             : e[typeRenderer]['navigationEndpoint']['watchEndpoint']['playlistId'].toString();
 
-        String eFirstItemId = type == PlaylistType.video ? (isHead ? e[typeRenderer]['navigationEndpoint']['watchEndpoint']['videoId'].toString()
+        final String eFirstItemId = type == PlaylistType.video ? (isHead ? e[typeRenderer]['navigationEndpoint']['watchEndpoint']['videoId'].toString()
             : e[typeRenderer]['videoId'].toString())
             : e[typeRenderer]['navigationEndpoint']['watchEndpoint']['videoId'].toString();
 
@@ -280,11 +277,11 @@ class YouTubeServices {
     String expireAt = '0';
     if (getUrl) {
       if (false && Hive.box(AppHiveConstants.ytLinkCache).containsKey(video.id.value)) {
-        AppUtilities.logger.d("Check Cache First");
+        AppUtilities.logger.d('Check Cache First');
         final Map cachedData = Hive.box(AppHiveConstants.ytLinkCache).get(video.id.value) as Map;
         final int cachedExpiredAt = int.parse(cachedData['expire_at'].toString());
         if ((DateTime.now().millisecondsSinceEpoch ~/ 1000) + 350 > cachedExpiredAt) {
-          AppUtilities.logger.d("Cache Expired");
+          AppUtilities.logger.d('Cache Expired');
           urls = await getUri(video);
         } else {
           AppUtilities.logger.d('Giving cache link- Cache found for ${video.id.value}');
@@ -346,9 +343,9 @@ class YouTubeServices {
     AppUtilities.logger.i('FetchSearchResults for $query');
     final List<Video> searchResults = await yt.search.search(query);
     final List<AppMediaItem> videoResult = [];
-    for (final Video vid in searchResults) {
+    for (final vid in searchResults) {
       final AppMediaItem? res = await formatVideo(video: vid, quality: 'High', getUrl: false);
-      if (AppMediaItem != null) videoResult.add(res!);
+      if (res != null) videoResult.add(res);
     }
     return [
       {

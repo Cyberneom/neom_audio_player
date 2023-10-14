@@ -10,7 +10,7 @@ import 'package:neom_commons/core/utils/constants/app_page_id_constants.dart';
 import 'package:neom_commons/core/utils/constants/app_route_constants.dart';
 import 'package:neom_commons/core/utils/enums/itemlist_type.dart';
 import 'package:neom_music_player/neom_player_invoker.dart';
-import 'package:neom_music_player/ui/Search/search_page.dart';
+import 'package:neom_music_player/to_delete/search/search_page.dart';
 import 'package:neom_music_player/ui/drawer/library/playlist_player_page.dart';
 import 'package:neom_music_player/ui/home/music_player_home_controller.dart';
 import 'package:neom_music_player/ui/player/media_player_page.dart';
@@ -56,7 +56,7 @@ class MusicPlayerHomeContent extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
         itemCount: _.publicItemlists.isEmpty ? 3 : (_.publicItemlists.length + 3),
         itemBuilder: (context, idx) {
-          AppUtilities.logger.v("Building Music Home Index $idx");
+          AppUtilities.logger.v('Building Music Home Index $idx');
           if (idx == _.recentIndex) {
             return buildLastSessionContainer(context, _);
           }
@@ -80,7 +80,7 @@ class MusicPlayerHomeContent extends StatelessWidget {
             children: [
               Padding(
                 padding: const EdgeInsets.fromLTRB(15, 10, 15, 5),
-                child: Text(publicList.name.capitalizeFirst ?? '',
+                child: Text(publicList.name.capitalizeFirst,
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.secondary,
                     fontSize: 18,
@@ -248,7 +248,7 @@ class MusicPlayerHomeContent extends StatelessWidget {
                                               fontSize: 11,
                                               color: Theme.of(context).textTheme.bodySmall!.color,
                                             ),
-                                          )
+                                          ),
                                       ],
                                     ),
                                   ),
@@ -385,7 +385,7 @@ class MusicPlayerHomeContent extends StatelessWidget {
             onTap: (int idx) {
               NeomPlayerInvoker.init(
                 appMediaItems: [_.recentList.values.elementAt(idx)],
-                index: 0
+                index: 0,
               );
             },
           ),
@@ -492,7 +492,7 @@ class MusicPlayerHomeContent extends StatelessWidget {
                                         fontSize: 11,
                                         color: Theme.of(context).textTheme.bodySmall!.color,
                                       ),
-                                    )
+                                    ),
                                 ],
                               ),
                             ),
@@ -517,7 +517,7 @@ class MusicPlayerHomeContent extends StatelessWidget {
                 );
               },
             ),
-          )
+          ),
         ],
     );
   }
@@ -612,7 +612,7 @@ class MusicPlayerHomeContent extends StatelessWidget {
                                         fontSize: 11,
                                         color: Theme.of(context).textTheme.bodySmall!.color,
                                       ),
-                                    )
+                                    ),
                                 ],
                               ),
                             ),
@@ -630,7 +630,7 @@ class MusicPlayerHomeContent extends StatelessWidget {
               );
             },
           ),
-        )
+        ),
       ],
     );
   }
@@ -676,4 +676,3 @@ class MusicPlayerHomeContent extends StatelessWidget {
   }
 
 }
-

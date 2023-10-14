@@ -1,11 +1,9 @@
 import 'dart:io';
+
 import 'package:audio_service/audio_service.dart';
-import 'package:get/get.dart';
-
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
+import 'package:get/get.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
 import 'package:neom_music_player/domain/entities/queue_state.dart';
 import 'package:neom_music_player/domain/use_cases/neom_audio_handler.dart';
@@ -117,7 +115,7 @@ class NowPlayingStream extends StatelessWidget {
                         ),
                         tooltip: PlayerTranslationConstants.playing.tr,
                         onPressed: () {},
-                      )
+                      ),
                     ] : [
                       if (item.extras!['url'].toString()
                           .startsWith('http')) ...[
@@ -127,8 +125,8 @@ class NowPlayingStream extends StatelessWidget {
                         DownloadButton(
                           icon: 'download',
                           size: 25.0,
-                          mediaItem: MediaItemMapper.fromMediaItem(queue[index])
-                        )
+                          mediaItem: MediaItemMapper.fromMediaItem(queue[index]),
+                        ),
                       ],
                       ReorderableDragStartListener(
                         key: Key(item.id),

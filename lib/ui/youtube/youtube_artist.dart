@@ -18,20 +18,19 @@
  */
 
 import 'package:flutter/material.dart';
-
+import 'package:get/get.dart';
+import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
-import 'package:neom_commons/core/domain/model/app_media_item.dart';
+import 'package:neom_music_player/domain/use_cases/ytmusic/youtube_services.dart';
+import 'package:neom_music_player/domain/use_cases/ytmusic/yt_music.dart';
+import 'package:neom_music_player/neom_player_invoker.dart';
 import 'package:neom_music_player/ui/widgets/bouncy_sliver_scroll_view.dart';
 import 'package:neom_music_player/ui/widgets/copy_clipboard.dart';
 import 'package:neom_music_player/ui/widgets/gradient_containers.dart';
 import 'package:neom_music_player/ui/widgets/image_card.dart';
 import 'package:neom_music_player/ui/widgets/song_tile_trailing_menu.dart';
-import 'package:neom_music_player/neom_player_invoker.dart';
-import 'package:neom_music_player/domain/use_cases/youtube_services.dart';
-import 'package:neom_music_player/domain/use_cases/yt_music.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
-import 'package:get/get.dart';
 
 class YouTubeArtist extends StatefulWidget {
   final String artistId;
@@ -252,7 +251,7 @@ class _YouTubeArtistState extends State<YouTubeArtist> {
                     ),
                   ),
                 ),
-              )
+              ),
           ],
         ),
       ),

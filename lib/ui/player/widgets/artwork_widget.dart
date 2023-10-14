@@ -1,17 +1,15 @@
-import 'package:flutter/cupertino.dart';
-import 'package:flutter_lyric/lyric_ui/ui_netease.dart';
-import 'package:flutter_lyric/lyrics_reader_model.dart';
 import 'dart:async';
 import 'dart:io';
-import 'package:get/get.dart';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flip_card/flip_card.dart';
 import 'package:flutter/material.dart';
-
+import 'package:flutter_lyric/lyric_ui/ui_netease.dart';
 import 'package:flutter_lyric/lyrics_model_builder.dart';
+import 'package:flutter_lyric/lyrics_reader_model.dart';
 import 'package:flutter_lyric/lyrics_reader_widget.dart';
+import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
@@ -19,17 +17,14 @@ import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
 import 'package:neom_commons/core/utils/enums/app_in_use.dart';
 import 'package:neom_music_player/domain/entities/queue_state.dart';
-import 'package:neom_music_player/utils/helpers/media_item_mapper.dart';
 import 'package:neom_music_player/domain/use_cases/neom_audio_handler.dart';
 import 'package:neom_music_player/ui/widgets/add_to_playlist.dart';
 import 'package:neom_music_player/ui/widgets/copy_clipboard.dart';
 import 'package:neom_music_player/ui/widgets/empty_screen.dart';
-import 'package:neom_music_player/ui/widgets/gradient_containers.dart';
-import 'package:neom_music_player/ui/widgets/popup.dart';
 import 'package:neom_music_player/ui/widgets/seek_bar.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
-import 'package:neom_music_player/utils/helpers/lyrics.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
+import 'package:neom_music_player/utils/helpers/lyrics.dart';
 import 'package:rxdart/rxdart.dart' as rx;
 
 class ArtWorkWidget extends StatefulWidget {
@@ -187,7 +182,7 @@ class _ArtWorkWidgetState extends State<ArtWorkWidget> {
                         Colors.black,
                         Colors.black,
                         Colors.black,
-                        Colors.transparent
+                        Colors.transparent,
                       ],
                     ).createShader(
                       Rect.fromLTRB(0, 0, rect.width, rect.height),
@@ -416,8 +411,7 @@ class _ArtWorkWidgetState extends State<ArtWorkWidget> {
                         image: FileImage(
                           File(widget.appMediaItem.imgUrl ?? '',),
                         ),
-                      )
-                          : CachedNetworkImage(
+                      ) : CachedNetworkImage(
                         fit: BoxFit.contain,
                         errorWidget: (BuildContext context, _, __) =>
                         const Image(

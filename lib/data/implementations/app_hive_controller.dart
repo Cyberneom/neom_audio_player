@@ -1,16 +1,14 @@
 
-import 'package:audio_service/audio_service.dart';
-import 'package:get/get.dart';
-import 'package:neom_commons/core/utils/app_utilities.dart';
-import 'package:neom_music_player/domain/entities/playlist_section.dart';
-import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
-import 'package:enum_to_string/enum_to_string.dart';
-
 import 'dart:async';
 import 'dart:io';
 
-
+import 'package:audio_service/audio_service.dart';
+import 'package:enum_to_string/enum_to_string.dart';
+import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:neom_commons/core/utils/app_utilities.dart';
+import 'package:neom_music_player/domain/entities/playlist_section.dart';
+import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
 import 'package:path_provider/path_provider.dart';
 
 
@@ -50,7 +48,7 @@ class AppHiveController extends GetxController {
   @override
   void onInit() async {
     super.onInit();
-    logger.d('AppHive Controller');
+    logger.v('AppHive Controller');
 
     try {
       // await fetchCachedData();
@@ -88,9 +86,8 @@ class AppHiveController extends GetxController {
     if(searchedList != null) {
       Hive.box(AppHiveConstants.cache).put('ytHome', searchedList);
     }
-
-
   }
+
 
   Future<void> fetchCachedData() async {
     searchedList = await Hive.box(AppHiveConstants.cache).get('ytHome', defaultValue: []) as List;
@@ -112,7 +109,7 @@ class AppHiveController extends GetxController {
     stopForegroundService = Hive.box(AppHiveConstants.settings).get('stopForegroundService', defaultValue: true) as bool;
     repeatMode = EnumToString.fromString(AudioServiceRepeatMode.values,
         Hive.box(AppHiveConstants.settings).get('repeatMode',
-            defaultValue: AudioServiceRepeatMode.none.name).toString()) ?? AudioServiceRepeatMode.none;
+            defaultValue: AudioServiceRepeatMode.none.name,).toString(),) ?? AudioServiceRepeatMode.none;
     enforceRepeat = Hive.box(AppHiveConstants.settings).get('enforceRepeat', defaultValue: false) as bool;
     searchQueries = Hive.box(AppHiveConstants.settings).get('searchQueries', defaultValue: []) as List;
     liveSearch = Hive.box(AppHiveConstants.settings).get('liveSearch', defaultValue: true) as bool;

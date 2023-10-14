@@ -18,21 +18,20 @@
  */
 
 import 'package:flutter/material.dart';
-
+import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:neom_commons/core/data/firestore/app_release_item_firestore.dart';
+import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/domain/model/app_release_item.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/constants/app_translation_constants.dart';
 import 'package:neom_itemlists/itemlists/data/api_services/spotify/spotify_search.dart';
 import 'package:neom_itemlists/itemlists/ui/widgets/app_item_widgets.dart';
-import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_music_player/ui/widgets/empty_screen.dart';
 import 'package:neom_music_player/ui/widgets/gradient_containers.dart';
 import 'package:neom_music_player/ui/widgets/music_search_bar.dart' as searchbar;
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
-import 'package:get/get.dart';
 
 class SearchPage extends StatefulWidget {
   final String query;
@@ -85,15 +84,13 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   Future<void> fetchResults() async {
-    // this fetches top 5 songs results
-    // final Map result = await SaavnAPI().fetchSongSearchResults(searchQuery: query == '' ? widget.query : query, count: 5,);
 
     if(items.isEmpty) {
       items = await AppReleaseItemFirestore().retrieveAll();
     }
 
     for (var item in items.values) {
-      if(item.name.toLowerCase().contains(searchParam) || item.ownerName.toLowerCase().contains(searchParam)){
+      if(item.name.toLowerCase().contains(searchParam.toLowerCase()) || item.ownerName.toLowerCase().contains(searchParam.toLowerCase())){
         appMediaItems[item.id] = AppMediaItem.fromAppReleaseItem(item);
       }
     }

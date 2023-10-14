@@ -1,18 +1,16 @@
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
-import 'package:neom_commons/core/utils/app_utilities.dart';
+import 'package:get/get.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
+import 'package:neom_commons/core/utils/app_utilities.dart';
+import 'package:neom_music_player/neom_player_invoker.dart';
 import 'package:neom_music_player/ui/widgets/add_to_off_playlist.dart';
 import 'package:neom_music_player/ui/widgets/empty_screen.dart';
 import 'package:neom_music_player/ui/widgets/playlist_head.dart';
 import 'package:neom_music_player/ui/widgets/snackbar.dart';
-import 'package:neom_music_player/utils/helpers/audio_query.dart';
-import 'package:neom_music_player/neom_player_invoker.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
+import 'package:neom_music_player/utils/helpers/audio_query.dart';
 import 'package:on_audio_query/on_audio_query.dart';
-import 'package:get/get.dart';
 
 
 class SongsTab extends StatefulWidget {
@@ -586,7 +584,7 @@ class _SongsTabState extends State<SongsTab>
                     ],
                   ),
                   onTap: () {
-                    AppUtilities.logger.i("NeomPlayerInvoke for downloaded songs");
+                    AppUtilities.logger.i('NeomPlayerInvoke for downloaded songs');
                     NeomPlayerInvoker.init(
                       appMediaItems: widget.songs,
                       index: index,
@@ -603,4 +601,3 @@ class _SongsTabState extends State<SongsTab>
     );
   }
 }
-

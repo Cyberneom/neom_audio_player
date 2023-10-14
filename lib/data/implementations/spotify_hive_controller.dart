@@ -38,7 +38,7 @@ class SpotifyHiveController extends GetxController  {
 
   @override
   void onInit() async {
-    logger.d("");
+    logger.d('');
     super.onInit();
   }
 
@@ -76,7 +76,7 @@ class SpotifyHiveController extends GetxController  {
     if (!spotifySigned && !signIn) {
       return;
     }
-    final String? spotifyToken = await getSpotifyToken();
+    final String spotifyToken = await getSpotifyToken();
 
     final String? accessToken = await retriveAccessToken();
     

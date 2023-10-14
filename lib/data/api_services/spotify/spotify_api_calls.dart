@@ -1,14 +1,13 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+import 'package:http/http.dart';
 import 'package:neom_commons/core/app_flavour.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_itemlists/itemlists/utils/constants/app_spotify_constants.dart';
 import 'package:spotify/spotify.dart' as spotify;
 import 'package:spotify_sdk/spotify_sdk.dart';
-import 'dart:async';
-
-import 'package:http/http.dart';
 
 class SpotifyApiCalls {
 
@@ -33,8 +32,8 @@ class SpotifyApiCalls {
   String requestAuthorization() => 'https://accounts.spotify.com/authorize?client_id=${AppFlavour.getSpotifyClientId()}&response_type=code&redirect_uri=$redirectUrl&scope=${_scopes.join('%20')}';
 
   static Future<String> getSpotifyToken() async {
-    AppUtilities.logger.d("Getting access and Spotify Token");
-    String spotifyToken = "";
+    AppUtilities.logger.d('Getting access and Spotify Token');
+    String spotifyToken = '';
 
     if(await SpotifySdk.connectToSpotifyRemote(
       clientId: AppFlavour.getSpotifyClientId(),
@@ -43,11 +42,11 @@ class SpotifyApiCalls {
       spotifyToken = await SpotifySdk.getAccessToken(
           clientId: AppFlavour.getSpotifyClientId(),
           redirectUrl: AppSpotifyConstants.redirectUrl,
-          scope: AppSpotifyConstants.scope
+          scope: AppSpotifyConstants.scope,
       );
     }
 
-    AppUtilities.logger.i("Spotify Token Retrieved $spotifyToken");
+    AppUtilities.logger.i('Spotify Token Retrieved $spotifyToken');
     return spotifyToken;
   }
 
@@ -63,7 +62,7 @@ class SpotifyApiCalls {
       AppUtilities.logger.e(e.toString());
     }
 
-    AppUtilities.logger.i("The spotify userName is ${spotifyUser.displayName}");
+    AppUtilities.logger.i('The spotify userName is ${spotifyUser.displayName}');
     return spotifyUser;
   }
 
@@ -74,12 +73,12 @@ class SpotifyApiCalls {
 
     try {
       spotifyPlaylists = await spotifyApi.playlists.getUsersPlaylists(userId, 100).all();
-      AppUtilities.logger.i("${spotifyPlaylists.length} playlists where retrieved from Spotify");
+      AppUtilities.logger.i('${spotifyPlaylists.length} playlists where retrieved from Spotify');
     } catch (e) {
       AppUtilities.logger.e(e.toString());
     }
 
-    AppUtilities.logger.i("${spotifyPlaylists.length} were retrieved for Spotify User Id $userId");
+    AppUtilities.logger.i('${spotifyPlaylists.length} were retrieved for Spotify User Id $userId');
     return spotifyPlaylists.toList();
   }
 
@@ -92,11 +91,11 @@ class SpotifyApiCalls {
 
     try {
       spotifyPlaylists = await spotifyApi.playlists.getUsersPlaylists(userId, 100).all();
-      AppUtilities.logger.i("${spotifyPlaylists.length} playlists where retrieved from Spotify");
+      AppUtilities.logger.i('${spotifyPlaylists.length} playlists where retrieved from Spotify');
       
       for (var spotifyPlaylist in spotifyPlaylists.toList()) {
         if(spotifyPlaylist.id?.isNotEmpty ?? false) {
-          AppUtilities.logger.d("Getting full info for Playlist ${spotifyPlaylist.name} with id ${spotifyPlaylist.id}");
+          AppUtilities.logger.d('Getting full info for Playlist ${spotifyPlaylist.name} with id ${spotifyPlaylist.id}');
           playlists.add(await spotifyApi.playlists.get(spotifyPlaylist.id!));
         }
       }
@@ -104,11 +103,11 @@ class SpotifyApiCalls {
       AppUtilities.logger.e(e.toString());
     }
 
-    AppUtilities.logger.i("${playlists.length} were retrieved for Spotify User Id $userId");
+    AppUtilities.logger.i('${playlists.length} were retrieved for Spotify User Id $userId');
     return playlists;
   }
 
-  static Future<http.Response?> getUserTopItems({required String spotifyToken, String itemType = "tracks"}) async {
+  static Future<http.Response?> getUserTopItems({required String spotifyToken, String itemType = 'tracks'}) async {
 
     http.Response? response;
 
@@ -126,7 +125,7 @@ class SpotifyApiCalls {
     }
 
 
-    AppUtilities. logger.i(response?.body ?? "");
+    AppUtilities. logger.i(response?.body ?? '');
     return response;
   }
 
@@ -137,7 +136,7 @@ class SpotifyApiCalls {
 
     try {
       playlist = await spotifyApi.playlists.get(playlistId);
-      AppUtilities.logger.i("Playlist ${playlist.name} were retrieved from Spotify");
+      AppUtilities.logger.i('Playlist ${playlist.name} were retrieved from Spotify');
 
     } catch (e) {
       AppUtilities.logger.e(e.toString());
@@ -162,7 +161,7 @@ class SpotifyApiCalls {
       body = {
         'grant_type': 'authorization_code',
         'code': code,
-        'redirect_uri': redirectUrl
+        'redirect_uri': redirectUrl,
       };
     } else if (refreshToken != null) {
       body = {
@@ -207,7 +206,7 @@ class SpotifyApiCalls {
         path,
         headers: {
           'Authorization': 'Bearer $accessToken',
-          'Accept': 'application/json'
+          'Accept': 'application/json',
         },
       );
       if (response.statusCode == 200) {
@@ -267,7 +266,7 @@ class SpotifyApiCalls {
         path,
         headers: {
           'Authorization': 'Bearer $accessToken',
-          'Accept': 'application/json'
+          'Accept': 'application/json',
         },
       );
 
@@ -302,7 +301,7 @@ class SpotifyApiCalls {
       path,
       headers: {
         'Authorization': 'Bearer $accessToken',
-        'Accept': 'application/json'
+        'Accept': 'application/json',
       },
     );
 
@@ -326,7 +325,7 @@ class SpotifyApiCalls {
       path,
       headers: {
         'Authorization': 'Bearer $accessToken',
-        'Accept': 'application/json'
+        'Accept': 'application/json',
       },
     );
 
@@ -351,7 +350,7 @@ class SpotifyApiCalls {
         path,
         headers: {
           'Authorization': 'Bearer $accessToken',
-          'Accept': 'application/json'
+          'Accept': 'application/json',
         },
       );
       final List<Map> songsData = [];

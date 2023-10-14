@@ -19,10 +19,9 @@
 
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
-
+import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
-import 'package:neom_commons/core/utils/constants/app_route_constants.dart';
 import 'package:neom_music_player/domain/use_cases/neom_audio_handler.dart';
 import 'package:neom_music_player/ui/player/widgets/now_playing_stream.dart';
 import 'package:neom_music_player/ui/widgets/bouncy_sliver_scroll_view.dart';
@@ -30,7 +29,6 @@ import 'package:neom_music_player/ui/widgets/empty_screen.dart';
 import 'package:neom_music_player/ui/widgets/gradient_containers.dart';
 import 'package:neom_music_player/utils/constants/music_player_route_constants.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
-import 'package:get/get.dart';
 
 class NowPlayingPage extends StatefulWidget {
   @override
@@ -95,7 +93,7 @@ class _NowPlayingPageState extends State<NowPlayingPage> {
                                   [
                                     NowPlayingStream(
                                       audioHandler: audioHandler,
-                                    )
+                                    ),
                                   ],
                                 ),
                               ),

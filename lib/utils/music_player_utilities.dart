@@ -1,21 +1,21 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
-import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/enums/app_media_source.dart';
 import 'package:neom_music_player/domain/use_cases/neom_audio_handler.dart';
+import 'package:neom_music_player/domain/use_cases/ytmusic/youtube_services.dart';
 import 'package:neom_music_player/ui/widgets/add_to_playlist.dart';
 import 'package:neom_music_player/ui/widgets/popup.dart';
 import 'package:neom_music_player/ui/widgets/snackbar.dart';
 import 'package:neom_music_player/ui/widgets/textinput_dialog.dart';
+import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
 import 'package:neom_music_player/utils/helpers/extensions.dart';
-import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
-import 'package:neom_music_player/domain/use_cases/youtube_services.dart';
-import 'package:get/get.dart';
 
 class MusicPlayerUtilities {
 
@@ -61,7 +61,7 @@ class MusicPlayerUtilities {
   }
 
   String getSubTitle(Map item) {
-    AppUtilities.logger.e("Getting SubtTitle.");
+    AppUtilities.logger.e('Getting SubtTitle.');
     final type = item['type'];
     switch (type) {
       case 'charts':
@@ -119,11 +119,7 @@ class MusicPlayerUtilities {
     audioHandler.customAction('sleepCounter', {'count': count});
   }
 
-  Future<dynamic> setTimer(
-      BuildContext context,
-      BuildContext? scaffoldContext,
-      Duration _time,
-      ) {
+  Future<dynamic> setTimer(BuildContext context, BuildContext? scaffoldContext, Duration time,) {
     return showDialog(
       context: context,
       builder: (context) {
@@ -156,7 +152,7 @@ class MusicPlayerUtilities {
                   child: CupertinoTimerPicker(
                     mode: CupertinoTimerPickerMode.hm,
                     onTimerDurationChanged: (value) {
-                      _time = value;
+                      time = value;
                     },
 
                   ),
@@ -184,11 +180,11 @@ class MusicPlayerUtilities {
                         ? Colors.black : Colors.white,
                   ),
                   onPressed: () {
-                    MusicPlayerUtilities().sleepTimer(_time.inMinutes);
+                    MusicPlayerUtilities().sleepTimer(time.inMinutes);
                     Navigator.pop(context);
                     ShowSnackBar().showSnackBar(
                       context,
-                      '${PlayerTranslationConstants.sleepTimerSetFor.tr} ${_time.inMinutes} ${PlayerTranslationConstants.minutes.tr}',
+                      '${PlayerTranslationConstants.sleepTimerSetFor.tr} ${time.inMinutes} ${PlayerTranslationConstants.minutes.tr}',
                     );
                   },
                   child: Text(PlayerTranslationConstants.ok.tr.toUpperCase()),
@@ -202,11 +198,10 @@ class MusicPlayerUtilities {
     );
   }
 
-  static void onSelectedPopUpMenu(BuildContext context, int value, AppMediaItem appMediaItem, Duration _time, {BuildContext? scaffoldContext}) {
+  static void onSelectedPopUpMenu(BuildContext context, int value, AppMediaItem appMediaItem, Duration time, {BuildContext? scaffoldContext}) {
     switch(value) {
       case 0:
         AddToPlaylist().addToPlaylist(context, appMediaItem);
-        break;
       case 1:
         showDialog(
           context: context,
@@ -238,7 +233,7 @@ class MusicPlayerUtilities {
                     MusicPlayerUtilities().setTimer(
                         context,
                         scaffoldContext,
-                        _time
+                        time,
                     );
                   },
                 ),
@@ -260,7 +255,6 @@ class MusicPlayerUtilities {
             );
           },
         );
-        break;
       case 10:
         final Map details = appMediaItem.toJSON();
         details['duration'] = '${(int.parse(details["duration"].toString()) ~/ 60).toString().padLeft(2, "0")}:${(int.parse(details["duration"].toString()) % 60).toString().padLeft(2, "0")}';
@@ -305,7 +299,6 @@ class MusicPlayerUtilities {
             ),
           ),
         );
-        break;
     // case 5:
     //   Navigator.push(
     //     context,
@@ -342,8 +335,8 @@ class MusicPlayerUtilities {
 
   static bool isOwnMediaItem(AppMediaItem appMediaItem) {
 
-    bool isOwnMediaItem = (appMediaItem.url.contains("gig-me-out")
-        || appMediaItem.url.contains("firebasestorage.googleapis.com"))
+    bool isOwnMediaItem = (appMediaItem.url.contains('gig-me-out')
+        || appMediaItem.url.contains('firebasestorage.googleapis.com'))
         && appMediaItem.mediaSource == AppMediaSource.internal;
 
     return isOwnMediaItem;

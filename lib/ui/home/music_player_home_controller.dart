@@ -5,12 +5,11 @@ import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
 import 'package:neom_commons/core/data/firestore/itemlist_firestore.dart';
-import 'package:neom_commons/core/domain/model/app_profile.dart';
-
-import 'package:neom_commons/core/domain/model/item_list.dart';
 import 'package:neom_commons/core/data/implementations/user_controller.dart';
-import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
+import 'package:neom_commons/core/domain/model/app_profile.dart';
+import 'package:neom_commons/core/domain/model/item_list.dart';
+import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/constants/app_page_id_constants.dart';
 import 'package:neom_itemlists/itemlists/data/firestore/app_media_item_firestore.dart';
 import 'package:neom_music_player/domain/use_cases/neom_audio_handler.dart';
@@ -62,7 +61,7 @@ class MusicPlayerHomeController extends GetxController {
   @override
   void onInit() async {
     super.onInit();
-    logger.d("Music Player Home Controller Init");
+    logger.d('Music Player Home Controller Init');
     try {
       final userController = Get.find<UserController>();
       profile = userController.profile;
@@ -78,7 +77,7 @@ class MusicPlayerHomeController extends GetxController {
     super.onReady();
     try {
       if(recentSongs.isNotEmpty) {
-        logger.d("Retrieving recent songs from Hive.");
+        logger.d('Retrieving recent songs from Hive.');
         for (final element in recentSongs) {
           AppMediaItem recentMediaItem = AppMediaItem.fromJSON(element);
           recentList[recentMediaItem.id] = recentMediaItem;
@@ -107,7 +106,7 @@ class MusicPlayerHomeController extends GetxController {
   }
 
   Future<void> getHomePageData() async {
-    AppUtilities.logger.i("Get ItemLists Home Data");
+    AppUtilities.logger.i('Get ItemLists Home Data');
     try {
       myItemLists = await ItemlistFirestore().fetchAll(profileId: profile.id);
       publicItemlists = await ItemlistFirestore().fetchAll(excludeMyFavorites: true, minItems: 0);

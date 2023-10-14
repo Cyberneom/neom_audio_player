@@ -18,12 +18,13 @@
  */
 
 import 'package:flutter/material.dart';
-
-import 'package:logging/logging.dart';
+import 'package:get/get.dart';
+import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
-import 'package:neom_commons/core/domain/model/app_media_item.dart';
-import 'package:neom_music_player/domain/entities/youtube_item.dart';
+import 'package:neom_music_player/domain/use_cases/ytmusic/youtube_services.dart';
+import 'package:neom_music_player/domain/use_cases/ytmusic/yt_music.dart';
+import 'package:neom_music_player/neom_player_invoker.dart';
 import 'package:neom_music_player/ui/widgets/bouncy_playlist_header_scroll_view.dart';
 import 'package:neom_music_player/ui/widgets/copy_clipboard.dart';
 import 'package:neom_music_player/ui/widgets/gradient_containers.dart';
@@ -31,11 +32,7 @@ import 'package:neom_music_player/ui/widgets/image_card.dart';
 import 'package:neom_music_player/ui/widgets/playlist_popupmenu.dart';
 import 'package:neom_music_player/ui/widgets/snackbar.dart';
 import 'package:neom_music_player/ui/widgets/song_tile_trailing_menu.dart';
-import 'package:neom_music_player/neom_player_invoker.dart';
-import 'package:neom_music_player/domain/use_cases/youtube_services.dart';
-import 'package:neom_music_player/domain/use_cases/yt_music.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
-import 'package:get/get.dart';
 
 class YouTubePlaylist extends StatefulWidget {
   final String playlistId;
@@ -366,7 +363,7 @@ class _YouTubePlaylistState extends State<YouTubePlaylist> {
                     ),
                   ),
                 ),
-              )
+              ),
           ],
         ),
       ),

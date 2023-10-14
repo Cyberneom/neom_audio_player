@@ -7,7 +7,7 @@ import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_theme.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
 import 'package:neom_commons/core/utils/constants/app_page_id_constants.dart';
-import 'package:neom_music_player/ui/Search/search_page.dart';
+import 'package:neom_music_player/to_delete/search/search_page.dart';
 import 'package:neom_music_player/ui/drawer/music_player_drawer.dart';
 import 'package:neom_music_player/ui/home/music_player_home_content.dart';
 import 'package:neom_music_player/ui/home/music_player_home_controller.dart';
@@ -56,7 +56,7 @@ class MusicPlayerHomePage extends StatelessWidget {
                                     height: 70,
                                     width: 150,
                                   ),
-                                )
+                                ),
                               ],
                             ),
                           );
@@ -94,7 +94,7 @@ class MusicPlayerHomePage extends StatelessWidget {
                                       blurRadius: 5.0,
                                       offset: Offset(1.5, 1.5),
                                       // shadow direction: bottom right
-                                    )
+                                    ),
                                   ],
                                 ),
                                 child: Row(
@@ -134,9 +134,9 @@ class MusicPlayerHomePage extends StatelessWidget {
                 homeDrawer(
                   context: context,
                   padding: const EdgeInsets.only(top: 8.0, left: 4.0),
-                )
+                ),
             ],),
           );
-        });
+        },);
   }
 }

@@ -24,4 +24,5 @@ class QueueState {
 
   List<int> get indices =>
       shuffleIndices ?? List.generate(queue.length, (i) => i);
+
 }

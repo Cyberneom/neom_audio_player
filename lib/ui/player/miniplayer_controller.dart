@@ -50,10 +50,14 @@ class MiniPlayerController extends GetxController {
 
   final NeomAudioHandler audioHandler = GetIt.I<NeomAudioHandler>();
 
+  final RxBool _showInTimeline = true.obs;
+  bool get showInTimeline => _showInTimeline.value;
+  set showInTimeline(bool showInTimeline) => _showInTimeline.value = showInTimeline;
+
   @override
   void onInit() async {
     super.onInit();
-    logger.d("");
+    logger.d('');
 
     try {
 
@@ -81,14 +85,20 @@ class MiniPlayerController extends GetxController {
   }
 
   void setMediaItem(MediaItem item) {
-    AppUtilities.logger.i("Setting new mediaitem ${item.title}");
+    AppUtilities.logger.i('Setting new mediaitem ${item.title}');
     mediaItem = item;
     update();
   }
 
   void setIsTimeline(bool value) {
-    AppUtilities.logger.i("Setting IsTimeline");
+    AppUtilities.logger.i('Setting IsTimeline');
     isTimeline = value;
+    update();
+  }
+
+  void setShowInTimeline({bool value = true}) {
+    AppUtilities.logger.i('Setting showInTimeline to $value');
+    showInTimeline =  value;
     update();
   }
 
@@ -158,7 +168,7 @@ class MiniPlayerController extends GetxController {
           if(!isTimeline)
             IconButton(
               padding: EdgeInsets.zero,
-                onPressed: () => goToTimeline(context), icon: const Icon(Icons.arrow_back_ios)),
+                onPressed: () => goToTimeline(context), icon: const Icon(Icons.arrow_back_ios),),
           if(item != null || isTimeline)
             Container(
               height: item == null ? 80 : 78,
@@ -172,7 +182,7 @@ class MiniPlayerController extends GetxController {
                       ? item.artUri?.toFilePath() : item.artUri?.toString()) ?? '',
                 ),
               ),
-            )
+            ),
         ],
       ),
       title: Text(
@@ -216,6 +226,7 @@ class MiniPlayerController extends GetxController {
 
   void goToTimeline(BuildContext context) {
     isTimeline = true;
+    showInTimeline = true;
     Get.back();
     update();
   }

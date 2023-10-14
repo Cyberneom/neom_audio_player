@@ -1,6 +1,6 @@
 /*
  *  This file is part of BlackHole (https://github.com/Sangwan5688/BlackHole).
- * 
+ *
  * BlackHole is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU Lesser General Public License
  * along with BlackHole.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  * Copyright (c) 2021-2023, Ankit Sangwan
  */
 
@@ -21,8 +21,8 @@ import 'dart:convert';
 
 import 'package:hive/hive.dart';
 import 'package:http/http.dart';
-import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
+import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
 import 'package:neom_music_player/utils/helpers/format.dart';
 
@@ -599,7 +599,7 @@ class SaavnAPI {
       final getMain = json.decode(res.body);
       final List responseList = getMain['results'] as List;
       return [
-        await FormatResponse.formatSingleSongResponse(responseList[0] as Map)
+        await FormatResponse.formatSingleSongResponse(responseList[0] as Map),
       ];
     }
     return List.empty();

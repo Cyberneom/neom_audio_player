@@ -320,7 +320,7 @@ class MusicPlayerTheme with ChangeNotifier {
         'cardGrad': cardGrad,
         'bottomGrad': bottomGrad,
         'colorHue': colorHue,
-      }
+      },
     });
   }
 

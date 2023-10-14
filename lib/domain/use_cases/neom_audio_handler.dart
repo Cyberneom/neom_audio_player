@@ -19,26 +19,24 @@
 
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
-import 'package:get/get.dart' as getx;
 
 import 'package:audio_service/audio_service.dart';
 import 'package:audio_session/audio_session.dart';
+import 'package:get/get.dart' as getx;
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
-import 'package:neom_commons/core/utils/constants/message_translation_constants.dart';
 import 'package:neom_music_player/data/implementations/app_hive_controller.dart';
 import 'package:neom_music_player/data/implementations/playlist_hive_controller.dart';
 import 'package:neom_music_player/domain/entities/queue_state.dart';
+import 'package:neom_music_player/domain/use_cases/isolate_service.dart';
+import 'package:neom_music_player/domain/use_cases/neom_audio_service.dart';
 import 'package:neom_music_player/ui/player/miniplayer_controller.dart';
+import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
 import 'package:neom_music_player/utils/constants/music_player_constants.dart';
 import 'package:neom_music_player/utils/helpers/media_item_mapper.dart';
-import 'package:neom_music_player/domain/use_cases/neom_audio_service.dart';
-import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
-import 'package:neom_music_player/domain/use_cases/isolate_service.dart';
 import 'package:neom_music_player/utils/neom_audio_utilities.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -160,7 +158,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
       _player.shuffleModeEnabledStream.listen((enabled) => _broadcastState(_player.playbackEvent));
       _player.loopModeStream.listen((event) => _broadcastState(_player.playbackEvent));
       _player.processingStateStream.listen((state) {
-        AppUtilities.logger.i("Music Player - Processing Stream: ${state.name}");
+        AppUtilities.logger.i('Music Player - Processing Stream: ${state.name}');
         switch(state) {
           case ProcessingState.loading:
             break;
@@ -171,7 +169,6 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
           case ProcessingState.completed:
             stop();
             _player.seek(Duration.zero, index: 0);
-            break;
           case ProcessingState.idle:
             break;
         }
@@ -490,7 +487,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
 
     if(queue.valueWrapper!.value.indexWhere((item) => item.id == id) >= 0) {
       index = queue.valueWrapper!.value.indexWhere((item) => item.id == id);
-      AppUtilities.logger.d("MediaItem found in Queue with Index $index");
+      AppUtilities.logger.d('MediaItem found in Queue with Index $index');
     }
 
     _player.seek(Duration.zero, index: _player.shuffleModeEnabled && index != 0 ? _player.shuffleIndices![index] : index,
@@ -596,7 +593,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
 
   @override
   Future<void> play() async {
-    AppUtilities.logger.d("NeomAudioHandler Dispose and Play");
+    AppUtilities.logger.d('NeomAudioHandler Dispose and Play');
     try {
       _player.play();
       if(currentMediaItem != null) {
@@ -645,14 +642,12 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
             stop();
           });
         }
-        break;
       case 'sleepCounter':
         if (extras?['count'] != null &&
             extras!['count'].runtimeType == int &&
             extras['count'] > 0 as bool) {
           count = extras['count'] as int;
         }
-        break;
       case 'fastForward':
         try {
           const stepInterval = Duration(seconds: 10);
@@ -663,7 +658,6 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
         } catch (e) {
           AppUtilities.logger.e('Error in fastForward', e);
         }
-        break;
       case 'rewind':
         try {
           final stepInterval = Duration(seconds: MusicPlayerConstants.rewindSeconds);
@@ -674,15 +668,12 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
         } catch (e) {
           AppUtilities.logger.e('Error in rewind', e);
         }
-        break;
       case 'refreshLink':
         if (extras?['newData'] != null) {
           await refreshLink(extras!['newData'] as Map);
         }
-        break;
       case 'skipToMediaItem':
         await skipToMediaItem(extras!['id'].toString(), index: extras['index'] != null ? int.parse(extras['index'].toString()) : 0);
-        break;
       default:
         break;
     }

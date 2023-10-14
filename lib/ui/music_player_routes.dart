@@ -19,15 +19,14 @@
 
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
-import 'package:neom_music_player/ui/music_player_root_page.dart';
 import 'package:neom_music_player/ui/drawer/downloads/downloads.dart';
 import 'package:neom_music_player/ui/drawer/library/now_playing_page.dart';
-import 'package:neom_music_player/ui/drawer/library/playlists.dart';
 import 'package:neom_music_player/ui/drawer/library/recently_played.dart';
 import 'package:neom_music_player/ui/drawer/library/stats.dart';
+import 'package:neom_music_player/ui/drawer/settings/widgets/music_player_settings_page.dart';
+import 'package:neom_music_player/ui/music_player_root_page.dart';
 import 'package:neom_music_player/ui/player/media_player_page.dart';
 import 'package:neom_music_player/ui/welcome_preference_page.dart';
-import 'package:neom_music_player/ui/drawer/settings/widgets/music_player_settings_page.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
 import 'package:neom_music_player/utils/constants/music_player_route_constants.dart';
 
@@ -49,4 +48,3 @@ class MusicPlayerRoutes {
     MusicPlayerRouteConstants.stats: (context) => const Stats(),
   };
 }
-

@@ -21,22 +21,21 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
+import 'package:get/get.dart';
 import 'package:hive/hive.dart';
+import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
-import 'package:neom_commons/core/domain/model/app_media_item.dart';
+import 'package:neom_music_player/ui/drawer/downloads/data_search.dart';
 import 'package:neom_music_player/ui/drawer/local_music/widgets/songs_tab.dart';
 import 'package:neom_music_player/ui/widgets/custom_physics.dart';
-import 'package:neom_music_player/ui/drawer/downloads/data_search.dart';
 import 'package:neom_music_player/ui/widgets/gradient_containers.dart';
 import 'package:neom_music_player/ui/widgets/snackbar.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
-import 'package:neom_music_player/utils/helpers/audio_query.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
+import 'package:neom_music_player/utils/helpers/audio_query.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:get/get.dart';
 
 
 class DownloadedSongs extends StatefulWidget {
@@ -99,7 +98,7 @@ class _DownloadedSongsState extends State<DownloadedSongs> with TickerProviderSt
   @override
   void initState() {
     _tcontroller = TabController(length: 1, //widget.showPlaylists ? 6 : 5,
-        vsync: this);
+        vsync: this,);
     _tcontroller!.addListener(() {
       if ((_tcontroller!.previousIndex != 0 && _tcontroller!.index == 0) ||
           (_tcontroller!.previousIndex == 0)) {
@@ -702,4 +701,3 @@ class _DownloadedSongsState extends State<DownloadedSongs> with TickerProviderSt
 //             });
 //   }
 }
-

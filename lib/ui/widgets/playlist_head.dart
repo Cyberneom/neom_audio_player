@@ -18,11 +18,10 @@
  */
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
-
 import 'package:neom_music_player/neom_player_invoker.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
-import 'package:get/get.dart';
 
 class PlaylistHead extends StatelessWidget {
   final List<AppMediaItem> songsList;
