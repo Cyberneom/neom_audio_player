@@ -46,7 +46,7 @@ class AppHiveController extends GetxController {
 
 
   @override
-  void onInit() async {
+  Future<void> onInit() async {
     super.onInit();
     logger.v('AppHive Controller');
 
@@ -63,8 +63,8 @@ class AppHiveController extends GetxController {
       AppUtilities.logger.e('Failed to open $boxName Box', error, stackTrace);
       final Directory dir = await getApplicationDocumentsDirectory();
       final String dirPath = dir.path;
-      File dbFile = File('$dirPath/$boxName.hive');
-      File lockFile = File('$dirPath/$boxName.lock');
+      final File dbFile = File('$dirPath/$boxName.hive');
+      final File lockFile = File('$dirPath/$boxName.lock');
 
       await dbFile.delete();
       await lockFile.delete();

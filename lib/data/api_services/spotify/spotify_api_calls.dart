@@ -53,7 +53,7 @@ class SpotifyApiCalls {
 
   static Future<spotify.User> getUserProfile({required String spotifyToken,}) async {
 
-    spotify.SpotifyApi spotifyApi = spotify.SpotifyApi.withAccessToken(spotifyToken);
+    final spotify.SpotifyApi spotifyApi = spotify.SpotifyApi.withAccessToken(spotifyToken);
     spotify.User spotifyUser = spotify.User();
 
     try {
@@ -68,7 +68,7 @@ class SpotifyApiCalls {
 
   static Future<List<spotify.PlaylistSimple>> getUserPlaylistSimples({required String spotifyToken, required String userId}) async {
 
-    spotify.SpotifyApi spotifyApi = spotify.SpotifyApi.withAccessToken(spotifyToken);
+    final spotify.SpotifyApi spotifyApi = spotify.SpotifyApi.withAccessToken(spotifyToken);
     Iterable<spotify.PlaylistSimple> spotifyPlaylists = [];
 
     try {
@@ -85,9 +85,9 @@ class SpotifyApiCalls {
 
   static Future<List<spotify.Playlist>> getUserPlaylists({required String spotifyToken, required String userId}) async {
 
-    spotify.SpotifyApi spotifyApi = spotify.SpotifyApi.withAccessToken(spotifyToken);
+    final spotify.SpotifyApi spotifyApi = spotify.SpotifyApi.withAccessToken(spotifyToken);
     Iterable<spotify.PlaylistSimple> spotifyPlaylists;
-    List<spotify.Playlist> playlists = [];
+    final List<spotify.Playlist> playlists = [];
 
     try {
       spotifyPlaylists = await spotifyApi.playlists.getUsersPlaylists(userId, 100).all();
@@ -112,7 +112,7 @@ class SpotifyApiCalls {
     http.Response? response;
 
     try {
-      Uri uri = Uri.parse('https://api.spotify.com/v1/me/top/$itemType');
+      final Uri uri = Uri.parse('https://api.spotify.com/v1/me/top/$itemType');
       response = await http.get(
         uri,
         headers: {
@@ -131,7 +131,7 @@ class SpotifyApiCalls {
 
   static Future<spotify.Playlist> getPlaylist({required String spotifyToken, required String playlistId}) async {
 
-    spotify.SpotifyApi spotifyApi = spotify.SpotifyApi.withAccessToken(spotifyToken);
+    final spotify.SpotifyApi spotifyApi = spotify.SpotifyApi.withAccessToken(spotifyToken);
     spotify.Playlist playlist = spotify.Playlist();
 
     try {

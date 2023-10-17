@@ -191,7 +191,7 @@ class MusicPlayerDrawer extends StatelessWidget {
           child: icon,
       ),
       title: customText(
-        selectedMenu.name.tr.capitalize!,
+        selectedMenu.name.tr.capitalize,
         textAlign: TextAlign.start,
         style: TextStyle(
           fontSize: 20,

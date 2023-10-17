@@ -11,6 +11,7 @@ import 'package:neom_commons/core/domain/model/app_profile.dart';
 import 'package:neom_commons/core/domain/model/item_list.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/constants/app_page_id_constants.dart';
+import 'package:neom_commons/core/utils/enums/itemlist_type.dart';
 import 'package:neom_itemlists/itemlists/data/firestore/app_media_item_firestore.dart';
 import 'package:neom_music_player/domain/use_cases/neom_audio_handler.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
@@ -21,20 +22,10 @@ class MusicPlayerHomeController extends GetxController {
   final logger = AppUtilities.logger;
   final userController = Get.find<UserController>();
   final ScrollController scrollController = ScrollController();
+
   final Rxn<MediaItem> _mediaItem = Rxn<MediaItem>();
-  MediaItem? get mediaItem => _mediaItem.value;
-  set mediaItem(MediaItem? mediaItem) => _mediaItem.value = mediaItem;
-  // final Rx<MediaItem> _itemlists = <Itemlist>.obs;
-  // Map<String, Itemlist> get itemlists => _itemlists;
-  // set itemlists(Map<String, Itemlist> itemlists) => _itemlists.value = itemlists;
-
-  final RxBool _isLoading = true.obs;
-  bool get isLoading => _isLoading.value;
-  set isLoading(bool isLoading) => _isLoading.value = isLoading;
-
-  final RxBool _isButtonDisabled = false.obs;
-  bool get isButtonDisabled => _isButtonDisabled.value;
-  set isButtonDisabled(bool isButtonDisabled) => _isButtonDisabled.value = isButtonDisabled;
+  final RxBool isLoading = true.obs;
+  final RxBool isButtonDisabled = false.obs;
 
   final NeomAudioHandler audioHandler = GetIt.I<NeomAudioHandler>();
 
@@ -95,7 +86,7 @@ class MusicPlayerHomeController extends GetxController {
     } catch (e) {
       AppUtilities.logger.e(e.toString());
     }
-    isLoading = false;
+    isLoading.value = false;
     update([AppPageIdConstants.musicPlayerHome]);
   }
 
@@ -114,6 +105,9 @@ class MusicPlayerHomeController extends GetxController {
         publicItemlists.removeWhere((key, publicList) => myItemlist.id == publicList.id);
       }
       myItemLists.addAll(publicItemlists);
+
+      ///IMPROVE WAY TO SPLIT PLAYLISTS AND GIGLISTS FROM CHAMBERPRESETS AND READLISTS
+      myItemLists.removeWhere((key, publicList) => publicList.type == ItemlistType.chamberPresets || publicList.type == ItemlistType.readlist);
     } catch(e) {
       AppUtilities.logger.e(e.toString());
     }

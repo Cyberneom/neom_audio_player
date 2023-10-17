@@ -27,7 +27,6 @@ import 'package:neom_commons/core/domain/model/item_list.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
-import 'package:neom_commons/core/utils/constants/app_constants.dart';
 import 'package:neom_commons/core/utils/constants/url_constants.dart';
 import 'package:neom_commons/core/utils/enums/app_media_source.dart';
 import 'package:neom_commons/core/utils/enums/itemlist_type.dart';
@@ -230,7 +229,7 @@ class _SongsListPageState extends State<SongsListPage> {
                     MultiDownloadButton(
                       data: songList.map((e) => e.toJSON()).toList(),
                       playlistName:
-                          widget.itemlist.name ?? 'Songs',
+                          widget.itemlist.name,
                     ),
                   IconButton(
                     icon: const Icon(Icons.share_rounded),
@@ -251,14 +250,13 @@ class _SongsListPageState extends State<SongsListPage> {
                   ),
                   PlaylistPopupMenu(
                     data: songList,
-                    title: widget.itemlist.name ?? 'Songs',
+                    title: widget.itemlist.name,
                   ),
                 ],
                 title:
-                    widget.itemlist.name.unescape() ?? 'Songs',
+                    widget.itemlist.name.unescape(),
                 subtitle: '${songList.length} Songs',
-                secondarySubtitle: widget.itemlist.description ??
-                    widget.itemlist.description,
+                secondarySubtitle: widget.itemlist.description,
                 onPlayTap: () => NeomPlayerInvoker.init(
                   appMediaItems: songList,
                   index: 0,

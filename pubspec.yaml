@@ -19,12 +19,8 @@ dependencies:
     git:
       url: https://github.com/Cyberneom/neom_itemlists.git
 
-  audiotagger:
-    git:
-      url: https://github.com/Sangwan5688/Audiotagger
-      ref: 90f2db5
-  audio_service: ^0.18.10
   app_links: ^3.4.3
+  audio_service: ^0.18.10
 
 #  connectivity_plus: ^4.0.1
   dart_des: ^1.0.2

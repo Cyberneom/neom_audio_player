@@ -24,35 +24,13 @@ class MiniPlayerController extends GetxController {
   final logger = AppUtilities.logger;
   final userController = Get.find<UserController>();
 
-  final Rxn<AppMediaItem> _appMediaItem = Rxn<AppMediaItem>();
-  AppMediaItem? get appMediaItem => _appMediaItem.value;
-  set appMediaItem(AppMediaItem? appMediaItem) => _appMediaItem.value = appMediaItem;
-
-  final Rxn<MediaItem> _mediaItem = Rxn<MediaItem>();
-  MediaItem? get mediaItem => _mediaItem.value;
-  set mediaItem(MediaItem? mediaItem) => _mediaItem.value = mediaItem;
-
-  // final Rx<MediaItem> _itemlists = <Itemlist>.obs;
-  // Map<String, Itemlist> get itemlists => _itemlists;
-  // set itemlists(Map<String, Itemlist> itemlists) => _itemlists.value = itemlists;
-
-  final RxBool _isLoading = true.obs;
-  bool get isLoading => _isLoading.value;
-  set isLoading(bool isLoading) => _isLoading.value = isLoading;
-
-  final RxBool _isTimeline = true.obs;
-  bool get isTimeline => _isTimeline.value;
-  set isTimeline(bool isTimeline) => _isTimeline.value = isTimeline;
-
-  final RxBool _isButtonDisabled = false.obs;
-  bool get isButtonDisabled => _isButtonDisabled.value;
-  set isButtonDisabled(bool isButtonDisabled) => _isButtonDisabled.value = isButtonDisabled;
-
+  final Rxn<AppMediaItem> appMediaItem = Rxn<AppMediaItem>();
+  final Rxn<MediaItem> mediaItem = Rxn<MediaItem>();
+  final RxBool isLoading = true.obs;
+  final RxBool isTimeline = true.obs;
+  final RxBool isButtonDisabled = false.obs;
+  final RxBool showInTimeline = true.obs;
   final NeomAudioHandler audioHandler = GetIt.I<NeomAudioHandler>();
-
-  final RxBool _showInTimeline = true.obs;
-  bool get showInTimeline => _showInTimeline.value;
-  set showInTimeline(bool showInTimeline) => _showInTimeline.value = showInTimeline;
 
   @override
   void onInit() async {
@@ -75,7 +53,7 @@ class MiniPlayerController extends GetxController {
     } catch (e) {
 
     }
-    isLoading = false;
+    isLoading.value = false;
     update();
   }
 
@@ -86,19 +64,19 @@ class MiniPlayerController extends GetxController {
 
   void setMediaItem(MediaItem item) {
     AppUtilities.logger.i('Setting new mediaitem ${item.title}');
-    mediaItem = item;
+    mediaItem.value = item;
     update();
   }
 
   void setIsTimeline(bool value) {
     AppUtilities.logger.i('Setting IsTimeline');
-    isTimeline = value;
+    isTimeline.value = value;
     update();
   }
 
   void setShowInTimeline({bool value = true}) {
     AppUtilities.logger.i('Setting showInTimeline to $value');
-    showInTimeline =  value;
+    showInTimeline.value =  value;
     update();
   }
 
@@ -219,14 +197,14 @@ class MiniPlayerController extends GetxController {
   }
 
   void goToMusicPlayerHome() {
-    isTimeline = false;
+    isTimeline.value = false;
     Get.toNamed(AppRouteConstants.musicPlayerHome);
     update();
   }
 
   void goToTimeline(BuildContext context) {
-    isTimeline = true;
-    showInTimeline = true;
+    isTimeline.value = true;
+    showInTimeline.value = true;
     Get.back();
     update();
   }

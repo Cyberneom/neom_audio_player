@@ -23,7 +23,6 @@ import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 import 'package:neom_music_player/data/implementations/playlist_hive_controller.dart';
 import 'package:neom_music_player/domain/use_cases/neom_audio_handler.dart';
-import 'package:neom_music_player/ui/player/media_player_page.dart';
 import 'package:neom_music_player/ui/widgets/snackbar.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
 import 'package:neom_music_player/utils/helpers/media_item_mapper.dart';

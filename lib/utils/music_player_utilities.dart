@@ -32,7 +32,7 @@ class MusicPlayerUtilities {
 
         if ((DateTime.now().millisecondsSinceEpoch ~/ 1000) + 350 > expiredAt) {
           AppUtilities.logger.i('youtube link expired in cache for ${playItem.name}');
-          AppMediaItem? newMediaItem = await YouTubeServices().refreshLink(playItem.id);
+          final AppMediaItem? newMediaItem = await YouTubeServices().refreshLink(playItem.id);
           AppUtilities.logger.i(
             'before service | received new link for ${playItem.name}',
           );
@@ -269,7 +269,7 @@ class MusicPlayerUtilities {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: details.keys.map((e) {
-                  String msg = '$e\n';
+                  final String msg = '$e\n';
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 10),
                     child: SelectableText.rich(
@@ -335,7 +335,7 @@ class MusicPlayerUtilities {
 
   static bool isOwnMediaItem(AppMediaItem appMediaItem) {
 
-    bool isOwnMediaItem = (appMediaItem.url.contains('gig-me-out')
+    final bool isOwnMediaItem = (appMediaItem.url.contains('gig-me-out')
         || appMediaItem.url.contains('firebasestorage.googleapis.com'))
         && appMediaItem.mediaSource == AppMediaSource.internal;
 

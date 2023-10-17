@@ -37,7 +37,7 @@ class SpotifyHiveController extends GetxController  {
   final ValueNotifier<bool> globalFetchFinished = ValueNotifier<bool>(false);
 
   @override
-  void onInit() async {
+  Future<void> onInit() async {
     logger.d('');
     super.onInit();
   }
@@ -80,7 +80,7 @@ class SpotifyHiveController extends GetxController  {
 
     final String? accessToken = await retriveAccessToken();
     
-    if (accessToken == null && spotifyToken == null) {
+    if (accessToken == null) {
       CoreUtilities.launchURL(SpotifyApiCalls().requestAuthorization(),openInApp: false);
 
       final appLinks = AppLinks();
@@ -117,7 +117,7 @@ class SpotifyHiveController extends GetxController  {
         },
       );
     } else {
-      final temp = await getChartDetails(spotifyToken ?? accessToken!, type);
+      final temp = await getChartDetails(spotifyToken, type);
       if (temp.isNotEmpty) {
         Hive.box(AppHiveConstants.cache).put('${type}_chart', temp);
         if (type == 'Global') {

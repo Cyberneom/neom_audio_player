@@ -28,7 +28,7 @@ class PlaylistHiveController extends GetxController  {
   int lastNotificationCheckDate = 0;
 
   @override
-  void onInit() async {
+  Future<void> onInit() async {
     super.onInit();
     logger.d('');
     globalMediaItems = await AppMediaItemFirestore().fetchAll();

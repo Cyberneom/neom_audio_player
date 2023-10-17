@@ -102,7 +102,7 @@ class HorizontalAlbumsListSeparated extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: itemGroup.map((item) {
-                  final subTitle = item.name ?? '';// getSubTitle(item as Map);
+                  final subTitle = item.name;// getSubTitle(item as Map);
                   return ListTile(
                     title: Text(
                       formatString(item.name),

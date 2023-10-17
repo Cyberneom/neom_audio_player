@@ -1,35 +1,10 @@
-/*
- *  This file is part of BlackHole (https://github.com/Sangwan5688/BlackHole).
- * 
- * BlackHole is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * BlackHole is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with BlackHole.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * Copyright (c) 2021-2023, Ankit Sangwan
- */
-
 import 'dart:io';
-
-import 'package:audiotagger/audiotagger.dart';
-import 'package:audiotagger/models/tag.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-// import 'package:flutter_downloader/flutter_downloader.dart';
 
 import 'package:hive/hive.dart';
 import 'package:http/http.dart';
 import 'package:metadata_god/metadata_god.dart';
-import 'package:neom_commons/core/app_flavour.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/core_utilities.dart';
@@ -336,7 +311,7 @@ class Download with ChangeNotifier {
       await File('$appPath/$artname').create(recursive: true)
           .then((value) => imgPath = value.path);
     }
-    String kUrl = mediaItem.url;
+    final String kUrl = mediaItem.url;
 
     //VERIFY HOW TO IMPLEMENT ONCE YOUTUBE SPOTIFY JIOSAAVN ARE USED
     // if (mediaItem.url.toString().contains('google')) {
@@ -404,23 +379,7 @@ class Download with ChangeNotifier {
         AppUtilities.logger.i('Getting audio tags');
         if (Platform.isAndroid) {
           try {
-            final Tag tag = Tag(
-              title: mediaItem.name,
-              artist: mediaItem.artist,
-              albumArtist: mediaItem.artist,
-              artwork: imgPath,
-              album: mediaItem.album,
-              genre: mediaItem.genre,
-              year: mediaItem.publishedYear.toString(),
-              lyrics: mediaItem.lyrics.isNotEmpty ? mediaItem.lyrics : lyrics,
-              comment: AppFlavour.appInUse.value,
-            );
             AppUtilities.logger.i('Started tag editing');
-            final tagger = Audiotagger();
-            await tagger.writeTags(
-              path: mediaPath!,
-              tag: tag,
-            );
             // await Future.delayed(const Duration(seconds: 1), () async {
             //   if (await file2.exists()) {
             //     await file2.delete();
@@ -456,7 +415,7 @@ class Download with ChangeNotifier {
         notifyListeners();
 
         AppUtilities.logger.i('Putting data to downloads database');
-        AppMediaItem downloadedMediaItem = mediaItem;
+        final AppMediaItem downloadedMediaItem = mediaItem;
 
         downloadedMediaItem.path = mediaPath;
         downloadedMediaItem.imgUrl = imgPath;
@@ -465,10 +424,7 @@ class Download with ChangeNotifier {
         Hive.box(AppHiveConstants.downloads).put(downloadedMediaItem.id, downloadedMediaItem.toJSON());
 
         AppUtilities.logger.i('Everything done, showing snackbar');
-        ShowSnackBar().showSnackBar(context,
-          '"${mediaItem.name}" ${PlayerTranslationConstants.downed.tr}',
-          duration: Duration(seconds: 3),
-        );
+        ShowSnackBar().showSnackBar(context, '"${mediaItem.name}" ${PlayerTranslationConstants.downed.tr}',);
       } else {
         download = true;
         progress = 0.0;

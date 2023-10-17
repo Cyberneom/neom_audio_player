@@ -90,7 +90,7 @@ class _SongsTabState extends State<SongsTab>
                     overflow: TextOverflow.ellipsis,
                   ),
                   subtitle: Text(
-                    '${widget.songs[index].artist.replaceAll('<unknown>', 'Unknown') ?? PlayerTranslationConstants.unknown.tr} - ${widget.songs[index].album.replaceAll('<unknown>', 'Unknown') ?? PlayerTranslationConstants.unknown.tr}',
+                    '${widget.songs[index].artist.replaceAll('<unknown>', 'Unknown')} - ${widget.songs[index].album.replaceAll('<unknown>', 'Unknown')}',
                     overflow: TextOverflow.ellipsis,
                   ),
                   trailing: PopupMenuButton(

@@ -58,7 +58,7 @@ class SpotifyInternalController extends GetxController {
   int totalItemsToSynch = 0;
 
   @override
-  void onInit() async {
+  Future<void> onInit() async {
     super.onInit();
     logger.d('');
 
@@ -72,7 +72,7 @@ class SpotifyInternalController extends GetxController {
   }
 
   @override
-  void onReady() async {
+  Future<void> onReady() async {
     super.onReady();
     try {
       if(AppFlavour.appInUse == AppInUse.gigmeout && !Platform.isIOS) {
@@ -180,7 +180,7 @@ class SpotifyInternalController extends GetxController {
       }
 
       if(spotifyPlaylist.href?.isNotEmpty ?? false) {
-        itemlist.appMediaItems = await AppMediaItem.mapTracksToSongs(spotifyPlaylist.tracks!);
+        itemlist.appMediaItems = AppMediaItem.mapTracksToSongs(spotifyPlaylist.tracks!);
         logger.d('${itemlist.appMediaItems?.length ?? 0} songs were mapped from ${spotifyPlaylist.name}');
       }
     } catch (e) {

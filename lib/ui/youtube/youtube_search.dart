@@ -327,7 +327,7 @@ class _YouTubeSearchPageState extends State<YouTubeSearchPage> {
                                                           pageBuilder: (_, __, ___,) => SongsListViewPage(
                                                             onTap: (index, listItems,) {},
                                                             title: AppTranslationConstants.searchResults.tr,
-                                                            subtitle: '\n${AppTranslationConstants.type.tr}: ${section['title'].toString().camelCase!.tr}\n${AppTranslationConstants.searchedText.tr}: "${(query == '' ? widget.query : query)?.capitalizeAllWordsFirstLetter() ?? ""}"',
+                                                            subtitle: '\n${AppTranslationConstants.type.tr}: ${section['title'].toString().camelCase!.tr}\n${AppTranslationConstants.searchedText.tr}: "${(query == '' ? widget.query : query).capitalizeAllWordsFirstLetter()}"',
                                                             listItemsTitle: section['title'].toString(),
                                                             loadFunction: () {
                                                               return YtMusicService().searchSongs(query == '' ? widget.query : query,

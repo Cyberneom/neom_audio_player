@@ -377,15 +377,15 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
   }
 
   Future<List<AudioSource>> _itemsToSources(List<MediaItem> mediaItems) async {
-    List<AudioSource> sources = [];
+    final List<AudioSource> sources = [];
 
     try {
-      mediaItems.forEach((element) async {
-        AudioSource? src = await _itemToSource(element);
+      for (final element in mediaItems) {
+        final AudioSource? src = await _itemToSource(element);
         if(src != null) {
           sources.add(src);
         }
-      });
+      }
     } catch(e) {
       AppUtilities.logger.e(e.toString());
     }
@@ -519,7 +519,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
   Future<void> updateQueue(List<MediaItem> newQueue) async {
     try {
       await _playlist.clear();
-      List<AudioSource> sources = await _itemsToSources(newQueue);
+      final List<AudioSource> sources = await _itemsToSources(newQueue);
       await _playlist.addAll(sources);
     } catch(e) {
       AppUtilities.logger.e(e.toString());

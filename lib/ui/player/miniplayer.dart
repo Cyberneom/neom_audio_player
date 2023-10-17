@@ -18,6 +18,7 @@
  */
 
 import 'dart:async';
+import 'dart:ffi';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
@@ -58,22 +59,22 @@ class _MiniPlayerState extends State<MiniPlayer> {
       builder: (_) {
         List preferredButtons = Hive.box(AppHiveConstants.settings).get('preferredMiniButtons', defaultValue: ['Like', 'Play/Pause', 'Next'],)?.toList() as List<dynamic>;
         final List<String> preferredMiniButtons = preferredButtons.map((e) => e.toString()).toList();
-        return Obx(() => _.isLoading || (_.isTimeline && !_.showInTimeline) ? Container() : Container(
+        return Obx(() => _.isLoading.value || (_.isTimeline.value && !_.showInTimeline.value) ? Container() : Container(
           decoration: AppTheme.appBoxDecoration,
-          height: _.mediaItem == null ? 80 : 78,
+          height: _.mediaItem.value == null ? 80 : 78,
           width: AppTheme.fullWidth(context),
           child: Dismissible(
               key: const Key('miniplayer'),
               direction: DismissDirection.vertical,
               confirmDismiss: (DismissDirection direction) {
-                if (_.mediaItem != null) {
+                if (_.mediaItem.value != null) {
                   if (direction == DismissDirection.down || direction == DismissDirection.horizontal) {
                     _.audioHandler.stop();
                   } else {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => MediaPlayerPage(appMediaItem: MediaItemMapper.fromMediaItem(_.mediaItem!), reproduceItem: false),
+                        builder: (context) => MediaPlayerPage(appMediaItem: MediaItemMapper.fromMediaItem(_.mediaItem.value!), reproduceItem: false),
                       ),
                     );
                   }
@@ -81,12 +82,12 @@ class _MiniPlayerState extends State<MiniPlayer> {
                 return Future.value(false);
               },
               child: Dismissible(
-                key: Key(_.mediaItem?.id ?? 'nothingPlaying'),
+                key: Key(_.mediaItem.value?.id ?? 'nothingPlaying'),
                 confirmDismiss: (DismissDirection direction) {
-                  if(_.isTimeline) {
+                  if(_.isTimeline.value) {
                     _.setShowInTimeline(value: false);
                   } else {
-                    if (_.mediaItem != null) {
+                    if (_.mediaItem.value != null) {
                       if (direction == DismissDirection.startToEnd) {
                         _.audioHandler.skipToPrevious();
                       } else {
@@ -103,7 +104,7 @@ class _MiniPlayerState extends State<MiniPlayer> {
                   color: AppColor.getMain(),
                   elevation: 1,
                   child: SizedBox(
-                    height: _.mediaItem == null ? 80 : 78,
+                    height: _.mediaItem.value == null ? 80 : 78,
                     width: AppTheme.fullWidth(context),
                   child: Column(
                       mainAxisSize: MainAxisSize.min,
@@ -111,10 +112,10 @@ class _MiniPlayerState extends State<MiniPlayer> {
                         _.miniplayerTile(
                           context: context,
                           preferredMiniButtons: preferredMiniButtons,
-                          item: _.mediaItem,
-                          isTimeline: _.isTimeline,
+                          item: _.mediaItem.value,
+                          isTimeline: _.isTimeline.value,
                         ),
-                        _.positionSlider(_.mediaItem?.duration?.inSeconds.toDouble(),),
+                        _.positionSlider(_.mediaItem.value?.duration?.inSeconds.toDouble(),),
                       ],
                   ),),
                 ),

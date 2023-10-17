@@ -38,7 +38,7 @@ class MusicPlayerHomeContent extends StatelessWidget {
 
     return GetBuilder<MusicPlayerHomeController>(
       id: AppPageIdConstants.musicPlayerHome,
-      builder: (_) => _.isLoading ? const Center(child: CircularProgressIndicator(),)
+      builder: (_) => _.isLoading.value ? const Center(child: CircularProgressIndicator(),)
         : (_.myItemLists.isEmpty && _.recentList.isEmpty && _.publicItemlists.isEmpty)
         ? TextButton(
           onPressed: ()=>Navigator.push(context, MaterialPageRoute(
@@ -100,7 +100,10 @@ class MusicPlayerHomeContent extends StatelessWidget {
                   //     ? (publicItemlists.values.elementAt(idx) as List).length + likedRadio.length
                   //     : (publicItemlists.values.elementAt(idx) as List).length,
                   itemBuilder: (context, index) {
-                    AppMediaItem item = AppMediaItem.mapItemsFromItemlist(publicList).elementAt(index);
+
+                    List<AppMediaItem> itemsOnLists = AppMediaItem.mapItemsFromItemlist(publicList);
+                    if (publicList.id.isEmpty || itemsOnLists.isEmpty) return const SizedBox();
+                    AppMediaItem item = itemsOnLists.elementAt(index);
                     if (publicList.type != ItemlistType.radioStation) {
                       // item = publicList;
                     } else {
@@ -111,7 +114,6 @@ class MusicPlayerHomeContent extends StatelessWidget {
                     }
                     final currentSongList = [];
                     //publicItemlists.values.elementAt(idx).where((e) => e['type'] == 'song').toList();
-                    if (publicList.id.isEmpty) return const SizedBox();
                     return GestureDetector(
                       child: SizedBox(
                         width: boxSize - 30,
@@ -226,9 +228,8 @@ class MusicPlayerHomeContent extends StatelessWidget {
                                         ),
                                     ],
                                   ),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 10.0,),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 10,),
                                     child: Column(
                                       children: [
                                         Text(item.name,

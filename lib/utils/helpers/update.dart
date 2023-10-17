@@ -17,7 +17,6 @@
  * Copyright (c) 2021-2023, Ankit Sangwan
  */
 
-import 'package:logging/logging.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 
 bool compareVersion(String latestVersion, String currentVersion) {

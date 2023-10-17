@@ -18,9 +18,6 @@
  */
 
 import 'dart:io';
-
-import 'package:audiotagger/audiotagger.dart';
-import 'package:audiotagger/models/tag.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -476,17 +473,16 @@ Future<AppMediaItem> editTags(AppMediaItem mediaItem, BuildContext context) asyn
   await showDialog(
     context: context,
     builder: (BuildContext context) {
-      final tagger = Audiotagger();
 
       FileImage songImage = FileImage(File(mediaItem.imgUrl));
 
-      final titlecontroller = TextEditingController(text: mediaItem.name);
-      final albumcontroller = TextEditingController(text: mediaItem.album);
-      final artistcontroller = TextEditingController(text: mediaItem.artist);
+      final titleController = TextEditingController(text: mediaItem.name);
+      final albumController = TextEditingController(text: mediaItem.album);
+      final artistController = TextEditingController(text: mediaItem.artist);
       final albumArtistController = TextEditingController(text: mediaItem.artist);
-      final genrecontroller = TextEditingController(text: mediaItem.genre.toString());
-      final yearcontroller = TextEditingController(text: mediaItem.publishedYear.toString());
-      final pathcontroller = TextEditingController(text: mediaItem.path.toString());
+      final genreController = TextEditingController(text: mediaItem.genre.toString());
+      final yearController = TextEditingController(text: mediaItem.publishedYear.toString());
+      final pathController = TextEditingController(text: mediaItem.path.toString());
 
       return AlertDialog(
         shape: RoundedRectangleBorder(
@@ -513,22 +509,10 @@ Future<AppMediaItem> editTags(AppMediaItem mediaItem, BuildContext context) asyn
 
                       songImage = FileImage(File(imagePath));
 
-                      final Tag tag = Tag(
-                        artwork: imagePath,
-                      );
                       try {
-                        await [
-                          Permission.manageExternalStorage,
-                        ].request();
-                        await tagger.writeTags(
-                          path: mediaItem.path.toString(),
-                          tag: tag,
-                        );
+                        await [Permission.manageExternalStorage,].request();
                       } catch (e) {
-                        await tagger.writeTags(
-                          path: mediaItem.path.toString(),
-                          tag: tag,
-                        );
+                        AppUtilities.logger.e(e.toString());
                       }
                     }
                   },
@@ -561,7 +545,7 @@ Future<AppMediaItem> editTags(AppMediaItem mediaItem, BuildContext context) asyn
                 ),
                 TextField(
                   autofocus: true,
-                  controller: titlecontroller,
+                  controller: titleController,
                   onSubmitted: (value) {},
                 ),
                 const SizedBox(
@@ -579,7 +563,7 @@ Future<AppMediaItem> editTags(AppMediaItem mediaItem, BuildContext context) asyn
                 ),
                 TextField(
                   autofocus: true,
-                  controller: artistcontroller,
+                  controller: artistController,
                   onSubmitted: (value) {},
                 ),
                 const SizedBox(
@@ -615,7 +599,7 @@ Future<AppMediaItem> editTags(AppMediaItem mediaItem, BuildContext context) asyn
                 ),
                 TextField(
                   autofocus: true,
-                  controller: albumcontroller,
+                  controller: albumController,
                   onSubmitted: (value) {},
                 ),
                 const SizedBox(
@@ -633,7 +617,7 @@ Future<AppMediaItem> editTags(AppMediaItem mediaItem, BuildContext context) asyn
                 ),
                 TextField(
                   autofocus: true,
-                  controller: genrecontroller,
+                  controller: genreController,
                   onSubmitted: (value) {},
                 ),
                 const SizedBox(
@@ -651,7 +635,7 @@ Future<AppMediaItem> editTags(AppMediaItem mediaItem, BuildContext context) asyn
                 ),
                 TextField(
                   autofocus: true,
-                  controller: yearcontroller,
+                  controller: yearController,
                   onSubmitted: (value) {},
                 ),
                 const SizedBox(
@@ -669,7 +653,7 @@ Future<AppMediaItem> editTags(AppMediaItem mediaItem, BuildContext context) asyn
                 ),
                 TextField(
                   autofocus: true,
-                  controller: pathcontroller,
+                  controller: pathController,
                   onSubmitted: (value) {},
                 ),
               ],
@@ -693,43 +677,24 @@ Future<AppMediaItem> editTags(AppMediaItem mediaItem, BuildContext context) asyn
             ),
             onPressed: () async {
               Navigator.pop(context);
-              mediaItem.name = titlecontroller.text;
-              mediaItem.album = albumcontroller.text;
-              mediaItem.artist = artistcontroller.text;
-              mediaItem.genre = genrecontroller.text;
-              mediaItem.publishedYear = DateTime(int.parse(yearcontroller.text)).millisecondsSinceEpoch;
-              mediaItem.path = pathcontroller.text;
-              final tag = Tag(
-                title: titlecontroller.text,
-                artist: artistcontroller.text,
-                album: albumcontroller.text,
-                genre: genrecontroller.text,
-                year: yearcontroller.text,
-                albumArtist: albumArtistController.text,
-              );
+              mediaItem.name = titleController.text;
+              mediaItem.album = albumController.text;
+              mediaItem.artist = artistController.text;
+              mediaItem.genre = genreController.text;
+              mediaItem.publishedYear = DateTime(int.parse(yearController.text)).millisecondsSinceEpoch;
+              mediaItem.path = pathController.text;
+
               try {
                 try {
-                  await [
-                    Permission.manageExternalStorage,
-                  ].request();
-                  tagger.writeTags(
-                    path: mediaItem.path.toString(),
-                    tag: tag,
-                  );
+                  final permissionsGranted = await [Permission.manageExternalStorage,].request();
                 } catch (e) {
-                  await tagger.writeTags(
-                    path: mediaItem.path.toString(),
-                    tag: tag,
-                  );
-                  ShowSnackBar().showSnackBar(
-                    context,
+                  ShowSnackBar().showSnackBar(context,
                     PlayerTranslationConstants.successTagEdit.tr,
                   );
                 }
               } catch (e) {
                 AppUtilities.logger.e('Failed to edit tags', e);
-                ShowSnackBar().showSnackBar(
-                  context,
+                ShowSnackBar().showSnackBar(context,
                   '${PlayerTranslationConstants.failedTagEdit.tr}\nError: $e',
                 );
               }
@@ -738,14 +703,11 @@ Future<AppMediaItem> editTags(AppMediaItem mediaItem, BuildContext context) asyn
               PlayerTranslationConstants.ok.tr,
               style: TextStyle(
                 color: Theme.of(context).colorScheme.secondary == Colors.white
-                    ? Colors.black
-                    : null,
+                    ? Colors.black : null,
               ),
             ),
           ),
-          const SizedBox(
-            width: 5,
-          ),
+          const SizedBox(width: 5,),
         ],
       );
     },
@@ -776,11 +738,11 @@ class _DownSongsTabState extends State<DownSongsTab>
     final File file = File(imageFilePath);
 
     try {
-      await file.create();
-      final image = await Audiotagger().readArtwork(path: songFilePath);
-      if (image != null) {
-        file.writeAsBytesSync(image);
-      }
+      // await file.create();
+      // final image = await Audiotagger().readArtwork(path: songFilePath);
+      // if (image != null) {
+      //   file.writeAsBytesSync(image);
+      // }
     } catch (e) {
       final HttpClientRequest request2 = await HttpClient().getUrl(Uri.parse(url));
       final HttpClientResponse response2 = await request2.close();

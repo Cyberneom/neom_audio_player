@@ -19,11 +19,10 @@
 
 import 'dart:convert';
 
-import 'package:audiotagger/audiotagger.dart';
-import 'package:audiotagger/models/tag.dart';
-import 'package:http/http.dart';
-import 'package:logging/logging.dart';
+import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
 import 'package:neom_commons/core/utils/app_utilities.dart';
+import 'package:neom_commons/core/utils/constants/app_translation_constants.dart';
 import 'package:neom_music_player/data/api_services/spotify/spotify_api_calls.dart';
 import 'package:neom_music_player/utils/helpers/matcher.dart';
 import 'package:neom_music_player/utils/helpers/spotify_helper.dart';
@@ -90,8 +89,8 @@ class Lyrics {
         'www.jiosaavn.com',
         '/api.php?__call=lyrics.getLyrics&lyrics_id=$id&ctx=web6dot0&api_version=4&_format=json',
       );
-      final Response res =
-          await get(lyricsUrl, headers: {'Accept': 'application/json'});
+      final http.Response res =
+          await http.get(lyricsUrl, headers: {'Accept': 'application/json'});
 
       final List<String> rawLyrics = res.body.split('-->');
       Map fetchedLyrics = {};
@@ -180,8 +179,7 @@ class Lyrics {
         'trackid': trackId,
         'format': 'lrc',
       });
-      final Response res =
-          await get(lyricsUrl, headers: {'Accept': 'application/json'});
+      final http.Response res = await http.get(lyricsUrl, headers: {'Accept': 'application/json'});
 
       if (res.statusCode == 200) {
         final Map lyricsData = await json.decode(res.body) as Map;
@@ -190,8 +188,7 @@ class Lyrics {
           if (lyricsData['syncType'] == 'LINE_SYNCED') {
             result['lyrics'] = lines
                 .map((e) => '[${e["timeTag"]}]${e["words"]}')
-                .toList()
-                .join('\n');
+                .toList().join('\n');
             result['type'] = 'lrc';
           } else {
             result['lyrics'] = lines.map((e) => e['words']).toList().join('\n');
@@ -223,7 +220,7 @@ class Lyrics {
         '</div></div></div></div></div><div><span class="hwc"><div class="BNeawe uEec3 AP7Wnd">';
     String lyrics = '';
     try {
-      lyrics = (await get(
+      lyrics = (await http.get(
         Uri.parse(Uri.encodeFull('$url$title by $artist lyrics')),
       ))
           .body;
@@ -232,7 +229,7 @@ class Lyrics {
       if (lyrics.contains('<meta charset="UTF-8">')) throw Error();
     } catch (_) {
       try {
-        lyrics = (await get(
+        lyrics = (await http.get(
           Uri.parse(
             Uri.encodeFull('$url$title by $artist song lyrics'),
           ),
@@ -243,7 +240,7 @@ class Lyrics {
         if (lyrics.contains('<meta charset="UTF-8">')) throw Error();
       } catch (_) {
         try {
-          lyrics = (await get(
+          lyrics = (await http.get(
             Uri.parse(
               Uri.encodeFull(
                 '$url${title.split("-").first} by $artist lyrics',
@@ -264,9 +261,8 @@ class Lyrics {
 
   static Future<String> getOffLyrics(String path) async {
     try {
-      final Audiotagger tagger = Audiotagger();
-      final Tag? tags = await tagger.readTags(path: path);
-      return tags?.lyrics ?? '';
+      //TODO
+      return AppTranslationConstants.noLyricsAvailable.tr;
     } catch (e) {
       return '';
     }
@@ -274,8 +270,8 @@ class Lyrics {
 
   static Future<String> getLyricsLink(String song, String artist) async {
     const String authority = 'www.musixmatch.com';
-    final String unencodedPath = '/search/$song $artist';
-    final Response res = await get(Uri.https(authority, unencodedPath));
+    final String unEncodedPath = '/search/$song $artist';
+    final http.Response res = await http.get(Uri.https(authority, unEncodedPath));
     if (res.statusCode != 200) return '';
     final RegExpMatch? result =
         RegExp(r'href=\"(\/lyrics\/.*?)\"').firstMatch(res.body);
@@ -285,7 +281,7 @@ class Lyrics {
   static Future<String> scrapLink(String unencodedPath) async {
     AppUtilities.logger.i('Trying to scrap lyrics from $unencodedPath');
     const String authority = 'www.musixmatch.com';
-    final Response res = await get(Uri.https(authority, unencodedPath));
+    final http.Response res = await http.get(Uri.https(authority, unencodedPath));
     if (res.statusCode != 200) return '';
     final List<String?> lyrics = RegExp(
       r'<span class=\"lyrics__content__ok\">(.*?)<\/span>',

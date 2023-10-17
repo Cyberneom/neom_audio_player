@@ -220,7 +220,7 @@ class MediaItemMapper  {
 
   static AppMediaItem fromMediaItem(MediaItem mediaItem) {
     return AppMediaItem(
-      id: mediaItem.id ?? '',
+      id: mediaItem.id,
       album: mediaItem.album ?? '',
       artist: mediaItem.artist ?? '',
       duration: mediaItem.duration?.inSeconds ?? 0,

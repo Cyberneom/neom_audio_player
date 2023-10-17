@@ -128,7 +128,7 @@ class MusicPlayerHomePage extends StatelessWidget {
                     ),
                   ];
                 },
-                body: Obx(()=> _.isLoading ? Container() : MusicPlayerHomeContent()),
+                body: Obx(()=> _.isLoading.value ? Container() : MusicPlayerHomeContent()),
               ),
               if (!rotated)
                 homeDrawer(

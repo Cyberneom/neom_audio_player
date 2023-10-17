@@ -25,7 +25,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 
 Future<String> getSpotifyToken() async {
-  String spotifyAccessToken = await SpotifyApiCalls.getSpotifyToken();
+  final String spotifyAccessToken = await SpotifyApiCalls.getSpotifyToken();
 
   if(spotifyAccessToken.isNotEmpty) {
     Hive.box(AppHiveConstants.settings).put('spotifyAccessToken', spotifyAccessToken);

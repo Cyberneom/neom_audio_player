@@ -21,7 +21,6 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:http/http.dart';
 import 'package:http/http.dart' as http;
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
@@ -90,10 +89,10 @@ class SearchAddPlaylist {
           'tracks': tracks,
         };
       } else {
-        final Request req = Request('Get', Uri.parse(inLink))
+        final http.Request req = http.Request('Get', Uri.parse(inLink))
           ..followRedirects = false;
-        final Client baseClient = Client();
-        final StreamedResponse response = await baseClient.send(req);
+        final http.Client baseClient = http.Client();
+        final http.StreamedResponse response = await baseClient.send(req);
         final Uri redirectUri =
             Uri.parse(response.headers['location'].toString());
         baseClient.close();
@@ -118,7 +117,7 @@ class SearchAddPlaylist {
   static Future<List> getRessoSongs({required String playlistId}) async {
     const url = 'https://api.resso.app/resso/playlist/detail?playlist_id=';
     final Uri link = Uri.parse(url + playlistId);
-    final http.Response response = await get(link);
+    final http.Response response = await http.get(link);
     if (response.statusCode != 200) {
       return [];
     }

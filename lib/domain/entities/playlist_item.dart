@@ -41,12 +41,12 @@ class PlaylistItem {
   }
 
   PlaylistItem.fromJSON(data) :
-        id = data['playlistId'].toString() ?? '',
+        id = data['playlistId'].toString(),
         title = data['title'].toString(),
         subtitle = data['subtitle'].toString(),
-        description = data['description'].toString() ?? '',
-        firstItemId = data['firstItemId'].toString() ?? '',
-        imgUrl = data['imgUrl'].toString() ?? '',
-        type = EnumToString.fromString(PlaylistType.values, data['type'].toString() ?? PlaylistType.playlist.name) ?? PlaylistType.playlist,
+        description = data['description'].toString(),
+        firstItemId = data['firstItemId'].toString(),
+        imgUrl = data['imgUrl'].toString(),
+        type = EnumToString.fromString(PlaylistType.values, data['type'].toString()) ?? PlaylistType.playlist,
         count = int.parse(data['count'].toString());
 }
