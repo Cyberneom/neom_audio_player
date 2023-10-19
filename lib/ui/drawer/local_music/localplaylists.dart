@@ -1,30 +1,11 @@
-/*
- *  This file is part of BlackHole (https://github.com/Sangwan5688/BlackHole).
- * 
- * BlackHole is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * BlackHole is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with BlackHole.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * Copyright (c) 2021-2023, Ankit Sangwan
- */
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
-import 'package:neom_music_player/ui/drawer/local_music/downloaded_songs.dart';
-import 'package:neom_music_player/ui/widgets/snackbar.dart';
-import 'package:neom_music_player/ui/widgets/textinput_dialog.dart';
-import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
-import 'package:neom_music_player/utils/helpers/audio_query.dart';
+import 'downloaded_songs.dart';
+import '../../widgets/snackbar.dart';
+import '../../widgets/textinput_dialog.dart';
+import '../../../utils/constants/player_translation_constants.dart';
+import '../../../utils/helpers/audio_query.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 
 class LocalPlaylists extends StatefulWidget {
@@ -152,42 +133,8 @@ class _LocalPlaylistsState extends State<LocalPlaylists> {
                           );
                         }
                       }
-                      // if (value == 3) {
-                      //   TextInputDialog().showTextInputDialog(
-                      //       context: context,
-                      //       keyboardType: TextInputType.text,
-                      //       title: AppLocalizations.of(context)!
-                      //           .rename,
-                      //       initialText:
-                      //           playlistDetails[index].playlist,
-                      //       onSubmitted: (value) async {
-                      //         Navigator.pop(context);
-                      //         await offlineAudioQuery
-                      //             .renamePlaylist(
-                      //                 playlistId:
-                      //                     playlistDetails[index].id,
-                      //                 newName: value);
-                      //         offlineAudioQuery
-                      //             .getPlaylists()
-                      //             .then((value) {
-                      //           playlistDetails = value;
-                      //           setState(() {});
-                      //         });
-                      //       });
-                      // }
                     },
                     itemBuilder: (context) => [
-                      // PopupMenuItem(
-                      //   value: 3,
-                      //   child: Row(
-                      //     children: [
-                      //       const Icon(Icons.edit_rounded),
-                      //       const SizedBox(width: 10.0),
-                      //       Text(AppLocalizations.of(context)!
-                      //           .rename),
-                      //     ],
-                      //   ),
-                      // ),
                       PopupMenuItem(
                         value: 0,
                         child: Row(

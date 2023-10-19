@@ -1,22 +1,3 @@
-/*
- *  This file is part of BlackHole (https://github.com/Sangwan5688/BlackHole).
- * 
- * BlackHole is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * BlackHole is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with BlackHole.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * Copyright (c) 2021-2023, Ankit Sangwan
- */
-
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -64,7 +45,7 @@ class _NowPlayingPageState extends State<NowPlayingPage> {
                     elevation: 0,
                   ),
             body: processingState == AudioProcessingState.idle
-                ? TextButton(onPressed: ()=>Navigator.pushNamed(context, MusicPlayerRouteConstants.home),
+                ? TextButton(onPressed: () => Navigator.pushNamed(context, MusicPlayerRouteConstants.home),
               child: emptyScreen(
                 context, 3,
                 PlayerTranslationConstants.nothingIs.tr, 18.0,
@@ -72,34 +53,30 @@ class _NowPlayingPageState extends State<NowPlayingPage> {
                 PlayerTranslationConstants.playSomething.tr, 30.0,
               ),
             ) : StreamBuilder<MediaItem?>(
-                    stream: audioHandler.mediaItem,
-                    builder: (context, snapshot) {
-                      final mediaItem = snapshot.data;
-                      return mediaItem == null
-                          ? const SizedBox()
-                          : BouncyImageSliverScrollView(
-                              scrollController: _scrollController,
-                              title: PlayerTranslationConstants.nowPlaying.tr,
-                              localImage: mediaItem.artUri!
-                                  .toString()
-                                  .startsWith('file:'),
-                              imageUrl: mediaItem.artUri!
-                                      .toString()
-                                      .startsWith('file:')
-                                  ? mediaItem.artUri!.toFilePath()
-                                  : mediaItem.artUri!.toString(),
-                              sliverList: SliverList(
-                                delegate: SliverChildListDelegate(
-                                  [
-                                    NowPlayingStream(
-                                      audioHandler: audioHandler,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            );
-                    },
+              stream: audioHandler.mediaItem,
+              builder: (context, snapshot) {
+                final mediaItem = snapshot.data;
+                return mediaItem == null
+                    ? const SizedBox()
+                    : BouncyImageSliverScrollView(
+                  scrollController: _scrollController,
+                  title: PlayerTranslationConstants.nowPlaying.tr,
+                  localImage: mediaItem.artUri!
+                      .toString().startsWith('file:'),
+                  imageUrl: mediaItem.artUri!
+                      .toString().startsWith('file:')
+                      ? mediaItem.artUri!.toFilePath()
+                      : mediaItem.artUri!.toString(),
+                  sliverList: SliverList(
+                    delegate: SliverChildListDelegate(
+                      [
+                        NowPlayingStream(audioHandler: audioHandler,),
+                      ],
+                    ),
                   ),
+                );
+                },
+            ),
           );
         },
       ),

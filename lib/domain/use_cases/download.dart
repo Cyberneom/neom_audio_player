@@ -13,7 +13,7 @@ import 'package:neom_music_player/domain/use_cases/ext_storage_provider.dart';
 import 'package:neom_music_player/ui/widgets/snackbar.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
-import 'package:neom_music_player/utils/helpers/lyrics.dart';
+import 'package:neom_music_player/to_delete/lyrics.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 

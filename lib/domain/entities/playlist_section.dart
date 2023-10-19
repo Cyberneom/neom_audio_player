@@ -1,6 +1,6 @@
 
 
-import 'package:neom_music_player/domain/entities/playlist_item.dart';
+import 'playlist_item.dart';
 
 class PlaylistSection {
 

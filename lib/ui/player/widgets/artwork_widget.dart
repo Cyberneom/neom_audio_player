@@ -15,17 +15,19 @@ import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
+import 'package:neom_commons/core/utils/constants/app_translation_constants.dart';
 import 'package:neom_commons/core/utils/enums/app_in_use.dart';
-import 'package:neom_music_player/domain/entities/queue_state.dart';
-import 'package:neom_music_player/domain/use_cases/neom_audio_handler.dart';
-import 'package:neom_music_player/ui/widgets/add_to_playlist.dart';
-import 'package:neom_music_player/ui/widgets/copy_clipboard.dart';
-import 'package:neom_music_player/ui/widgets/empty_screen.dart';
-import 'package:neom_music_player/ui/widgets/seek_bar.dart';
-import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
-import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
-import 'package:neom_music_player/utils/helpers/lyrics.dart';
 import 'package:rxdart/rxdart.dart' as rx;
+
+import '../../../domain/entities/queue_state.dart';
+import '../../../domain/use_cases/neom_audio_handler.dart';
+import '../../../to_delete/lyrics.dart';
+import '../../../utils/constants/app_hive_constants.dart';
+import '../../../utils/constants/player_translation_constants.dart';
+import '../../widgets/add_to_playlist.dart';
+import '../../widgets/copy_clipboard.dart';
+import '../../widgets/empty_screen.dart';
+import '../../widgets/seek_bar.dart';
 
 class ArtWorkWidget extends StatefulWidget {
   final GlobalKey<FlipCardState>? cardKey;
@@ -258,7 +260,7 @@ class _ArtWorkWidgetState extends State<ArtWorkWidget> {
                     return Align(
                       alignment: Alignment.bottomRight,
                       child: Text(
-                        'Powered by $value',
+                        '${AppTranslationConstants.poweredBy.tr} $value',
                         style: Theme.of(context)
                             .textTheme
                             .bodySmall!
@@ -331,14 +333,10 @@ class _ArtWorkWidgetState extends State<ArtWorkWidget> {
                     });
                   }
                 },
-                onDoubleTap: !enabled
-                    ? null
-                    : () {
+                onDoubleTap: !enabled ? null : () {
                   Feedback.forLongPress(context);
                 },
-                onHorizontalDragEnd: !enabled
-                    ? null
-                    : (DragEndDetails details) {
+                onHorizontalDragEnd: !enabled ? null : (DragEndDetails details) {
                   if ((details.primaryVelocity ?? 0) > 100) {
                     if (queueState.hasPrevious) {
                       widget.audioHandler.skipToPrevious();
@@ -351,26 +349,19 @@ class _ArtWorkWidgetState extends State<ArtWorkWidget> {
                     }
                   }
                 },
-                onLongPress: !enabled
-                    ? null
-                    : () {
+                onLongPress: !enabled ? null : () {
                   if (!widget.offline) {
                     Feedback.forLongPress(context);
                     // AddToPlaylist().addToPlaylist(context, MediaItemMapper.appMediaItemToMediaItem(appMediaItem: widget.appMediaItem));
                   }
                 },
-                onVerticalDragStart: !enabled
-                    ? null
-                    : (_) {
+                onVerticalDragStart: !enabled ? null : (_) {
                   dragging.value = true;
                 },
-                onVerticalDragEnd: !enabled
-                    ? null
-                    : (_) {
+                onVerticalDragEnd: !enabled ? null : (_) {
                   dragging.value = false;
                 },
-                onVerticalDragUpdate: !enabled
-                    ? null
+                onVerticalDragUpdate: !enabled ? null
                     : (DragUpdateDetails details) {
                   if (details.delta.dy != 0.0) {
                     double volume = widget.audioHandler.volume.value ?? 0;
@@ -398,29 +389,20 @@ class _ArtWorkWidgetState extends State<ArtWorkWidget> {
                         fit: BoxFit.contain,
                         width: widget.width * 0.85,
                         gaplessPlayback: true,
-                        errorBuilder: (
-                            BuildContext context,
-                            Object exception,
-                            StackTrace? stackTrace,
-                            ) {
-                          return const Image(
-                            fit: BoxFit.cover,
+                        errorBuilder: (BuildContext context, Object exception, StackTrace? stackTrace,) {
+                          return const Image(fit: BoxFit.cover,
                             image: AssetImage(AppAssets.musicPlayerCover),
                           );
                         },
-                        image: FileImage(
-                          File(widget.appMediaItem.imgUrl ?? '',),
-                        ),
+                        image: FileImage(File(widget.appMediaItem.imgUrl ?? '',),),
                       ) : CachedNetworkImage(
                         fit: BoxFit.contain,
                         errorWidget: (BuildContext context, _, __) =>
-                        const Image(
-                          fit: BoxFit.cover,
+                        const Image(fit: BoxFit.cover,
                           image: AssetImage(AppAssets.musicPlayerCover),
                         ),
                         placeholder: (BuildContext context, _) =>
-                        const Image(
-                          fit: BoxFit.cover,
+                        const Image(fit: BoxFit.cover,
                           image: AssetImage(AppAssets.musicPlayerCover),
                         ),
                         imageUrl: widget.appMediaItem.imgUrl,
@@ -455,19 +437,10 @@ class _ArtWorkWidgetState extends State<ArtWorkWidget> {
                                           child: SliderTheme(
                                             data: SliderTheme.of(context)
                                                 .copyWith(
-                                              thumbShape:
-                                              HiddenThumbComponentShape(),
-                                              activeTrackColor:
-                                              Theme.of(context)
-                                                  .colorScheme
-                                                  .secondary,
-                                              inactiveTrackColor:
-                                              Theme.of(context)
-                                                  .colorScheme
-                                                  .secondary
-                                                  .withOpacity(0.4),
-                                              trackShape:
-                                              const RoundedRectSliderTrackShape(),
+                                              thumbShape: HiddenThumbComponentShape(),
+                                              activeTrackColor: Theme.of(context).colorScheme.secondary,
+                                              inactiveTrackColor: Theme.of(context).colorScheme.secondary.withOpacity(0.4),
+                                              trackShape: const RoundedRectSliderTrackShape(),
                                             ),
                                             child: ExcludeSemantics(
                                               child: Slider(
@@ -480,9 +453,7 @@ class _ArtWorkWidgetState extends State<ArtWorkWidget> {
                                       ),
                                     ),
                                     Padding(
-                                      padding: const EdgeInsets.only(
-                                        bottom: 20.0,
-                                      ),
+                                      padding: const EdgeInsets.only(bottom: 20.0,),
                                       child: Icon(
                                         volumeValue == 0
                                             ? Icons.volume_off_rounded
@@ -499,15 +470,8 @@ class _ArtWorkWidgetState extends State<ArtWorkWidget> {
                           );
                         },
                       ),
-                      builder: (
-                          BuildContext context,
-                          bool value,
-                          Widget? child,
-                          ) {
-                        return Visibility(
-                          visible: value,
-                          child: child!,
-                        );
+                      builder: (BuildContext context, bool value, Widget? child,) {
+                        return Visibility(visible: value, child: child!,);
                       },
                     ),
                     ValueListenableBuilder(
@@ -539,8 +503,7 @@ class _ArtWorkWidgetState extends State<ArtWorkWidget> {
                                       Colors.transparent,
                                       Colors.black.withOpacity(0.4),
                                       Colors.black.withOpacity(0.7),
-                                    ]
-                                        : [
+                                    ] : [
                                       Colors.black.withOpacity(0.7),
                                       Colors.black.withOpacity(0.4),
                                       Colors.transparent,
@@ -571,146 +534,6 @@ class _ArtWorkWidgetState extends State<ArtWorkWidget> {
                         );
                       },
                     ),
-                    ///FUTURE INTEGRATION FOR MORE MEDIA INFO
-                    // ValueListenableBuilder(
-                    //   valueListenable: tapped,
-                    //   child: GestureDetector(
-                    //     onTap: () {
-                    //       tapped.value = false;
-                    //     },
-                    //     child: Card(
-                    //       color: Colors.black26,
-                    //       elevation: 0.0,
-                    //       shape: RoundedRectangleBorder(
-                    //         borderRadius: BorderRadius.circular(15.0),
-                    //       ),
-                    //       clipBehavior: Clip.antiAlias,
-                    //       child: DecoratedBox(
-                    //         decoration: BoxDecoration(
-                    //           gradient: RadialGradient(
-                    //             colors: [
-                    //               Colors.black.withOpacity(0.4),
-                    //               Colors.black.withOpacity(0.7),
-                    //             ],
-                    //           ),
-                    //         ),
-                    //         child: Column(
-                    //           children: [
-                    //             Align(
-                    //               alignment: Alignment.topRight,
-                    //               child: Padding(
-                    //                 padding: const EdgeInsets.all(10.0),
-                    //                 child: IconButton(
-                    //                   tooltip: PlayerTranslationConstants.songInfo.tr,
-                    //                   onPressed: () {
-                    //                     final Map details = widget.appMediaItem.toJSON();
-                    //
-                    //                     details['duration'] = '${(int.parse(details["duration"].toString()) ~/ 60).toString()
-                    //                         .padLeft(2, "0")}:${(int.parse(details["duration"].toString()) % 60).toString().padLeft(2, "0")}';
-                    //                     PopupDialog().showPopup(
-                    //                       context: context,
-                    //                       child: GradientCard(
-                    //                         child: SingleChildScrollView(
-                    //                           physics:
-                    //                           const BouncingScrollPhysics(),
-                    //                           padding:
-                    //                           const EdgeInsets.all(25.0),
-                    //                           child: Column(
-                    //                             crossAxisAlignment:
-                    //                             CrossAxisAlignment.start,
-                    //                             children: details.keys.map((e) {
-                    //                               return Padding(
-                    //                                 padding:
-                    //                                 const EdgeInsets.only(
-                    //                                   bottom: 10.0,
-                    //                                 ),
-                    //                                 child: SelectableText.rich(
-                    //                                   TextSpan(
-                    //                                     children: <TextSpan>[
-                    //                                       TextSpan(
-                    //                                         text:
-                    //                                         '${e[0].toUpperCase()}${e.substring(1)}\n'
-                    //                                             .replaceAll(
-                    //                                           '_',
-                    //                                           ' ',
-                    //                                         ),
-                    //                                         style: TextStyle(
-                    //                                           fontWeight:
-                    //                                           FontWeight
-                    //                                               .normal,
-                    //                                           fontSize: 12,
-                    //                                           color: Theme.of(
-                    //                                             context,
-                    //                                           )
-                    //                                               .textTheme
-                    //                                               .bodySmall!
-                    //                                               .color,
-                    //                                         ),
-                    //                                       ),
-                    //                                       TextSpan(
-                    //                                         text: details[e]
-                    //                                             .toString(),
-                    //                                         style:
-                    //                                         const TextStyle(
-                    //                                           fontWeight:
-                    //                                           FontWeight
-                    //                                               .normal,
-                    //                                         ),
-                    //                                       ),
-                    //                                     ],
-                    //                                   ),
-                    //                                   showCursor: true,
-                    //                                   cursorColor: Colors.black,
-                    //                                   cursorRadius:
-                    //                                   const Radius.circular(
-                    //                                     5,
-                    //                                   ),
-                    //                                 ),
-                    //                               );
-                    //                             }).toList(),
-                    //                           ),
-                    //                         ),
-                    //                       ),
-                    //                     );
-                    //                   },
-                    //                   icon: const Icon(Icons.info_rounded),
-                    //                   color: Theme.of(context).iconTheme.color,
-                    //                 ),
-                    //               ),
-                    //             ),
-                    //             const Spacer(),
-                    //             Align(
-                    //               alignment: Alignment.bottomRight,
-                    //               child: Padding(
-                    //                 padding: const EdgeInsets.all(10.0),
-                    //                 child: IconButton(
-                    //                   tooltip: PlayerTranslationConstants.addToPlaylist.tr,
-                    //                   onPressed: () {
-                    //                     AddToPlaylist().addToPlaylist(context, widget.appMediaItem,);
-                    //                   },
-                    //                   icon: const Icon(
-                    //                     Icons.playlist_add_rounded,
-                    //                   ),
-                    //                   color: Theme.of(context).iconTheme.color,
-                    //                 ),
-                    //               ),
-                    //             ),
-                    //           ],
-                    //         ),
-                    //       ),
-                    //     ),
-                    //   ),
-                    //   builder: (context, bool value, Widget? child) {
-                    //     return AnimatedContainer(
-                    //       duration: const Duration(milliseconds: 250),
-                    //       clipBehavior: Clip.antiAlias,
-                    //       decoration: BoxDecoration(
-                    //         borderRadius: BorderRadius.circular(10.0),
-                    //       ),
-                    //       child: Visibility(visible: value, child: child!),
-                    //     );
-                    //   },
-                    // ),
                   ],
                 ),
               );

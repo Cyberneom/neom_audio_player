@@ -1,22 +1,3 @@
-/*
- *  This file is part of BlackHole (https://github.com/Sangwan5688/BlackHole).
- * 
- * BlackHole is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * BlackHole is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with BlackHole.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * Copyright (c) 2021-2023, Ankit Sangwan
- */
-
 import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
@@ -209,41 +190,6 @@ class _MusicSearchBarState extends State<MusicSearchBar> {
                 ),
               ),
             ),
-            ///VERIFY IMPLEMENTATION WITH YOUTUBE
-            // if (!widget.isYt)
-            //   Padding(
-            //     padding: const EdgeInsets.only(left: 25.0, right: 25.0),
-            //     child: RichText(
-            //       text: TextSpan(
-            //         children: <TextSpan>[
-            //           TextSpan(
-            //             style: const TextStyle(color: Colors.grey),
-            //             text: PlayerTranslationConstants.cantFind.tr,
-            //           ),
-            //           TextSpan(
-            //             text: PlayerTranslationConstants.searchYt.tr,
-            //             style: TextStyle(
-            //               color: Theme.of(context).textTheme.bodyLarge!.color,
-            //             ),
-            //             recognizer: TapGestureRecognizer()
-            //               ..onTap = () {
-            //                 Navigator.push(
-            //                   context,
-            //                   PageRouteBuilder(
-            //                     opaque: false,
-            //                     pageBuilder: (_, __, ___) => YouTubeSearchPage(
-            //                       query: query.isNotEmpty
-            //                           ? query
-            //                           : widget.controller.text,
-            //                     ),
-            //                   ),
-            //                 );
-            //               },
-            //           ),
-            //         ],
-            //       ),
-            //     ),
-            //   ),
             ValueListenableBuilder(
               valueListenable: hide,
               builder: (

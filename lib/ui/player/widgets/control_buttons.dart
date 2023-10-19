@@ -2,13 +2,13 @@ import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:neom_commons/core/utils/constants/app_translation_constants.dart';
-import 'package:neom_music_player/domain/entities/queue_state.dart';
-import 'package:neom_music_player/domain/use_cases/neom_audio_handler.dart';
-import 'package:neom_music_player/ui/widgets/download_button.dart';
-import 'package:neom_music_player/ui/widgets/like_button.dart';
-import 'package:neom_music_player/utils/constants/music_player_constants.dart';
-import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
-import 'package:neom_music_player/utils/helpers/media_item_mapper.dart';
+import '../../../domain/entities/queue_state.dart';
+import '../../../domain/use_cases/neom_audio_handler.dart';
+import '../../widgets/download_button.dart';
+import '../../widgets/like_button.dart';
+import '../../../utils/constants/music_player_constants.dart';
+import '../../../utils/constants/player_translation_constants.dart';
+import '../../../utils/helpers/media_item_mapper.dart';
 import 'package:rxdart/rxdart.dart' as rx;
 
 class ControlButtons extends StatelessWidget {
@@ -39,8 +39,6 @@ class ControlButtons extends StatelessWidget {
       //   index: 0,
       // );
     }
-
-
 
     final String url = mediaItem?.extras?['url'].toString() ?? '';
 

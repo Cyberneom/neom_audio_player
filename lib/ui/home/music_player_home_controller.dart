@@ -1,4 +1,3 @@
-
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
@@ -15,7 +14,6 @@ import 'package:neom_commons/core/utils/enums/itemlist_type.dart';
 import 'package:neom_itemlists/itemlists/data/firestore/app_media_item_firestore.dart';
 import 'package:neom_music_player/domain/use_cases/neom_audio_handler.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
-
 
 class MusicPlayerHomeController extends GetxController {
 
@@ -60,7 +58,6 @@ class MusicPlayerHomeController extends GetxController {
     } catch (e) {
       logger.e(e.toString());
     }
-
   }
 
   @override
@@ -125,11 +122,5 @@ class MusicPlayerHomeController extends GetxController {
 
   void clear() {
   }
-
-  // void setMediaItem(MediaItem item) {
-  //   AppUtilities.logger.i("Setting new mediaitem)");
-  //   mediaItem = item;
-  //   update();
-  // }
 
 }

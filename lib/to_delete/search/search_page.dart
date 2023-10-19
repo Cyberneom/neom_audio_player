@@ -106,7 +106,7 @@ class _SearchPageState extends State<SearchPage> {
     // sortedKeys = position.keys.toList()..sort();
     // albumFetched = true;
     setState(
-      () {},
+          () {},
     );
   }
 
@@ -158,254 +158,254 @@ class _SearchPageState extends State<SearchPage> {
             ),
             body: (fromHome!)
                 ? SingleChildScrollView(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 15,
-                      vertical: 10.0,
-                    ),
-                    physics: const BouncingScrollPhysics(),
-                    child: Column(
-                      children: [
-                        const SizedBox(height: 100,),
-                        Align(
-                          alignment: Alignment.topLeft,
-                          child: Wrap(
-                            children: List<Widget>.generate(
-                              search.length,
-                              (int index) {
-                                return Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 5.0,
-                                  ),
-                                  child: GestureDetector(
-                                    child: Chip(
-                                      label: Text(
-                                        search[index].toString(),
-                                      ),
-                                      labelStyle: TextStyle(
-                                        color: Theme.of(context).textTheme.bodyLarge!.color,
-                                        fontWeight: FontWeight.normal,
-                                      ),
-                                      onDeleted: () {
-                                        setState(() {
-                                          search.removeAt(index);
-                                          Hive.box(AppHiveConstants.settings).put('search', search,);
-                                        });
-                                      },
-                                    ),
-                                    onTap: () {
-                                      setState(
-                                        () {
-                                          fetched = false;
-                                          searchParam = search.removeAt(index).toString().trim();
-                                          search.insert(0, searchParam,);
-                                          Hive.box(AppHiveConstants.settings).put('search', search,);
-                                          controller.text = searchParam;
-                                          controller.selection =
-                                              TextSelection.fromPosition(
-                                            TextPosition(
-                                              offset: searchParam.length,
-                                            ),
-                                          );
-                                          status = false;
-                                          fromHome = false;
-                                        },
-                                      );
-                                    },
-                                  ),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 15,
+                vertical: 10.0,
+              ),
+              physics: const BouncingScrollPhysics(),
+              child: Column(
+                children: [
+                  const SizedBox(height: 100,),
+                  Align(
+                    alignment: Alignment.topLeft,
+                    child: Wrap(
+                      children: List<Widget>.generate(
+                        search.length,
+                            (int index) {
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 5.0,
+                            ),
+                            child: GestureDetector(
+                              child: Chip(
+                                label: Text(
+                                  search[index].toString(),
+                                ),
+                                labelStyle: TextStyle(
+                                  color: Theme.of(context).textTheme.bodyLarge!.color,
+                                  fontWeight: FontWeight.normal,
+                                ),
+                                onDeleted: () {
+                                  setState(() {
+                                    search.removeAt(index);
+                                    Hive.box(AppHiveConstants.settings).put('search', search,);
+                                  });
+                                },
+                              ),
+                              onTap: () {
+                                setState(
+                                      () {
+                                    fetched = false;
+                                    searchParam = search.removeAt(index).toString().trim();
+                                    search.insert(0, searchParam,);
+                                    Hive.box(AppHiveConstants.settings).put('search', search,);
+                                    controller.text = searchParam;
+                                    controller.selection =
+                                        TextSelection.fromPosition(
+                                          TextPosition(
+                                            offset: searchParam.length,
+                                          ),
+                                        );
+                                    status = false;
+                                    fromHome = false;
+                                  },
                                 );
                               },
                             ),
-                          ),
-                        ),
-                        ValueListenableBuilder(
-                          valueListenable: topSearch,
-                          builder: (
-                            BuildContext context,
-                            List<String> value,
-                            Widget? child,
-                          ) {
-                            if (value.isEmpty) return const SizedBox();
-                            return Column(
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                  ValueListenableBuilder(
+                    valueListenable: topSearch,
+                    builder: (
+                        BuildContext context,
+                        List<String> value,
+                        Widget? child,
+                        ) {
+                      if (value.isEmpty) return const SizedBox();
+                      return Column(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 10,
+                            ),
+                            child: Row(
                               children: [
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 10,
-                                    vertical: 10,
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Text(
-                                        PlayerTranslationConstants.trendingSearch.tr,
-                                        style: TextStyle(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .secondary,
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.w800,
-                                        ),
-                                      ),
-                                    ],
+                                Text(
+                                  PlayerTranslationConstants.trendingSearch.tr,
+                                  style: TextStyle(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .secondary,
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w800,
                                   ),
                                 ),
-                                Align(
-                                  alignment: Alignment.topLeft,
-                                  child: Wrap(
-                                    children: List<Widget>.generate(
-                                      value.length,
-                                      (int index) {
-                                        return Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 5.0,
-                                          ),
-                                          child: ChoiceChip(
-                                            label: Text(value[index]),
-                                            selectedColor: Theme.of(context)
-                                                .colorScheme
-                                                .secondary
-                                                .withOpacity(0.2),
-                                            labelStyle: TextStyle(
-                                              color: Theme.of(context)
-                                                  .textTheme
-                                                  .bodyLarge!
-                                                  .color,
-                                              fontWeight: FontWeight.normal,
-                                            ),
-                                            selected: false,
-                                            onSelected: (bool selected) {
-                                              if (selected) {
-                                                setState(
-                                                  () {
-                                                    fetched = false;
-                                                    searchParam = value[index].trim();
-                                                    controller.text = searchParam;
-                                                    controller.selection =
-                                                        TextSelection
-                                                            .fromPosition(
-                                                      TextPosition(
-                                                        offset: searchParam.length,
-                                                      ),
-                                                    );
-                                                    status = false;
-                                                    fromHome = false;
-                                                    if (search.contains(
-                                                      searchParam,
-                                                    )) {
-                                                      search.remove(searchParam);
-                                                    }
-                                                    search.insert(
-                                                      0,
-                                                      searchParam,
-                                                    );
-                                                    if (search.length > 10) {
-                                                      search =
-                                                          search.sublist(0, 10);
-                                                    }
-                                                    Hive.box(AppHiveConstants.settings).put(
-                                                      'search',
-                                                      search,
-                                                    );
-                                                  },
-                                                );
+                              ],
+                            ),
+                          ),
+                          Align(
+                            alignment: Alignment.topLeft,
+                            child: Wrap(
+                              children: List<Widget>.generate(
+                                value.length,
+                                    (int index) {
+                                  return Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 5.0,
+                                    ),
+                                    child: ChoiceChip(
+                                      label: Text(value[index]),
+                                      selectedColor: Theme.of(context)
+                                          .colorScheme
+                                          .secondary
+                                          .withOpacity(0.2),
+                                      labelStyle: TextStyle(
+                                        color: Theme.of(context)
+                                            .textTheme
+                                            .bodyLarge!
+                                            .color,
+                                        fontWeight: FontWeight.normal,
+                                      ),
+                                      selected: false,
+                                      onSelected: (bool selected) {
+                                        if (selected) {
+                                          setState(
+                                                () {
+                                              fetched = false;
+                                              searchParam = value[index].trim();
+                                              controller.text = searchParam;
+                                              controller.selection =
+                                                  TextSelection
+                                                      .fromPosition(
+                                                    TextPosition(
+                                                      offset: searchParam.length,
+                                                    ),
+                                                  );
+                                              status = false;
+                                              fromHome = false;
+                                              if (search.contains(
+                                                searchParam,
+                                              )) {
+                                                search.remove(searchParam);
                                               }
+                                              search.insert(
+                                                0,
+                                                searchParam,
+                                              );
+                                              if (search.length > 10) {
+                                                search =
+                                                    search.sublist(0, 10);
+                                              }
+                                              Hive.box(AppHiveConstants.settings).put(
+                                                'search',
+                                                search,
+                                              );
                                             },
-                                          ),
-                                        );
+                                          );
+                                        }
                                       },
                                     ),
-                                  ),
-                                ),
-                              ],
-                            );
-                          },
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                ],
+              ),
+            )
+                : !fetched
+                ? const Center(
+              child: CircularProgressIndicator(),
+            )
+                : appMediaItems.isEmpty
+                ? nothingFound(context)
+                : SingleChildScrollView(
+              padding: const EdgeInsets.only(
+                top: 100,
+              ),
+              physics: const BouncingScrollPhysics(),
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(left: 25, top: 10,),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(AppTranslationConstants.releaseItem.tr,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.secondary,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w800,
+                          ),
                         ),
+                        // if (item.e.name != 'Top Result')
+                        //   Padding(
+                        //     padding: const EdgeInsets.fromLTRB(25, 0, 25, 0,),
+                        //     child: Row(
+                        //       mainAxisAlignment:
+                        //           MainAxisAlignment.end,
+                        //       children: [
+                        //         GestureDetector(
+                        //           onTap: () {
+                        //             if (e.type ==  MediaItemType.song) {
+                        //               Navigator.push(
+                        //                 context,
+                        //                 PageRouteBuilder(
+                        //                   opaque: false,
+                        //                   pageBuilder: (_, __, ___,) => SongsListPage(itemlist: Itemlist()),
+                        //                 ),
+                        //               );
+                        //             }
+                        //           },
+                        //           child: Row(
+                        //             children: [
+                        //               Text(
+                        //                 PlayerTranslationConstants.viewAll.tr,
+                        //                 style: TextStyle(
+                        //                   color: Theme.of(context,).textTheme.bodySmall!.color,
+                        //                   fontWeight: FontWeight.w800,
+                        //                 ),
+                        //               ),
+                        //               Icon(Icons.chevron_right_rounded,
+                        //                 color: Theme.of(context,).textTheme.bodySmall!.color,
+                        //               ),
+                        //             ],
+                        //           ),
+                        //         ),
+                        //       ],
+                        //     ),
+                        //   ),
                       ],
                     ),
-                  )
-                : !fetched
-                    ? const Center(
-                        child: CircularProgressIndicator(),
-                      )
-                    : appMediaItems.isEmpty
-                        ? nothingFound(context)
-                        : SingleChildScrollView(
-                            padding: const EdgeInsets.only(
-                              top: 100,
-                            ),
-                            physics: const BouncingScrollPhysics(),
-                            child: Column(
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.only(left: 25, top: 10,),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(AppTranslationConstants.releaseItem.tr,
-                                        style: TextStyle(
-                                          color: Theme.of(context).colorScheme.secondary,
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.w800,
-                                        ),
-                                      ),
-                                            // if (item.e.name != 'Top Result')
-                                            //   Padding(
-                                            //     padding: const EdgeInsets.fromLTRB(25, 0, 25, 0,),
-                                            //     child: Row(
-                                            //       mainAxisAlignment:
-                                            //           MainAxisAlignment.end,
-                                            //       children: [
-                                            //         GestureDetector(
-                                            //           onTap: () {
-                                            //             if (e.type ==  MediaItemType.song) {
-                                            //               Navigator.push(
-                                            //                 context,
-                                            //                 PageRouteBuilder(
-                                            //                   opaque: false,
-                                            //                   pageBuilder: (_, __, ___,) => SongsListPage(itemlist: Itemlist()),
-                                            //                 ),
-                                            //               );
-                                            //             }
-                                            //           },
-                                            //           child: Row(
-                                            //             children: [
-                                            //               Text(
-                                            //                 PlayerTranslationConstants.viewAll.tr,
-                                            //                 style: TextStyle(
-                                            //                   color: Theme.of(context,).textTheme.bodySmall!.color,
-                                            //                   fontWeight: FontWeight.w800,
-                                            //                 ),
-                                            //               ),
-                                            //               Icon(Icons.chevron_right_rounded,
-                                            //                 color: Theme.of(context,).textTheme.bodySmall!.color,
-                                            //               ),
-                                            //             ],
-                                            //           ),
-                                            //         ),
-                                            //       ],
-                                            //     ),
-                                            //   ),
-                                    ],
-                                  ),
-                                ),
-                                ListView.builder(
-                                  itemCount: appMediaItems.length,
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  shrinkWrap: true,
-                                  padding: const EdgeInsets.only(left: 5, right: 10,),
-                                  itemBuilder: (context, index) {
-                                    AppMediaItem item = appMediaItems.values.elementAt(index);
-                                    // final int count = item.likes;
-                                    // String countText = item.artist;
-                                    // countText = count > 1 ? '$count ${PlayerTranslationConstants.songs.tr}'
-                                    //     : '$count ${PlayerTranslationConstants.song.tr}';
-                                    return createCoolMediaItemTile(context, item, query: searchParam);
-                                    },
-                                ),
-                              ],
-                            ),
+                  ),
+                  ListView.builder(
+                    itemCount: appMediaItems.length,
+                    physics: const NeverScrollableScrollPhysics(),
+                    shrinkWrap: true,
+                    padding: const EdgeInsets.only(left: 5, right: 10,),
+                    itemBuilder: (context, index) {
+                      AppMediaItem item = appMediaItems.values.elementAt(index);
+                      // final int count = item.likes;
+                      // String countText = item.artist;
+                      // countText = count > 1 ? '$count ${PlayerTranslationConstants.songs.tr}'
+                      //     : '$count ${PlayerTranslationConstants.song.tr}';
+                      return createCoolMediaItemTile(context, item, query: searchParam);
+                    },
+                  ),
+                ],
+              ),
             ),
             onSubmitted: (String submittedQuery) {
               setState(
-                () {
+                    () {
                   fetched = false;
                   searchParam = submittedQuery;
                   status = false;

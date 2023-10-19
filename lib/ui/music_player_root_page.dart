@@ -9,6 +9,7 @@ import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_theme.dart';
 import 'package:neom_commons/core/utils/enums/app_in_use.dart';
 import 'package:neom_itemlists/itemlists/ui/itemlist_page.dart';
+import 'package:neom_music_player/domain/entities/custom_bottom_nav_bar_item.dart';
 import 'package:neom_music_player/ui/drawer/music_player_drawer.dart';
 import 'package:neom_music_player/ui/home/music_player_home_page.dart';
 import 'package:neom_music_player/ui/home/widgets/bottom_nav_bar.dart';
@@ -34,12 +35,13 @@ class _MusicPlayerRootPageState extends State<MusicPlayerRootPage> {
   DateTime? backButtonPressTime;
   final bool useDense = false;
 
-  void callback() {
-    List<String> shortSectionsToShow = ['Music', 'Playlists',];
-    List<String> sectionsToShow = ['Music', 'Playlists', 'Spotify'];
-    onItemTapped(0);
-    setState(() {});
-  }
+  ///DEPRECATED
+  // void callback() {
+  //   List<String> shortSectionsToShow = ['Music', 'Playlists',];
+  //   List<String> sectionsToShow = ['Music', 'Playlists', 'Spotify'];
+  //   onItemTapped(0);
+  //   setState(() {});
+  // }
 
   void onItemTapped(int index) {
     _selectedIndex.value = index;
@@ -205,7 +207,7 @@ class _MusicPlayerRootPageState extends State<MusicPlayerRootPage> {
                   );
                 case 'YouTube':
                   return NavigationRailDestination(
-                    icon: const Icon(MdiIcons.youtube),
+                    icon: Icon(MdiIcons.youtube),
                     label:
                     Text(PlayerTranslationConstants.youTube.tr),
                   );
@@ -239,17 +241,10 @@ class _MusicPlayerRootPageState extends State<MusicPlayerRootPage> {
           );
         case 'Spotify':
           return CustomBottomNavBarItem(
-            icon: const Icon(MdiIcons.spotify),
+            icon: Icon(MdiIcons.spotify),
             title: Text(PlayerTranslationConstants.topCharts.tr),
             selectedColor: Theme.of(context).colorScheme.secondary,
           );
-          ///WORKING ON
-        // case 'YouTube':
-        //   return CustomBottomNavBarItem(
-        //     icon: const Icon(MdiIcons.youtube),
-        //     title: Text(PlayerTranslationConstants.youTube.tr),
-        //     selectedColor: Theme.of(context).colorScheme.secondary,
-        //   );
         default:
           return CustomBottomNavBarItem(
             icon: const Icon(Icons.play_circle_fill),

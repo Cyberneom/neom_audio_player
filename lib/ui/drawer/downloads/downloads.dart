@@ -27,18 +27,18 @@ import 'package:hive/hive.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
-import 'package:neom_music_player/neom_player_invoker.dart';
-import 'package:neom_music_player/ui/drawer/downloads/data_search.dart';
-import 'package:neom_music_player/ui/widgets/custom_physics.dart';
-import 'package:neom_music_player/ui/widgets/empty_screen.dart';
-import 'package:neom_music_player/ui/widgets/gradient_containers.dart';
-import 'package:neom_music_player/ui/widgets/image_card.dart';
-import 'package:neom_music_player/ui/widgets/playlist_head.dart';
-import 'package:neom_music_player/ui/widgets/snackbar.dart';
-import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
-import 'package:neom_music_player/utils/constants/music_player_route_constants.dart';
-import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
-import 'package:neom_music_player/utils/helpers/picker.dart';
+import '../../../neom_player_invoker.dart';
+import 'data_search.dart';
+import '../../widgets/custom_physics.dart';
+import '../../widgets/empty_screen.dart';
+import '../../widgets/gradient_containers.dart';
+import '../../widgets/image_card.dart';
+import '../../widgets/playlist_head.dart';
+import '../../widgets/snackbar.dart';
+import '../../../utils/constants/app_hive_constants.dart';
+import '../../../utils/constants/music_player_route_constants.dart';
+import '../../../utils/constants/player_translation_constants.dart';
+import '../../../utils/helpers/picker.dart';
 // import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -240,7 +240,7 @@ class _DownloadsState extends State<Downloads>
       ShowSnackBar().showSnackBar(context,
         '${PlayerTranslationConstants.deleted.tr} ${song['title']}',);
     } catch (e) {
-      AppUtilities.logger.e('Failed to delete $audioFile.path', e);
+      AppUtilities.logger.e('Failed to delete $audioFile.path ${e.toString()}');
       ShowSnackBar().showSnackBar(context,
         '${PlayerTranslationConstants.failedDelete.tr}: ${audioFile.path}\nError: $e',);
     }
@@ -693,7 +693,7 @@ Future<AppMediaItem> editTags(AppMediaItem mediaItem, BuildContext context) asyn
                   );
                 }
               } catch (e) {
-                AppUtilities.logger.e('Failed to edit tags', e);
+                AppUtilities.logger.e('Failed to edit tags ${e.toString()}');
                 ShowSnackBar().showSnackBar(context,
                   '${PlayerTranslationConstants.failedTagEdit.tr}\nError: $e',
                 );

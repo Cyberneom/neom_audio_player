@@ -1,25 +1,5 @@
-/*
- *  This file is part of BlackHole (https://github.com/Sangwan5688/BlackHole).
- * 
- * BlackHole is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * BlackHole is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with BlackHole.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * Copyright (c) 2021-2023, Ankit Sangwan
- */
-
 import 'dart:async';
 import 'dart:io';
-
 import 'package:audio_service/audio_service.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flip_card/flip_card.dart';
@@ -40,7 +20,7 @@ import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
 import 'package:neom_music_player/utils/helpers/dominant_color.dart';
 import 'package:neom_music_player/utils/helpers/media_item_mapper.dart';
-import 'package:neom_music_player/utils/music_player_theme.dart';
+import 'package:neom_music_player/utils/theme/music_player_theme.dart';
 import 'package:neom_music_player/utils/music_player_utilities.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
@@ -257,18 +237,6 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
               Text(PlayerTranslationConstants.addToPlaylist.tr,),],),
         ),
         PopupMenuItem(
-          value: 10,
-          child: Row(
-            children: [
-              Icon(Icons.info_rounded,
-                color: Theme.of(context).iconTheme.color,
-              ),
-              const SizedBox(width: 10.0),
-              Text(PlayerTranslationConstants.songInfo.tr,),
-            ],
-          ),
-        ),
-        PopupMenuItem(
           value: 1,
           child: Row(
             children: [
@@ -283,22 +251,18 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
             ],
           ),
         ),
-        ///FUTURE IMPLEMENTATION
-        // PopupMenuItem(
-        //   value: 3,
-        //   child: Row(
-        //     children: [
-        //       Icon(MdiIcons.youtube,
-        //         color: Theme.of(context).iconTheme.color,
-        //       ),
-        //       const SizedBox(width: 10.0),
-        //       Text(appMediaItem.genre == 'YouTube'
-        //           ? PlayerTranslationConstants.watchVideo.tr
-        //           : PlayerTranslationConstants.searchVideo.tr,
-        //       ),
-        //     ],
-        //   ),
-        // ),
+        PopupMenuItem(
+          value: 10,
+          child: Row(
+            children: [
+              Icon(Icons.info_rounded,
+                color: Theme.of(context).iconTheme.color,
+              ),
+              const SizedBox(width: 10.0),
+              Text(PlayerTranslationConstants.songInfo.tr,),
+            ],
+          ),
+        ),
       ],
     );
   }

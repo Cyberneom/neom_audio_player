@@ -8,57 +8,17 @@ import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/enums/app_media_source.dart';
 import 'package:neom_music_player/domain/use_cases/neom_audio_handler.dart';
-import 'package:neom_music_player/domain/use_cases/ytmusic/youtube_services.dart';
 import 'package:neom_music_player/ui/widgets/add_to_playlist.dart';
 import 'package:neom_music_player/ui/widgets/popup.dart';
 import 'package:neom_music_player/ui/widgets/snackbar.dart';
 import 'package:neom_music_player/ui/widgets/textinput_dialog.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
-import 'package:neom_music_player/utils/helpers/extensions.dart';
+import 'package:neom_music_player/to_delete/extensions.dart';
 
 class MusicPlayerUtilities {
 
   final NeomAudioHandler audioHandler = GetIt.I<NeomAudioHandler>();
-
-  static Future<AppMediaItem> refreshYtLink(AppMediaItem playItem) async {
-    // final bool cacheSong = Hive.box(AppHiveConstants.settings).get('cacheSong', defaultValue: true) as bool;
-    final int expiredAt = playItem.expireAt ?? 0;
-    if ((DateTime.now().millisecondsSinceEpoch ~/ 1000) + 350 > expiredAt) {
-      AppUtilities.logger.i('Before service | youtube link expired for ${playItem.name}',);
-      if (Hive.box(AppHiveConstants.ytLinkCache).containsKey(playItem.id)) {
-        final Map cache = await Hive.box(AppHiveConstants.ytLinkCache).get(playItem.id) as Map;
-        final int expiredAt = int.parse((cache['expire_at'] ?? '0').toString());
-
-        if ((DateTime.now().millisecondsSinceEpoch ~/ 1000) + 350 > expiredAt) {
-          AppUtilities.logger.i('youtube link expired in cache for ${playItem.name}');
-          final AppMediaItem? newMediaItem = await YouTubeServices().refreshLink(playItem.id);
-          AppUtilities.logger.i(
-            'before service | received new link for ${playItem.name}',
-          );
-          if (newMediaItem != null) {
-            playItem.url = newMediaItem.url;
-            playItem.duration = newMediaItem.duration;
-            playItem.expireAt = newMediaItem.expireAt;
-          }
-        } else {
-          AppUtilities.logger.i('youtube link found in cache for ${playItem.name}');
-          playItem.url = cache['url'].toString();
-          playItem.expireAt = int.parse(cache['expire_at'].toString());
-        }
-      } else {
-        final newData = await YouTubeServices().refreshLink(playItem.id);
-        AppUtilities.logger.i('before service | received new link for ${playItem.name}',);
-        if (newData != null) {
-          playItem.url = newData.url;
-          playItem.duration = newData.duration;
-          playItem.expireAt = newData.expireAt;
-        }
-      }
-    }
-
-    return playItem;
-  }
 
   String getSubTitle(Map item) {
     AppUtilities.logger.e('Getting SubtTitle.');
@@ -299,34 +259,6 @@ class MusicPlayerUtilities {
             ),
           ),
         );
-    // case 5:
-    //   Navigator.push(
-    //     context,
-    //     PageRouteBuilder(
-    //       opaque: false,
-    //       pageBuilder: (_, __, ___) => SongsListPage(
-    //           itemlist: Itemlist()
-    //         //TODO TO VERIFY
-    //         // {
-    //         //   'type': 'album',
-    //         //   'id': mediaItem.extras?['album_id'],
-    //         //   'title': mediaItem.album,
-    //         //   'image': mediaItem.artUri,
-    //         // },
-    //       ),
-    //     ),
-    //   );
-    //   break;
-    // case 3:
-    //   launchUrl(
-    //     Uri.parse(
-    //       appMediaItem.genre == 'YouTube'
-    //           ? 'https://youtube.com/watch?v=${appMediaItem.id}'
-    //           : 'https://www.youtube.com/results?search_query=${appMediaItem.name} by ${appMediaItem.artist}',
-    //     ),
-    //     mode: LaunchMode.externalApplication,
-    //   );
-    //   break;
       default:
         break;
     }

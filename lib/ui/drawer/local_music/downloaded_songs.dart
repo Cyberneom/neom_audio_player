@@ -1,22 +1,3 @@
-/*
- *  This file is part of BlackHole (https://github.com/Sangwan5688/BlackHole).
- * 
- * BlackHole is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * BlackHole is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with BlackHole.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * Copyright (c) 2021-2023, Ankit Sangwan
- */
-
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
@@ -36,7 +17,6 @@ import 'package:neom_music_player/utils/constants/player_translation_constants.d
 import 'package:neom_music_player/utils/helpers/audio_query.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 import 'package:path_provider/path_provider.dart';
-
 
 class DownloadedSongs extends StatefulWidget {
   final List<SongModel>? cachedSongs;
@@ -183,12 +163,12 @@ class _DownloadedSongsState extends State<DownloadedSongs> with TickerProviderSt
             _sortedFolderKeysList.add(dirPath);
           }
         } catch (e) {
-          AppUtilities.logger.e('Error in sorting songs', e);
+          AppUtilities.logger.e('Error in sorting songs ${e.toString()}');
         }
       }
       AppUtilities.logger.i('albums, artists, genre & folders set');
     } catch (e) {
-      AppUtilities.logger.e('Error in getData', e);
+      AppUtilities.logger.e('Error in getData ${e.toString()}');
       added = true;
     }
   }
@@ -263,7 +243,7 @@ class _DownloadedSongsState extends State<DownloadedSongs> with TickerProviderSt
         '${PlayerTranslationConstants.deleted.tr} ${song.title}',
       );
     } catch (e) {
-      AppUtilities.logger.e('Failed to delete $audioFile.path', e);
+      AppUtilities.logger.e('Failed to delete $audioFile.path ${e.toString()}');
       ShowSnackBar().showSnackBar(
         context,
         duration: const Duration(seconds: 5),
@@ -433,33 +413,6 @@ class _DownloadedSongsState extends State<DownloadedSongs> with TickerProviderSt
                       tempPath: tempPath!,
                       deleteSong: deleteSong,
                     ),
-                    // AlbumsTab(
-                    //   albums: _albums,
-                    //   albumsList: _sortedAlbumKeysList,
-                    //   tempPath: tempPath!,
-                    // ),
-                    // AlbumsTab(
-                    //   albums: _artists,
-                    //   albumsList: _sortedArtistKeysList,
-                    //   tempPath: tempPath!,
-                    // ),
-                    // AlbumsTab(
-                    //   albums: _genres,
-                    //   albumsList: _sortedGenreKeysList,
-                    //   tempPath: tempPath!,
-                    // ),
-                    // AlbumsTab(
-                    //   albums: _folders,
-                    //   albumsList: _sortedFolderKeysList,
-                    //   tempPath: tempPath!,
-                    //   isFolder: true,
-                    // ),
-                    // if (widget.showPlaylists)
-                    //   LocalPlaylists(
-                    //     playlistDetails: playlistDetails,
-                    //     offlineAudioQuery: offlineAudioQuery,
-                    //   ),
-                    // videosTab(),
                   ],
                 ),
         ),
@@ -467,237 +420,4 @@ class _DownloadedSongsState extends State<DownloadedSongs> with TickerProviderSt
     );
   }
 
-//   Widget videosTab() {
-//     return _cachedVideos.isEmpty
-//         ? EmptyScreen().emptyScreen(context, 3, 'Nothing to ', 15.0,
-//             'Show Here', 45, 'Download Something', 23.0)
-//         : ListView.builder(
-//             physics: const BouncingScrollPhysics(),
-//             padding: const EdgeInsets.only(top: 20, bottom: 10),
-//             shrinkWrap: true,
-//             itemExtent: 70.0,
-//             itemCount: _cachedVideos.length,
-//             itemBuilder: (context, index) {
-//               return ListTile(
-//                 leading: Card(
-//                   elevation: 5,
-//                   shape: RoundedRectangleBorder(
-//                     borderRadius: BorderRadius.circular(7.0),
-//                   ),
-//                   clipBehavior: Clip.antiAlias,
-//                   child: Stack(
-//                     children: [
-//                       const Image(
-//                         image: AssetImage(AppAssets.musicPlayerCover),
-//                       ),
-//                       if (_cachedVideos[index]['image'] == null)
-//                         const SizedBox()
-//                       else
-//                         SizedBox(
-//                           height: 50.0,
-//                           width: 50.0,
-//                           child: Image(
-//                             fit: BoxFit.cover,
-//                             image: MemoryImage(
-//                                 _cachedVideos[index]['image'] as Uint8List),
-//                           ),
-//                         ),
-//                     ],
-//                   ),
-//                 ),
-//                 title: Text(
-//                   '${_cachedVideos[index]['id'].split('/').last}',
-//                   overflow: TextOverflow.ellipsis,
-//                   maxLines: 2,
-//                 ),
-//                 trailing: PopupMenuButton(
-//                   icon: const Icon(Icons.more_vert_rounded),
-//                   shape: const RoundedRectangleBorder(
-//                       borderRadius: BorderRadius.all(Radius.circular(15.0))),
-//                   onSelected: (dynamic value) async {
-//                     if (value == 0) {
-//                       showDialog(
-//                         context: context,
-//                         builder: (BuildContext context) {
-//                           final String fileName = _cachedVideos[index]['id']
-//                               .split('/')
-//                               .last
-//                               .toString();
-//                           final List temp = fileName.split('.');
-//                           temp.removeLast();
-//                           final String videoName = temp.join('.');
-//                           final controller =
-//                               TextEditingController(text: videoName);
-//                           return AlertDialog(
-//                             content: Column(
-//                               mainAxisSize: MainAxisSize.min,
-//                               children: [
-//                                 Row(
-//                                   children: [
-//                                     Text(
-//                                       'Name',
-//                                       style: TextStyle(
-//                                           color: Theme.of(context).accentColor),
-//                                     ),
-//                                   ],
-//                                 ),
-//                                 const SizedBox(
-//                                   height: 10,
-//                                 ),
-//                                 TextField(
-//                                     autofocus: true,
-//                                     controller: controller,
-//                                     onSubmitted: (value) async {
-//                                       try {
-//                                         Navigator.pop(context);
-//                                         String newName = _cachedVideos[index]
-//                                                 ['id']
-//                                             .toString()
-//                                             .replaceFirst(videoName, value);
-
-//                                         while (await File(newName).exists()) {
-//                                           newName = newName.replaceFirst(
-//                                               value, '$value (1)');
-//                                         }
-
-//                                         File(_cachedVideos[index]['id']
-//                                                 .toString())
-//                                             .rename(newName);
-//                                         _cachedVideos[index]['id'] = newName;
-//                                         ShowSnackBar().showSnackBar(
-//                                           context,
-//                                           'Renamed to ${_cachedVideos[index]['id'].split('/').last}',
-//                                         );
-//                                       } catch (e) {
-//                                         ShowSnackBar().showSnackBar(
-//                                           context,
-//                                           'Failed to Rename ${_cachedVideos[index]['id'].split('/').last}',
-//                                         );
-//                                       }
-//                                       setState(() {});
-//                                     }),
-//                               ],
-//                             ),
-//                             actions: [
-//                               TextButton(
-//                                 style: TextButton.styleFrom(
-//                                   primary: Theme.of(context).brightness ==
-//                                           Brightness.dark
-//                                       ? Colors.white
-//                                       : Colors.grey[700],
-//                                   //       backgroundColor: Theme.of(context).accentColor,
-//                                 ),
-//                                 onPressed: () {
-//                                   Navigator.pop(context);
-//                                 },
-//                                 child: const Text(
-//                                   'Cancel',
-//                                 ),
-//                               ),
-//                               TextButton(
-//                                 style: TextButton.styleFrom(
-//                                   primary: Colors.white,
-//                                   backgroundColor:
-//                                       Theme.of(context).accentColor,
-//                                 ),
-//                                 onPressed: () async {
-//                                   try {
-//                                     Navigator.pop(context);
-//                                     String newName = _cachedVideos[index]['id']
-//                                         .toString()
-//                                         .replaceFirst(
-//                                             videoName, controller.text);
-
-//                                     while (await File(newName).exists()) {
-//                                       newName = newName.replaceFirst(
-//                                           controller.text,
-//                                           '${controller.text} (1)');
-//                                     }
-
-//                                     File(_cachedVideos[index]['id'].toString())
-//                                         .rename(newName);
-//                                     _cachedVideos[index]['id'] = newName;
-//                                     ShowSnackBar().showSnackBar(
-//                                       context,
-//                                       'Renamed to ${_cachedVideos[index]['id'].split('/').last}',
-//                                     );
-//                                   } catch (e) {
-//                                     ShowSnackBar().showSnackBar(
-//                                       context,
-//                                       'Failed to Rename ${_cachedVideos[index]['id'].split('/').last}',
-//                                     );
-//                                   }
-//                                   setState(() {});
-//                                 },
-//                                 child: const Text(
-//                                   'Ok',
-//                                   style: TextStyle(color: Colors.white),
-//                                 ),
-//                               ),
-//                               const SizedBox(
-//                                 width: 5,
-//                               ),
-//                             ],
-//                           );
-//                         },
-//                       );
-//                     }
-//                     if (value == 1) {
-//                       try {
-//                         File(_cachedVideos[index]['id'].toString()).delete();
-//                         ShowSnackBar().showSnackBar(
-//                           context,
-//                           'Deleted ${_cachedVideos[index]['id'].split('/').last}',
-//                         );
-//                         _cachedVideos.remove(_cachedVideos[index]);
-//                       } catch (e) {
-//                         ShowSnackBar().showSnackBar(
-//                           context,
-//                           'Failed to delete ${_cachedVideos[index]['id']}',
-//                         );
-//                       }
-//                       setState(() {});
-//                     }
-//                   },
-//                   itemBuilder: (context) => [
-//                     PopupMenuItem(
-//                       value: 0,
-//                       child: Row(
-//                         children: const [
-//                           Icon(Icons.edit_rounded),
-//                           const SizedBox(width: 10.0),
-//                           Text('Rename'),
-//                         ],
-//                       ),
-//                     ),
-//                     PopupMenuItem(
-//                       value: 1,
-//                       child: Row(
-//                         children: const [
-//                           Icon(Icons.delete_rounded),
-//                           const SizedBox(width: 10.0),
-//                           Text('Delete'),
-//                         ],
-//                       ),
-//                     ),
-//                   ],
-//                 ),
-//                 onTap: () {
-//                   Navigator.of(context).push(
-//                     PageRouteBuilder(
-//                       opaque: false, // set to false
-//                       pageBuilder: (_, __, ___) => PlayScreen(
-//                         data: {
-//                           'response': _cachedVideos,
-//                           'index': index,
-//                           'offline': true
-//                         },
-//                         fromMiniplayer: false,
-//                       ),
-//                     ),
-//                   );
-//                 },
-//               );
-//             });
-//   }
 }

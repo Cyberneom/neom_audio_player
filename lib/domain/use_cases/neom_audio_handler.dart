@@ -28,16 +28,16 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
-import 'package:neom_music_player/data/implementations/app_hive_controller.dart';
-import 'package:neom_music_player/data/implementations/playlist_hive_controller.dart';
-import 'package:neom_music_player/domain/entities/queue_state.dart';
-import 'package:neom_music_player/domain/use_cases/isolate_service.dart';
-import 'package:neom_music_player/domain/use_cases/neom_audio_service.dart';
-import 'package:neom_music_player/ui/player/miniplayer_controller.dart';
-import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
-import 'package:neom_music_player/utils/constants/music_player_constants.dart';
-import 'package:neom_music_player/utils/helpers/media_item_mapper.dart';
-import 'package:neom_music_player/utils/neom_audio_utilities.dart';
+import '../../data/implementations/app_hive_controller.dart';
+import '../../data/implementations/playlist_hive_controller.dart';
+import '../entities/queue_state.dart';
+import 'isolate_service.dart';
+import 'neom_audio_service.dart';
+import '../../ui/player/miniplayer_controller.dart';
+import '../../utils/constants/app_hive_constants.dart';
+import '../../utils/constants/music_player_constants.dart';
+import '../../utils/helpers/media_item_mapper.dart';
+import '../../utils/neom_audio_utilities.dart';
 import 'package:rxdart/rxdart.dart';
 
 class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler implements NeomAudioService {
@@ -194,7 +194,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
                 await _player.seek(Duration(seconds: lastPos), index: lastIndex);
               }
             } catch (e) {
-              AppUtilities.logger.e('Error while setting last audiosource', e);
+              AppUtilities.logger.e('Error while setting last audiosource ${e.toString()}');
               await _player.setAudioSource(_playlist, preload: false);
             }
           }
@@ -205,7 +205,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
         await _player.setAudioSource(_playlist, preload: false);
       }
     } catch (e) {
-      AppUtilities.logger.e('Error while loading last queue', e);
+      AppUtilities.logger.e('Error while loading last queue ${e}');
       await _player.setAudioSource(_playlist, preload: false);
     }
     if (!jobRunning) {
@@ -656,7 +656,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
           if (newPosition > _player.duration!) newPosition = _player.duration!;
           await _player.seek(newPosition);
         } catch (e) {
-          AppUtilities.logger.e('Error in fastForward', e);
+          AppUtilities.logger.e('Error in fastForward ${e.toString()}');
         }
       case 'rewind':
         try {
@@ -666,7 +666,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
           if (newPosition > _player.duration!) newPosition = _player.duration!;
           await _player.seek(newPosition);
         } catch (e) {
-          AppUtilities.logger.e('Error in rewind', e);
+          AppUtilities.logger.e('Error in rewind ${e.toString()}');
         }
       case 'refreshLink':
         if (extras?['newData'] != null) {

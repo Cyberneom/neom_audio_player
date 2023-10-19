@@ -1,6 +1,6 @@
 /*
  *  This file is part of BlackHole (https://github.com/Sangwan5688/BlackHole).
- * 
+ *
  * BlackHole is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -13,12 +13,12 @@
  *
  * You should have received a copy of the GNU Lesser General Public License
  * along with BlackHole.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  * Copyright (c) 2021-2023, Ankit Sangwan
  */
 
 import 'package:flutter/material.dart';
-import 'package:neom_music_player/utils/music_player_theme.dart';
+import 'package:neom_music_player/utils/theme/music_player_theme.dart';
 import 'package:palette_generator/palette_generator.dart';
 
 Future<List<Color>> getColors({

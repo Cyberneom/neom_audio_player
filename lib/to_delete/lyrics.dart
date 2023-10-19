@@ -1,30 +1,10 @@
-/*
- *  This file is part of BlackHole (https://github.com/Sangwan5688/BlackHole).
- * 
- * BlackHole is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * BlackHole is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with BlackHole.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * Copyright (c) 2021-2023, Ankit Sangwan
- */
-
 import 'dart:convert';
-
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/constants/app_translation_constants.dart';
 import 'package:neom_music_player/data/api_services/spotify/spotify_api_calls.dart';
-import 'package:neom_music_player/utils/helpers/matcher.dart';
+import 'package:neom_music_player/to_delete/matcher.dart';
 import 'package:neom_music_player/utils/helpers/spotify_helper.dart';
 
 // ignore: avoid_classes_with_only_static_members
@@ -103,7 +83,7 @@ class Lyrics {
           fetchedLyrics['lyrics'].toString().replaceAll('<br>', '\n');
       return lyrics;
     } catch (e) {
-      AppUtilities.logger.e('Error in getSaavnLyrics', e);
+      AppUtilities.logger.e('Error in getSaavnLyrics ${e.toString()}');
       return '';
     }
   }
@@ -138,9 +118,7 @@ class Lyrics {
                 value['tracks']['items'][0]['artists'][0]['name'].toString();
           } catch (e) {
             AppUtilities.logger.e(
-              'Error in extracting artist/title in getSpotifyLyrics for $title - $artist',
-              e,
-            );
+              'Error in extracting artist/title in getSpotifyLyrics for $title - $artist ${e.toString()}');
           }
           final trackId = value['tracks']['items'][0]['id'].toString();
           if (matchSongs(
@@ -158,7 +136,7 @@ class Lyrics {
             AppUtilities.logger.i('Song not matched');
           }
         } catch (e) {
-          AppUtilities.logger.e('Error in getSpotifyLyrics', e);
+          AppUtilities.logger.e('Error in getSpotifyLyrics ${e.toString()}');
         }
       },
       forceSign: false,
@@ -197,13 +175,11 @@ class Lyrics {
         }
       } else {
         AppUtilities.logger.e(
-          'getSpotifyLyricsFromId returned ${res.statusCode}',
-          res.body,
-        );
+          'getSpotifyLyricsFromId returned ${res.statusCode}');
       }
       return result;
     } catch (e) {
-      AppUtilities.logger.e('Error in getSpotifyLyrics', e);
+      AppUtilities.logger.e('Error in getSpotifyLyrics ${e.toString()}');
       return result;
     }
   }
@@ -301,7 +277,7 @@ class Lyrics {
       final String lyrics = await scrapLink(link);
       return lyrics;
     } catch (e) {
-      AppUtilities.logger.e('Error in getMusixMatchLyrics', e);
+      AppUtilities.logger.e('Error in getMusixMatchLyrics ${e.toString()}');
       return '';
     }
   }

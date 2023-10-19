@@ -1,22 +1,3 @@
-/*
- *  This file is part of BlackHole (https://github.com/Sangwan5688/BlackHole).
- * 
- * BlackHole is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * BlackHole is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with BlackHole.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * Copyright (c) 2021-2023, Ankit Sangwan
- */
-
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 // import 'package:path_provider/path_provider.dart';
@@ -60,16 +41,6 @@ class PlaylistPlayerPage extends StatefulWidget {
 class _PlaylistPlayerPageState extends State<PlaylistPlayerPage>
     with SingleTickerProviderStateMixin {
 
-  ///VERIFY IF NEEDED
-  // bool added = false;
-  // String? tempPath = Hive.box(AppHiveConstants.settings).get('tempDirPath')?.toString();
-  // final Map<String, List<Map>> _albums = {};
-  // final Map<String, List<Map>> _artists = {};
-  // final Map<String, List<Map>> _genres = {};
-  // List _sortedAlbumKeysList = [];
-  // List _sortedArtistKeysList = [];
-  // List _sortedGenreKeysList = [];
-  // int currentIndex = 0;
   Box? likedBox;
   List<AppMediaItem> _appMediaItems = [];
   TabController? _tcontroller;
@@ -105,19 +76,11 @@ class _PlaylistPlayerPageState extends State<PlaylistPlayerPage>
       }
     });
 
-    ///DEPRECATED
-    // if (tempPath == null) {
-    //   getTemporaryDirectory().then((value) {
-    //     Hive.box(AppHiveConstants.settings).put('tempDirPath', value.path);
-    //   });
-    // }
-    // _tcontroller!.addListener(changeTitle);
     if (widget.itemlist != null) {
       _appMediaItems = AppMediaItem.mapItemsFromItemlist(widget.itemlist!);
     } else {
       getLiked();
     }
-
 
     super.initState();
   }
@@ -130,51 +93,15 @@ class _PlaylistPlayerPageState extends State<PlaylistPlayerPage>
   }
 
   Future<void> getLiked() async {
-
     AppProfile profile = playlistHiveController.userController.profile;
-     Map<String, AppMediaItem> items = await AppMediaItemFirestore().fetchAll();
+    Map<String, AppMediaItem> items = await AppMediaItemFirestore().fetchAll();
     _appMediaItems = items.values.toList();
     setState(() {});
-
-    // likedBox = Hive.box(widget.itemlist != null ? widget.itemlist!.name : widget.alternativeName);
-    // if (widget.itemlist != null) {
-    //   _appMediaItems = AppMediaItem.mapItemsFromItemlist(widget.itemlist!);
-    // } else {
-    //   _appMediaItems = likedBox?.values.map((element) {
-    //     return AppMediaItem.fromJSON(element);
-    //   }).toList() ?? [];
-    //
-    //   songs_count.addSongsCount(
-    //     widget.alternativeName,
-    //     _appMediaItems.length,
-    //     _appMediaItems.length >= 4
-    //         ? _appMediaItems.sublist(0, 4)
-    //         : _appMediaItems.sublist(0, _appMediaItems.length),
-    //   );
-    // }
-    // setArtistAlbum();
   }
 
   void deleteLiked(AppMediaItem song) {
     setState(() {
       likedBox!.delete(song.id);
-      // if (_albums[song.album]!.length == 1) {
-      //   _sortedAlbumKeysList.remove(song.album);
-      // }
-      // _albums[song.album]!.remove(song);
-      //
-      // song.artist.toString().split(', ').forEach((singleArtist) {
-      //   if (_artists[singleArtist]!.length == 1) {
-      //     _sortedArtistKeysList.remove(singleArtist);
-      //   }
-      //   _artists[singleArtist]!.remove(song);
-     // });
-      //
-      // if (_genres[song.genre]!.length == 1) {
-      //   _sortedGenreKeysList.remove(song.genre);
-      // }
-      // _genres[song.genre]!.remove(song);
-
       _appMediaItems.remove(song);
       songs_count.addSongsCount(
         widget.alternativeName,
@@ -211,15 +138,6 @@ class _PlaylistPlayerPageState extends State<PlaylistPlayerPage>
                 Tab(
                   text: PlayerTranslationConstants.songs.tr,
                 ),
-                // Tab(
-                //   text: PlayerTranslationConstants.albums.tr,
-                // ),
-                // Tab(
-                //   text: PlayerTranslationConstants.artists.tr,
-                // ),
-                // Tab(
-                //   text: PlayerTranslationConstants.genres.tr,
-                // ),
               ],
             ),
             actions: [
@@ -256,16 +174,7 @@ class _PlaylistPlayerPageState extends State<PlaylistPlayerPage>
                           );
                           setState(() {});
                         },
-                        // : (int value) {
-                        //     albumSortValue = value;
-                        //     Hive.box(AppHiveConstants.settings).put('albumSortValue', value);
-                        //     sortAlbums();
-                        //     setState(() {});
-                        //   },
-                        itemBuilder:
-                            // (currentIndex == 0)
-                            // ?
-                            (context) {
+                        itemBuilder: (context) {
                           final List<String> sortTypes = [
                             PlayerTranslationConstants.displayName.tr,
                             PlayerTranslationConstants.dateAdded.tr,
@@ -370,34 +279,13 @@ class _PlaylistPlayerPageState extends State<PlaylistPlayerPage>
                 playlistName: widget.itemlist?.name ?? '',
                 scrollController: _scrollController,
               ),
-                    // AlbumsTab(
-                    //   albums: _albums,
-                    //   type: 'album',
-                    //   offline: false,
-                    //   playlistName: widget.playlistName,
-                    //   sortedAlbumKeysList: _sortedAlbumKeysList,
-                    // ),
-                    // AlbumsTab(
-                    //   albums: _artists,
-                    //   type: 'artist',
-                    //   offline: false,
-                    //   playlistName: widget.playlistName,
-                    //   sortedAlbumKeysList: _sortedArtistKeysList,
-                    // ),
-                    // AlbumsTab(
-                    //   albums: _genres,
-                    //   type: 'genre',
-                    //   offline: false,
-                    //   playlistName: widget.playlistName,
-                    //   sortedAlbumKeysList: _sortedGenreKeysList,
-                    // ),
-                  ],
-                ),
+            ],
+          ),
           floatingActionButton: ValueListenableBuilder(
             valueListenable: _showShuffle,
             child: FloatingActionButton(
               backgroundColor: Theme.of(context).cardColor,
-              child: Icon(
+              child: const Icon(
                 Icons.shuffle_rounded,
                 color: Colors.white,
                 size: 24.0,
@@ -434,104 +322,5 @@ class _PlaylistPlayerPageState extends State<PlaylistPlayerPage>
       ),
     );
   }
-
-  // void setArtistAlbum() {
-    // for (final element in _appMediaItems) {
-    //   if (_albums.containsKey(element.album)) {
-    //     final List<Map> tempAlbum = _albums[element.album]!;
-    //     tempAlbum.add(element as Map);
-    //     _albums.addEntries([MapEntry(element.album.toString(), tempAlbum)]);
-    //   } else {
-    //     _albums.addEntries([
-    //       MapEntry(element.album.toString(), [element as Map])
-    //     ]);
-    //   }
-    //
-    //   element.artist.toString().split(', ').forEach((singleArtist) {
-    //     if (_artists.containsKey(singleArtist)) {
-    //       final List<Map> tempArtist = _artists[singleArtist]!;
-    //       tempArtist.add(element);
-    //       _artists.addEntries([MapEntry(singleArtist, tempArtist)]);
-    //     } else {
-    //       _artists.addEntries([
-    //         MapEntry(singleArtist, [element])
-    //       ]);
-    //     }
-    //   });
-    //
-    //   if (_genres.containsKey(element.genre)) {
-    //     final List<Map> tempGenre = _genres[element.genre]!;
-    //     tempGenre.add(element);
-    //     _genres.addEntries([MapEntry(element.genre.toString(), tempGenre)]);
-    //   } else {
-    //     _genres.addEntries([
-    //       MapEntry(element.genre.toString(), [element])
-    //     ]);
-    //   }
-    // }
-    //
-    // sortSongs(sortVal: sortValue, order: orderValue);
-    //
-    // _sortedAlbumKeysList = _albums.keys.toList();
-    // _sortedArtistKeysList = _artists.keys.toList();
-    // _sortedGenreKeysList = _genres.keys.toList();
-    //
-    // sortAlbums();
-    //
-    // added = true;
-    // setState(() {});
-  // }
-
-// void sortAlbums() {
-//   if (albumSortValue == 0) {
-//     _sortedAlbumKeysList.sort(
-//       (a, b) =>
-//           a.toString().toUpperCase().compareTo(b.toString().toUpperCase()),
-//     );
-//     _sortedArtistKeysList.sort(
-//       (a, b) =>
-//           a.toString().toUpperCase().compareTo(b.toString().toUpperCase()),
-//     );
-//     _sortedGenreKeysList.sort(
-//       (a, b) =>
-//           a.toString().toUpperCase().compareTo(b.toString().toUpperCase()),
-//     );
-//   }
-//   if (albumSortValue == 1) {
-//     _sortedAlbumKeysList.sort(
-//       (b, a) =>
-//           a.toString().toUpperCase().compareTo(b.toString().toUpperCase()),
-//     );
-//     _sortedArtistKeysList.sort(
-//       (b, a) =>
-//           a.toString().toUpperCase().compareTo(b.toString().toUpperCase()),
-//     );
-//     _sortedGenreKeysList.sort(
-//       (b, a) =>
-//           a.toString().toUpperCase().compareTo(b.toString().toUpperCase()),
-//     );
-//   }
-//   if (albumSortValue == 2) {
-//     _sortedAlbumKeysList
-//         .sort((b, a) => _albums[a]!.length.compareTo(_albums[b]!.length));
-//     _sortedArtistKeysList
-//         .sort((b, a) => _artists[a]!.length.compareTo(_artists[b]!.length));
-//     _sortedGenreKeysList
-//         .sort((b, a) => _genres[a]!.length.compareTo(_genres[b]!.length));
-//   }
-//   if (albumSortValue == 3) {
-//     _sortedAlbumKeysList
-//         .sort((a, b) => _albums[a]!.length.compareTo(_albums[b]!.length));
-//     _sortedArtistKeysList
-//         .sort((a, b) => _artists[a]!.length.compareTo(_artists[b]!.length));
-//     _sortedGenreKeysList
-//         .sort((a, b) => _genres[a]!.length.compareTo(_genres[b]!.length));
-//   }
-//   if (albumSortValue == 4) {
-//     _sortedAlbumKeysList.shuffle();
-//     _sortedArtistKeysList.shuffle();
-//     _sortedGenreKeysList.shuffle();
-//   }
-// }
 
 }

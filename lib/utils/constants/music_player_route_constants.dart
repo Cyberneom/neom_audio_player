@@ -1,10 +1,6 @@
 
 class MusicPlayerRouteConstants {
 
-  // static final emxiHomePages = [const TimelinePage(), const ItemlistPage(), const BlogPage(), const InboxPage()];
-  // static final gigHomePages = [const TimelinePage(), const ItemlistPage(), const BookingHomePage(), const EventsPage()];
-  // static final neomHomePages = [const TimelinePage(), const ItemlistPage(), const EventsPage(), const InboxPage()];
-
   static const String root = '/';
   static const String player = '/player';
   static const String home = '/';

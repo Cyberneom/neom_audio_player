@@ -1,22 +1,3 @@
-/*
- *  This file is part of BlackHole (https://github.com/Sangwan5688/BlackHole).
- * 
- * BlackHole is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * BlackHole is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with BlackHole.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * Copyright (c) 2021-2023, Ankit Sangwan
- */
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
@@ -88,68 +69,64 @@ class _RecentlyPlayedState extends State<RecentlyPlayed> {
                 PlayerTranslationConstants.playSomething.tr, 23.0,
               ),
         ) : ListView.builder(
-                physics: const BouncingScrollPhysics(),
-                padding: const EdgeInsets.only(top: 10, bottom: 10),
-                shrinkWrap: true,
-                itemCount: _songs.length,
-                itemExtent: 70.0,
-                itemBuilder: (context, index) {
-                  final AppMediaItem item = _songs.values.elementAt(index);
-                  return _songs.isEmpty
-                      ? const SizedBox()
-                      : Dismissible(
-                          key: Key(item.id),
-                          direction: DismissDirection.endToStart,
-                          background: const ColoredBox(
-                            color: Colors.redAccent,
-                            child: Padding(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 15.0,
-                              ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  Icon(Icons.delete_outline_rounded),
-                                ],
-                              ),
-                            ),
-                          ),
-                          onDismissed: (direction) {
-                            _songs.remove(item.id);
-                            setState(() {});
-                            Hive.box(AppHiveConstants.cache).put('recentSongs', _songs);
-                          },
-                          child: ListTile(
-                            leading: imageCard(
-                              imageUrl: item.imgUrl,
-                            ),
-                            trailing: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                ///DEPRECATED
-                                // DownloadButton(
-                                //   data: _songs[index] as Map,
-                                //   icon: 'download',
-                                // ),
-                                LikeButton(appMediaItem: item,),
-                              ],
-                            ),
-                            title: Text(item.name,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            subtitle: Text(item.artist,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            onTap: () {
-                              NeomPlayerInvoker.init(
-                                appMediaItems: _songs.values.toList(),
-                                index: index,
-                              );
-                            },
-                          ),
-                        );
-                },
+          physics: const BouncingScrollPhysics(),
+          padding: const EdgeInsets.only(top: 10, bottom: 10),
+          shrinkWrap: true,
+          itemCount: _songs.length,
+          itemExtent: 70.0,
+          itemBuilder: (context, index) {
+            final AppMediaItem item = _songs.values.elementAt(index);
+            return _songs.isEmpty
+                ? const SizedBox()
+                : Dismissible(
+              key: Key(item.id),
+              direction: DismissDirection.endToStart,
+              background: const ColoredBox(
+                color: Colors.redAccent,
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 15.0,),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Icon(Icons.delete_outline_rounded),
+                    ],
+                  ),
+                ),
               ),
+              onDismissed: (direction) {
+                _songs.remove(item.id);
+                setState(() {});
+                Hive.box(AppHiveConstants.cache).put('recentSongs', _songs);
+                },
+              child: ListTile(
+                leading: imageCard(imageUrl: item.imgUrl,),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    ///DEPRECATED
+                    // DownloadButton(
+                    //   data: _songs[index] as Map,
+                    //   icon: 'download',
+                    // ),
+                    LikeButton(appMediaItem: item,),
+                  ],
+                ),
+                title: Text(item.name,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                subtitle: Text(item.artist,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                onTap: () {
+                  NeomPlayerInvoker.init(
+                    appMediaItems: _songs.values.toList(),
+                    index: index,
+                  );
+                  },
+              ),
+            );
+            },
+        ),
       ),
     );
   }

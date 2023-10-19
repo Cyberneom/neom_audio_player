@@ -60,7 +60,6 @@ class MusicPlayerDrawer extends StatelessWidget {
                       Obx(()=>_menuHeader(context, _)),
                       const Divider(),
                       drawerRowOption(MusicPlayerDrawerMenu.nowPlaying,  const Icon(Icons.queue_music_rounded,), context),
-                      // drawerRowOption(MusicPlayerDrawerMenu.playlists, const Icon(Icons.playlist_play_rounded,), context),
                       drawerRowOption(MusicPlayerDrawerMenu.lastSession, const Icon(Icons.history_rounded), context),
                       drawerRowOption(MusicPlayerDrawerMenu.favorites, const Icon(Icons.favorite_rounded), context),
                       // drawerRowOption(MusicPlayerDrawerMenu.myMusic, const Icon(MdiIcons.folderMusic,), context),

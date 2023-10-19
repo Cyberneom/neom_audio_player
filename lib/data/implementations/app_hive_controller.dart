@@ -1,7 +1,5 @@
-
 import 'dart:async';
 import 'dart:io';
-
 import 'package:audio_service/audio_service.dart';
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:get/get.dart';
@@ -10,8 +8,6 @@ import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_music_player/domain/entities/playlist_section.dart';
 import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
 import 'package:path_provider/path_provider.dart';
-
-
 
 class AppHiveController extends GetxController {
 
@@ -60,7 +56,7 @@ class AppHiveController extends GetxController {
   }
   static Future<void> openHiveBox(String boxName, {bool limit = false}) async {
     final box = await Hive.openBox(boxName).onError((error, stackTrace) async {
-      AppUtilities.logger.e('Failed to open $boxName Box', error, stackTrace);
+      AppUtilities.logger.e('Failed to open $boxName Box');
       final Directory dir = await getApplicationDocumentsDirectory();
       final String dirPath = dir.path;
       final File dbFile = File('$dirPath/$boxName.hive');

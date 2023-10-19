@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:math';
 import 'dart:ui' as ui;
-
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -10,20 +9,20 @@ import 'package:neom_commons/core/data/implementations/user_controller.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/domain/model/item_list.dart';
 import 'package:neom_commons/core/utils/constants/app_route_constants.dart';
-import 'package:neom_music_player/domain/entities/position_data.dart';
-import 'package:neom_music_player/domain/use_cases/neom_audio_handler.dart';
-import 'package:neom_music_player/ui/player/widgets/animated_text.dart';
-import 'package:neom_music_player/ui/player/widgets/control_buttons.dart';
-import 'package:neom_music_player/ui/player/widgets/now_playing_stream.dart';
-import 'package:neom_music_player/ui/widgets/download_button.dart';
-import 'package:neom_music_player/ui/widgets/go_spotify_button.dart';
-import 'package:neom_music_player/ui/widgets/like_button.dart';
-import 'package:neom_music_player/ui/widgets/seek_bar.dart';
-import 'package:neom_music_player/ui/widgets/song_list.dart';
-import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
-import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
-import 'package:neom_music_player/utils/helpers/media_item_mapper.dart';
-import 'package:neom_music_player/utils/music_player_utilities.dart';
+import '../../../domain/entities/position_data.dart';
+import '../../../domain/use_cases/neom_audio_handler.dart';
+import 'animated_text.dart';
+import 'control_buttons.dart';
+import 'now_playing_stream.dart';
+import '../../widgets/download_button.dart';
+import '../../widgets/go_spotify_button.dart';
+import '../../widgets/like_button.dart';
+import '../../widgets/seek_bar.dart';
+import '../../widgets/song_list.dart';
+import '../../../utils/constants/app_hive_constants.dart';
+import '../../../utils/constants/player_translation_constants.dart';
+import '../../../utils/helpers/media_item_mapper.dart';
+import '../../../utils/music_player_utilities.dart';
 import 'package:rxdart/rxdart.dart' as rx;
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
@@ -330,7 +329,6 @@ class NameNControls extends StatelessWidget {
               SizedBox(height: nowplayingBoxHeight,),
             ],
           ),
-
           // Up Next with blur background
           true ? Container() : SlidingUpPanel(
             minHeight: nowplayingBoxHeight,
