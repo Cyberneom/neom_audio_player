@@ -9,11 +9,11 @@ import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
 import 'package:neom_commons/core/utils/constants/message_translation_constants.dart';
 import 'package:neom_commons/core/utils/enums/app_media_source.dart';
-import 'package:neom_music_player/data/implementations/app_hive_controller.dart';
-import 'package:neom_music_player/domain/use_cases/neom_audio_handler.dart';
-import 'package:neom_music_player/ui/player/miniplayer_controller.dart';
-import 'package:neom_music_player/utils/helpers/media_item_mapper.dart';
-import 'package:neom_music_player/utils/music_player_utilities.dart';
+import 'data/implementations/app_hive_controller.dart';
+import 'domain/use_cases/neom_audio_handler.dart';
+import 'ui/player/miniplayer_controller.dart';
+import 'utils/helpers/media_item_mapper.dart';
+import 'utils/music_player_utilities.dart';
 import 'package:path_provider/path_provider.dart';
 
 // ignore: avoid_classes_with_only_static_members
@@ -41,12 +41,12 @@ class NeomPlayerInvoker {
   }
 
   static Future<void> setValues(List<AppMediaItem> response, int index, {bool recommend = true, bool playItem = false}) async {
-    AppUtilities.logger.v('Settings Values for index $index');
+    AppUtilities.logger.t('Settings Values for index $index');
 
     try {
       final List<MediaItem> queue = [];
       AppMediaItem appMediaItem = response[index];
-      AppUtilities.logger.v('Loading media ${appMediaItem.name} for music player with index $index');
+      AppUtilities.logger.t('Loading media ${appMediaItem.name} for music player with index $index');
 
       queue.addAll(
         response.map(
@@ -122,7 +122,7 @@ class NeomPlayerInvoker {
   }
 
   static Future<void> updateNowPlaying(List<MediaItem> queue, int index, {bool playItem = true}) async {
-    AppUtilities.logger.v('Updating Now Playing info.');
+    AppUtilities.logger.t('Updating Now Playing info.');
 
     try {
       // await audioHandler.startService();
@@ -153,8 +153,8 @@ class NeomPlayerInvoker {
       } else {
         AppUtilities.logger.i('MusicPlayer not available yet.');
         AppUtilities.showSnackBar(
-          MessageTranslationConstants.underConstruction.tr,
-          MessageTranslationConstants.featureAvailableSoon.tr,
+          title: MessageTranslationConstants.underConstruction,
+          message: MessageTranslationConstants.featureAvailableSoon,
         );
       }
     } catch(e) {

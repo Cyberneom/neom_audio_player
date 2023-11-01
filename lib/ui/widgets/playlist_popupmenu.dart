@@ -2,11 +2,12 @@ import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
+
 import '../../data/implementations/playlist_hive_controller.dart';
 import '../../domain/use_cases/neom_audio_handler.dart';
-import 'snackbar.dart';
 import '../../utils/constants/player_translation_constants.dart';
 import '../../utils/helpers/media_item_mapper.dart';
+import 'snackbar.dart';
 
 class PlaylistPopupMenu extends StatefulWidget {
   final List data;

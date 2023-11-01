@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
-import 'package:neom_music_player/data/implementations/spotify_hive_controller.dart';
-import 'package:neom_music_player/ui/widgets/empty_screen.dart';
-import 'package:neom_music_player/ui/widgets/image_card.dart';
-import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
-import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
+import '../../data/implementations/spotify_hive_controller.dart';
+import '../widgets/empty_screen.dart';
+import '../widgets/image_card.dart';
+import '../../utils/constants/app_hive_constants.dart';
+import '../../utils/constants/player_translation_constants.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:get/get.dart';
 

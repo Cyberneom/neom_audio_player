@@ -12,8 +12,8 @@ import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/constants/app_page_id_constants.dart';
 import 'package:neom_commons/core/utils/enums/itemlist_type.dart';
 import 'package:neom_itemlists/itemlists/data/firestore/app_media_item_firestore.dart';
-import 'package:neom_music_player/domain/use_cases/neom_audio_handler.dart';
-import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
+import '../../domain/use_cases/neom_audio_handler.dart';
+import '../../utils/constants/app_hive_constants.dart';
 
 class MusicPlayerHomeController extends GetxController {
 

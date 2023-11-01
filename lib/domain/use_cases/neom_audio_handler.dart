@@ -28,17 +28,18 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
+import 'package:rxdart/rxdart.dart';
+
 import '../../data/implementations/app_hive_controller.dart';
 import '../../data/implementations/playlist_hive_controller.dart';
-import '../entities/queue_state.dart';
-import 'isolate_service.dart';
-import 'neom_audio_service.dart';
 import '../../ui/player/miniplayer_controller.dart';
 import '../../utils/constants/app_hive_constants.dart';
 import '../../utils/constants/music_player_constants.dart';
 import '../../utils/helpers/media_item_mapper.dart';
 import '../../utils/neom_audio_utilities.dart';
-import 'package:rxdart/rxdart.dart';
+import '../entities/queue_state.dart';
+import 'isolate_service.dart';
+import 'neom_audio_service.dart';
 
 class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler implements NeomAudioService {
 
@@ -205,7 +206,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
         await _player.setAudioSource(_playlist, preload: false);
       }
     } catch (e) {
-      AppUtilities.logger.e('Error while loading last queue ${e}');
+      AppUtilities.logger.e('Error while loading last queue $e');
       await _player.setAudioSource(_playlist, preload: false);
     }
     if (!jobRunning) {
@@ -483,7 +484,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
   }
 
   Future<void> skipToMediaItem(String id, {int index = 0}) async {
-    AppUtilities.logger.v('skipToMediaItem $id');
+    AppUtilities.logger.t('skipToMediaItem $id');
 
     if(queue.valueWrapper!.value.indexWhere((item) => item.id == id) >= 0) {
       index = queue.valueWrapper!.value.indexWhere((item) => item.id == id);
@@ -622,7 +623,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
     await _player.stop();
     await playbackState.firstWhere((state) => state.processingState == AudioProcessingState.idle,);
 
-    AppUtilities.logger.v('Caching last index ${_player.currentIndex} and position ${_player.position.inSeconds}');
+    AppUtilities.logger.t('Caching last index ${_player.currentIndex} and position ${_player.position.inSeconds}');
     await Hive.box(AppHiveConstants.cache).put('lastIndex', _player.currentIndex);
     await Hive.box(AppHiveConstants.cache).put('lastPos', _player.position.inSeconds);
     await addLastQueue(queue.valueWrapper!.value);

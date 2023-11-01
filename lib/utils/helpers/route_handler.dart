@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
-import 'package:neom_music_player/data/api_services/spotify/spotify_api_calls.dart';
-import 'package:neom_music_player/neom_player_invoker.dart';
-import 'package:neom_music_player/to_delete/search/search_page.dart';
-import 'package:neom_music_player/ui/player/media_player_page.dart';
-import 'package:neom_music_player/utils/helpers/audio_query.dart';
-import 'package:neom_music_player/utils/helpers/spotify_helper.dart';
+import '../../data/api_services/spotify/spotify_api_calls.dart';
+import '../../neom_player_invoker.dart';
+import '../../to_delete/search/search_page.dart';
+import '../../ui/player/media_player_page.dart';
+import 'audio_query.dart';
+import 'spotify_helper.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 
 // ignore: avoid_classes_with_only_static_members

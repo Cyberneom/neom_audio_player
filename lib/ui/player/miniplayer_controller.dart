@@ -33,7 +33,7 @@ class MiniPlayerController extends GetxController {
   @override
   void onInit() async {
     super.onInit();
-    logger.d('');
+    logger.d('onInit miniPlayer Controller');
 
     try {
 
@@ -146,7 +146,7 @@ class MiniPlayerController extends GetxController {
               padding: EdgeInsets.zero,
                 onPressed: () => goToTimeline(context), icon: const Icon(Icons.arrow_back_ios),),
           if(item != null || isTimeline)
-            Container(
+            SizedBox(
               height: item == null ? 80 : 78,
               width: isTimeline && item == null ? (MediaQuery.of(context).size.width/6) : null,
               child: Hero(tag: 'currentArtwork',
@@ -173,7 +173,7 @@ class MiniPlayerController extends GetxController {
         overflow: TextOverflow.ellipsis,
         textAlign: isTimeline || item != null ? TextAlign.left : TextAlign.right,
       ),
-      trailing: Container(
+      trailing: SizedBox(
         width: item != null || isTimeline ? null : (MediaQuery.of(context).size.width/(item == null ? 6 : 3)),
         child: item == null ? (isTimeline
           ? IconButton(onPressed: () => goToMusicPlayerHome(), icon: Icon(Icons.arrow_forward_ios))

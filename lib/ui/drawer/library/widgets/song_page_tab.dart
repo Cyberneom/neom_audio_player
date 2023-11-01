@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_itemlists/itemlists/ui/widgets/app_item_widgets.dart';
-import 'package:neom_music_player/to_delete/search/search_page.dart';
-import 'package:neom_music_player/ui/drawer/library/playlist_player_page.dart';
-import 'package:neom_music_player/ui/widgets/empty_screen.dart';
-import 'package:neom_music_player/ui/widgets/playlist_head.dart';
-import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
+import '../../../../to_delete/search/search_page.dart';
+import '../playlist_player_page.dart';
+import '../../../widgets/empty_screen.dart';
+import '../../../widgets/playlist_head.dart';
+import '../../../../utils/constants/player_translation_constants.dart';
 
 class SongsPageTab extends StatelessWidget {
 

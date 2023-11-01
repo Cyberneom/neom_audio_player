@@ -132,7 +132,7 @@ class PlayerTranslationConstants {
   static const String checkUpdateSub = 'checkUpdateSub';
   static const String contactUs = 'contactUs';
   static const String contactUsSub = 'contactUsSub';
-  static const String copied = 'copied';
+
   static const String darkMode = 'darkMode';
   static const String createYtFold = 'createYtFold';
   static const String failedImport = 'failedImport';

@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
-import 'downloaded_songs.dart';
-import '../../widgets/snackbar.dart';
-import '../../widgets/textinput_dialog.dart';
+import 'package:on_audio_query/on_audio_query.dart';
+
 import '../../../utils/constants/player_translation_constants.dart';
 import '../../../utils/helpers/audio_query.dart';
-import 'package:on_audio_query/on_audio_query.dart';
+import '../../widgets/snackbar.dart';
+import '../../widgets/textinput_dialog.dart';
+import 'downloaded_songs.dart';
 
 class LocalPlaylists extends StatefulWidget {
   final List<PlaylistModel> playlistDetails;

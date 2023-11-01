@@ -9,18 +9,18 @@ import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_theme.dart';
 import 'package:neom_commons/core/utils/enums/app_in_use.dart';
 import 'package:neom_itemlists/itemlists/ui/itemlist_page.dart';
-import 'package:neom_music_player/domain/entities/custom_bottom_nav_bar_item.dart';
-import 'package:neom_music_player/ui/drawer/music_player_drawer.dart';
-import 'package:neom_music_player/ui/home/music_player_home_page.dart';
-import 'package:neom_music_player/ui/home/widgets/bottom_nav_bar.dart';
-import 'package:neom_music_player/ui/music_player_routes.dart';
-import 'package:neom_music_player/ui/player/media_player_page.dart';
-import 'package:neom_music_player/ui/player/miniplayer.dart';
-import 'package:neom_music_player/ui/spotify/spotify_top_page.dart';
-import 'package:neom_music_player/ui/widgets/gradient_containers.dart';
-import 'package:neom_music_player/utils/constants/music_player_route_constants.dart';
-import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
-import 'package:neom_music_player/utils/helpers/route_handler.dart';
+import '../domain/entities/custom_bottom_nav_bar_item.dart';
+import 'drawer/music_player_drawer.dart';
+import 'home/music_player_home_page.dart';
+import 'home/widgets/bottom_nav_bar.dart';
+import 'music_player_routes.dart';
+import 'player/media_player_page.dart';
+import 'player/miniplayer.dart';
+import 'spotify/spotify_top_page.dart';
+import 'widgets/gradient_containers.dart';
+import '../utils/constants/music_player_route_constants.dart';
+import '../utils/constants/player_translation_constants.dart';
+import '../utils/helpers/route_handler.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 
 class MusicPlayerRootPage extends StatefulWidget {
@@ -70,7 +70,7 @@ class _MusicPlayerRootPageState extends State<MusicPlayerRootPage> {
     final double screenWidth = MediaQuery.of(context).size.width;
     final bool isRotated = MediaQuery.of(context).size.height < screenWidth;
 
-    List<String> sections = AppFlavour.appInUse != AppInUse.gigmeout || Platform.isIOS ? shortSectionsToShow : sectionsToShow;
+    List<String> sections = AppFlavour.appInUse != AppInUse.g || Platform.isIOS ? shortSectionsToShow : sectionsToShow;
     return GradientContainer(
       child: Scaffold(
         resizeToAvoidBottomInset: false,
@@ -236,7 +236,7 @@ class _MusicPlayerRootPageState extends State<MusicPlayerRootPage> {
         case 'Playlists':
           return CustomBottomNavBarItem(
             icon: const Icon(Icons.library_music),
-            title: Text(PlayerTranslationConstants.playlists.capitalizeFirst!),
+            title: Text(PlayerTranslationConstants.playlists.capitalizeFirst),
             selectedColor: Theme.of(context).colorScheme.secondary,
           );
         case 'Spotify':

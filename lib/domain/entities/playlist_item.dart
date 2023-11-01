@@ -1,8 +1,8 @@
 
 
+import 'package:enum_to_string/enum_to_string.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_music_player/utils/enums/playlist_type.dart';
-import 'package:enum_to_string/enum_to_string.dart';
 
 class PlaylistItem {
 

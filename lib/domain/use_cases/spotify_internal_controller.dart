@@ -75,7 +75,7 @@ class SpotifyInternalController extends GetxController {
   Future<void> onReady() async {
     super.onReady();
     try {
-      if(AppFlavour.appInUse == AppInUse.gigmeout && !Platform.isIOS) {
+      if(AppFlavour.appInUse == AppInUse.g && !Platform.isIOS) {
         await getSpotifyToken();
         if (userController.user!.spotifyToken.isNotEmpty
             && userController.profile.lastSpotifySync < DateTime

@@ -1,7 +1,7 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
-import 'package:neom_music_player/domain/entities/url_image_generator.dart';
-import 'package:youtube_explode_dart/youtube_explode_dart.dart';
+import '../../domain/entities/url_image_generator.dart';
+
 
 // ignore: avoid_classes_with_only_static_members
 class MediaItemMapper  {
@@ -139,26 +139,6 @@ class MediaItemMapper  {
         'playlistBox': playlistBox,
       },
     );
-  }
-
-  static Map<String, dynamic> videoToMap(Video video) {
-    return {
-      'id': video.id.value,
-      'album': video.author.replaceAll('- Topic', '').trim(),
-      'duration': video.duration?.inSeconds ?? 180,
-      'title': video.title.trim(),
-      'artist': video.author.replaceAll('- Topic', '').trim(),
-      'image': video.thumbnails.highResUrl,
-      'language': 'YouTube',
-      'genre': 'YouTube',
-      'year': video.uploadDate?.year,
-      '320kbps': false,
-      'has_lyrics': false,
-      'release_date': video.publishDate.toString(),
-      'album_id': video.channelId.value,
-      'subtitle': video.author,
-      'perma_url': video.url,
-    };
   }
 
   static MediaItem appMediaItemToMediaItem({required AppMediaItem appMediaItem,

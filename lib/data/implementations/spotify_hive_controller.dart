@@ -9,13 +9,14 @@ import 'package:neom_commons/core/data/implementations/user_controller.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/core_utilities.dart';
-import '../api_services/spotify/spotify_api_calls.dart';
-import 'app_hive_controller.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import '../../ui/widgets/gradient_containers.dart';
 import '../../utils/constants/app_hive_constants.dart';
 import '../../utils/constants/countrycodes.dart';
 import '../../utils/helpers/spotify_helper.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import '../api_services/spotify/spotify_api_calls.dart';
+import 'app_hive_controller.dart';
 
 class SpotifyHiveController extends GetxController  {
 

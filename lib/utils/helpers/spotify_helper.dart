@@ -1,7 +1,7 @@
 import 'package:app_links/app_links.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:neom_music_player/data/api_services/spotify/spotify_api_calls.dart';
-import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
+import '../../data/api_services/spotify/spotify_api_calls.dart';
+import '../constants/app_hive_constants.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 
@@ -60,9 +60,7 @@ Future<void> callSpotifyFunction({
   }
   if (accessToken == null && forceSign) {
     launchUrl(
-      Uri.parse(
-        SpotifyApiCalls().requestAuthorization(),
-      ),
+      Uri.parse(SpotifyApiCalls().requestAuthorization(),),
       mode: LaunchMode.externalApplication,
     );
     final appLinks = AppLinks();

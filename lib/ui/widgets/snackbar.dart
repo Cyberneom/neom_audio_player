@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
-import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
+import '../../utils/constants/player_translation_constants.dart';
 
 class ShowSnackBar {
   void showSnackBar(

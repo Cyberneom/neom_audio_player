@@ -1,7 +1,7 @@
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
 import 'package:hive/hive.dart';
 import 'package:http/http.dart';
 import 'package:metadata_god/metadata_god.dart';
@@ -9,13 +9,14 @@ import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/core_utilities.dart';
 import 'package:neom_commons/core/utils/enums/app_media_source.dart';
-import 'package:neom_music_player/domain/use_cases/ext_storage_provider.dart';
-import 'package:neom_music_player/ui/widgets/snackbar.dart';
-import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
-import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
-import 'package:neom_music_player/to_delete/lyrics.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+
+import '../../to_delete/lyrics.dart';
+import '../../ui/widgets/snackbar.dart';
+import '../../utils/constants/app_hive_constants.dart';
+import '../../utils/constants/player_translation_constants.dart';
+import 'ext_storage_provider.dart';
 
 class Download with ChangeNotifier {
   static final Map<String, Download> _instances = {};

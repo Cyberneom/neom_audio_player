@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
-import 'package:neom_music_player/ui/widgets/gradient_containers.dart';
-import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+
+import '../../../../utils/constants/player_translation_constants.dart';
+import '../../../widgets/gradient_containers.dart';
 
 class AboutPage extends StatefulWidget {
   const AboutPage({super.key});
@@ -54,8 +55,8 @@ class _AboutPageState extends State<AboutPage> {
           slivers: [
             SliverList(
               delegate: SliverChildListDelegate([
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(
                     10.0,
                     10.0,
                     10.0,

@@ -8,11 +8,11 @@ import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_theme.dart';
-import 'package:neom_music_player/domain/use_cases/neom_audio_handler.dart';
-import 'package:neom_music_player/ui/player/media_player_page.dart';
-import 'package:neom_music_player/ui/player/miniplayer_controller.dart';
-import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
-import 'package:neom_music_player/utils/helpers/media_item_mapper.dart';
+import '../../domain/use_cases/neom_audio_handler.dart';
+import 'media_player_page.dart';
+import 'miniplayer_controller.dart';
+import '../../utils/constants/app_hive_constants.dart';
+import '../../utils/helpers/media_item_mapper.dart';
 
 class MiniPlayer extends StatefulWidget {
 

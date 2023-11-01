@@ -7,14 +7,14 @@ import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/enums/app_media_source.dart';
-import 'package:neom_music_player/domain/use_cases/neom_audio_handler.dart';
-import 'package:neom_music_player/ui/widgets/add_to_playlist.dart';
-import 'package:neom_music_player/ui/widgets/popup.dart';
-import 'package:neom_music_player/ui/widgets/snackbar.dart';
-import 'package:neom_music_player/ui/widgets/textinput_dialog.dart';
-import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
-import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
-import 'package:neom_music_player/to_delete/extensions.dart';
+import '../domain/use_cases/neom_audio_handler.dart';
+import '../ui/widgets/add_to_playlist.dart';
+import '../ui/widgets/popup.dart';
+import '../ui/widgets/snackbar.dart';
+import '../ui/widgets/textinput_dialog.dart';
+import 'constants/app_hive_constants.dart';
+import 'constants/player_translation_constants.dart';
+import '../to_delete/extensions.dart';
 
 class MusicPlayerUtilities {
 

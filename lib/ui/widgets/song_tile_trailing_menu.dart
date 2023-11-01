@@ -7,11 +7,11 @@ import 'package:neom_commons/core/domain/model/item_list.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/enums/app_media_source.dart';
 import 'package:neom_itemlists/itemlists/ui/search/app_media_item_search_controller.dart';
-import 'package:neom_music_player/ui/widgets/add_to_playlist.dart';
-import 'package:neom_music_player/ui/widgets/song_list.dart';
-import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
-import 'package:neom_music_player/utils/helpers/add_mediaitem_to_queue.dart';
-import 'package:neom_music_player/utils/helpers/media_item_mapper.dart';
+import 'add_to_playlist.dart';
+import 'song_list.dart';
+import '../../utils/constants/player_translation_constants.dart';
+import '../../utils/helpers/add_mediaitem_to_queue.dart';
+import '../../utils/helpers/media_item_mapper.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 

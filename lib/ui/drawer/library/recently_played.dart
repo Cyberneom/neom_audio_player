@@ -3,14 +3,14 @@ import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
-import 'package:neom_music_player/neom_player_invoker.dart';
-import 'package:neom_music_player/ui/widgets/empty_screen.dart';
-import 'package:neom_music_player/ui/widgets/gradient_containers.dart';
-import 'package:neom_music_player/ui/widgets/image_card.dart';
-import 'package:neom_music_player/ui/widgets/like_button.dart';
-import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
-import 'package:neom_music_player/utils/constants/music_player_route_constants.dart';
-import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
+import '../../../neom_player_invoker.dart';
+import '../../widgets/empty_screen.dart';
+import '../../widgets/gradient_containers.dart';
+import '../../widgets/image_card.dart';
+import '../../widgets/like_button.dart';
+import '../../../utils/constants/app_hive_constants.dart';
+import '../../../utils/constants/music_player_route_constants.dart';
+import '../../../utils/constants/player_translation_constants.dart';
 
 class RecentlyPlayed extends StatefulWidget {
   @override

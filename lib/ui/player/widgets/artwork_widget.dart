@@ -11,11 +11,13 @@ import 'package:flutter_lyric/lyrics_reader_model.dart';
 import 'package:flutter_lyric/lyrics_reader_widget.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
+import 'package:neom_commons/core/app_flavour.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
 import 'package:neom_commons/core/utils/constants/app_translation_constants.dart';
+import 'package:neom_commons/core/utils/core_utilities.dart';
 import 'package:neom_commons/core/utils/enums/app_in_use.dart';
 import 'package:rxdart/rxdart.dart' as rx;
 
@@ -25,7 +27,6 @@ import '../../../to_delete/lyrics.dart';
 import '../../../utils/constants/app_hive_constants.dart';
 import '../../../utils/constants/player_translation_constants.dart';
 import '../../widgets/add_to_playlist.dart';
-import '../../widgets/copy_clipboard.dart';
 import '../../widgets/empty_screen.dart';
 import '../../widgets/seek_bar.dart';
 
@@ -125,7 +126,7 @@ class _ArtWorkWidgetState extends State<ArtWorkWidget> {
       } else {
         Lyrics.getLyrics(
           id: widget.appMediaItem.id,
-          isInternalLyric: widget.appMediaItem.lyrics.isNotEmpty == 'true',
+          isInternalLyric: widget.appMediaItem.lyrics.isNotEmpty,
           title: widget.appMediaItem.name,
           artist: widget.appMediaItem.artist.toString(),
         ).then((Map value) {
@@ -254,7 +255,7 @@ class _ArtWorkWidgetState extends State<ArtWorkWidget> {
                       String value,
                       Widget? child,
                       ) {
-                    if (value == '' || value == AppInUse.gigmeout.value) {
+                    if (value == '' || value == AppFlavour.getAppName()) {
                       return const SizedBox();
                     }
                     return Align(
@@ -283,7 +284,7 @@ class _ArtWorkWidgetState extends State<ArtWorkWidget> {
                       tooltip: PlayerTranslationConstants.copy.tr,
                       onPressed: () {
                         Feedback.forLongPress(context);
-                        copyToClipboard(
+                        CoreUtilities.copyToClipboard(
                           context: context,
                           text: lyrics['lyrics'].toString(),
                         );
@@ -394,7 +395,7 @@ class _ArtWorkWidgetState extends State<ArtWorkWidget> {
                             image: AssetImage(AppAssets.musicPlayerCover),
                           );
                         },
-                        image: FileImage(File(widget.appMediaItem.imgUrl ?? '',),),
+                        image: FileImage(File(widget.appMediaItem.imgUrl,),),
                       ) : CachedNetworkImage(
                         fit: BoxFit.contain,
                         errorWidget: (BuildContext context, _, __) =>

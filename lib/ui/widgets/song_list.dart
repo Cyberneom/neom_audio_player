@@ -9,12 +9,16 @@ import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
 import 'package:neom_commons/core/utils/constants/url_constants.dart';
+import 'package:neom_commons/core/utils/core_utilities.dart';
 import 'package:neom_commons/core/utils/enums/app_media_source.dart';
 import 'package:neom_commons/core/utils/enums/itemlist_type.dart';
+import 'package:share_plus/share_plus.dart';
+
 import '../../domain/entities/url_image_generator.dart';
 import '../../neom_player_invoker.dart';
+import '../../to_delete/extensions.dart';
+import '../../utils/constants/player_translation_constants.dart';
 import 'bouncy_playlist_header_scroll_view.dart';
-import 'copy_clipboard.dart';
 import 'download_button.dart';
 import 'go_spotify_button.dart';
 import 'gradient_containers.dart';
@@ -24,9 +28,6 @@ import 'multi_download_button.dart';
 import 'playlist_popupmenu.dart';
 import 'snackbar.dart';
 import 'song_tile_trailing_menu.dart';
-import '../../utils/constants/player_translation_constants.dart';
-import '../../to_delete/extensions.dart';
-import 'package:share_plus/share_plus.dart';
 
 class SongsListPage extends StatefulWidget {
   final Itemlist itemlist;
@@ -202,7 +203,7 @@ class _SongsListPageState extends State<SongsListPage> {
                           ),
                         ),
                         onLongPress: () {
-                          copyToClipboard(
+                          CoreUtilities.copyToClipboard(
                             context: context,
                             text: appMediaItem.name,
                           );

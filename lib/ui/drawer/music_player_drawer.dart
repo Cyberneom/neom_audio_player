@@ -10,14 +10,15 @@ import 'package:neom_commons/core/utils/app_theme.dart';
 import 'package:neom_commons/core/utils/constants/app_constants.dart';
 import 'package:neom_commons/core/utils/constants/app_page_id_constants.dart';
 import 'package:neom_commons/core/utils/constants/app_route_constants.dart';
-import 'package:neom_music_player/ui/drawer/library/playlist_player_page.dart';
-import 'package:neom_music_player/ui/drawer/local_music/downloaded_songs.dart';
-import 'package:neom_music_player/ui/drawer/settings/widgets/music_player_settings_page.dart';
-import 'package:neom_music_player/ui/player/miniplayer_controller.dart';
-import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
-import 'package:neom_music_player/utils/constants/music_player_route_constants.dart';
-import 'package:neom_music_player/utils/enums/music_player_drawer_menu.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
+
+import '../../utils/constants/app_hive_constants.dart';
+import '../../utils/constants/music_player_route_constants.dart';
+import '../../utils/enums/music_player_drawer_menu.dart';
+import '../player/miniplayer_controller.dart';
+import 'library/playlist_player_page.dart';
+import 'local_music/downloaded_songs.dart';
+import 'settings/widgets/music_player_settings_page.dart';
 
 class MusicPlayerDrawer extends StatelessWidget {
   MusicPlayerDrawer({Key? key}) : super(key: key);
@@ -144,7 +145,7 @@ class MusicPlayerDrawer extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => PlaylistPlayerPage(
+                  builder: (context) => const PlaylistPlayerPage(
                     alternativeName: AppHiveConstants.favoriteSongs,
                     // showName: PlayerTranslationConstants.favSongs.tr,
                   ),
@@ -155,7 +156,7 @@ class MusicPlayerDrawer extends StatelessWidget {
                 context,
                 MaterialPageRoute(
                   builder: (context) =>
-                      DownloadedSongs(showPlaylists: true,),
+                      const DownloadedSongs(showPlaylists: true,),
                 ),
               );
             case MusicPlayerDrawerMenu.downloads:

@@ -2,9 +2,9 @@ import 'package:audio_service/audio_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
-import 'package:neom_music_player/domain/use_cases/neom_audio_handler.dart';
-import 'package:neom_music_player/ui/widgets/snackbar.dart';
-import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
+import '../../domain/use_cases/neom_audio_handler.dart';
+import '../../ui/widgets/snackbar.dart';
+import '../constants/player_translation_constants.dart';
 
 void addToNowPlaying({
   required BuildContext context,

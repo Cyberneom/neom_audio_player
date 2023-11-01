@@ -22,8 +22,8 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
-import 'package:neom_music_player/domain/entities/url_image_generator.dart';
-import 'package:neom_music_player/utils/enums/image_quality.dart';
+import '../../domain/entities/url_image_generator.dart';
+import '../../utils/enums/image_quality.dart';
 
 Widget imageCard({
   required String imageUrl,

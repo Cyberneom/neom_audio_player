@@ -9,16 +9,17 @@ import 'package:neom_commons/core/domain/model/item_list.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/enums/app_media_source.dart';
 import 'package:neom_itemlists/itemlists/data/firestore/app_media_item_firestore.dart';
-import 'package:neom_music_player/data/implementations/playlist_hive_controller.dart';
-import 'package:neom_music_player/neom_player_invoker.dart';
-import 'package:neom_music_player/ui/drawer/library/widgets/song_page_tab.dart';
-import 'package:neom_music_player/ui/widgets/custom_physics.dart';
-import 'package:neom_music_player/ui/widgets/gradient_containers.dart';
-import 'package:neom_music_player/ui/widgets/multi_download_button.dart';
-import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
-import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
-import 'package:neom_music_player/utils/helpers/songs_count.dart' as songs_count;
-import 'package:neom_music_player/utils/neom_audio_utilities.dart';
+
+import '../../../data/implementations/playlist_hive_controller.dart';
+import '../../../neom_player_invoker.dart';
+import '../../../utils/constants/app_hive_constants.dart';
+import '../../../utils/constants/player_translation_constants.dart';
+import '../../../utils/helpers/songs_count.dart' as songs_count;
+import '../../../utils/neom_audio_utilities.dart';
+import '../../widgets/custom_physics.dart';
+import '../../widgets/gradient_containers.dart';
+import '../../widgets/multi_download_button.dart';
+import 'widgets/song_page_tab.dart';
 
 final ValueNotifier<bool> selectMode = ValueNotifier<bool>(false);
 final Set<String> selectedItems = <String>{};

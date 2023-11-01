@@ -6,11 +6,11 @@ import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_theme.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
 import 'package:neom_commons/core/utils/constants/app_page_id_constants.dart';
-import 'package:neom_music_player/to_delete/search/search_page.dart';
-import 'package:neom_music_player/ui/drawer/music_player_drawer.dart';
-import 'package:neom_music_player/ui/home/music_player_home_content.dart';
-import 'package:neom_music_player/ui/home/music_player_home_controller.dart';
-import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
+import '../../to_delete/search/search_page.dart';
+import '../drawer/music_player_drawer.dart';
+import 'music_player_home_content.dart';
+import 'music_player_home_controller.dart';
+import '../../utils/constants/player_translation_constants.dart';
 
 class MusicPlayerHomePage extends StatelessWidget {
 

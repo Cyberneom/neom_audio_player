@@ -3,11 +3,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/neom_commons.dart';
-import 'package:neom_music_player/domain/entities/url_image_generator.dart';
-import 'package:neom_music_player/ui/widgets/bouncy_playlist_header_scroll_view.dart';
-import 'package:neom_music_player/ui/widgets/copy_clipboard.dart';
-import 'package:neom_music_player/ui/widgets/gradient_containers.dart';
-import 'package:neom_music_player/ui/widgets/image_card.dart';
+import '../../domain/entities/url_image_generator.dart';
+import 'bouncy_playlist_header_scroll_view.dart';
+import 'gradient_containers.dart';
+import 'image_card.dart';
 
 class SongsListViewPage extends StatefulWidget {
   final String? imageUrl;
@@ -182,7 +181,7 @@ class _SongsListViewPageState extends State<SongsListViewPage> {
                           imageUrl: entry.imgUrl,
                         ),
                         onLongPress: () {
-                          copyToClipboard(
+                          CoreUtilities.copyToClipboard(
                             context: context,
                             text: entry.name,
                           );

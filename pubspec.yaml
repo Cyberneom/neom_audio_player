@@ -1,5 +1,5 @@
 name: neom_music_player
-description: Open Source Music Player Module for any app.
+description: Open Source Music Player Module.
 
 # Prevent accidental publishing to pub.dev.
 publish_to: "none"
@@ -11,6 +11,11 @@ environment:
   flutter: ">=3.0.0"
 
 dependencies:
+  flutter:
+    sdk: flutter
+
+  flutter_localizations:
+    sdk: flutter
 
   neom_commons:
     git:
@@ -19,42 +24,30 @@ dependencies:
     git:
       url: https://github.com/Cyberneom/neom_itemlists.git
 
-  app_links: ^3.4.3
-  audio_service: ^0.18.10
-
-#  connectivity_plus: ^4.0.1
-  dart_des: ^1.0.2
-  device_info_plus: ^9.0.2
-  flip_card: ^0.7.0
-
-  flutter:
-    sdk: flutter
-  flutter_archive: ^5.0.0
-  # flutter_downloader: ^1.7.1
-  flutter_localizations:
-    sdk: flutter
-  flutter_lyric: ^2.0.4+6
-
   hive_flutter: ^1.1.0
-  home_widget: ^0.3.0
-  html_unescape: ^2.0.0
-  just_audio: 0.9.35
-  marquee: ^2.2.3
 
+  audio_service: ^0.18.12
+  just_audio: 0.9.35
+
+  permission_handler: ^11.0.1
   metadata_god: ^0.5.2+1
   on_audio_query: ^2.9.0
+
+  app_links: ^3.4.5
+  flip_card: ^0.7.0
+  flutter_lyric: ^2.0.4+6
+
+  marquee: ^2.2.3
   palette_generator: ^0.3.3+3
-  permission_handler: ^11.0.1
+
+#  CHANGE TO REGULAR BOTTOM TAB BAR TO AVOID USING UNKOWN REPOS
   persistent_bottom_nav_bar:
     git:
       url: https://github.com/Sangwan5688/PersistentBottomNavBar
       ref: ecdadb0
-#  receive_sharing_intent: ^1.4.5
-#  sizer: ^2.0.15
+
+# VERIFY IF NEEDED
   sliding_up_panel: ^2.0.0+1
-  url_launcher: ^6.1.14
-  workmanager: ^0.5.2
-  youtube_explode_dart: ^2.0.2
 
 dev_dependencies:
   flutter_test:

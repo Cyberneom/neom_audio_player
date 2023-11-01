@@ -1,23 +1,5 @@
-/*
- *  This file is part of BlackHole (https://github.com/Sangwan5688/BlackHole).
- * 
- * BlackHole is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * BlackHole is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with BlackHole.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * Copyright (c) 2021-2023, Ankit Sangwan
- */
-
 import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -27,20 +9,21 @@ import 'package:hive/hive.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
+// import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
+
 import '../../../neom_player_invoker.dart';
-import 'data_search.dart';
+import '../../../utils/constants/app_hive_constants.dart';
+import '../../../utils/constants/music_player_route_constants.dart';
+import '../../../utils/constants/player_translation_constants.dart';
+import '../../../utils/helpers/picker.dart';
 import '../../widgets/custom_physics.dart';
 import '../../widgets/empty_screen.dart';
 import '../../widgets/gradient_containers.dart';
 import '../../widgets/image_card.dart';
 import '../../widgets/playlist_head.dart';
 import '../../widgets/snackbar.dart';
-import '../../../utils/constants/app_hive_constants.dart';
-import '../../../utils/constants/music_player_route_constants.dart';
-import '../../../utils/constants/player_translation_constants.dart';
-import '../../../utils/helpers/picker.dart';
-// import 'package:path_provider/path_provider.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'data_search.dart';
 
 class Downloads extends StatefulWidget {
   const Downloads({super.key});

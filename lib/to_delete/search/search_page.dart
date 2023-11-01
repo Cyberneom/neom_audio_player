@@ -27,11 +27,11 @@ import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/constants/app_translation_constants.dart';
 import 'package:neom_itemlists/itemlists/data/api_services/spotify/spotify_search.dart';
 import 'package:neom_itemlists/itemlists/ui/widgets/app_item_widgets.dart';
-import 'package:neom_music_player/ui/widgets/empty_screen.dart';
-import 'package:neom_music_player/ui/widgets/gradient_containers.dart';
-import 'package:neom_music_player/ui/widgets/music_search_bar.dart' as searchbar;
-import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
-import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
+import '../../ui/widgets/empty_screen.dart';
+import '../../ui/widgets/gradient_containers.dart';
+import '../../ui/widgets/music_search_bar.dart' as searchbar;
+import '../../utils/constants/app_hive_constants.dart';
+import '../../utils/constants/player_translation_constants.dart';
 
 class SearchPage extends StatefulWidget {
   final String query;

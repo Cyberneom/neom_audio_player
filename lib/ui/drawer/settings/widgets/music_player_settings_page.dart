@@ -3,12 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_theme.dart';
+
+import '../../../../utils/constants/player_translation_constants.dart';
+import '../../../widgets/gradient_containers.dart';
 import 'download.dart';
 import 'music_playback.dart';
 import 'music_player_interface_page.dart';
 import 'others.dart';
-import '../../../widgets/gradient_containers.dart';
-import '../../../../utils/constants/player_translation_constants.dart';
 
 class MusicPlayerSettingsPage extends StatefulWidget {
   final Function? callback;

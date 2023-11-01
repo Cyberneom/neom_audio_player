@@ -3,9 +3,9 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/constants/app_translation_constants.dart';
-import 'package:neom_music_player/data/api_services/spotify/spotify_api_calls.dart';
-import 'package:neom_music_player/to_delete/matcher.dart';
-import 'package:neom_music_player/utils/helpers/spotify_helper.dart';
+import '../data/api_services/spotify/spotify_api_calls.dart';
+import 'matcher.dart';
+import '../utils/helpers/spotify_helper.dart';
 
 // ignore: avoid_classes_with_only_static_members
 class Lyrics {

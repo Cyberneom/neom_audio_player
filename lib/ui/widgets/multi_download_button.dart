@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
-import 'package:neom_music_player/domain/use_cases/download.dart';
-import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
+import '../../domain/use_cases/download.dart';
+import '../../utils/constants/player_translation_constants.dart';
 
 class MultiDownloadButton extends StatefulWidget {
   final List data;
@@ -114,5 +114,3 @@ class _MultiDownloadButtonState extends State<MultiDownloadButton> {
     );
   }
 }
-
-

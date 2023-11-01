@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
-import 'package:neom_music_player/data/implementations/spotify_hive_controller.dart';
-import 'package:neom_music_player/ui/widgets/box_switch_tile.dart';
-import 'package:neom_music_player/ui/widgets/gradient_containers.dart';
-import 'package:neom_music_player/ui/widgets/snackbar.dart';
-import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
-import 'package:neom_music_player/utils/constants/music_player_constants.dart';
-import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
+import '../../../../data/implementations/spotify_hive_controller.dart';
+import '../../../widgets/box_switch_tile.dart';
+import '../../../widgets/gradient_containers.dart';
+import '../../../widgets/snackbar.dart';
+import '../../../../utils/constants/app_hive_constants.dart';
+import '../../../../utils/constants/music_player_constants.dart';
+import '../../../../utils/constants/player_translation_constants.dart';
 
 class MusicPlaybackPage extends StatefulWidget {
   final Function? callback;

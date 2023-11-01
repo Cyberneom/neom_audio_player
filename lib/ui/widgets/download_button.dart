@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
-import 'package:neom_music_player/domain/use_cases/download.dart';
+import '../../domain/use_cases/download.dart';
 import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
 
 class DownloadButton extends StatefulWidget {

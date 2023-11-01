@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
+import '../../utils/constants/player_translation_constants.dart';
 
 class TextInputDialog extends StatelessWidget {
   final String title;

@@ -55,7 +55,7 @@ class MusicPlayerHomeContent extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
         itemCount: _.publicItemlists.isEmpty ? 3 : (_.publicItemlists.length + 3),
         itemBuilder: (context, idx) {
-          AppUtilities.logger.v('Building Music Home Index $idx');
+          AppUtilities.logger.t('Building Music Home Index $idx');
           if (idx == _.recentIndex) {
             return buildLastSessionContainer(context, _);
           }
@@ -68,7 +68,7 @@ class MusicPlayerHomeContent extends StatelessWidget {
           }
 
           final Itemlist publicList = _.publicItemlists.values.elementAt(idx - 3);
-          if (publicList == null || publicList.getTotalItems() == 0) {
+          if (publicList.getTotalItems() == 0) {
             return const SizedBox();
           } else if (publicList.name == 'likedArtists') {
             return buildLikedArtistContainer(publicList, context);
@@ -476,7 +476,7 @@ class MusicPlayerHomeContent extends StatelessWidget {
                               child: Column(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Text(itemlist.name.capitalizeFirst!,
+                                  Text(itemlist.name.capitalizeFirst,
                                     textAlign: TextAlign.center,
                                     softWrap: false,
                                     overflow: TextOverflow.ellipsis,
@@ -596,14 +596,14 @@ class MusicPlayerHomeContent extends StatelessWidget {
                               child: Column(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Text(favoriteItem.name.capitalizeFirst!,
+                                  Text(favoriteItem.name.capitalizeFirst,
                                     textAlign: TextAlign.center,
                                     softWrap: false,
                                     overflow: TextOverflow.ellipsis,
                                     style: const TextStyle(
                                       fontWeight: FontWeight.w500,),
                                   ),
-                                  if (subtitle != null && subtitle.isNotEmpty)
+                                  if (subtitle.isNotEmpty)
                                     Text(subtitle,
                                       textAlign: TextAlign.center,
                                       softWrap: false,
