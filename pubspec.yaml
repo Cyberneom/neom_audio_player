@@ -1,10 +1,10 @@
 name: neom_music_player
-description: Open Source Music Player Module.
-
-# Prevent accidental publishing to pub.dev.
-publish_to: "none"
-
+description: Music Player Module for apps.
 version: 1.2.0
+homepage: https://github.com/Cyberneom/neom_commons
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+
 
 environment:
   sdk: ">=3.0.0 <4.0.0"
@@ -23,6 +23,8 @@ dependencies:
   neom_itemlists:
     git:
       url: https://github.com/Cyberneom/neom_itemlists.git
+
+  home_widget: ^0.3.0
 
   hive_flutter: ^1.1.0
 
