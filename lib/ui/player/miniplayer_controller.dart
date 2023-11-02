@@ -22,7 +22,7 @@ class MiniPlayerController extends GetxController {
   final logger = AppUtilities.logger;
   final userController = Get.find<UserController>();
 
-  final Rxn<AppMediaItem> appMediaItem = Rxn<AppMediaItem>();
+  final Rx<AppMediaItem> appMediaItem = AppMediaItem().obs;
   final Rxn<MediaItem> mediaItem = Rxn<MediaItem>();
   final RxBool isLoading = true.obs;
   final RxBool isTimeline = true.obs;

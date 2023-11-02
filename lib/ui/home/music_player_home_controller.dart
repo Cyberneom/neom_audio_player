@@ -21,7 +21,7 @@ class MusicPlayerHomeController extends GetxController {
   final userController = Get.find<UserController>();
   final ScrollController scrollController = ScrollController();
 
-  final Rxn<MediaItem> _mediaItem = Rxn<MediaItem>();
+  final Rxn<MediaItem> mediaItem = Rxn<MediaItem>();
   final RxBool isLoading = true.obs;
   final RxBool isButtonDisabled = false.obs;
 
