@@ -1,6 +1,21 @@
 
 import 'dart:io';
-
+import 'package:animated_text_kit/animated_text_kit.dart';
+import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:get/get.dart';
+import 'package:neom_commons/core/app_flavour.dart';
+import 'package:neom_commons/core/ui/widgets/appbar_child.dart';
+import 'package:neom_commons/core/utils/app_color.dart';
+import 'package:neom_commons/core/utils/app_theme.dart';
+import 'package:neom_commons/core/utils/app_utilities.dart';
+import 'package:neom_commons/core/utils/constants/app_constants.dart';
+import 'package:neom_commons/core/utils/constants/app_page_id_constants.dart';
+import 'package:neom_commons/core/utils/constants/app_route_constants.dart';
+import 'package:neom_commons/core/utils/constants/app_translation_constants.dart';
+import 'package:neom_commons/core/utils/enums/app_in_use.dart';
+import 'package:neom_commons/core/utils/enums/user_role.dart';
+import 'package:neom_music_player/ui/player/miniplayer.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
@@ -23,35 +38,19 @@ import '../utils/constants/player_translation_constants.dart';
 import '../utils/helpers/route_handler.dart';
 import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 
+import 'widgets/music_player_bottom_app_bar.dart';
+
 class MusicPlayerRootPage extends StatefulWidget {
   @override
   _MusicPlayerRootPageState createState() => _MusicPlayerRootPageState();
 }
 
 class _MusicPlayerRootPageState extends State<MusicPlayerRootPage> {
-  final ValueNotifier<int> _selectedIndex = ValueNotifier<int>(0);
-  List<String> shortSectionsToShow = ['Music', 'Playlists',];
-  List<String> sectionsToShow = ['Music', 'Playlists', 'Spotify'];
-  DateTime? backButtonPressTime;
-  final bool useDense = false;
 
-  ///DEPRECATED
-  // void callback() {
-  //   List<String> shortSectionsToShow = ['Music', 'Playlists',];
-  //   List<String> sectionsToShow = ['Music', 'Playlists', 'Spotify'];
-  //   onItemTapped(0);
-  //   setState(() {});
-  // }
-
-  void onItemTapped(int index) {
-    _selectedIndex.value = index;
-    _controller.jumpToTab(
-      index,
-    );
-  }
-
-  final PageController _pageController = PageController();
-  final PersistentTabController _controller = PersistentTabController();
+  final PageController pageController = PageController();
+  bool hasItems = false;
+  bool isLoading = false;
+  int currentIndex = 0;
 
   @override
   void initState() {
@@ -60,198 +59,97 @@ class _MusicPlayerRootPageState extends State<MusicPlayerRootPage> {
 
   @override
   void dispose() {
-    _controller.dispose();
-    _pageController.dispose();
     super.dispose();
+    pageController.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final double screenWidth = MediaQuery.of(context).size.width;
-    final bool isRotated = MediaQuery.of(context).size.height < screenWidth;
-
-    List<String> sections = AppFlavour.appInUse != AppInUse.g || Platform.isIOS ? shortSectionsToShow : sectionsToShow;
-    return GradientContainer(
-      child: Scaffold(
-        resizeToAvoidBottomInset: false,
-        drawer: MusicPlayerDrawer(),
-        body: Container(
-          decoration: AppTheme.appBoxDecoration,
-          child: Row(
+    return Scaffold(
+        backgroundColor: AppColor.main50,
+        // appBar: AppBarChild(),
+        // drawer: MusicPlayerDrawer(),
+        body: isLoading ? Container(
+            decoration: AppTheme.appBoxDecoration,
+            child: const Center(
+                child: CircularProgressIndicator()
+            )
+        ) : Stack(
           children: [
-            if (isRotated) getRotatedDrawer(sections),
-            Expanded(
-              child: PersistentTabView.custom(
-                context,
-                controller: _controller,
-                itemCount: sections.length,
-                navBarHeight: (isRotated ? 55 : 55 + 70) + (useDense ? 0 : 15),
-                // confineInSafeArea: false,
-                onItemTapped: onItemTapped,
-                routeAndNavigatorSettings: CustomWidgetRouteAndNavigatorSettings(
-                  routes: MusicPlayerRoutes.routes,
-                  onGenerateRoute: (RouteSettings settings) {
-                    if (settings.name == MusicPlayerRouteConstants.player) {
-                      return PageRouteBuilder(
-                        opaque: false,
-                        pageBuilder: (_, __, ___) => MediaPlayerPage(),
-                      );
-                    }
-                    return HandleRoute.handleRoute(settings.name);
-                  },
+            PageView(
+                physics: const NeverScrollableScrollPhysics(),
+                controller: pageController,
+                children: AppFlavour.getMusicPlayerPages()
+            ),
+            if(AppFlavour.appInUse == AppInUse.g
+                // || _.userController.user!.userRole == UserRole.superAdmin
+            )
+              Positioned(
+                left: 0, right: 0,
+                bottom: 0.1, // Adjust this value according to your BottomNavigationBar's height
+                child: Container(
+                    decoration: AppTheme.appBoxDecoration,
+                    child: MiniPlayer()
                 ),
-                customWidget: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    MiniPlayer(),
-                    if (!isRotated)
-                      ValueListenableBuilder(
-                        valueListenable: _selectedIndex,
-                        builder: (
-                            BuildContext context,
-                            int indexValue,
-                            Widget? child,
-                            ) {
-                          return AnimatedContainer(
-                            duration: const Duration(milliseconds: 100),
-                            height: 60,
-                            child: CustomBottomNavBar(
-                              currentIndex: indexValue,
-                              backgroundColor: AppColor.main75,
-                              onTap: (index) {
-                                onItemTapped(index);
-                              },
-                              items: _navBarItems(context, sections),
-                            ),
-                          );
-                        },
-                      ),
-                  ],
-                ),
-                screens: sections.map((e) {
-                  switch (e) {
-                    case 'Home':
-                      return const SafeArea(child: MusicPlayerHomePage());
-                    case 'Playlists':
-                      return const SafeArea(child: ItemlistPage());
-                    case 'Spotify':
-                      return SafeArea(
-                        child: SpotifyTopPage(pageController: _pageController,
-                        ),
-                      );
-                    // case 'YouTube':
-                    //   return const SafeArea(child: YouTube());
-                    default:
-                      return const SafeArea(child: MusicPlayerHomePage());
-                  }
-                }).toList(),
               ),
-            ),
           ],
-        ),),
-      ),
-    );
-  }
-
-  Widget getRotatedDrawer(List<String> sections) {
-    final double screenWidth = MediaQuery.of(context).size.width;
-    return SafeArea(
-      child: ValueListenableBuilder(
-        valueListenable: _selectedIndex,
-        builder:
-            (BuildContext context, int indexValue, Widget? child) {
-          return NavigationRail(
-            minWidth: 70.0,
-            groupAlignment: 0.0,
-            backgroundColor: Theme.of(context).cardColor,
-            selectedIndex: indexValue,
-            onDestinationSelected: (int index) {
-              onItemTapped(index);
-            },
-            labelType: screenWidth > 1050
-                ? NavigationRailLabelType.selected
-                : NavigationRailLabelType.none,
-            selectedLabelTextStyle: TextStyle(
-              color: Theme.of(context).colorScheme.secondary,
-              fontWeight: FontWeight.w600,
-            ),
-            unselectedLabelTextStyle: TextStyle(color: Theme.of(context).iconTheme.color,),
-            selectedIconTheme: Theme.of(context).iconTheme.copyWith(
-              color: Theme.of(context).colorScheme.secondary,
-            ),
-            unselectedIconTheme: Theme.of(context).iconTheme,
-            useIndicator: screenWidth < 1050,
-            indicatorColor: Theme.of(context).colorScheme.secondary.withOpacity(0.2),
-            leading: homeDrawer(
-              context: context,
-              padding: const EdgeInsets.symmetric(vertical: 5.0),
-            ),
-            destinations: sections.map((e) {
-              switch (e) {
-                case 'Home':
-                  return NavigationRailDestination(
-                    icon: const Icon(Icons.home_rounded),
-                    label: Text(PlayerTranslationConstants.home.tr),
-                  );
-                case 'Playlists':
-                  return NavigationRailDestination(
-                    icon: const Icon(Icons.home_rounded),
-                    label: Text(PlayerTranslationConstants.home.tr),
-                  );
-                case 'Spotify':
-                  return NavigationRailDestination(
-                    icon: const Icon(Icons.trending_up_rounded),
-                    label: Text(
-                      PlayerTranslationConstants.spotifyTopCharts.tr,
+        ),
+        bottomNavigationBar: Theme(
+          data: Theme.of(context).copyWith(canvasColor: Colors.grey[900]),
+          child: MusicPlayerBottomAppBar(
+            backgroundColor: AppColor.bottomNavigationBar,
+            color: Colors.white54,
+            selectedColor: Theme.of(context).colorScheme.secondary,
+            notchedShape: const CircularNotchedRectangle(),
+            iconSize: 20.0,
+            onTabSelected:(int index) => selectPageView(index, context: context),
+            items: [
+              MusicPlayerBottomAppBarItem(iconData: Icons.play_circle_fill,
+                text: PlayerTranslationConstants.music.tr,
+              ),
+              MusicPlayerBottomAppBarItem(
+                iconData: Icons.library_music,
+                text: PlayerTranslationConstants.playlists.capitalizeFirst,
+                animation: hasItems ? null : Column(
+                  children: [
+                    SizedBox(
+                      child: DefaultTextStyle(
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontSize: 6,
+                        ),
+                        child: AnimatedTextKit(
+                          repeatForever: true,
+                          animatedTexts: [
+                            FlickerAnimatedText(AppFlavour.appInUse == AppInUse.g ? AppTranslationConstants.addItems.tr : ''),
+                          ],
+                          onTap: () {},
+                        ),
+                      ),
                     ),
-                  );
-                case 'YouTube':
-                  return NavigationRailDestination(
-                    icon: Icon(MdiIcons.youtube),
-                    label:
-                    Text(PlayerTranslationConstants.youTube.tr),
-                  );
-                default:
-                  return NavigationRailDestination(
-                    icon: const Icon(Icons.home_rounded),
-                    label: Text(PlayerTranslationConstants.home.tr),
-                  );
-              }
-            }).toList(),
-          );
-        },
-      ),
+                    AppTheme.widthSpace10,
+                  ],),
+              ),
+            ],
+          ),
+        ),
     );
   }
 
-  List<CustomBottomNavBarItem> _navBarItems(BuildContext context, List<String> sections) {
-    return sections.map((section) {
-      switch (section) {
-        case 'Music':
-          return CustomBottomNavBarItem(
-            icon: const Icon(Icons.play_circle_fill),
-            title: Text(PlayerTranslationConstants.music.tr),
-            selectedColor: Theme.of(context).colorScheme.secondary,
-          );
-        case 'Playlists':
-          return CustomBottomNavBarItem(
-            icon: const Icon(Icons.library_music),
-            title: Text(PlayerTranslationConstants.playlists.capitalizeFirst),
-            selectedColor: Theme.of(context).colorScheme.secondary,
-          );
-        case 'Spotify':
-          return CustomBottomNavBarItem(
-            icon: Icon(MdiIcons.spotify),
-            title: Text(PlayerTranslationConstants.topCharts.tr),
-            selectedColor: Theme.of(context).colorScheme.secondary,
-          );
-        default:
-          return CustomBottomNavBarItem(
-            icon: const Icon(Icons.play_circle_fill),
-            title: Text(PlayerTranslationConstants.music.tr),
-            selectedColor: Theme.of(context).colorScheme.secondary,
-          );
+  void selectPageView(int index, {BuildContext? context}) async {
+    AppUtilities.logger.t("Changing page view to index: $index");
+
+    try {
+      if(pageController.hasClients) {
+        pageController.jumpToPage(index);
+        currentIndex = index;
       }
-    }).toList();
+
+    } catch (e) {
+      AppUtilities.logger.e(e.toString());
+    }
+
+    setState(() {});
   }
+
 }

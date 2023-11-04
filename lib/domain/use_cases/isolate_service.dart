@@ -35,26 +35,14 @@ Future<void> startBackgroundProcessing() async {
 
 // The function that will run in the background Isolate
 Future<void> _backgroundProcess(SendPort sendPort) async {
-  AppUtilities.logger.d('Backgroung Proccess');
+  AppUtilities.logger.d('Backgroung Proccess for SendPort ${sendPort.toString()}');
   final isolateReceivePort = ReceivePort();
 
   try {
-    sendPort.send(isolateReceivePort.sendPort);
-    // bool hiveInit = false;
+    sendPort.send(isolateReceivePort.sendPort);    
 
-    await for (final message in isolateReceivePort) {
-      // if (!hiveInit) {
-      //   Hive.init(message.toString());
-      //   await Hive.openBox('ytlinkcache');
-      //   await Hive.openBox('settings');
-      //   hiveInit = true;
-      //   continue;
-      // }
-      AppUtilities.logger.d('IsolateReceivePort. Refreshing link for message: ${message.toString()}');
-      // if(!message.toString().contains("data")){
-      //   final newData = await YouTubeServices().refreshLink(message.toString());
-      //   sendPort.send(newData);
-      // }
+    await for (final message in isolateReceivePort) {      
+      AppUtilities.logger.d('IsolateReceivePort. Refreshing link for message: ${message.toString()}');      
     }
   } catch(e) {
     AppUtilities.logger.e(e.toString());

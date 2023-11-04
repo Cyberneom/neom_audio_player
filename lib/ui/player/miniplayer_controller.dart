@@ -33,7 +33,7 @@ class MiniPlayerController extends GetxController {
   @override
   void onInit() async {
     super.onInit();
-    logger.d('onInit miniPlayer Controller');
+    logger.t('onInit miniPlayer Controller');
 
     try {
 
@@ -67,7 +67,7 @@ class MiniPlayerController extends GetxController {
   }
 
   void setIsTimeline(bool value) {
-    AppUtilities.logger.i('Setting IsTimeline');
+    AppUtilities.logger.d('Setting IsTimeline: $value');
     isTimeline.value = value;
     update();
   }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:neom_music_player/domain/entities/custom_bottom_nav_bar_item.dart';
+import '../../../domain/entities/custom_bottom_nav_bar_item.dart';
 
 class CustomBottomNavBar extends StatelessWidget {
   const CustomBottomNavBar({

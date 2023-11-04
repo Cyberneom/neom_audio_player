@@ -42,6 +42,7 @@ class MusicPlayerHomeController extends GetxController {
   AppProfile profile = AppProfile();
   Map<String, AppMediaItem> globalMediaItems = {};
   List<AppMediaItem> favoriteItems = [];
+
   // Map data = Hive.box(AppHiveConstants.cache).get('homepage', defaultValue: {}) as Map;
   // Map likedArtists = Hive.box(AppHiveConstants.settings).get('likedArtists', defaultValue: {}) as Map;
   // List playlistNames = Hive.box(AppHiveConstants.settings).get('playlistNames')?.toList() as List? ?? [AppHiveConstants.favoriteSongs];
@@ -50,7 +51,7 @@ class MusicPlayerHomeController extends GetxController {
   @override
   void onInit() async {
     super.onInit();
-    logger.d('Music Player Home Controller Init');
+    logger.t('Music Player Home Controller Init');
     try {
       final userController = Get.find<UserController>();
       profile = userController.profile;
@@ -94,13 +95,14 @@ class MusicPlayerHomeController extends GetxController {
   }
 
   Future<void> getHomePageData() async {
-    AppUtilities.logger.i('Get ItemLists Home Data');
+    AppUtilities.logger.d('Get ItemLists Home Data');
     try {
       myItemLists = await ItemlistFirestore().fetchAll(profileId: profile.id);
-      publicItemlists = await ItemlistFirestore().fetchAll(excludeMyFavorites: true, minItems: 0);
-      for (final myItemlist in myItemLists.values) {
-        publicItemlists.removeWhere((key, publicList) => myItemlist.id == publicList.id);
-      }
+      publicItemlists = await ItemlistFirestore().fetchAll(excludeMyFavorites: true, excludeFromProfileId: profile.id, minItems: 0);
+      ///DEPRECATED
+      // for (final myItemlist in myItemLists.values) {
+      //   publicItemlists.removeWhere((key, publicList) => myItemlist.id == publicList.id);
+      // }
       myItemLists.addAll(publicItemlists);
 
       ///IMPROVE WAY TO SPLIT PLAYLISTS AND GIGLISTS FROM CHAMBERPRESETS AND READLISTS
