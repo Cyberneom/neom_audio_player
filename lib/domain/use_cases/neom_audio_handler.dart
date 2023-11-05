@@ -36,6 +36,7 @@ import '../../ui/player/miniplayer_controller.dart';
 import '../../utils/constants/app_hive_constants.dart';
 import '../../utils/constants/music_player_constants.dart';
 import '../../utils/helpers/media_item_mapper.dart';
+import '../../utils/music_player_stats.dart';
 import '../../utils/neom_audio_utilities.dart';
 import '../entities/queue_state.dart';
 import 'isolate_service.dart';
@@ -134,16 +135,17 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
         }
 
         if (item.artUri.toString().startsWith('http')) {
-          addRecentlyPlayed(MediaItemMapper.fromMediaItem(item));
+          MusicPlayerStats.addRecentlyPlayed(MediaItemMapper.fromMediaItem(item));
           _recentSubject.add([item]);
 
-          if (recommend && item.extras!['autoplay'] as bool) {
-            final List<MediaItem> mediaQueue = queue.value!;
-            final int index = mediaQueue.indexOf(item);
-            if ((mediaQueue.length - index) < 3) {
-              AppUtilities.logger.i('Less than 5 songs remaining, this would add more songs');
-            }
-          }
+          ///VERIFY IF NEEDED
+          // if (recommend && item.extras!['autoplay'] as bool) {
+          //   final List<MediaItem> mediaQueue = queue.value!;
+          //   final int index = mediaQueue.indexOf(item);
+          //   if ((mediaQueue.length - index) < 3) {
+          //     AppUtilities.logger.i('Less than 3 songs remaining, this would add more songs');
+          //   }
+          // }
         }
       });
 
@@ -435,44 +437,6 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
     _player = AudioPlayer();
   }
 
-  Future<void> addRecentlyPlayed(AppMediaItem appMediaItem) async {
-    AppUtilities.logger.i('adding ${appMediaItem.id} to recently played');
-
-    try {
-      List recentList = await Hive.box(AppHiveConstants.cache).get('recentSongs', defaultValue: [])?.toList() as List;
-      final Map songStats = await Hive.box(AppHiveConstants.stats).get(appMediaItem.id, defaultValue: {}) as Map;
-      final Map mostPlayed = await Hive.box(AppHiveConstants.stats).get('mostPlayed', defaultValue: {}) as Map;
-
-      songStats['lastPlayed'] = DateTime.now().millisecondsSinceEpoch;
-      songStats['playCount'] = songStats['playCount'] == null ? 1 : songStats['playCount'] + 1;
-      songStats['isYoutube'] = appMediaItem.genre == 'YouTube';
-      songStats['title'] = appMediaItem.name;
-      songStats['artist'] = appMediaItem.artist;
-      songStats['album'] = appMediaItem.album;
-      songStats['id'] = appMediaItem.id;
-      Hive.box(AppHiveConstants.stats).put(appMediaItem.id, songStats);
-
-      if ((songStats['playCount'] as int) > (mostPlayed['playCount'] as int? ?? 0)) {
-        Hive.box(AppHiveConstants.stats).put('mostPlayed', songStats);
-      }
-      AppUtilities.logger.i('adding ${appMediaItem.id} ${appMediaItem.name} data to stats');
-
-      recentList.insert(0, appMediaItem.toJSON());
-
-      final jsonList = recentList.map((item) => jsonEncode(item)).toList();
-      final uniqueJsonList = jsonList.toSet().toList();
-      recentList = uniqueJsonList.map((item) => jsonDecode(item)).toList();
-
-      if (recentList.length > 30) {
-        recentList = recentList.sublist(0, 30);
-      }
-      Hive.box(AppHiveConstants.cache).put('recentSongs', recentList);
-    } catch(e) {
-      AppUtilities.logger.e(e.toString());
-    }
-
-  }
-
   Future<void> addLastQueue(List<MediaItem> queue) async {
     if (queue.isNotEmpty && queue.first.genre != 'YouTube') {
       AppUtilities.logger.i('saving last queue');
@@ -488,7 +452,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
 
     if(queue.valueWrapper!.value.indexWhere((item) => item.id == id) >= 0) {
       index = queue.valueWrapper!.value.indexWhere((item) => item.id == id);
-      AppUtilities.logger.d('MediaItem found in Queue with Index $index');
+      AppUtilities.logger.t('SkipToMediaItem: mediaItem found in queue with Index $index');
     }
 
     _player.seek(Duration.zero, index: _player.shuffleModeEnabled && index != 0 ? _player.shuffleIndices![index] : index,
@@ -632,23 +596,11 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
 
   @override
   Future customAction(String name, [Map<String, dynamic>? extras]) async {
-    AppUtilities.logger.d('customAction $name called');
+    AppUtilities.logger.d('CustomAction $name called');
 
     switch(name) {
-      case 'sleepTimer':
-        _sleepTimer?.cancel();
-        if (extras?['time'] != null && extras!['time'].runtimeType == int &&
-            extras['time'] > 0 as bool) {
-          _sleepTimer = Timer(Duration(minutes: extras['time'] as int), () {
-            stop();
-          });
-        }
-      case 'sleepCounter':
-        if (extras?['count'] != null &&
-            extras!['count'].runtimeType == int &&
-            extras['count'] > 0 as bool) {
-          count = extras['count'] as int;
-        }
+      case 'skipToMediaItem':
+        await skipToMediaItem(extras!['id'].toString(), index: extras['index'] != null ? int.parse(extras['index'].toString()) : 0);
       case 'fastForward':
         try {
           const stepInterval = Duration(seconds: 10);
@@ -673,8 +625,20 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
         if (extras?['newData'] != null) {
           await refreshLink(extras!['newData'] as Map);
         }
-      case 'skipToMediaItem':
-        await skipToMediaItem(extras!['id'].toString(), index: extras['index'] != null ? int.parse(extras['index'].toString()) : 0);
+      case 'sleepTimer':
+        _sleepTimer?.cancel();
+        if (extras?['time'] != null && extras!['time'].runtimeType == int &&
+            extras['time'] > 0 as bool) {
+          _sleepTimer = Timer(Duration(minutes: extras['time'] as int), () {
+            stop();
+          });
+        }
+      case 'sleepCounter':
+        if (extras?['count'] != null &&
+            extras!['count'].runtimeType == int &&
+            extras['count'] > 0 as bool) {
+          count = extras['count'] as int;
+        }
       default:
         break;
     }

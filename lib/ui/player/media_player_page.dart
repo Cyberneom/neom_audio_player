@@ -11,9 +11,11 @@ import 'package:hive/hive.dart';
 import 'package:neom_commons/core/app_flavour.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
+import 'package:neom_commons/core/utils/app_theme.dart';
 import 'package:neom_commons/core/utils/core_utilities.dart';
 import '../../domain/use_cases/neom_audio_handler.dart';
 import '../../neom_player_invoker.dart';
+import '../widgets/add_to_playlist.dart';
 import 'widgets/artwork_widget.dart';
 import 'widgets/name_n_controls.dart';
 import '../../utils/constants/app_hive_constants.dart';
@@ -120,6 +122,15 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
                     },
                   ),
                   actions: [
+                    if(appMediaItem != null)
+                      IconButton(
+                        icon: const Icon(Icons.playlist_add_rounded),
+                        tooltip: PlayerTranslationConstants.addToPlaylist.tr,
+                        iconSize: 35,
+                        onPressed: () async {
+                          AddToPlaylist().addToPlaylist(context, appMediaItem!);
+                        },
+                      ),
                     IconButton(
                       icon: const Icon(Icons.lyrics_rounded),
                       tooltip: PlayerTranslationConstants.lyrics.tr,
@@ -141,7 +152,8 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
                           }
                         },
                       ),
-                    if(appMediaItem != null) createPopMenuOption(context, appMediaItem, offline: offline),
+                    ///NOT NEEDED BY NOW - OPTIONS ARE NOT FUNCTIONAL AT THE MOMENT
+                    // if(appMediaItem != null) createPopMenuOption(context, appMediaItem, offline: offline),
                   ],
                 ),
                 body: LayoutBuilder(
@@ -220,7 +232,7 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
               Icon(Icons.info_rounded,
                 color: Theme.of(context).iconTheme.color,
               ),
-              const SizedBox(width: 10.0),
+              AppTheme.widthSpace10,
               Text(PlayerTranslationConstants.songInfo.tr,),
             ],
           ),
@@ -233,7 +245,7 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
               Icon(Icons.playlist_add_rounded,
                 color: Theme.of(context).iconTheme.color,
               ),
-              const SizedBox(width: 10.0),
+              AppTheme.widthSpace10,
               Text(PlayerTranslationConstants.addToPlaylist.tr,),],),
         ),
         PopupMenuItem(
@@ -244,7 +256,7 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
                 CupertinoIcons.timer,
                 color: Theme.of(context).iconTheme.color,
               ),
-              const SizedBox(width: 10.0),
+              AppTheme.widthSpace10,
               Text(
                 PlayerTranslationConstants.sleepTimer.tr,
               ),

@@ -27,6 +27,7 @@ class AddToPlaylist {
     List<Itemlist> itemlists = []; ///GET INFO FROM CONTROLLER
     ProfileType type = ProfileType.fan; ///GET INFO FROM CONTROLLER
     AppMediaItemSearchController searchController;
+
     try {
       // Check if the controller is active
       if (Get.isRegistered<AppMediaItemSearchController>()) {
@@ -152,8 +153,7 @@ class AddToPlaylist {
             },
           ),
         ],
-      ).show() : await searchController.addItemlistItem(context,
-        fanItemState: AppItemState.heardIt.value,);
+      ).show() : await searchController.addItemlistItem(context, fanItemState: AppItemState.heardIt.value,);
     } catch(e) {
       AppUtilities.logger.e(e.toString());
     }

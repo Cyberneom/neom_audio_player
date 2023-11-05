@@ -18,7 +18,6 @@ import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
 import 'package:neom_commons/core/utils/constants/app_translation_constants.dart';
 import 'package:neom_commons/core/utils/core_utilities.dart';
-import 'package:neom_commons/core/utils/enums/app_in_use.dart';
 import 'package:rxdart/rxdart.dart' as rx;
 
 import '../../../domain/entities/queue_state.dart';

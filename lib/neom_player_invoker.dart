@@ -143,7 +143,7 @@ class NeomPlayerInvoker {
         audioHandler.currentMediaItem = queue.elementAt(index);
 
         if(playItem || (audioHandler.playbackState.valueWrapper?.value.playing ?? false)) {
-          AppUtilities.logger.d("Starting stream for ${queue[index].title} and URL ${queue[index].extras!['url'].toString()}");
+          AppUtilities.logger.d("Starting stream for ${queue[index].artist ?? ''} - ${queue[index].title} and URL ${queue[index].extras!['url'].toString()}");
           await audioHandler.play();
         }
 

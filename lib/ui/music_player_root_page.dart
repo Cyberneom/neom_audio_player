@@ -1,42 +1,15 @@
 
-import 'dart:io';
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:neom_commons/core/app_flavour.dart';
-import 'package:neom_commons/core/ui/widgets/appbar_child.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_theme.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
-import 'package:neom_commons/core/utils/constants/app_constants.dart';
-import 'package:neom_commons/core/utils/constants/app_page_id_constants.dart';
-import 'package:neom_commons/core/utils/constants/app_route_constants.dart';
 import 'package:neom_commons/core/utils/constants/app_translation_constants.dart';
 import 'package:neom_commons/core/utils/enums/app_in_use.dart';
-import 'package:neom_commons/core/utils/enums/user_role.dart';
 import 'package:neom_music_player/ui/player/miniplayer.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
-import 'package:neom_commons/core/app_flavour.dart';
-import 'package:neom_commons/core/utils/app_color.dart';
-import 'package:neom_commons/core/utils/app_theme.dart';
-import 'package:neom_commons/core/utils/enums/app_in_use.dart';
-import 'package:neom_itemlists/itemlists/ui/itemlist_page.dart';
-import '../domain/entities/custom_bottom_nav_bar_item.dart';
-import 'drawer/music_player_drawer.dart';
-import 'home/music_player_home_page.dart';
-import 'home/widgets/bottom_nav_bar.dart';
-import 'music_player_routes.dart';
-import 'player/media_player_page.dart';
-import 'player/miniplayer.dart';
-import 'spotify/spotify_top_page.dart';
-import 'widgets/gradient_containers.dart';
-import '../utils/constants/music_player_route_constants.dart';
 import '../utils/constants/player_translation_constants.dart';
-import '../utils/helpers/route_handler.dart';
-import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
 
 import 'widgets/music_player_bottom_app_bar.dart';
 
