@@ -10,24 +10,23 @@ import 'package:neom_commons/core/utils/app_theme.dart';
 import 'package:neom_commons/core/utils/constants/app_constants.dart';
 import 'package:neom_commons/core/utils/constants/app_page_id_constants.dart';
 import 'package:neom_commons/core/utils/constants/app_route_constants.dart';
-import 'package:persistent_bottom_nav_bar/persistent_tab_view.dart';
-
 import '../../utils/constants/app_hive_constants.dart';
 import '../../utils/constants/music_player_route_constants.dart';
 import '../../utils/enums/music_player_drawer_menu.dart';
-import '../player/miniplayer_controller.dart';
-import 'library/playlist_player_page.dart';
-import 'local_music/downloaded_songs.dart';
-import 'settings/widgets/music_player_settings_page.dart';
+import '../ui/drawer/library/playlist_player_page.dart';
+import '../ui/drawer/local_music/downloaded_songs.dart';
+import '../ui/drawer/settings/widgets/music_player_settings_page.dart';
+import '../ui/player/miniplayer_controller.dart';
+
 
 class MusicPlayerDrawer extends StatelessWidget {
-  MusicPlayerDrawer({Key? key}) : super(key: key);
+  MusicPlayerDrawer({super.key});
 
 
   final ValueNotifier<int> _selectedIndex = ValueNotifier<int>(0);
 
   List sectionsToShow = ['Home', 'Spotify', 'YouTube'];
-  final PersistentTabController _controller = PersistentTabController();
+  // final PersistentTabController _controller = PersistentTabController();
 
   void callback() {
     sectionsToShow = ['Home', 'Spotify', 'YouTube'];
@@ -36,9 +35,9 @@ class MusicPlayerDrawer extends StatelessWidget {
 
   void onItemTapped(int index) {
     _selectedIndex.value = index;
-    _controller.jumpToTab(
-      index,
-    );
+    // _controller.jumpToTab(
+    //   index,
+    // );
   }
 
   @override
@@ -65,7 +64,7 @@ class MusicPlayerDrawer extends StatelessWidget {
                       drawerRowOption(MusicPlayerDrawerMenu.favorites, const Icon(Icons.favorite_rounded), context),
                       // drawerRowOption(MusicPlayerDrawerMenu.myMusic, const Icon(MdiIcons.folderMusic,), context),
                       // drawerRowOption(MusicPlayerDrawerMenu.stats, const Icon(Icons.download_done_rounded,), context),
-                      drawerRowOption(MusicPlayerDrawerMenu.downloads, const Icon(Icons.download_done_rounded,), context),
+                      // drawerRowOption(MusicPlayerDrawerMenu.downloads, const Icon(Icons.download_done_rounded,), context),
                       drawerRowOption(MusicPlayerDrawerMenu.settings, const Icon(Icons.playlist_play_rounded,), context),
                     ],
                   ),
@@ -203,24 +202,3 @@ class MusicPlayerDrawer extends StatelessWidget {
 
 }
 
-Widget homeDrawer({
-  required BuildContext context,
-  EdgeInsetsGeometry padding = EdgeInsets.zero,
-}) {
-  return Padding(
-    padding: padding,
-    child: Transform.rotate(
-      angle: 22 / 7 * 2,
-      child: IconButton(
-        icon: const Icon(
-          Icons.horizontal_split_rounded,
-        ),
-        // color: Theme.of(context).iconTheme.color,
-        onPressed: () {
-          Scaffold.of(context).openDrawer();
-        },
-        tooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
-      ),
-    ),
-  );
-}

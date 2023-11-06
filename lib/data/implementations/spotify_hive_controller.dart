@@ -11,7 +11,7 @@ import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/core_utilities.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../ui/widgets/gradient_containers.dart';
+import '../../ui/widgets/bottom_gradient_container.dart';
 import '../../utils/constants/app_hive_constants.dart';
 import '../../utils/constants/countrycodes.dart';
 import '../../utils/helpers/spotify_helper.dart';

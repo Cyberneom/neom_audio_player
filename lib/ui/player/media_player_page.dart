@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+
 import 'package:audio_service/audio_service.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flip_card/flip_card.dart';
@@ -13,18 +14,19 @@ import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_theme.dart';
 import 'package:neom_commons/core/utils/core_utilities.dart';
+import 'package:sliding_up_panel/sliding_up_panel.dart';
+
 import '../../domain/use_cases/neom_audio_handler.dart';
 import '../../neom_player_invoker.dart';
-import '../widgets/add_to_playlist.dart';
-import 'widgets/artwork_widget.dart';
-import 'widgets/name_n_controls.dart';
 import '../../utils/constants/app_hive_constants.dart';
 import '../../utils/constants/player_translation_constants.dart';
 import '../../utils/helpers/dominant_color.dart';
 import '../../utils/helpers/media_item_mapper.dart';
-import '../../utils/theme/music_player_theme.dart';
 import '../../utils/music_player_utilities.dart';
-import 'package:sliding_up_panel/sliding_up_panel.dart';
+import '../../utils/theme/music_player_theme.dart';
+import '../widgets/add_to_playlist.dart';
+import 'widgets/artwork_widget.dart';
+import 'widgets/name_n_controls.dart';
 
 class MediaPlayerPage extends StatefulWidget {
 

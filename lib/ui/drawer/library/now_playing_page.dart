@@ -3,15 +3,18 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
+
 import '../../../domain/use_cases/neom_audio_handler.dart';
+import '../../../utils/constants/music_player_route_constants.dart';
+import '../../../utils/constants/player_translation_constants.dart';
 import '../../player/widgets/now_playing_stream.dart';
 import '../../widgets/bouncy_sliver_scroll_view.dart';
 import '../../widgets/empty_screen.dart';
-import '../../widgets/gradient_containers.dart';
-import '../../../utils/constants/music_player_route_constants.dart';
-import '../../../utils/constants/player_translation_constants.dart';
+import '../../widgets/gradient_container.dart';
 
 class NowPlayingPage extends StatefulWidget {
+  const NowPlayingPage({super.key});
+
   @override
   _NowPlayingPageState createState() => _NowPlayingPageState();
 }

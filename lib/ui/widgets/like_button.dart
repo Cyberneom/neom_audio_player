@@ -5,20 +5,20 @@ import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/domain/model/app_profile.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_itemlists/itemlists/data/firestore/app_media_item_firestore.dart';
+
 import '../../data/implementations/playlist_hive_controller.dart';
-import 'snackbar.dart';
 import '../../utils/constants/player_translation_constants.dart';
+import 'snackbar.dart';
 
 class LikeButton extends StatefulWidget {
+
   final AppMediaItem? appMediaItem;
   final double? size;
-  final bool showSnack;  
 
   const LikeButton({
     super.key,
     this.appMediaItem,
     this.size,
-    this.showSnack = false,
   });
 
   @override
@@ -67,16 +67,6 @@ class _LikeButtonState extends State<LikeButton>
     AppProfile profile = playlistHiveController.userController.profile;
     try {
       liked = profile.favoriteItems?.contains(widget.appMediaItem?.id) ?? false;
-      // if(liked) {
-      //   AppUtilities.logger.i('Here goes de logic - Contains to remove');
-      // } else {
-      //   AppUtilities.logger.i('Here goes de logic - Not contains to add');
-      // }
-      // if (widget.mediaItem != null) {
-      //   liked = PlaylistHiveController().checkPlaylist(AppHiveConstants.favoriteSongs, widget.mediaItem!.id);
-      // } else {
-      //   liked = PlaylistHiveController().checkPlaylist(AppHiveConstants.favoriteSongs, widget.data!['id'].toString());
-      // }
     } catch (e) {
       AppUtilities.logger.e('Error in likeButton: $e');
     }
@@ -108,14 +98,6 @@ class _LikeButtonState extends State<LikeButton>
             AppUtilities.logger.e(e.toString());
           }
 
-
-
-          // liked ? PlaylistHiveController().removeLiked(
-          //   widget.mediaItem == null ? widget.data!['id'].toString() : widget.mediaItem!.id,)
-          //     : widget.mediaItem == null ? PlaylistHiveController().addMapToPlaylist(
-          //     AppHiveConstants.favoriteSongs, widget.data!) :
-          // PlaylistHiveController().addItemToPlaylist(AppHiveConstants.favoriteSongs, widget.mediaItem!);
-
           if (!liked) {
             _controller.forward();
           } else {
@@ -124,37 +106,10 @@ class _LikeButtonState extends State<LikeButton>
           setState(() {
             liked = !liked;
           });
-          if (widget.showSnack) {
-            ShowSnackBar().showSnackBar(
-              context,
-              liked ? PlayerTranslationConstants.addedToFav.tr : PlayerTranslationConstants.removedFromFav.tr,
-              action: SnackBarAction(
-                textColor: Theme.of(context).colorScheme.secondary,
-                label: PlayerTranslationConstants.undo.tr,
-                onPressed: () async {
-                  String itemId = widget.appMediaItem?.id ?? '';
-
-                  if(itemId.isEmpty) return;
-
-                  if(liked) {
-                    await ProfileFirestore().addFavoriteItem(profile.id, itemId);
-                  // await PlaylistHiveController().removeLiked(
-                  // widget.mediaItem == null? widget.data!['id'].toString()
-                  //     : widget.mediaItem!.id,);
-                  } else {
-                    await ProfileFirestore().removeFavoriteItem(profile.id, itemId);
-                   //  ItemlistFirestore().addAppMediaItem(profileId, widget.mediaItem, AppConstants.myFavorites);
-                   // widget.mediaItem == null ? PlaylistHiveController()
-                   //     .addMapToPlaylist(AppHiveConstants.favoriteSongs, widget.data!)
-                   //    : PlaylistHiveController().addItemToPlaylist(
-                   //   AppHiveConstants.favoriteSongs, widget.mediaItem!,);
-                  }
-                  liked = !liked;
-                  setState(() {});
-                },
-              ),
-            );
-          }
+          AppUtilities.showSnackBar(
+            title: '${widget.appMediaItem?.name}',
+            message: liked ? PlayerTranslationConstants.addedToFav.tr : PlayerTranslationConstants.removedFromFav.tr
+          );
         },
       ),
     );

@@ -4,7 +4,7 @@ import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../../../utils/constants/player_translation_constants.dart';
-import '../../../widgets/gradient_containers.dart';
+import '../../../widgets/gradient_container.dart';
 
 class AboutPage extends StatefulWidget {
   const AboutPage({super.key});

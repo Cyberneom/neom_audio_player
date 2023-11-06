@@ -10,7 +10,6 @@ import '../../utils/constants/app_hive_constants.dart';
 
 class MusicSearchBar extends StatefulWidget {
 
-  final bool isYt;
   final Widget body;
   final bool autofocus;
   final bool liveSearch;
@@ -31,7 +30,6 @@ class MusicSearchBar extends StatefulWidget {
     this.onQueryChanged,
     this.onQueryCleared,
     required this.body,
-    required this.isYt,
     required this.controller,
     required this.liveSearch,
     required this.onSubmitted,
@@ -142,32 +140,19 @@ class _MusicSearchBarState extends State<MusicSearchBar> {
                       }
                       if (widget.liveSearch && val.trim() != '') {
                         hide.value = false;
-                        if (widget.isYt) {
-                          Future.delayed(const Duration(milliseconds: 600,),
-                            () async {
-                              if (tempQuery == val && tempQuery.trim() != ''
-                                  && tempQuery != query) {
-                                query = tempQuery;
-                                suggestionsList.value =
-                                await widget.onQueryChanged!(tempQuery) as List;
+                        Future.delayed(const Duration(milliseconds: 600,),
+                              () async {
+                            if (tempQuery == val && tempQuery.trim() != ''
+                                && tempQuery != query) {
+                              query = tempQuery;
+                              if (widget.onQueryChanged == null) {
+                                widget.onSubmitted(tempQuery);
+                              } else {
+                                await widget.onQueryChanged!(tempQuery);
                               }
-                            },
-                          );
-                        } else {
-                          Future.delayed(const Duration(milliseconds: 600,),
-                            () async {
-                              if (tempQuery == val && tempQuery.trim() != ''
-                                  && tempQuery != query) {
-                                query = tempQuery;
-                                if (widget.onQueryChanged == null) {
-                                  widget.onSubmitted(tempQuery);
-                                } else {
-                                  await widget.onQueryChanged!(tempQuery);
-                                }
-                              }
-                            },
-                          );
-                        }
+                            }
+                          },
+                        );
                       }
                     },
                     onSubmitted: (submittedQuery) async {

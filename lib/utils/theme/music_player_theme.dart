@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
-import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
+import '../constants/app_hive_constants.dart';
 
 class MusicPlayerTheme with ChangeNotifier {
 

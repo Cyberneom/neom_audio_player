@@ -14,7 +14,7 @@ import '../../../utils/constants/app_hive_constants.dart';
 import '../../../utils/constants/player_translation_constants.dart';
 import '../../../utils/helpers/audio_query.dart';
 import '../../widgets/custom_physics.dart';
-import '../../widgets/gradient_containers.dart';
+import '../../widgets/gradient_container.dart';
 import '../../widgets/snackbar.dart';
 import '../downloads/data_search.dart';
 import 'widgets/songs_tab.dart';

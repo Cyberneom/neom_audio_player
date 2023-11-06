@@ -17,7 +17,6 @@ class MusicPlayerStats {
 
       songStats['lastPlayed'] = DateTime.now().millisecondsSinceEpoch;
       songStats['playCount'] = songStats['playCount'] == null ? 1 : songStats['playCount'] + 1;
-      songStats['isYoutube'] = appMediaItem.genre == 'YouTube';
       songStats['title'] = appMediaItem.name;
       songStats['artist'] = appMediaItem.artist;
       songStats['album'] = appMediaItem.album;

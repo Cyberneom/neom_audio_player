@@ -18,7 +18,6 @@
  */
 
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:audio_session/audio_session.dart';
@@ -26,7 +25,6 @@ import 'package:get/get.dart' as getx;
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -300,72 +298,17 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
             tag: mediaItem.id,
           );
         } else {
-          if (mediaItem.genre == 'YouTube') {
-            final int expiredAt =
-            int.parse((mediaItem.extras!['expire_at'] ?? '0').toString());
-            if ((DateTime.now().millisecondsSinceEpoch ~/ 1000) + 350 >
-                expiredAt) {
-              if (Hive.box(AppHiveConstants.ytLinkCache).containsKey(mediaItem.id)) {
-                final Map cachedData = await AppHiveController().getYouTubeCache(mediaItem.id);
-                final int cachedExpiredAt =
-                int.parse(cachedData['expire_at'].toString());
-                if ((DateTime.now().millisecondsSinceEpoch ~/ 1000) + 350 >
-                    cachedExpiredAt) {
-                  AppUtilities.logger.i(
-                    'youtube link expired for ${mediaItem.title}, refreshing',
-                  );
-                  refreshLinks.add(mediaItem.id);
-                  if (!jobRunning) {
-                    refreshJob();
-                  }
-                } else {
-                  AppUtilities.logger.i('youtube link found in cache for ${mediaItem.title}',
-                  );
-                  if (cacheSong) {
-                    audioSource = LockCachingAudioSource(
-                      Uri.parse(cachedData['url'].toString()),
-                    );
-                  } else {
-                    audioSource = AudioSource.uri(Uri.parse(cachedData['url'].toString()));
-                  }
-                  mediaItem.extras!['url'] = cachedData['url'];
-                  _mediaItemExpando[audioSource] = mediaItem;
-                  return audioSource;
-                }
-              } else {
-                AppUtilities.logger.d('youtube link not found in cache for ${mediaItem.title}, refreshing',);
-                refreshLinks.add(mediaItem.id);
-                if (!jobRunning) {
-                  refreshJob();
-                }
-              }
-            } else {
-              if (cacheSong) {
-                audioSource = LockCachingAudioSource(
-                  Uri.parse(mediaItem.extras!['url'].toString()),
-                );
-              } else {
-                audioSource = AudioSource.uri(
-                  Uri.parse(mediaItem.extras!['url'].toString()),
-                );
-              }
-              _mediaItemExpando[audioSource] = mediaItem;
-              return audioSource;
-            }
+          String audioUrl = '';
+          if(mediaItem.extras!['url'] != null
+              && mediaItem.extras!['url'].toString().isNotEmpty) {
+            audioUrl = mediaItem.extras!['url'].toString();
+            audioUrl = audioUrl.replaceAll('_96.', "_${preferredQuality.replaceAll(' kbps', '')}.");
+          }
+
+          if (cacheSong) {
+            audioSource = LockCachingAudioSource(Uri.parse(audioUrl));
           } else {
-            String audioUrl = '';
-
-            if(mediaItem.extras!['url'] != null
-                && mediaItem.extras!['url'].toString().isNotEmpty) {
-              audioUrl = mediaItem.extras!['url'].toString();
-              audioUrl = audioUrl.replaceAll('_96.', "_${preferredQuality.replaceAll(' kbps', '')}.");
-            }
-
-            if (cacheSong) {
-              audioSource = LockCachingAudioSource(Uri.parse(audioUrl));
-            } else {
-              audioSource = AudioSource.uri(Uri.parse(audioUrl));
-            }
+            audioSource = AudioSource.uri(Uri.parse(audioUrl));
           }
         }
       }

@@ -2,17 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
+import 'package:neom_commons/core/ui/widgets/appbar_child.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
+
 import '../../../neom_player_invoker.dart';
-import '../../widgets/empty_screen.dart';
-import '../../widgets/gradient_containers.dart';
-import '../../widgets/image_card.dart';
-import '../../widgets/like_button.dart';
 import '../../../utils/constants/app_hive_constants.dart';
 import '../../../utils/constants/music_player_route_constants.dart';
 import '../../../utils/constants/player_translation_constants.dart';
+import '../../widgets/empty_screen.dart';
+import '../../widgets/gradient_container.dart';
+import '../../widgets/image_card.dart';
+import '../../widgets/like_button.dart';
 
 class RecentlyPlayed extends StatefulWidget {
+  const RecentlyPlayed({super.key});
+
   @override
   _RecentlyPlayedState createState() => _RecentlyPlayedState();
 }
@@ -41,13 +45,10 @@ class _RecentlyPlayedState extends State<RecentlyPlayed> {
 
     return GradientContainer(
       child: Scaffold(
-        backgroundColor: AppColor.main75,
-        appBar: AppBar(
-          title: Text(PlayerTranslationConstants.lastSession.tr),
-          centerTitle: true,
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          actions: [
+        backgroundColor: AppColor.main50,
+        appBar: AppBarChild(
+          title: PlayerTranslationConstants.lastSession.tr,
+          actionWidgets: [
             IconButton(
               onPressed: () {
                 Hive.box(AppHiveConstants.cache).put('recentSongs', []);

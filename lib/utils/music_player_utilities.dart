@@ -2,19 +2,18 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/enums/app_media_source.dart';
+
 import '../domain/use_cases/neom_audio_handler.dart';
+import '../to_delete/extensions.dart';
 import '../ui/widgets/add_to_playlist.dart';
 import '../ui/widgets/popup.dart';
 import '../ui/widgets/snackbar.dart';
 import '../ui/widgets/textinput_dialog.dart';
-import 'constants/app_hive_constants.dart';
 import 'constants/player_translation_constants.dart';
-import '../to_delete/extensions.dart';
 
 class MusicPlayerUtilities {
 

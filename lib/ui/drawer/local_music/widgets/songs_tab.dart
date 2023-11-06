@@ -2,14 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
+import 'package:on_audio_query/on_audio_query.dart';
+
 import '../../../../neom_player_invoker.dart';
+import '../../../../utils/constants/player_translation_constants.dart';
+import '../../../../utils/helpers/audio_query.dart';
 import '../../../widgets/add_to_off_playlist.dart';
 import '../../../widgets/empty_screen.dart';
 import '../../../widgets/playlist_head.dart';
 import '../../../widgets/snackbar.dart';
-import '../../../../utils/constants/player_translation_constants.dart';
-import '../../../../utils/helpers/audio_query.dart';
-import 'package:on_audio_query/on_audio_query.dart';
 
 class SongsTab extends StatefulWidget {
   final List<AppMediaItem> songs;

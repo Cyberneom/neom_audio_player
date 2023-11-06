@@ -28,7 +28,7 @@ import 'package:neom_commons/core/utils/constants/app_translation_constants.dart
 import 'package:neom_itemlists/itemlists/data/api_services/spotify/spotify_search.dart';
 import 'package:neom_itemlists/itemlists/ui/widgets/app_item_widgets.dart';
 import '../../ui/widgets/empty_screen.dart';
-import '../../ui/widgets/gradient_containers.dart';
+import '../../ui/widgets/gradient_container.dart';
 import '../../ui/widgets/music_search_bar.dart' as searchbar;
 import '../../utils/constants/app_hive_constants.dart';
 import '../../utils/constants/player_translation_constants.dart';
@@ -59,10 +59,7 @@ class _SearchPageState extends State<SearchPage> {
   bool alertShown = false;
   bool albumFetched = false;
   bool? fromHome;
-  List search = Hive.box(AppHiveConstants.settings).get(
-    'search',
-    defaultValue: [],
-  ) as List;
+  List search = Hive.box(AppHiveConstants.settings).get('search', defaultValue: [],) as List;
   bool showHistory = Hive.box(AppHiveConstants.settings).get('showHistory', defaultValue: true) as bool;
   bool liveSearch = Hive.box(AppHiveConstants.settings).get('liveSearch', defaultValue: true) as bool;
 
@@ -139,7 +136,6 @@ class _SearchPageState extends State<SearchPage> {
           resizeToAvoidBottomInset: false,
           backgroundColor: AppColor.main75,
           body: searchbar.MusicSearchBar(
-            isYt: false,
             controller: controller,
             liveSearch: liveSearch,
             autofocus: widget.autofocus,

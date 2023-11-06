@@ -53,10 +53,10 @@ packages:
     dependency: transitive
     description:
       name: archive
-      sha256: "7e0d52067d05f2e0324268097ba723b71cb41ac8a6a2b24d1edf9c536b987b03"
+      sha256: "27b24c1b1ab091964e7c0079dcedc9a04d992089df724b9cea45fe6f82d48de1"
       url: "https://pub.dev"
     source: hosted
-    version: "3.4.6"
+    version: "3.4.7"
   args:
     dependency: transitive
     description:
@@ -445,10 +445,10 @@ packages:
     dependency: transitive
     description:
       name: file_picker
-      sha256: "903dd4ba13eae7cef64acc480e91bf54c3ddd23b5b90b639c170f3911e489620"
+      sha256: "4e42aacde3b993c5947467ab640882c56947d9d27342a5b6f2895b23956954a6"
       url: "https://pub.dev"
     source: hosted
-    version: "6.0.0"
+    version: "6.1.1"
   file_selector_linux:
     dependency: transitive
     description:
@@ -682,10 +682,10 @@ packages:
     dependency: "direct dev"
     description:
       name: flutter_lints
-      sha256: ad76540d21c066228ee3f9d1dad64a9f7e46530e8bb7c85011a88bc1fd874bc5
+      sha256: e2a421b7e59244faef694ba7b30562e489c2b489866e505074eb005cd7060db7
       url: "https://pub.dev"
     source: hosted
-    version: "3.0.0"
+    version: "3.0.1"
   flutter_localization:
     dependency: transitive
     description:
@@ -1001,10 +1001,10 @@ packages:
     dependency: transitive
     description:
       name: google_sign_in_web
-      sha256: "939e9172a378ec4eaeb7f71eeddac9b55ebd0e8546d336daec476a68e5279766"
+      sha256: "6b08be471f82ff84058d528e1cb01f4f53084fa648b751310cdd1ac39b612d8e"
       url: "https://pub.dev"
     source: hosted
-    version: "0.12.0+5"
+    version: "0.12.1"
   hashtagable_v3:
     dependency: transitive
     description:
@@ -1325,14 +1325,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.5.0"
-  material_design_icons_flutter:
-    dependency: transitive
-    description:
-      name: material_design_icons_flutter
-      sha256: "6f986b7a51f3ad4c00e33c5c84e8de1bdd140489bbcdc8b66fc1283dad4dea5a"
-      url: "https://pub.dev"
-    source: hosted
-    version: "7.0.7296"
   meta:
     dependency: transitive
     description:
@@ -1371,7 +1363,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "0aaa771c7b6b09c5357a4ea682c9c175a50facef"
+      resolved-ref: cd90c272929dd5963b39bba8f9f5c8bf4411c3cc
       url: "https://github.com/emmanuel-montoya/neom_bands.git"
     source: git
     version: "1.0.5"
@@ -1405,7 +1397,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: eb7db34f17c8e41788beff0453e2ac5ae893dc47
+      resolved-ref: "4d9872c79a36a8c821a723de3d01a922357f10e6"
       url: "https://github.com/Cyberneom/neom_events.git"
     source: git
     version: "1.1.0"
@@ -1423,7 +1415,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: fa96c0e15b33bd94e83ca3c59ac1c348e256f192
+      resolved-ref: "621612b50008347bb6039af11f6f57686684d1fe"
       url: "https://github.com/emmanuel-montoya/neom_home.git"
     source: git
     version: "1.1.0"
@@ -1432,10 +1424,10 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "373e9d07abf20c3d596bc5802989049be42e7fc5"
+      resolved-ref: "55f458654ec046df60d1c350341d6dbd024994fc"
       url: "https://github.com/Cyberneom/neom_inbox.git"
     source: git
-    version: "1.0.2"
+    version: "1.1.0"
   neom_instruments:
     dependency: transitive
     description:
@@ -1466,7 +1458,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: e4019eff942c80922b9fb87d6019c9b80eb99778
+      resolved-ref: f07be695847a160d7dde02aaf6ef8cc67f8c51c1
       url: "https://github.com/Cyberneom/neom_posts.git"
     source: git
     version: "1.1.0"
@@ -1475,7 +1467,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: bfc49e586b7bafb61719109bfc4db01e81cd1299
+      resolved-ref: d9019532e52b7b6a59e0dfae77fb3e8b802875c6
       url: "https://github.com/Cyberneom/neom_profile.git"
     source: git
     version: "1.1.0"
@@ -1484,7 +1476,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: f7ab087d5b868a15687723dd968267cd7fd2fae5
+      resolved-ref: c7ea1209432c18d0177a22fc209321893843ccef
       url: "https://github.com/Cyberneom/neom_timeline.git"
     source: git
     version: "1.1.0"
@@ -1688,15 +1680,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.1.3"
-  persistent_bottom_nav_bar:
-    dependency: "direct main"
-    description:
-      path: "."
-      ref: ecdadb0
-      resolved-ref: ecdadb01e4b4255cd35d6e9ac813703150784772
-      url: "https://github.com/Sangwan5688/PersistentBottomNavBar"
-    source: git
-    version: "5.0.2"
   petitparser:
     dependency: transitive
     description:
@@ -2002,10 +1985,10 @@ packages:
     dependency: transitive
     description:
       name: sqflite_common
-      sha256: "1b92f368f44b0dee2425bb861cfa17b6f6cf3961f762ff6f941d20b33355660a"
+      sha256: "8ed044102f3135add97be8653662052838859f5400075ef227f8ad72ae320803"
       url: "https://pub.dev"
     source: hosted
-    version: "2.5.0"
+    version: "2.5.0+1"
   stack_trace:
     dependency: transitive
     description:
@@ -2266,10 +2249,10 @@ packages:
     dependency: transitive
     description:
       name: video_player_web
-      sha256: "2dd24f7ba46bfb5d070e9c795001db95e0ca5f2a3d025e98f287c10c9f0fd62f"
+      sha256: ab7a462b07d9ca80bed579e30fb3bce372468f1b78642e0911b10600f2c5cb5b
       url: "https://pub.dev"
     source: hosted
-    version: "2.1.1"
+    version: "2.1.2"
   video_thumbnail:
     dependency: transitive
     description:
@@ -2306,18 +2289,18 @@ packages:
     dependency: transitive
     description:
       name: webview_flutter
-      sha256: c1ab9b81090705c6069197d9fdc1625e587b52b8d70cdde2339d177ad0dbb98e
+      sha256: "42393b4492e629aa3a88618530a4a00de8bb46e50e7b3993fedbfdc5352f0dbf"
       url: "https://pub.dev"
     source: hosted
-    version: "4.4.1"
+    version: "4.4.2"
   webview_flutter_android:
     dependency: transitive
     description:
       name: webview_flutter_android
-      sha256: b0cd33dd7d3dd8e5f664e11a19e17ba12c352647269921a3b568406b001f1dff
+      sha256: "8326ee235f87605a2bfc444a4abc897f4abc78d83f054ba7d3d1074ce82b4fbf"
       url: "https://pub.dev"
     source: hosted
-    version: "3.12.0"
+    version: "3.12.1"
   webview_flutter_platform_interface:
     dependency: transitive
     description:
@@ -2330,10 +2313,10 @@ packages:
     dependency: transitive
     description:
       name: webview_flutter_wkwebview
-      sha256: b4b42295b3aa91ed22ba6d3dd7de56efbb8f3ab3d6e41d8b1615d13537c7801d
+      sha256: af6f5ab05918070b33507b0d453ba9fb7d39338a3256c23cf9433dc68100774a
       url: "https://pub.dev"
     source: hosted
-    version: "3.9.2"
+    version: "3.9.3"
   win32:
     dependency: transitive
     description:

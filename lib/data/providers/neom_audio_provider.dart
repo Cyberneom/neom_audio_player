@@ -1,6 +1,6 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
-import 'package:neom_music_player/domain/use_cases/neom_audio_handler.dart';
+import '../../domain/use_cases/neom_audio_handler.dart';
 
 class NeomAudioProvider {
 

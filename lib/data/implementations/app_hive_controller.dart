@@ -36,7 +36,6 @@ class AppHiveController extends GetxController {
   bool enforceRepeat = false;
 
   bool liveSearch = true;
-  bool searchYtMusic = true;
   bool showHistory = true;
   List searchHistory = [];
 
@@ -74,20 +73,12 @@ class AppHiveController extends GetxController {
   }
 
   Future<void> updateCache({PlaylistSection? headList, List<PlaylistSection>? searchedList}) async {
-
-    if(headList != null) {
-      Hive.box(AppHiveConstants.cache).put('ytHomeHead', headList);
-    }
-
-    if(searchedList != null) {
-      Hive.box(AppHiveConstants.cache).put('ytHome', searchedList);
-    }
+    ///REFERENCE
+    // if(headList != null) Hive.box(AppHiveConstants.cache).put('ytHomeHead', headList);
   }
 
 
   Future<void> fetchCachedData() async {
-    searchedList = await Hive.box(AppHiveConstants.cache).get('ytHome', defaultValue: []) as List;
-    headList = await Hive.box(AppHiveConstants.cache).get('ytHomeHead', defaultValue: []) as List;
     lastQueueList = await Hive.box(AppHiveConstants.cache).get('lastQueue', defaultValue: [])?.toList() as List;
     lastIndex = await Hive.box(AppHiveConstants.cache).get('lastIndex', defaultValue: 0) as int;
     lastPos = await Hive.box(AppHiveConstants.cache).get('lastPos', defaultValue: 0) as int;
@@ -109,21 +100,8 @@ class AppHiveController extends GetxController {
     enforceRepeat = Hive.box(AppHiveConstants.settings).get('enforceRepeat', defaultValue: false) as bool;
     searchQueries = Hive.box(AppHiveConstants.settings).get('searchQueries', defaultValue: []) as List;
     liveSearch = Hive.box(AppHiveConstants.settings).get('liveSearch', defaultValue: true) as bool;
-    searchYtMusic = Hive.box(AppHiveConstants.settings).get('searchYtMusic', defaultValue: true) as bool;
     showHistory = Hive.box(AppHiveConstants.settings).get('showHistory', defaultValue: true) as bool;
     searchHistory = Hive.box(AppHiveConstants.settings).get('searchHistory', defaultValue: []) as List;
-  }
-
-  Future<List> getCachedSearchList() async {
-    return await Hive.box(AppHiveConstants.cache).get('ytHome', defaultValue: []) as List;
-  }
-
-  Future<List> getCachedHeadList() async {
-    return await Hive.box(AppHiveConstants.cache).get('ytHomeHead', defaultValue: []) as List;
-  }
-
-  Future<Map> getYouTubeCache(String mediItemId) async {
-    return await Hive.box(AppHiveConstants.ytLinkCache).get(mediItemId) as Map;
   }
 
   Box? getBox(String boxName) {
@@ -137,6 +115,5 @@ class AppHiveController extends GetxController {
   Future<void> setSearchQueries(List searchQueries) async {
     Hive.box(AppHiveConstants.settings).put('searchQueries', searchQueries);
   }
-
 
 }

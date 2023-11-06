@@ -24,7 +24,7 @@ class AnimatedText extends StatelessWidget {
   final Curve decelerationCurve;
   final VoidCallback? onDone;
 
-  const AnimatedText({
+  const AnimatedText({super.key,
     required this.text,
     this.style,
     this.textScaleFactor,

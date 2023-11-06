@@ -19,7 +19,7 @@ import '../../../utils/constants/player_translation_constants.dart';
 import '../../../utils/helpers/picker.dart';
 import '../../widgets/custom_physics.dart';
 import '../../widgets/empty_screen.dart';
-import '../../widgets/gradient_containers.dart';
+import '../../widgets/gradient_container.dart';
 import '../../widgets/image_card.dart';
 import '../../widgets/playlist_head.dart';
 import '../../widgets/snackbar.dart';
@@ -235,7 +235,7 @@ class _DownloadsState extends State<Downloads>
       child: DefaultTabController(
         length: tabControllerLength,
         child: Scaffold(
-          backgroundColor: AppColor.main75,
+          backgroundColor: AppColor.main50,
           appBar: AppBar(
             title: Text(PlayerTranslationConstants.downs.tr),
             centerTitle: true,

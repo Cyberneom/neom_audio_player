@@ -12,7 +12,7 @@ class MusicPlayerBottomAppBar extends StatefulWidget {
   final NotchedShape notchedShape;
   final ValueChanged<int> onTabSelected;
 
-  MusicPlayerBottomAppBar({Key? key,
+  MusicPlayerBottomAppBar({super.key,
     required this.items,
     this.centerItemText = "",
     this.height = 60.0,
@@ -22,7 +22,7 @@ class MusicPlayerBottomAppBar extends StatefulWidget {
     required this.selectedColor,
     required this.notchedShape,
     required this.onTabSelected,
-  }) : super(key: key) {
+  }) {
     assert(items.length == 2 || items.length == 3 || items.length == 4);
   }
 

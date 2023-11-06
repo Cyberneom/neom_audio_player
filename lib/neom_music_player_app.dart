@@ -14,6 +14,8 @@ import 'utils/helpers/route_handler.dart';
 import 'utils/theme/music_app_theme.dart';
 
 class NeomMusicPlayerApp extends StatefulWidget {
+  const NeomMusicPlayerApp({super.key});
+
 
   @override
   _NeomMusicPlayerAppState createState() => _NeomMusicPlayerAppState();

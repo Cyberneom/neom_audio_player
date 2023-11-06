@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_itemlists/itemlists/ui/widgets/app_item_widgets.dart';
+
 import '../../../../to_delete/search/search_page.dart';
-import '../playlist_player_page.dart';
+import '../../../../utils/constants/player_translation_constants.dart';
 import '../../../widgets/empty_screen.dart';
 import '../../../widgets/playlist_head.dart';
-import '../../../../utils/constants/player_translation_constants.dart';
+import '../playlist_player_page.dart';
 
 class SongsPageTab extends StatelessWidget {
 

@@ -7,7 +7,6 @@ class AppHiveConstants {
     {name: stats, limit: false},
     {name: favoriteSongs, limit: false},
     {name: cache, limit: true},
-    {name: ytLinkCache, limit: true},
   ];
 
   static const String name = 'name';
@@ -17,6 +16,5 @@ class AppHiveConstants {
   static const String stats = 'stats';
   static const String favoriteSongs = 'favoriteSongs';
   static const String cache = 'cache';
-  static const String ytLinkCache = 'ytLinkCache';
 
 }

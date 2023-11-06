@@ -43,10 +43,10 @@ dependencies:
   palette_generator: ^0.3.3+3
 
 #  CHANGE TO REGULAR BOTTOM TAB BAR TO AVOID USING UNKOWN REPOS
-  persistent_bottom_nav_bar:
-    git:
-      url: https://github.com/Sangwan5688/PersistentBottomNavBar
-      ref: ecdadb0
+#  persistent_bottom_nav_bar:
+#    git:
+#      url: https://github.com/Sangwan5688/PersistentBottomNavBar
+#      ref: ecdadb0
 
 # VERIFY IF NEEDED
   sliding_up_panel: ^2.0.0+1

@@ -2,17 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
+
 import '../../../../data/implementations/spotify_hive_controller.dart';
-import '../../../widgets/box_switch_tile.dart';
-import '../../../widgets/gradient_containers.dart';
-import '../../../widgets/snackbar.dart';
 import '../../../../utils/constants/app_hive_constants.dart';
 import '../../../../utils/constants/music_player_constants.dart';
 import '../../../../utils/constants/player_translation_constants.dart';
+import '../../../widgets/bottom_gradient_container.dart';
+import '../../../widgets/box_switch_tile.dart';
+import '../../../widgets/gradient_container.dart';
+import '../../../widgets/snackbar.dart';
 
 class MusicPlaybackPage extends StatefulWidget {
   final Function? callback;
-  const MusicPlaybackPage({this.callback});
+  const MusicPlaybackPage({super.key, this.callback});
 
   @override
   State<MusicPlaybackPage> createState() => _MusicPlaybackPageState();

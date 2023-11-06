@@ -1,41 +1,26 @@
 import 'dart:async';
-import 'dart:ffi';
-
-import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_theme.dart';
-import '../../domain/use_cases/neom_audio_handler.dart';
-import 'media_player_page.dart';
-import 'miniplayer_controller.dart';
+import 'package:neom_commons/core/utils/constants/app_page_id_constants.dart';
 import '../../utils/constants/app_hive_constants.dart';
 import '../../utils/helpers/media_item_mapper.dart';
+import 'media_player_page.dart';
+import 'miniplayer_controller.dart';
 
-class MiniPlayer extends StatefulWidget {
+class MiniPlayer extends StatelessWidget {
 
-  static MiniPlayer _instance = MiniPlayer._internal();
-  final StreamController<MediaItem?> mediaItemController = StreamController<MediaItem?>();
-  factory MiniPlayer() {
-    return _instance;
-  }
-
-  MiniPlayer._internal();
-
-  @override
-  _MiniPlayerState createState() => _MiniPlayerState();
-}
-
-class _MiniPlayerState extends State<MiniPlayer> {
-
-  final NeomAudioHandler audioHandler = GetIt.I<NeomAudioHandler>();
+  ///DEPRECATED
+  // static MiniPlayer _instance = MiniPlayer._internal();
+  // factory MiniPlayer() => _instance;
+  // MiniPlayer._internal();
 
   @override
   Widget build(BuildContext context) {
     return GetBuilder<MiniPlayerController>(
-      id: 'miniplayer',
+      id: AppPageIdConstants.miniPlayer,
       init: MiniPlayerController(),
       builder: (_) {
         List preferredButtons = Hive.box(AppHiveConstants.settings).get('preferredMiniButtons', defaultValue: ['Like', 'Play/Pause', 'Next'],)?.toList() as List<dynamic>;
@@ -45,7 +30,7 @@ class _MiniPlayerState extends State<MiniPlayer> {
           height: _.mediaItem.value == null ? 80 : 78,
           width: AppTheme.fullWidth(context),
           child: Dismissible(
-              key: const Key('miniplayer'),
+              key: const Key(AppPageIdConstants.miniPlayer),
               direction: DismissDirection.vertical,
               confirmDismiss: (DismissDirection direction) {
                 if (_.mediaItem.value != null) {

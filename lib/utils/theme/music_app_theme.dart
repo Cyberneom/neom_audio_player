@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
-import 'package:neom_music_player/utils/theme/music_player_theme.dart';
+import 'music_player_theme.dart';
 
 // ignore: avoid_classes_with_only_static_members
 class MusicAppTheme {

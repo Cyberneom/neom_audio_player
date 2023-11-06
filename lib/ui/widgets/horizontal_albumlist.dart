@@ -4,11 +4,12 @@ import 'package:neom_commons/core/domain/model/item_list.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
 import 'package:neom_commons/core/utils/enums/itemlist_type.dart';
+
+import '../../utils/enums/image_quality.dart';
 import 'image_card.dart';
 import 'like_button.dart';
 import 'on_hover.dart';
 import 'song_tile_trailing_menu.dart';
-import '../../utils/enums/image_quality.dart';
 
 class HorizontalAlbumsList extends StatelessWidget {
   final Itemlist itemlist;

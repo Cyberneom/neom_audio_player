@@ -22,7 +22,7 @@ class ControlButtons extends StatelessWidget {
   bool showPlay = true;
 
   ControlButtons(
-      this.audioHandler, {
+      this.audioHandler, {super.key,
         this.shuffle = false,
         this.miniplayer = false,
         this.buttons = const ['Previous', 'Play/Pause', 'Next'],

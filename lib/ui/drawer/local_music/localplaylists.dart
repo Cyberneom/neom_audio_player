@@ -12,7 +12,7 @@ import 'downloaded_songs.dart';
 class LocalPlaylists extends StatefulWidget {
   final List<PlaylistModel> playlistDetails;
   final OfflineAudioQuery offlineAudioQuery;
-  const LocalPlaylists({
+  const LocalPlaylists({super.key,
     required this.playlistDetails,
     required this.offlineAudioQuery,
   });

@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
-
+import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
+import 'package:url_launcher/url_launcher.dart';
+
 import '../../data/implementations/spotify_hive_controller.dart';
-import '../widgets/empty_screen.dart';
-import '../widgets/image_card.dart';
 import '../../utils/constants/app_hive_constants.dart';
 import '../../utils/constants/player_translation_constants.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:get/get.dart';
+import '../widgets/empty_screen.dart';
+import '../widgets/image_card.dart';
 
 class TopPage extends StatefulWidget {
   final String type;

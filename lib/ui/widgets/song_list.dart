@@ -21,7 +21,7 @@ import '../../utils/constants/player_translation_constants.dart';
 import 'bouncy_playlist_header_scroll_view.dart';
 import 'download_button.dart';
 import 'go_spotify_button.dart';
-import 'gradient_containers.dart';
+import 'gradient_container.dart';
 import 'image_card.dart';
 import 'like_button.dart';
 import 'multi_download_button.dart';

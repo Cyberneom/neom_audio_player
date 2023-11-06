@@ -9,11 +9,14 @@ import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/constants/app_translation_constants.dart';
 import 'package:neom_commons/core/utils/enums/app_in_use.dart';
 import 'package:neom_music_player/ui/player/miniplayer.dart';
+import '../to_delete/music_player_drawer.dart';
 import '../utils/constants/player_translation_constants.dart';
 
 import 'widgets/music_player_bottom_app_bar.dart';
 
 class MusicPlayerRootPage extends StatefulWidget {
+  const MusicPlayerRootPage({super.key});
+
   @override
   _MusicPlayerRootPageState createState() => _MusicPlayerRootPageState();
 }
@@ -40,8 +43,7 @@ class _MusicPlayerRootPageState extends State<MusicPlayerRootPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: AppColor.main50,
-        // appBar: AppBarChild(),
-        // drawer: MusicPlayerDrawer(),
+        drawer: MusicPlayerDrawer(),
         body: isLoading ? Container(
             decoration: AppTheme.appBoxDecoration,
             child: const Center(

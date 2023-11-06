@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/adapters.dart';
-import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
+import '../../utils/constants/app_hive_constants.dart';
 
 class BoxSwitchTile extends StatelessWidget {
   const BoxSwitchTile({

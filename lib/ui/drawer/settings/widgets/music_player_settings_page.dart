@@ -5,15 +5,15 @@ import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_theme.dart';
 
 import '../../../../utils/constants/player_translation_constants.dart';
-import '../../../widgets/gradient_containers.dart';
-import 'download.dart';
+import '../../../widgets/gradient_container.dart';
+import 'download_settings_page.dart';
 import 'music_playback.dart';
 import 'music_player_interface_page.dart';
 import 'others.dart';
 
 class MusicPlayerSettingsPage extends StatefulWidget {
   final Function? callback;
-  const MusicPlayerSettingsPage({this.callback});
+  const MusicPlayerSettingsPage({super.key, this.callback});
 
   @override
   State<MusicPlayerSettingsPage> createState() => _MusicPlayerSettingsPageState();
@@ -148,20 +148,21 @@ class _MusicPlayerSettingsPageState extends State<MusicPlayerSettingsPage> {
           PlayerTranslationConstants.cacheSong.tr,
         ],
       },
-      {
-        'title': PlayerTranslationConstants.down.tr,
-        'icon': Icons.download_done_rounded,
-        'onTap': const DownloadPage(),
-        'isThreeLine': true,
-        'items': [
-          PlayerTranslationConstants.downQuality.tr,
-          PlayerTranslationConstants.downLocation.tr,
-          PlayerTranslationConstants.downFilename.tr,
-          PlayerTranslationConstants.ytDownQuality.tr,
-          PlayerTranslationConstants.createAlbumFold.tr,
-          PlayerTranslationConstants.createYtFold.tr,
-        ],
-      },
+      ///DOWNLOAD IN PROGRESS
+      // {
+      //   'title': PlayerTranslationConstants.downloads.tr,
+      //   'icon': Icons.download_done_rounded,
+      //   'onTap': const DownloadSettingsPage(),
+      //   'isThreeLine': true,
+      //   'items': [
+      //     PlayerTranslationConstants.downQuality.tr,
+      //     PlayerTranslationConstants.downLocation.tr,
+      //     PlayerTranslationConstants.downFilename.tr,
+      //     PlayerTranslationConstants.ytDownQuality.tr,
+      //     PlayerTranslationConstants.createAlbumFold.tr,
+      //     PlayerTranslationConstants.createYtFold.tr,
+      //   ],
+      // },
       {
         'title': PlayerTranslationConstants.others.tr,
         'icon': Icons.miscellaneous_services_rounded,

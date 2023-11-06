@@ -1,5 +1,4 @@
 import 'package:audio_service/audio_service.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
@@ -7,13 +6,13 @@ import 'package:neom_commons/core/domain/model/item_list.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/enums/app_media_source.dart';
 import 'package:neom_itemlists/itemlists/ui/search/app_media_item_search_controller.dart';
-import 'add_to_playlist.dart';
-import 'song_list.dart';
+import 'package:share_plus/share_plus.dart';
+
 import '../../utils/constants/player_translation_constants.dart';
 import '../../utils/helpers/add_mediaitem_to_queue.dart';
 import '../../utils/helpers/media_item_mapper.dart';
-import 'package:share_plus/share_plus.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'add_to_playlist.dart';
+import 'song_list.dart';
 
 class SongTileTrailingMenu extends StatefulWidget {
   final AppMediaItem appMediaItem;

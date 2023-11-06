@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
+
 import '../../data/implementations/spotify_hive_controller.dart';
-import '../drawer/music_player_drawer.dart';
-import 'top_page.dart';
-import '../widgets/custom_physics.dart';
 import '../../utils/constants/app_hive_constants.dart';
 // import 'package:neom_music_player/utils/helpers/countrycodes.dart';
 import '../../utils/constants/player_translation_constants.dart';
+import '../widgets/custom_physics.dart';
+import '../widgets/music_player_widgets.dart';
+import 'top_page.dart';
 
 
 class SpotifyTopPage extends StatefulWidget {

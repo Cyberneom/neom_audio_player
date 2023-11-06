@@ -9,8 +9,9 @@ import 'package:neom_commons/core/utils/app_color.dart';
 import '../../../../utils/constants/app_hive_constants.dart';
 import '../../../../utils/constants/player_translation_constants.dart';
 import '../../../../utils/helpers/picker.dart';
+import '../../../widgets/bottom_gradient_container.dart';
 import '../../../widgets/box_switch_tile.dart';
-import '../../../widgets/gradient_containers.dart';
+import '../../../widgets/gradient_container.dart';
 import '../../../widgets/snackbar.dart';
 import '../../../widgets/textinput_dialog.dart';
 

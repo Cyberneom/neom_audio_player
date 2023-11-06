@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:get/get.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/constants/app_translation_constants.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:get/get.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class GoSpotifyButton extends StatelessWidget {
   final AppMediaItem? appMediaItem;
@@ -26,9 +26,9 @@ class GoSpotifyButton extends StatelessWidget {
       AppUtilities.logger.e('Error in likeButton: $e');
     }
     return IconButton(
-        icon: Row(
+        icon: const Row(
           children: [
-            Icon(MdiIcons.spotify, color: Colors.green),
+            Icon(FontAwesomeIcons.spotify, color: Colors.green),
           ],
         ),
         iconSize: size ?? 24.0,

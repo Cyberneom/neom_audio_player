@@ -86,7 +86,7 @@ class AddToPlaylist {
                   onChanged: (String? newState) {
                     searchController.setAppItemState(EnumToString.fromString(AppItemState.values, newState!) ?? AppItemState.noState);
                   },
-                  value: CoreUtilities.getItemState(searchController.appItemState).name,
+                  value: CoreUtilities.getItemState(searchController.appItemState.value).name,
                   alignment: Alignment.center,
                   icon: const Icon(Icons.arrow_downward),
                   iconSize: 20,
@@ -115,7 +115,7 @@ class AddToPlaylist {
               onChanged: (String? selectedItemlist) {
                 searchController.setSelectedItemlist(selectedItemlist!);
               },
-              value: searchController.itemlistId,
+              value: searchController.itemlistId.value,
               icon: const Icon(Icons.arrow_downward),
               alignment: Alignment.center,
               iconSize: 20,
@@ -141,15 +141,19 @@ class AddToPlaylist {
         buttons: [
           DialogButton(
             color: AppColor.bondiBlue75,
-            child: Obx(()=>searchController.isLoading ? const Center(child: CircularProgressIndicator())
+            child: Obx(()=> searchController.isLoading.value ? const Center(child: CircularProgressIndicator())
                 : Text(AppTranslationConstants.add.tr,
             ),),
             onPressed: () async => {
-              if (type == ProfileType.instrumentist) searchController.appItemState > 0 ? await searchController.addItemlistItem(context, fanItemState: searchController.appItemState)
-                  : Get.snackbar(AppTranslationConstants.appItemPrefs.tr,
-                  MessageTranslationConstants.selectItemStateMsg.tr,
-                  snackPosition: SnackPosition.bottom,
-              ) else await searchController.addItemlistItem(context, fanItemState: AppItemState.heardIt.value),
+              if(type == ProfileType.instrumentist)
+                searchController.appItemState > 0
+                    ? await searchController.addItemlistItem(context, fanItemState: searchController.appItemState.value)
+                    : AppUtilities.showSnackBar(
+                      title: AppTranslationConstants.appItemPrefs.tr,
+                      message: MessageTranslationConstants.selectItemStateMsg.tr
+                    )
+              else
+                await searchController.addItemlistItem(context, fanItemState: AppItemState.heardIt.value),
             },
           ),
         ],
@@ -159,4 +163,5 @@ class AddToPlaylist {
     }
 
   }
+
 }

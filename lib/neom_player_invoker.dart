@@ -8,13 +8,12 @@ import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
 import 'package:neom_commons/core/utils/constants/message_translation_constants.dart';
-import 'package:neom_commons/core/utils/enums/app_media_source.dart';
+import 'package:path_provider/path_provider.dart';
+
 import 'data/implementations/app_hive_controller.dart';
 import 'domain/use_cases/neom_audio_handler.dart';
 import 'ui/player/miniplayer_controller.dart';
 import 'utils/helpers/media_item_mapper.dart';
-import 'utils/music_player_utilities.dart';
-import 'package:path_provider/path_provider.dart';
 
 // ignore: avoid_classes_with_only_static_members
 class NeomPlayerInvoker {

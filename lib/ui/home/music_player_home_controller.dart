@@ -24,6 +24,7 @@ class MusicPlayerHomeController extends GetxController {
   final Rxn<MediaItem> mediaItem = Rxn<MediaItem>();
   final RxBool isLoading = true.obs;
   final RxBool isButtonDisabled = false.obs;
+  final RxBool showSearchBarLeading = false.obs;
 
   final NeomAudioHandler audioHandler = GetIt.I<NeomAudioHandler>();
 
@@ -56,6 +57,9 @@ class MusicPlayerHomeController extends GetxController {
       final userController = Get.find<UserController>();
       profile = userController.profile;
       await getHomePageData();
+
+      scrollController.addListener(_scrollListener);
+
     } catch (e) {
       logger.e(e.toString());
     }
@@ -91,6 +95,7 @@ class MusicPlayerHomeController extends GetxController {
   @override
   void dispose() {
     scrollController.dispose();
+    scrollController.removeListener(_scrollListener);
     super.dispose();
   }
 
@@ -123,6 +128,17 @@ class MusicPlayerHomeController extends GetxController {
   }
 
   void clear() {
+
+  }
+
+
+  void _scrollListener() {
+    if (scrollController.offset > 70) {
+      showSearchBarLeading.value = true;
+    } else {
+      showSearchBarLeading.value = false;
+    }
+    update([AppPageIdConstants.musicPlayerHome]);
   }
 
 }

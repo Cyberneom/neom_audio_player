@@ -1,8 +1,9 @@
 import 'package:app_links/app_links.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
+
 import '../../data/api_services/spotify/spotify_api_calls.dart';
 import '../constants/app_hive_constants.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 
 Future<String> getSpotifyToken() async {

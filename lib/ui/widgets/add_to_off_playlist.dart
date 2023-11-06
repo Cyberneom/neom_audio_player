@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
-import 'gradient_containers.dart';
-import 'snackbar.dart';
-import 'textinput_dialog.dart';
+import 'package:on_audio_query/on_audio_query.dart';
+
 import '../../utils/constants/player_translation_constants.dart';
 import '../../utils/helpers/audio_query.dart';
-import 'package:on_audio_query/on_audio_query.dart';
+import 'bottom_gradient_container.dart';
+import 'snackbar.dart';
+import 'textinput_dialog.dart';
 
 class AddToOffPlaylist {
   OfflineAudioQuery offlineAudioQuery = OfflineAudioQuery();

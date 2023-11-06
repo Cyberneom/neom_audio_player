@@ -37,7 +37,7 @@ class ArtWorkWidget extends StatefulWidget {
   final double width;
   final NeomAudioHandler audioHandler;
 
-  const ArtWorkWidget({
+  const ArtWorkWidget({super.key,
     this.cardKey,
     required this.appMediaItem,
     required this.width,
