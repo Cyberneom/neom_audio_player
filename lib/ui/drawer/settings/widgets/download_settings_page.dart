@@ -4,15 +4,14 @@ import 'package:hive/hive.dart';
 import 'package:neom_commons/core/ui/widgets/appbar_child.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_theme.dart';
+import 'package:neom_commons/core/utils/app_utilities.dart';
 
 import '../../../../domain/use_cases/ext_storage_provider.dart';
 import '../../../../utils/constants/app_hive_constants.dart';
 import '../../../../utils/constants/player_translation_constants.dart';
 import '../../../../utils/helpers/picker.dart';
-import '../../../widgets/bottom_gradient_container.dart';
 import '../../../widgets/box_switch_tile.dart';
-import '../../../widgets/gradient_container.dart';
-import '../../../widgets/snackbar.dart';
+
 
 class DownloadSettingsPage extends StatefulWidget {
   const DownloadSettingsPage({super.key});
@@ -29,8 +28,7 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return GradientContainer(
-      child: Scaffold(
+    return Scaffold(
         backgroundColor: AppColor.main50,
         appBar: AppBarChild(title: PlayerTranslationConstants.downloads.tr,),
         body: Container(
@@ -105,9 +103,8 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
                       () {},
                     );
                   } else {
-                    ShowSnackBar().showSnackBar(
-                      context,
-                      PlayerTranslationConstants.noFolderSelected.tr,
+                    AppUtilities.showSnackBar(
+                      message: PlayerTranslationConstants.noFolderSelected.tr,
                     );
                   }
                 },
@@ -127,19 +124,10 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
                     backgroundColor: AppColor.main75,
                     context: context,
                     builder: (BuildContext context) {
-                      return BottomGradientContainer(
-                        borderRadius: BorderRadius.circular(
-                          20.0,
-                        ),
-                        child: ListView(
+                      return ListView(
                           physics: const BouncingScrollPhysics(),
                           shrinkWrap: true,
-                          padding: const EdgeInsets.fromLTRB(
-                            0,
-                            10,
-                            0,
-                            10,
-                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 10),
                           children: [
                             CheckboxListTile(
                               activeColor: Theme.of(context).colorScheme.secondary,
@@ -185,13 +173,13 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
                               },
                             ),
                           ],
-                        ),
+
                       );
                     },
                   );
                 },
               ),
-              BoxSwitchTile(
+              HiveBoxSwitchTile(
                 title: Text(
                   PlayerTranslationConstants.createAlbumFold.tr,
                 ),
@@ -204,7 +192,6 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
               ),
             ],
           ),
-        ),
       ),
     );
   }

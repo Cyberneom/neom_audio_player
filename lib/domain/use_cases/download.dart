@@ -13,7 +13,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '../../to_delete/lyrics.dart';
-import '../../ui/widgets/snackbar.dart';
+
 import '../../utils/constants/app_hive_constants.dart';
 import '../../utils/constants/player_translation_constants.dart';
 import 'ext_storage_provider.dart';
@@ -425,7 +425,9 @@ class Download with ChangeNotifier {
         Hive.box(AppHiveConstants.downloads).put(downloadedMediaItem.id, downloadedMediaItem.toJSON());
 
         AppUtilities.logger.i('Everything done, showing snackbar');
-        ShowSnackBar().showSnackBar(context, '"${mediaItem.name}" ${PlayerTranslationConstants.downed.tr}',);
+        AppUtilities.showSnackBar(
+          message: '"${mediaItem.name}" ${PlayerTranslationConstants.downed.tr}',
+        );
       } else {
         download = true;
         progress = 0.0;

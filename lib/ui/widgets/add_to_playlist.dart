@@ -132,7 +132,7 @@ class AddToPlaylist {
                 Center(
                     child: Text(itemlists.first.name.length > AppConstants.maxItemlistNameLength
                         ? '${itemlists.first.name.substring(0,AppConstants.maxItemlistNameLength)}...'
-                        : itemlists.first.name, style: TextStyle(fontSize: 15,),),
+                        : itemlists.first.name, style: const TextStyle(fontSize: 15,),),
                 ),
               ],
             ),

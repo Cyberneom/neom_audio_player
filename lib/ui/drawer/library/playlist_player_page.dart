@@ -104,7 +104,7 @@ class _PlaylistPlayerPageState extends State<PlaylistPlayerPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColor.main75,
+      backgroundColor: AppColor.main50,
       appBar: AppBarChild(
         title: widget.itemlist != null
             ? widget.itemlist?.name.tr.capitalizeFirst ?? ''

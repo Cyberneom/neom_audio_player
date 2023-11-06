@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
+import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 
 import '../../utils/constants/player_translation_constants.dart';
 import '../../utils/helpers/audio_query.dart';
-import 'bottom_gradient_container.dart';
-import 'snackbar.dart';
 import 'textinput_dialog.dart';
 
 class AddToOffPlaylist {
@@ -21,8 +20,7 @@ class AddToOffPlaylist {
       backgroundColor: AppColor.main75,
       context: context,
       builder: (BuildContext context) {
-        return BottomGradientContainer(
-          child: SingleChildScrollView(
+        return SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -94,16 +92,14 @@ class AddToOffPlaylist {
                             playlistId: playlistDetails[index].id,
                             audioId: audioId,
                           );
-                          ShowSnackBar().showSnackBar(
-                            context,
-                            '${PlayerTranslationConstants.addedTo.tr} ${playlistDetails[index].playlist}',
+                          AppUtilities.showSnackBar(
+                            message: '${PlayerTranslationConstants.addedTo.tr} ${playlistDetails[index].playlist}',
                           );
                         },
                       );
                     },
                   ),
               ],
-            ),
           ),
         );
       },

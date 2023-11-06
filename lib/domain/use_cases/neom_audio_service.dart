@@ -1,6 +1,7 @@
 import 'package:audio_service/audio_service.dart';
-import 'package:neom_music_player/domain/entities/queue_state.dart';
 import 'package:rxdart/rxdart.dart';
+
+import '../entities/queue_state.dart';
 
 abstract class NeomAudioService implements AudioHandler {
   Stream<QueueState> get queueState;

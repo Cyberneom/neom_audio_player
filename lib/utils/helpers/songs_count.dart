@@ -1,5 +1,5 @@
 import 'package:hive/hive.dart';
-import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
+import '../constants/app_hive_constants.dart';
 
 void addSongsCount(String playlistName, int len, List images) {
   final Map playlistDetails =

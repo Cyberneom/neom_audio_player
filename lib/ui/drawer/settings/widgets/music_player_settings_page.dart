@@ -1,13 +1,11 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:neom_commons/core/ui/widgets/appbar_child.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_theme.dart';
 
 import '../../../../utils/constants/player_translation_constants.dart';
-import '../../../widgets/gradient_container.dart';
-import 'download_settings_page.dart';
-import 'music_playback.dart';
+import 'music_playback_settings_page.dart';
 import 'music_player_interface_page.dart';
 import 'others.dart';
 
@@ -33,79 +31,21 @@ class _MusicPlayerSettingsPageState extends State<MusicPlayerSettingsPage> {
   @override
   Widget build(BuildContext context) {
 
-    return GradientContainer(
-      child: Scaffold(
-        backgroundColor: AppColor.main75,
+    return Scaffold(
+        backgroundColor: AppColor.main50,
         resizeToAvoidBottomInset: false,
 
-        appBar: AppBar(
-          title: Text(
-            PlayerTranslationConstants.settings.tr,
+        appBar: AppBarChild(title: PlayerTranslationConstants.settings.tr,),
+        body: Container(
+          decoration: AppTheme.appBoxDecoration,
+          child: Column(
+            children: [
+              ///APPLY WHEN MORE OPTIONS ARE ADDED
+              // _searchBar(context),
+              Expanded(child: _settingsItem(context)),
+            ],
           ),
-          centerTitle: true,
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-        ),
-        body: Column(
-          children: [
-            _searchBar(context),
-            Expanded(child: _settingsItem(context)),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _searchBar(BuildContext context) {
-    return Card(
-      color: AppTheme.canvasColor50(context),
-      margin: const EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 0.0),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(
-          10.0,
-        ),
-      ),
-      elevation: 2.0,
-      child: SizedBox(
-        height: 55.0,
-        child: Center(
-          child: ValueListenableBuilder(
-            valueListenable: searchQuery,
-            builder: (BuildContext context, String query, Widget? child) {
-              return TextField(
-                controller: controller,
-                textAlignVertical: TextAlignVertical.center,
-                decoration: InputDecoration(
-                  focusedBorder: const UnderlineInputBorder(
-                    borderSide: BorderSide(
-                      width: 1.5,
-                      color: Colors.transparent,
-                    ),
-                  ),
-                  fillColor: Theme.of(context).colorScheme.secondary,
-                  prefixIcon: const Icon(CupertinoIcons.search),
-                  suffixIcon: query.trim() != ''
-                      ? IconButton(
-                          icon: const Icon(Icons.close_rounded),
-                          onPressed: () {
-                            controller.clear();
-                            searchQuery.value = '';
-                          },
-                        )
-                      : null,
-                  border: InputBorder.none,
-                  hintText: PlayerTranslationConstants.search.tr,
-                ),
-                keyboardType: TextInputType.text,
-                textInputAction: TextInputAction.search,
-                onChanged: (_) {
-                  searchQuery.value = controller.text.trim();
-                },
-              );
-            },
-          ),
-        ),
-      ),
+        )
     );
   }
 
@@ -131,7 +71,7 @@ class _MusicPlayerSettingsPageState extends State<MusicPlayerSettingsPage> {
       {
         'title': PlayerTranslationConstants.musicPlayback.tr,
         'icon': Icons.music_note_rounded,
-        'onTap': MusicPlaybackPage(
+        'onTap': MusicPlaybackSettingsPage(
           callback: widget.callback,
         ),
         'isThreeLine': true,
@@ -169,16 +109,16 @@ class _MusicPlayerSettingsPageState extends State<MusicPlayerSettingsPage> {
         'onTap': const OthersPage(),
         'isThreeLine': true,
         'items': [
-          PlayerTranslationConstants.includeExcludeFolder.tr,
-          PlayerTranslationConstants.minAudioLen.tr,
-          PlayerTranslationConstants.liveSearch.tr,
-          PlayerTranslationConstants.useDown.tr,
           PlayerTranslationConstants.getLyricsOnline.tr,
-          PlayerTranslationConstants.supportEq.tr,
           PlayerTranslationConstants.stopOnClose.tr,
-          PlayerTranslationConstants.checkUpdate.tr,
           PlayerTranslationConstants.clearCache.tr,
-          PlayerTranslationConstants.shareLogs.tr,
+          // PlayerTranslationConstants.useDown.tr,
+          // PlayerTranslationConstants.includeExcludeFolder.tr,
+          // PlayerTranslationConstants.minAudioLen.tr,
+          // PlayerTranslationConstants.supportEq.tr,
+          // PlayerTranslationConstants.liveSearch.tr,
+          // PlayerTranslationConstants.checkUpdate.tr,
+          // PlayerTranslationConstants.shareLogs.tr,
         ],
       },
     ];
@@ -189,9 +129,6 @@ class _MusicPlayerSettingsPageState extends State<MusicPlayerSettingsPage> {
         searchOptions.add({'title': item, 'route': e['onTap']});
       }
     }
-
-    final bool isRotated =
-        MediaQuery.of(context).orientation == Orientation.landscape;
 
     return Stack(
       children: [
@@ -214,16 +151,14 @@ class _MusicPlayerSettingsPageState extends State<MusicPlayerSettingsPage> {
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
-              isThreeLine: !isRotated &&
-                  (settingsList[index]['isThreeLine'] as bool? ?? false),
+              isThreeLine: (settingsList[index]['isThreeLine'] as bool? ?? false),
               onTap: () {
                 searchQuery.value = '';
                 controller.text = '';
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) =>
-                        settingsList[index]['onTap'] as Widget,
+                    builder: (context) => settingsList[index]['onTap'] as Widget,
                   ),
                 );
               },
@@ -243,6 +178,58 @@ class _MusicPlayerSettingsPageState extends State<MusicPlayerSettingsPage> {
       ],
     );
   }
+
+  ///APPLY WHEN MORE OPTIONS ARE ADDED
+  // Widget _searchBar(BuildContext context) {
+  //   return Card(
+  //     color: AppTheme.canvasColor50(context),
+  //     margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+  //     shape: RoundedRectangleBorder(
+  //       borderRadius: BorderRadius.circular(10.0,),
+  //     ),
+  //     elevation: 2.0,
+  //     child: SizedBox(
+  //       height: 50.0,
+  //       child: Center(
+  //         child: ValueListenableBuilder(
+  //           valueListenable: searchQuery,
+  //           builder: (BuildContext context, String query, Widget? child) {
+  //             return TextField(
+  //               controller: controller,
+  //               textAlignVertical: TextAlignVertical.center,
+  //               decoration: InputDecoration(
+  //                 focusedBorder: const UnderlineInputBorder(
+  //                   borderSide: BorderSide(
+  //                     width: 1.5,
+  //                     color: Colors.transparent,
+  //                   ),
+  //                 ),
+  //                 fillColor: Theme.of(context).colorScheme.secondary,
+  //                 prefixIcon: const Icon(CupertinoIcons.search),
+  //                 suffixIcon: query.trim() != ''
+  //                     ? IconButton(
+  //                         icon: const Icon(Icons.close_rounded),
+  //                         onPressed: () {
+  //                           controller.clear();
+  //                           searchQuery.value = '';
+  //                         },
+  //                       )
+  //                     : null,
+  //                 border: InputBorder.none,
+  //                 hintText: PlayerTranslationConstants.search.tr,
+  //               ),
+  //               keyboardType: TextInputType.text,
+  //               textInputAction: TextInputAction.search,
+  //               onChanged: (_) {
+  //                 searchQuery.value = controller.text.trim();
+  //               },
+  //             );
+  //           },
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
 
   List<Map> _getSearchResults(
     List<Map> searchOptions,

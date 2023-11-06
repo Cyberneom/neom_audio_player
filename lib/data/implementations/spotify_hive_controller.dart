@@ -11,7 +11,6 @@ import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/core_utilities.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../ui/widgets/bottom_gradient_container.dart';
 import '../../utils/constants/app_hive_constants.dart';
 import '../../utils/constants/countrycodes.dart';
 import '../../utils/helpers/spotify_helper.dart';
@@ -155,17 +154,12 @@ class SpotifyHiveController extends GetxController  {
 
     await showModalBottomSheet(
       isDismissible: true,
-      backgroundColor: AppColor.main75,
+      backgroundColor: AppColor.getMain(),
       context: context,
       builder: (BuildContext context) {
         const Map<String, String> codes = CountryCodes.localChartCodes;
         final List<String> countries = codes.keys.toList();
-        return BottomGradientContainer(
-          borderRadius: BorderRadius.circular(
-            20.0,
-          ),
-          hasOpacity: false,
-          child: ListView.builder(
+        return ListView.builder(
             physics: const BouncingScrollPhysics(),
             shrinkWrap: true,
             padding: const EdgeInsets.fromLTRB(
@@ -205,7 +199,6 @@ class SpotifyHiveController extends GetxController  {
                 ),
               );
             },
-          ),
         );
       },
     );

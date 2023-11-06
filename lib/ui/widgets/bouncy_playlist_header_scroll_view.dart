@@ -4,7 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
-import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
+import '../../utils/constants/player_translation_constants.dart';
 
 class BouncyPlaylistHeaderScrollView extends StatelessWidget {
   final ScrollController scrollController;

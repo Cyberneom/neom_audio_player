@@ -27,8 +27,8 @@ import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/constants/app_translation_constants.dart';
 import 'package:neom_itemlists/itemlists/data/api_services/spotify/spotify_search.dart';
 import 'package:neom_itemlists/itemlists/ui/widgets/app_item_widgets.dart';
+
 import '../../ui/widgets/empty_screen.dart';
-import '../../ui/widgets/gradient_container.dart';
 import '../../ui/widgets/music_search_bar.dart' as searchbar;
 import '../../utils/constants/app_hive_constants.dart';
 import '../../utils/constants/player_translation_constants.dart';
@@ -130,11 +130,10 @@ class _SearchPageState extends State<SearchPage> {
       status = true;
       fromHome! ? getTrendingSearch() : fetchResults();
     }
-    return GradientContainer(
-      child: SafeArea(
+    return SafeArea(
         child: Scaffold(
           resizeToAvoidBottomInset: false,
-          backgroundColor: AppColor.main75,
+          backgroundColor: AppColor.main50,
           body: searchbar.MusicSearchBar(
             controller: controller,
             liveSearch: liveSearch,
@@ -416,7 +415,6 @@ class _SearchPageState extends State<SearchPage> {
             },
           ),
         ),
-      ),
     );
   }
 }

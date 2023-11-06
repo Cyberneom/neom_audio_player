@@ -2,6 +2,7 @@ import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
+import 'package:neom_commons/core/ui/widgets/appbar_child.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 
 import '../../../domain/use_cases/neom_audio_handler.dart';
@@ -10,7 +11,6 @@ import '../../../utils/constants/player_translation_constants.dart';
 import '../../player/widgets/now_playing_stream.dart';
 import '../../widgets/bouncy_sliver_scroll_view.dart';
 import '../../widgets/empty_screen.dart';
-import '../../widgets/gradient_container.dart';
 
 class NowPlayingPage extends StatefulWidget {
   const NowPlayingPage({super.key});
@@ -31,29 +31,23 @@ class _NowPlayingPageState extends State<NowPlayingPage> {
 
   @override
   Widget build(BuildContext context) {
-    return GradientContainer(
-      child: StreamBuilder<PlaybackState>(
+    return StreamBuilder<PlaybackState>(
         stream: audioHandler.playbackState,
         builder: (context, snapshot) {
           final playbackState = snapshot.data;
           final processingState = playbackState?.processingState;
           return Scaffold(
-            backgroundColor: AppColor.main75,
+            backgroundColor: AppColor.main50,
             appBar: processingState != AudioProcessingState.idle
                 ? null
-                : AppBar(
-                    title: Text(PlayerTranslationConstants.nowPlaying.tr),
-                    centerTitle: true,
-                    backgroundColor: Colors.transparent,
-                    elevation: 0,
-                  ),
+                : AppBarChild(title: PlayerTranslationConstants.nowPlaying.tr,),
             body: processingState == AudioProcessingState.idle
                 ? TextButton(onPressed: () => Navigator.pushNamed(context, MusicPlayerRouteConstants.home),
               child: emptyScreen(
                 context, 3,
-                PlayerTranslationConstants.nothingIs.tr, 18.0,
-                PlayerTranslationConstants.playingCap.tr, 45,
-                PlayerTranslationConstants.playSomething.tr, 30.0,
+                PlayerTranslationConstants.nothingIs.tr, 14.0,
+                PlayerTranslationConstants.playingCap.tr, 38,
+                PlayerTranslationConstants.playSomething.tr, 28.0,
               ),
             ) : StreamBuilder<MediaItem?>(
               stream: audioHandler.mediaItem,
@@ -82,7 +76,6 @@ class _NowPlayingPageState extends State<NowPlayingPage> {
             ),
           );
         },
-      ),
     );
   }
 }

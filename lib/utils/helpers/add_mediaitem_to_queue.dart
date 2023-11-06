@@ -2,8 +2,9 @@ import 'package:audio_service/audio_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
+import 'package:neom_commons/core/utils/app_utilities.dart';
 import '../../domain/use_cases/neom_audio_handler.dart';
-import '../../ui/widgets/snackbar.dart';
+
 import '../constants/player_translation_constants.dart';
 
 void addToNowPlaying({
@@ -16,25 +17,22 @@ void addToNowPlaying({
   if (currentMediaItem != null &&
       currentMediaItem.extras!['url'].toString().startsWith('http')) {
     if (audioHandler.queue.valueWrapper!.value.contains(mediaItem) && showNotification) {
-      ShowSnackBar().showSnackBar(
-        context,
-        PlayerTranslationConstants.alreadyInQueue.tr,
+      AppUtilities.showSnackBar(
+        message: PlayerTranslationConstants.alreadyInQueue.tr,
       );
     } else {
       audioHandler.addQueueItem(mediaItem);
 
       if (showNotification) {
-        ShowSnackBar().showSnackBar(
-          context,
-          PlayerTranslationConstants.addedToQueue.tr,
+        AppUtilities.showSnackBar(
+          message: PlayerTranslationConstants.addedToQueue.tr,
         );
       }
     }
   } else {
     if (showNotification) {
-      ShowSnackBar().showSnackBar(
-        context,
-        currentMediaItem == null
+      AppUtilities.showSnackBar(
+        message: currentMediaItem == null
             ? PlayerTranslationConstants.nothingPlaying.tr
             : PlayerTranslationConstants.cantAddToQueue.tr,
       );
@@ -65,14 +63,12 @@ void playNext(
           );
     }
 
-    ShowSnackBar().showSnackBar(
-      context,
-      '"${mediaItem.title}" ${PlayerTranslationConstants.willPlayNext.tr}',
+    AppUtilities.showSnackBar(
+      message: '"${mediaItem.title}" ${PlayerTranslationConstants.willPlayNext.tr}',
     );
   } else {
-    ShowSnackBar().showSnackBar(
-      context,
-      currentMediaItem == null
+    AppUtilities.showSnackBar(
+      message: currentMediaItem == null
           ? PlayerTranslationConstants.nothingPlaying.tr
           : PlayerTranslationConstants.cantAddToQueue.tr,
     );

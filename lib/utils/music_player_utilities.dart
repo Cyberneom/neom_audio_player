@@ -11,7 +11,6 @@ import '../domain/use_cases/neom_audio_handler.dart';
 import '../to_delete/extensions.dart';
 import '../ui/widgets/add_to_playlist.dart';
 import '../ui/widgets/popup.dart';
-import '../ui/widgets/snackbar.dart';
 import '../ui/widgets/textinput_dialog.dart';
 import 'constants/player_translation_constants.dart';
 
@@ -62,9 +61,8 @@ class MusicPlayerUtilities {
           int.parse(value),
         );
         Navigator.pop(context);
-        ShowSnackBar().showSnackBar(
-          context,
-          '${PlayerTranslationConstants.sleepTimerSetFor.tr} $value ${PlayerTranslationConstants.songs.tr}',
+        AppUtilities.showSnackBar(
+          message: '${PlayerTranslationConstants.sleepTimerSetFor.tr} $value ${PlayerTranslationConstants.songs.tr}',
         );
       },
     );
@@ -141,9 +139,8 @@ class MusicPlayerUtilities {
                   onPressed: () {
                     MusicPlayerUtilities().sleepTimer(time.inMinutes);
                     Navigator.pop(context);
-                    ShowSnackBar().showSnackBar(
-                      context,
-                      '${PlayerTranslationConstants.sleepTimerSetFor.tr} ${time.inMinutes} ${PlayerTranslationConstants.minutes.tr}',
+                    AppUtilities.showSnackBar(
+                      message: '${PlayerTranslationConstants.sleepTimerSetFor.tr} ${time.inMinutes} ${PlayerTranslationConstants.minutes.tr}',
                     );
                   },
                   child: Text(PlayerTranslationConstants.ok.tr.toUpperCase()),

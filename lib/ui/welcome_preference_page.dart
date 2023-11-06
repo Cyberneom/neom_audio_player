@@ -4,14 +4,12 @@ import 'package:hive/hive.dart';
 import 'package:neom_commons/core/app_flavour.dart';
 import 'package:neom_commons/core/data/implementations/user_controller.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
+import 'package:neom_commons/core/utils/app_utilities.dart';
 
 import '../utils/constants/app_hive_constants.dart';
 import '../utils/constants/countrycodes.dart';
 import '../utils/constants/music_player_constants.dart';
 import '../utils/constants/player_translation_constants.dart';
-import 'widgets/bottom_gradient_container.dart';
-import 'widgets/gradient_container.dart';
-import 'widgets/snackbar.dart';
 
 class WelcomePreferencePage extends StatefulWidget {
   const WelcomePreferencePage({super.key});
@@ -29,8 +27,7 @@ class _WelcomePreferencePageState extends State<WelcomePreferencePage> {
 
   @override
   Widget build(BuildContext context) {
-    return GradientContainer(
-      child: Scaffold(
+    return Scaffold(
         backgroundColor: AppColor.main50,
         body: SafeArea(
           child: Stack(
@@ -106,7 +103,7 @@ class _WelcomePreferencePageState extends State<WelcomePreferencePage> {
                                     ),
                                     TextSpan(
                                       text: PlayerTranslationConstants.tryOurMusicPlayer.tr,
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         height: 1.5,
                                         fontWeight: FontWeight.w300,
                                         fontSize: 14,
@@ -177,10 +174,7 @@ class _WelcomePreferencePageState extends State<WelcomePreferencePage> {
                                               BuildContext context,
                                               StateSetter setStt,
                                             ) {
-                                              return BottomGradientContainer(
-                                                borderRadius: BorderRadius.circular(20.0,),
-                                                hasOpacity: true,
-                                                child: Column(
+                                              return Column(
                                                   children: [
                                                     Expanded(
                                                       child: ListView.builder(
@@ -225,8 +219,8 @@ class _WelcomePreferencePageState extends State<WelcomePreferencePage> {
                                                               Hive.box('settings',).put('preferredLanguage', checked,);
                                                             });
                                                             if (preferredLanguage.isEmpty) {
-                                                              ShowSnackBar().showSnackBar(context,
-                                                                PlayerTranslationConstants.noLangSelected.tr,
+                                                              AppUtilities.showSnackBar(
+                                                                message: PlayerTranslationConstants.noLangSelected.tr,
                                                               );
                                                             }
                                                           },
@@ -240,7 +234,7 @@ class _WelcomePreferencePageState extends State<WelcomePreferencePage> {
                                                       ],
                                                     ),
                                                   ],
-                                                ),
+
                                               );
                                             },
                                           );
@@ -278,9 +272,7 @@ class _WelcomePreferencePageState extends State<WelcomePreferencePage> {
                                         builder: (BuildContext context) {
                                           const Map<String, String> codes = CountryCodes.localChartCodes;
                                           final List<String> countries = codes.keys.toList();
-                                          return BottomGradientContainer(
-                                            borderRadius: BorderRadius.circular(20.0),
-                                            child: ListView.builder(
+                                          return ListView.builder(
                                               physics: const BouncingScrollPhysics(),
                                               shrinkWrap: true,
                                               padding: const EdgeInsets.fromLTRB(0, 10, 0, 10,),
@@ -302,7 +294,7 @@ class _WelcomePreferencePageState extends State<WelcomePreferencePage> {
                                                   ),
                                                 );
                                               },
-                                            ),
+
                                           );
                                         },
                                       );
@@ -360,7 +352,7 @@ class _WelcomePreferencePageState extends State<WelcomePreferencePage> {
             ],
           ),
         ),
-      ),
+
     );
   }
 }

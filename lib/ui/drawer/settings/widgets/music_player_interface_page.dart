@@ -8,7 +8,6 @@ import 'package:neom_commons/core/utils/app_theme.dart';
 import '../../../../utils/constants/app_hive_constants.dart';
 import '../../../../utils/constants/player_translation_constants.dart';
 import '../../../widgets/box_switch_tile.dart';
-import '../../../widgets/gradient_container.dart';
 
 class MusicPlayerInterfacePage extends StatefulWidget {
   final Function? callback;
@@ -51,8 +50,7 @@ class _MusicPlayerInterfacePageState extends State<MusicPlayerInterfacePage> {
 
   @override
   Widget build(BuildContext context) {
-    return GradientContainer(
-      child: Scaffold(
+    return Scaffold(
         backgroundColor: AppColor.main50,
         appBar: AppBarChild(title: PlayerTranslationConstants.ui.tr,),
         body: Container(
@@ -318,25 +316,25 @@ class _MusicPlayerInterfacePageState extends State<MusicPlayerInterfacePage> {
                   );
                 },
               ),
-              BoxSwitchTile(
+              HiveBoxSwitchTile(
                 title: Text(PlayerTranslationConstants.showPlaylists.tr,),
                 keyName: 'showPlaylist',
                 defaultValue: true,
               ),
-              BoxSwitchTile(
+              HiveBoxSwitchTile(
                 title: Text(PlayerTranslationConstants.showLast.tr,),
                 subtitle: Text(PlayerTranslationConstants.showLastSub.tr,),
                 keyName: 'showRecent',
                 defaultValue: true,
               ),
-              BoxSwitchTile(
+              HiveBoxSwitchTile(
                 title: Text(PlayerTranslationConstants.enableGesture.tr,),
                 subtitle: Text(PlayerTranslationConstants.enableGestureSub.tr,),
                 keyName: 'enableGesture',
                 defaultValue: true,
                 isThreeLine: true,
               ),
-              BoxSwitchTile(
+              HiveBoxSwitchTile(
                 title: Text(PlayerTranslationConstants.useLessDataImage.tr,),
                 subtitle: Text(PlayerTranslationConstants.useLessDataImageSub.tr,),
                 keyName: 'enableImageOptimization',
@@ -346,7 +344,6 @@ class _MusicPlayerInterfacePageState extends State<MusicPlayerInterfacePage> {
             ],
           ),
         ),
-      ),
     );
   }
 }

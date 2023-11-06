@@ -5,7 +5,6 @@ import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/neom_commons.dart';
 import '../../domain/entities/url_image_generator.dart';
 import 'bouncy_playlist_header_scroll_view.dart';
-import 'gradient_container.dart';
 import 'image_card.dart';
 
 class SongsListViewPage extends StatefulWidget {
@@ -130,9 +129,8 @@ class _SongsListViewPageState extends State<SongsListViewPage> {
 
   @override
   Widget build(BuildContext context) {
-    return GradientContainer(
-      child: Scaffold(
-        backgroundColor: AppColor.main75,
+    return Scaffold(
+        backgroundColor: AppColor.main50,
         body: !fetched
             ? const Center(
                 child: CircularProgressIndicator(),
@@ -211,7 +209,7 @@ class _SongsListViewPageState extends State<SongsListViewPage> {
                     }),
                   ]),
                 ),
-              ),
+
       ),
     );
   }

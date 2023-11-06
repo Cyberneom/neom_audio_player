@@ -210,7 +210,7 @@ class NameNControls extends StatelessWidget {
                           Duration.zero,
                           MusicPlayerUtilities.isOwnMediaItem(appMediaItem)
                               ? (mediaItem.duration ?? Duration.zero)
-                              : Duration(seconds: 30),
+                              : const Duration(seconds: 30),
                         );
                     return SeekBar(
                       duration: positionData.duration,

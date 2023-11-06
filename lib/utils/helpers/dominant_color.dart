@@ -18,8 +18,9 @@
  */
 
 import 'package:flutter/material.dart';
-import 'package:neom_music_player/utils/theme/music_player_theme.dart';
 import 'package:palette_generator/palette_generator.dart';
+
+import '../theme/music_player_theme.dart';
 
 Future<List<Color>> getColors({
   required ImageProvider imageProvider,

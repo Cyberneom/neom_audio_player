@@ -15,8 +15,9 @@ import 'package:neom_commons/core/utils/constants/message_translation_constants.
 import 'package:neom_commons/core/utils/enums/app_in_use.dart';
 import 'package:neom_commons/core/utils/enums/itemlist_owner.dart';
 import 'package:neom_commons/core/utils/enums/spotify_search_type.dart';
-import 'package:neom_music_player/data/api_services/spotify/spotify_api_calls.dart';
 import 'package:spotify/spotify.dart' as spotify;
+
+import '../../data/api_services/spotify/spotify_api_calls.dart';
 
 class SpotifyInternalController extends GetxController {
 

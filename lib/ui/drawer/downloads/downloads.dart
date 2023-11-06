@@ -7,6 +7,7 @@ import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
+import 'package:neom_commons/core/ui/widgets/appbar_child.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 // import 'package:path_provider/path_provider.dart';
@@ -17,12 +18,10 @@ import '../../../utils/constants/app_hive_constants.dart';
 import '../../../utils/constants/music_player_route_constants.dart';
 import '../../../utils/constants/player_translation_constants.dart';
 import '../../../utils/helpers/picker.dart';
-import '../../widgets/custom_physics.dart';
 import '../../widgets/empty_screen.dart';
-import '../../widgets/gradient_container.dart';
 import '../../widgets/image_card.dart';
 import '../../widgets/playlist_head.dart';
-import '../../widgets/snackbar.dart';
+
 import 'data_search.dart';
 
 class Downloads extends StatefulWidget {
@@ -33,6 +32,7 @@ class Downloads extends StatefulWidget {
 
 class _DownloadsState extends State<Downloads>
     with SingleTickerProviderStateMixin {
+
   Box downloadsBox = Hive.box('downloads');
   bool added = false;
   List<AppMediaItem> _appMediaItems = [];
@@ -42,9 +42,7 @@ class _DownloadsState extends State<Downloads>
   List _sortedAlbumKeysList = [];
   List _sortedArtistKeysList = [];
   List _sortedGenreKeysList = [];
-  TabController? _tcontroller;
-  int _currentTabIndex = 0;
-  // int currentIndex = 0;
+
   // String? tempPath = Hive.box(AppHiveConstants.settings).get('tempDirPath')?.toString();
   int sortValue = Hive.box(AppHiveConstants.settings).get('sortValue', defaultValue: 1) as int;
   int orderValue =
@@ -52,17 +50,10 @@ class _DownloadsState extends State<Downloads>
   int albumSortValue =   Hive.box(AppHiveConstants.settings).get('albumSortValue', defaultValue: 2) as int;
   final ScrollController _scrollController = ScrollController();
   final ValueNotifier<bool> _showShuffle = ValueNotifier<bool>(true);
-  int tabControllerLength = 1;
 
   @override
   void initState() {
-    _tcontroller = TabController(length: tabControllerLength, vsync: this);
-    _tcontroller!.addListener(() {
-      if ((_tcontroller!.previousIndex != 0 && _tcontroller!.index == 0) ||
-          (_tcontroller!.previousIndex == 0)) {
-        setState(() => _currentTabIndex = _tcontroller!.index);
-      }
-    });
+
     _scrollController.addListener(() {
       if (_scrollController.position.userScrollDirection ==
           ScrollDirection.reverse) {
@@ -78,7 +69,6 @@ class _DownloadsState extends State<Downloads>
   @override
   void dispose() {
     super.dispose();
-    _tcontroller!.dispose();
     _scrollController.dispose();
   }
 
@@ -90,59 +80,6 @@ class _DownloadsState extends State<Downloads>
 
   Future<void> getDownloads() async {
     _appMediaItems = downloadsBox.values.map((e) => AppMediaItem.fromJSON(e)).toList();
-    setArtistAlbum();
-  }
-
-  void setArtistAlbum() {
-    for (final mediaItem in _appMediaItems) {
-      try {
-        // if (_albums.containsKey(mediaItem.album)) {
-        //   final List<Map> tempAlbum = _albums[mediaItem.album]!;
-        //   tempAlbum.add(mediaItem as Map);
-        //   _albums.addEntries([MapEntry(mediaItem.album.toString(), tempAlbum)]);
-        // } else {
-        //   _albums.addEntries([MapEntry(mediaItem.album.toString(), [mediaItem as Map])]);
-        // }
-        //
-        // if (_artists.containsKey(mediaItem.artist)) {
-        //   final List<Map> tempArtist = _artists[mediaItem.artist]!;
-        //   tempArtist.add(mediaItem);
-        //   _artists.addEntries([MapEntry(mediaItem.artist.toString(), tempArtist)]);
-        // } else {
-        //   _artists.addEntries([
-        //     MapEntry(mediaItem.artist.toString(), [mediaItem])
-        //   ]);
-        // }
-        //
-        // if (_genres.containsKey(mediaItem.genre)) {
-        //   final List<Map> tempGenre = _genres[mediaItem.genre]!;
-        //   tempGenre.add(mediaItem);
-        //   _genres
-        //       .addEntries([MapEntry(mediaItem.genre.toString(), tempGenre)]);
-        // } else {
-        //   _genres.addEntries([
-        //     MapEntry(mediaItem.genre.toString(), [mediaItem])
-        //   ]);
-        // }
-      } catch (e) {
-        // ShowSnackBar().showSnackBar(
-        //   context,
-        //   'Error: $e',
-        // );
-        AppUtilities.logger.e('Error while setting artist and album: $e');
-      }
-    }
-
-    sortSongs(sortVal: sortValue, order: orderValue);
-
-    _sortedAlbumKeysList = _albums.keys.toList();
-    _sortedArtistKeysList = _artists.keys.toList();
-    _sortedGenreKeysList = _genres.keys.toList();
-
-    sortAlbums();
-
-    added = true;
-    setState(() {});
   }
 
   void sortSongs({required int sortVal, required int order}) {
@@ -213,45 +150,31 @@ class _DownloadsState extends State<Downloads>
     }
     _genres[song['genre']]!.remove(song);
 
-    _appMediaItems.remove(song);
+    _appMediaItems.remove(AppMediaItem.fromJSON(song));
 
     try {
       await audioFile.delete();
       if (await imageFile.exists()) {
         imageFile.delete();
       }
-      ShowSnackBar().showSnackBar(context,
-        '${PlayerTranslationConstants.deleted.tr} ${song['title']}',);
+      AppUtilities.showSnackBar(
+        message: '${PlayerTranslationConstants.deleted.tr} ${song['title']}',
+      );
     } catch (e) {
       AppUtilities.logger.e('Failed to delete $audioFile.path ${e.toString()}');
-      ShowSnackBar().showSnackBar(context,
-        '${PlayerTranslationConstants.failedDelete.tr}: ${audioFile.path}\nError: $e',);
+      AppUtilities.showSnackBar(
+        message: '${PlayerTranslationConstants.failedDelete.tr}: ${audioFile.path}\nError: $e',
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return GradientContainer(
-      child: DefaultTabController(
-        length: tabControllerLength,
-        child: Scaffold(
+    return Scaffold(
           backgroundColor: AppColor.main50,
-          appBar: AppBar(
-            title: Text(PlayerTranslationConstants.downs.tr),
-            centerTitle: true,
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            bottom: TabBar(
-              controller: _tcontroller,
-              indicatorSize: TabBarIndicatorSize.label,
-              tabs: [
-                Tab(text: PlayerTranslationConstants.songs.tr,),
-                // Tab(text: PlayerTranslationConstants.albums.tr,),
-                // Tab(text: PlayerTranslationConstants.artists.tr,),
-                // Tab(text: PlayerTranslationConstants.genres.tr,),
-              ],
-            ),
-            actions: [
+          appBar: AppBarChild(
+            title: PlayerTranslationConstants.downloads.tr,
+            actionWidgets: [
               IconButton(
                 icon: const Icon(CupertinoIcons.search),
                 tooltip: PlayerTranslationConstants.search.tr,
@@ -265,7 +188,7 @@ class _DownloadsState extends State<Downloads>
                   );
                 },
               ),
-              if (_appMediaItems.isNotEmpty && _currentTabIndex == 0)
+              if (_appMediaItems.isNotEmpty)
                 PopupMenuButton(
                   icon: const Icon(Icons.sort_rounded),
                   shape: const RoundedRectangleBorder(
@@ -373,46 +296,19 @@ class _DownloadsState extends State<Downloads>
             ],
           ),
           body: !added
-              ? const Center(
-                  child: CircularProgressIndicator(),
-                )
-              : TabBarView(
-                  physics: const CustomPhysics(),
-                  controller: _tcontroller,
-                  children: [
-                    DownSongsTab(
-                      onDelete: (Map item) {
-                        deleteSong(item);
-                      },
-                      appMediaItems: _appMediaItems,
-                      scrollController: _scrollController,
-                    ),
-                    // AlbumsTab(
-                    //   albums: _albums,
-                    //   offline: true,
-                    //   type: 'album',
-                    //   sortedAlbumKeysList: _sortedAlbumKeysList,
-                    // ),
-                    // AlbumsTab(
-                    //   albums: _artists,
-                    //   type: 'artist',
-                    //   // tempPath: tempPath,
-                    //   offline: true,
-                    //   sortedAlbumKeysList: _sortedArtistKeysList,
-                    // ),
-                    // AlbumsTab(
-                    //   albums: _genres,
-                    //   type: 'genre',
-                    //   offline: true,
-                    //   sortedAlbumKeysList: _sortedGenreKeysList,
-                    // ),
-                  ],
-                ),
+              ? const Center(child: CircularProgressIndicator(),)
+              : DownSongsTab(
+            onDelete: (Map item) {
+              deleteSong(item);
+            },
+            appMediaItems: _appMediaItems,
+            scrollController: _scrollController,
+          ),
           floatingActionButton: ValueListenableBuilder(
             valueListenable: _showShuffle,
             child: FloatingActionButton(
               backgroundColor: Theme.of(context).cardColor,
-              child: Icon(
+              child: const Icon(
                 Icons.shuffle_rounded,
                 color: Colors.white,
                 size: 24.0,
@@ -446,8 +342,6 @@ class _DownloadsState extends State<Downloads>
               );
             },
           ),
-        ),
-      ),
     );
   }
 }
@@ -671,14 +565,14 @@ Future<AppMediaItem> editTags(AppMediaItem mediaItem, BuildContext context) asyn
                 try {
                   final permissionsGranted = await [Permission.manageExternalStorage,].request();
                 } catch (e) {
-                  ShowSnackBar().showSnackBar(context,
-                    PlayerTranslationConstants.successTagEdit.tr,
+                  AppUtilities.showSnackBar(
+                    message: PlayerTranslationConstants.successTagEdit.tr,
                   );
                 }
               } catch (e) {
                 AppUtilities.logger.e('Failed to edit tags ${e.toString()}');
-                ShowSnackBar().showSnackBar(context,
-                  '${PlayerTranslationConstants.failedTagEdit.tr}\nError: $e',
+                AppUtilities.showSnackBar(
+                  message: '${PlayerTranslationConstants.failedTagEdit.tr}\nError: $e',
                 );
               }
             },

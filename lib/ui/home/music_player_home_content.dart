@@ -542,7 +542,7 @@ class MusicPlayerHomeContent extends StatelessWidget {
               ),
             ],
           ),
-          onTap: () => MaterialPageRoute(builder: (context) => PlaylistPlayerPage(),),
+          onTap: () => MaterialPageRoute(builder: (context) => const PlaylistPlayerPage(),),
         ),
         SizedBox(
           height: boxSize + 15,

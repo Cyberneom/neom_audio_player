@@ -5,8 +5,8 @@ import '../utils/constants/app_hive_constants.dart';
 import '../utils/constants/music_player_route_constants.dart';
 import 'drawer/downloads/downloads.dart';
 import 'drawer/library/now_playing_page.dart';
-import 'drawer/library/recently_played.dart';
-import 'drawer/library/stats.dart';
+import 'drawer/library/recently_played_page.dart';
+import 'drawer/library/stats_page.dart';
 import 'drawer/settings/widgets/music_player_settings_page.dart';
 import 'music_player_root_page.dart';
 import 'player/media_player_page.dart';
@@ -15,7 +15,7 @@ import 'welcome_preference_page.dart';
 class MusicPlayerRoutes {
 
   static Widget initialFunction() {
-    return Hive.box(AppHiveConstants.settings).get('userId') != null ? MusicPlayerRootPage() : WelcomePreferencePage();
+    return Hive.box(AppHiveConstants.settings).get('userId') != null ? const MusicPlayerRootPage() : const WelcomePreferencePage();
   }
 
   static final Map<String, Widget Function(BuildContext)> routes = {
@@ -23,9 +23,9 @@ class MusicPlayerRoutes {
     MusicPlayerRouteConstants.pref: (context) => const WelcomePreferencePage(),
     MusicPlayerRouteConstants.setting: (context) => const MusicPlayerSettingsPage(),
     MusicPlayerRouteConstants.player: (context) => MediaPlayerPage(),
-    MusicPlayerRouteConstants.nowPlaying: (context) => NowPlayingPage(),
-    MusicPlayerRouteConstants.recent: (context) => RecentlyPlayed(),
+    MusicPlayerRouteConstants.nowPlaying: (context) => const NowPlayingPage(),
+    MusicPlayerRouteConstants.recent: (context) => const RecentlyPlayedPage(),
     MusicPlayerRouteConstants.downloads: (context) => const Downloads(),
-    MusicPlayerRouteConstants.stats: (context) => const Stats(),
+    MusicPlayerRouteConstants.stats: (context) => const StatsPage(),
   };
 }

@@ -2,12 +2,12 @@ import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
+import 'package:neom_commons/core/utils/app_utilities.dart';
 
 import '../../data/implementations/playlist_hive_controller.dart';
 import '../../domain/use_cases/neom_audio_handler.dart';
 import '../../utils/constants/player_translation_constants.dart';
 import '../../utils/helpers/media_item_mapper.dart';
-import 'snackbar.dart';
 
 class PlaylistPopupMenu extends StatefulWidget {
   final List data;
@@ -63,9 +63,8 @@ class _PlaylistPopupMenuState extends State<PlaylistPopupMenu> {
       onSelected: (int? value) {
         if (value == 1) {
           PlaylistHiveController().addPlaylist(widget.title, widget.data).then(
-            (value) => ShowSnackBar().showSnackBar(
-              context,
-              '"${widget.title}" ${PlayerTranslationConstants.addedToPlaylists.tr}',
+            (value) => AppUtilities.showSnackBar(
+              message: '"${widget.title}" ${PlayerTranslationConstants.addedToPlaylists.tr}',
             ),
           );
         }
@@ -83,14 +82,12 @@ class _PlaylistPopupMenuState extends State<PlaylistPopupMenu> {
               }
             });
 
-            ShowSnackBar().showSnackBar(
-              context,
-              '"${widget.title}" ${PlayerTranslationConstants.addedToQueue.tr}',
+            AppUtilities.showSnackBar(
+              message: '"${widget.title}" ${PlayerTranslationConstants.addedToQueue.tr}',
             );
           } else {
-            ShowSnackBar().showSnackBar(
-              context,
-              currentMediaItem == null
+            AppUtilities.showSnackBar(
+              message: currentMediaItem == null
                   ? PlayerTranslationConstants.nothingPlaying.tr
                   : PlayerTranslationConstants.cantAddToQueue.tr,
             );

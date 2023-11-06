@@ -10,7 +10,7 @@ import '../../../../utils/helpers/audio_query.dart';
 import '../../../widgets/add_to_off_playlist.dart';
 import '../../../widgets/empty_screen.dart';
 import '../../../widgets/playlist_head.dart';
-import '../../../widgets/snackbar.dart';
+
 
 class SongsTab extends StatefulWidget {
   final List<AppMediaItem> songs;
@@ -110,9 +110,8 @@ class _SongsTabState extends State<SongsTab>
                           playlistId: widget.playlistId!,
                           audioId: widget.songs[index].id as int,
                         );
-                        ShowSnackBar().showSnackBar(
-                          context,
-                          '${PlayerTranslationConstants.removedFrom.tr} ${widget.playlistName}',
+                        AppUtilities.showSnackBar(
+                          message: '${PlayerTranslationConstants.removedFrom.tr} ${widget.playlistName}',
                         );
                       }
                       if (value == -1) {

@@ -21,12 +21,10 @@ import '../../utils/constants/player_translation_constants.dart';
 import 'bouncy_playlist_header_scroll_view.dart';
 import 'download_button.dart';
 import 'go_spotify_button.dart';
-import 'gradient_container.dart';
 import 'image_card.dart';
 import 'like_button.dart';
 import 'multi_download_button.dart';
 import 'playlist_popupmenu.dart';
-import 'snackbar.dart';
 import 'song_tile_trailing_menu.dart';
 
 class SongsListPage extends StatefulWidget {
@@ -100,9 +98,8 @@ class _SongsListPageState extends State<SongsListPage> {
             fetched = true;
             loading = false;
           });
-          ShowSnackBar().showSnackBar(
-            context,
-            'Error: Unsupported Type ${widget.itemlist.type}',
+          AppUtilities.showSnackBar(
+            message: 'Error: Unsupported Type ${widget.itemlist.type}',
             duration: const Duration(seconds: 2),
           );
           break;
@@ -120,9 +117,8 @@ class _SongsListPageState extends State<SongsListPage> {
 
   @override
   Widget build(BuildContext context) {
-    return GradientContainer(
-      child: Scaffold(
-        backgroundColor: AppColor.main75,
+    return Scaffold(
+        backgroundColor: AppColor.main50,
         body: !fetched
             ? const Center(
                 child: CircularProgressIndicator(),
@@ -239,7 +235,7 @@ class _SongsListPageState extends State<SongsListPage> {
                     }),
                   ]),
                 ),
-              ),
+
       ),
     );
   }

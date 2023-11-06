@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 
 import '../../../utils/constants/player_translation_constants.dart';
 import '../../../utils/helpers/audio_query.dart';
-import '../../widgets/snackbar.dart';
+
 import '../../widgets/textinput_dialog.dart';
 import 'downloaded_songs.dart';
 
@@ -121,16 +122,14 @@ class _LocalPlaylistsState extends State<LocalPlaylists> {
                         if (await widget.offlineAudioQuery.removePlaylist(
                           playlistId: playlistDetails[index].id,
                         )) {
-                          ShowSnackBar().showSnackBar(
-                            context,
-                            '${PlayerTranslationConstants.deleted.tr} ${playlistDetails[index].playlist}',
+                          AppUtilities.showSnackBar(
+                            message: '${PlayerTranslationConstants.deleted.tr} ${playlistDetails[index].playlist}',
                           );
                           playlistDetails.removeAt(index);
                           setState(() {});
                         } else {
-                          ShowSnackBar().showSnackBar(
-                            context,
-                            PlayerTranslationConstants.failedDelete.tr,
+                          AppUtilities.showSnackBar(
+                            message: PlayerTranslationConstants.failedDelete.tr,
                           );
                         }
                       }

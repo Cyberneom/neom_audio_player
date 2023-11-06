@@ -14,8 +14,7 @@ import '../../../utils/constants/app_hive_constants.dart';
 import '../../../utils/constants/player_translation_constants.dart';
 import '../../../utils/helpers/audio_query.dart';
 import '../../widgets/custom_physics.dart';
-import '../../widgets/gradient_container.dart';
-import '../../widgets/snackbar.dart';
+
 import '../downloads/data_search.dart';
 import 'widgets/songs_tab.dart';
 
@@ -239,27 +238,24 @@ class _DownloadedSongsState extends State<DownloadedSongs> with TickerProviderSt
     _songs.remove(song);
     try {
       await audioFile.delete();
-      ShowSnackBar().showSnackBar(
-        context,
-        '${PlayerTranslationConstants.deleted.tr} ${song.title}',
+      AppUtilities.showSnackBar(
+        message: '${PlayerTranslationConstants.deleted.tr} ${song.title}',
       );
     } catch (e) {
       AppUtilities.logger.e('Failed to delete $audioFile.path ${e.toString()}');
-      ShowSnackBar().showSnackBar(
-        context,
+      AppUtilities.showSnackBar(
         duration: const Duration(seconds: 5),
-        '${PlayerTranslationConstants.failedDelete.tr}: ${audioFile.path}\nError: $e',
+        message: '${PlayerTranslationConstants.failedDelete.tr}: ${audioFile.path}\nError: $e',
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return GradientContainer(
-      child: DefaultTabController(
+    return DefaultTabController(
         length: 1, //widget.showPlaylists ? 6 : 5,
         child: Scaffold(
-          backgroundColor: AppColor.main75,
+          backgroundColor: AppColor.main50,
           appBar: AppBar(
             title: Text(widget.title ?? PlayerTranslationConstants.myMusic.tr,),
             bottom: TabBar(
@@ -417,7 +413,6 @@ class _DownloadedSongsState extends State<DownloadedSongs> with TickerProviderSt
                   ],
                 ),
         ),
-      ),
     );
   }
 

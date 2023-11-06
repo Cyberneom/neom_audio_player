@@ -37,7 +37,7 @@ class _SpotifyTopPageState extends State<SpotifyTopPage>
     return DefaultTabController(
       length: 2,
       child: Scaffold(
-        backgroundColor: AppColor.main75,
+        backgroundColor: AppColor.main50,
         appBar: AppBar(
           actions: [
             Padding(

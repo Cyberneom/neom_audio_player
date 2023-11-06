@@ -12,7 +12,7 @@ Widget emptyScreen(
   bool useWhite = false,
 }) {
   return Container(
-    padding: EdgeInsets.symmetric(horizontal: 15),
+    padding: const EdgeInsets.symmetric(horizontal: 15),
    child: Column(
     mainAxisAlignment: MainAxisAlignment.center,
     children: [

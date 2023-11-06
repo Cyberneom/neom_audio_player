@@ -5,10 +5,9 @@ import 'package:neom_commons/core/utils/app_color.dart';
 
 import '../../../utils/constants/app_hive_constants.dart';
 import '../../../utils/constants/player_translation_constants.dart';
-import '../../widgets/gradient_container.dart';
 
-class Stats extends StatelessWidget {
-  const Stats({super.key});
+class StatsPage extends StatelessWidget {
+  const StatsPage({super.key});
 
   int get songsPlayed => Hive.box(AppHiveConstants.stats).length;
   Map get mostPlayed =>
@@ -16,8 +15,8 @@ class Stats extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GradientContainer(
-      child: Scaffold(
+    return Scaffold(
+      backgroundColor: AppColor.main50,
         appBar: AppBar(
           title: Text(PlayerTranslationConstants.stats.tr),
           centerTitle: true,
@@ -25,7 +24,6 @@ class Stats extends StatelessWidget {
           backgroundColor: Colors.transparent,
           elevation: 0,
         ),
-        backgroundColor: AppColor.main50,
         body: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Wrap(
@@ -86,7 +84,6 @@ class Stats extends StatelessWidget {
             ],
           ),
         ),
-      ),
     );
   }
 }

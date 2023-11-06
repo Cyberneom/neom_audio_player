@@ -10,18 +10,17 @@ import '../../../utils/constants/app_hive_constants.dart';
 import '../../../utils/constants/music_player_route_constants.dart';
 import '../../../utils/constants/player_translation_constants.dart';
 import '../../widgets/empty_screen.dart';
-import '../../widgets/gradient_container.dart';
 import '../../widgets/image_card.dart';
 import '../../widgets/like_button.dart';
 
-class RecentlyPlayed extends StatefulWidget {
-  const RecentlyPlayed({super.key});
+class RecentlyPlayedPage extends StatefulWidget {
+  const RecentlyPlayedPage({super.key});
 
   @override
-  _RecentlyPlayedState createState() => _RecentlyPlayedState();
+  _RecentlyPlayedPageState createState() => _RecentlyPlayedPageState();
 }
 
-class _RecentlyPlayedState extends State<RecentlyPlayed> {
+class _RecentlyPlayedPageState extends State<RecentlyPlayedPage> {
   Map<String, AppMediaItem> _songs = {};
   bool added = false;
 
@@ -43,8 +42,7 @@ class _RecentlyPlayedState extends State<RecentlyPlayed> {
       getSongs();
     }
 
-    return GradientContainer(
-      child: Scaffold(
+    return Scaffold(
         backgroundColor: AppColor.main50,
         appBar: AppBarChild(
           title: PlayerTranslationConstants.lastSession.tr,
@@ -65,9 +63,9 @@ class _RecentlyPlayedState extends State<RecentlyPlayed> {
             ? TextButton(onPressed: ()=>Navigator.pushNamed(context, MusicPlayerRouteConstants.home),
             child: emptyScreen(
                 context, 3,
-                PlayerTranslationConstants.nothingTo.tr, 15,
-                PlayerTranslationConstants.showHere.tr, 50.0,
-                PlayerTranslationConstants.playSomething.tr, 23.0,
+                PlayerTranslationConstants.nothingTo.tr, 16,
+                PlayerTranslationConstants.showHere.tr, 45.0,
+                PlayerTranslationConstants.playSomething.tr, 26.0,
               ),
         ) : ListView.builder(
           physics: const BouncingScrollPhysics(),
@@ -127,7 +125,7 @@ class _RecentlyPlayedState extends State<RecentlyPlayed> {
               ),
             );
             },
-        ),
+
       ),
     );
   }

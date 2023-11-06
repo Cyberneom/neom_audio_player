@@ -48,7 +48,7 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
 
   GlobalKey<FlipCardState> onlineCardKey = GlobalKey<FlipCardState>();
 
-  Duration _time = Duration.zero;
+  final Duration _time = Duration.zero;
 
   bool isSharePopupShown = false;
 
@@ -57,11 +57,13 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
     return;
   }
 
+  @override
   void initState() {
+    super.initState();
     if(widget.appMediaItem != null) {
       bool alreadyPlaying = audioHandler.currentMediaItem != null && audioHandler.currentMediaItem!.id == widget.appMediaItem!.id;
       if(widget.reproduceItem && !alreadyPlaying) {
-        Future.delayed(Duration(milliseconds: 500)).then((value) {
+        Future.delayed(const Duration(milliseconds: 500)).then((value) {
           NeomPlayerInvoker.init(
             appMediaItems: [widget.appMediaItem!],
             index: 0,
@@ -111,10 +113,10 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
             valueListenable: gradientColor,
             child: Scaffold(
                 resizeToAvoidBottomInset: false,
-                backgroundColor: AppColor.main75,
+                backgroundColor: AppColor.main50,
                 appBar: AppBar(
                   elevation: 0,
-                  backgroundColor: AppColor.main75,
+                  backgroundColor: AppColor.main50,
                   centerTitle: true,
                   leading: IconButton(
                     icon: Icon(appMediaItem == null ? Icons.expand_more_rounded : Icons.chevron_left),
@@ -130,7 +132,7 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
                         tooltip: PlayerTranslationConstants.addToPlaylist.tr,
                         iconSize: 35,
                         onPressed: () async {
-                          AddToPlaylist().addToPlaylist(context, appMediaItem!);
+                          AddToPlaylist().addToPlaylist(context, appMediaItem);
                         },
                       ),
                     IconButton(

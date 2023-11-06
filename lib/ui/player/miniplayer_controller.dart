@@ -177,7 +177,7 @@ class MiniPlayerController extends GetxController {
       trailing: SizedBox(
         width: item != null || isTimeline ? null : (MediaQuery.of(context).size.width/(item == null ? 6 : 3)),
         child: item == null
-            ? (isTimeline ? IconButton(onPressed: () => goToMusicPlayerHome(), icon: Icon(Icons.arrow_forward_ios))
+            ? (isTimeline ? IconButton(onPressed: () => goToMusicPlayerHome(), icon: const Icon(Icons.arrow_forward_ios))
             : Hero(tag: 'currentArtwork',
                 child: imageCard(
                   elevation: 8,

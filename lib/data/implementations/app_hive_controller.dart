@@ -1,13 +1,15 @@
 import 'dart:async';
 import 'dart:io';
+
 import 'package:audio_service/audio_service.dart';
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
-import 'package:neom_music_player/domain/entities/playlist_section.dart';
-import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
 import 'package:path_provider/path_provider.dart';
+
+import '../../domain/entities/playlist_section.dart';
+import '../../utils/constants/app_hive_constants.dart';
 
 class AppHiveController extends GetxController {
 

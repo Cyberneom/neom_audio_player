@@ -20,8 +20,8 @@ import '../ui/player/miniplayer_controller.dart';
 
 
 class MusicPlayerDrawer extends StatelessWidget {
-  MusicPlayerDrawer({super.key});
 
+  MusicPlayerDrawer({super.key});
 
   final ValueNotifier<int> _selectedIndex = ValueNotifier<int>(0);
 
@@ -201,4 +201,3 @@ class MusicPlayerDrawer extends StatelessWidget {
   }
 
 }
-

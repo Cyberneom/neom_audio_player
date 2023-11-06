@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:neom_commons/core/ui/widgets/appbar_child.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../../../utils/constants/player_translation_constants.dart';
-import '../../../widgets/gradient_container.dart';
 
 class AboutPage extends StatefulWidget {
   const AboutPage({super.key});
@@ -32,24 +32,9 @@ class _AboutPageState extends State<AboutPage> {
 
   @override
   Widget build(BuildContext context) {
-    return GradientContainer(
-      child: Scaffold(
-        backgroundColor: AppColor.main75,
-        appBar: AppBar(
-          elevation: 0,
-          backgroundColor: AppColor.main75,
-          centerTitle: true,
-          title: Text(
-            PlayerTranslationConstants.about.tr,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: Theme.of(context).iconTheme.color,
-            ),
-          ),
-          iconTheme: IconThemeData(
-            color: Theme.of(context).iconTheme.color,
-          ),
-        ),
+    return Scaffold(
+        backgroundColor: AppColor.main50,
+        appBar: AppBarChild(title: PlayerTranslationConstants.about.tr,),
         body: CustomScrollView(
           physics: const BouncingScrollPhysics(),
           slivers: [
@@ -64,9 +49,7 @@ class _AboutPageState extends State<AboutPage> {
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-
-                    ],
+                    children: [],
                   ),
                 ),
               ]),
@@ -93,7 +76,6 @@ class _AboutPageState extends State<AboutPage> {
             ),
           ],
         ),
-      ),
     );
   }
 }
