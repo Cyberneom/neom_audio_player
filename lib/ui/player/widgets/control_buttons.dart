@@ -178,9 +178,7 @@ class ControlButtons extends StatelessWidget {
               return !isOnline ? const SizedBox() : SizedBox(
                   height: miniplayer ? MusicPlayerConstants.miniPlayerHeight : MusicPlayerConstants.musicPlayerHeight,
                   width: miniplayer ? MusicPlayerConstants.miniPlayerWidth : MusicPlayerConstants.musicPlayerWidth,
-                  child: DownloadButton(
-                    size: 20.0,
-                    icon: 'download',
+                  child: DownloadButton(size: 20.0,
                     mediaItem: MediaItemMapper.fromMediaItem(mediaItem!),
                   ),
               );

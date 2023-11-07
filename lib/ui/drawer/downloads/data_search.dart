@@ -274,10 +274,7 @@ class DownloadsSearch extends SearchDelegate {
             : Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  DownloadButton(
-                    mediaItem: AppMediaItem.fromJSON(suggestionList[index] as Map),
-                    icon: 'download',
-                  ),
+                  DownloadButton(mediaItem: AppMediaItem.fromJSON(suggestionList[index] as Map),),
                   SongTileTrailingMenu(
                     appMediaItem: AppMediaItem.fromJSON(suggestionList[index] as Map),
                     itemlist: Itemlist(),

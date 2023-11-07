@@ -7,15 +7,14 @@ import '../../domain/use_cases/download.dart';
 import '../../utils/constants/player_translation_constants.dart';
 
 class DownloadButton extends StatefulWidget {
+
   final AppMediaItem mediaItem;
-  final String? icon;
-  final double? size;
+  final double size;
 
   const DownloadButton({
     super.key,
     required this.mediaItem,
-    this.icon,
-    this.size,
+    this.size = 25,
   });
 
   @override
@@ -46,16 +45,16 @@ class _DownloadButtonState extends State<DownloadButton> {
                 icon: const Icon(Icons.download_done_rounded),
                 tooltip: 'Download Done',
                 color: Theme.of(context).colorScheme.secondary,
-                iconSize: widget.size ?? 24.0,
+                iconSize: widget.size,
                 onPressed: () {
                   down.prepareDownload(context, widget.mediaItem);
                 },
               )
             : down.progress == 0
-            ? IconButton(icon: Icon(widget.icon == 'download' ? Icons.download_rounded : Icons.save_alt,),
-          iconSize: widget.size ?? 24.0,
+            ? IconButton(icon: const Icon(Icons.save_alt,),
+          iconSize: widget.size,
           color: Theme.of(context).iconTheme.color,
-          tooltip: 'Download',
+          tooltip: PlayerTranslationConstants.download.tr,
           onPressed: () {down.prepareDownload(context, widget.mediaItem);},
         ) : GestureDetector(
           child: Stack(

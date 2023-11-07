@@ -180,12 +180,8 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
                 },
               ),
               HiveBoxSwitchTile(
-                title: Text(
-                  PlayerTranslationConstants.createAlbumFold.tr,
-                ),
-                subtitle: Text(
-                  PlayerTranslationConstants.createAlbumFoldSub.tr,
-                ),
+                title: PlayerTranslationConstants.createAlbumFold.tr,
+                subtitle: PlayerTranslationConstants.createAlbumFoldSub.tr,
                 keyName: 'createDownloadFolder',
                 isThreeLine: true,
                 defaultValue: false,

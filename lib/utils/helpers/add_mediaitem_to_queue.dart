@@ -25,7 +25,7 @@ void addToNowPlaying({
 
       if (showNotification) {
         AppUtilities.showSnackBar(
-          message: PlayerTranslationConstants.addedToQueue.tr,
+          message: '${mediaItem.title} - ${PlayerTranslationConstants.addedToQueue.tr}',
         );
       }
     }

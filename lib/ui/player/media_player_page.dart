@@ -162,7 +162,9 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
                 ),
                 body: LayoutBuilder(
                   builder: (BuildContext context, BoxConstraints constraints,) {
-                    return appMediaItem != null ? Column(
+                    return Container(
+                      decoration: AppTheme.appBoxDecoration,
+                      child: appMediaItem != null ? Column(
                       children: [
                         // Artwork
                         ArtWorkWidget(
@@ -178,7 +180,8 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
                           panelController: _panelController, audioHandler: audioHandler,
                         ),
                       ],
-                    ) : Container();
+                    ) : Container(),
+                    );
                   },
                 ),
             ),

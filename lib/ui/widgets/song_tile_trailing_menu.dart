@@ -66,7 +66,7 @@ class _SongTileTrailingMenuState extends State<SongTileTrailingMenu> {
               ],
             ),
         ),
-        if(widget.appMediaItem.mediaSource == AppMediaSource.internal) PopupMenuItem(
+        PopupMenuItem(
           value: 1,
           child: Row(
             children: [
@@ -79,21 +79,20 @@ class _SongTileTrailingMenuState extends State<SongTileTrailingMenu> {
             ],
           ),
         ),
-        if(widget.appMediaItem.mediaSource == AppMediaSource.internal)
-          PopupMenuItem(
-            value: 2,
-            child: Row(
-              children: [
-                Icon(
-                  Icons.playlist_play_rounded,
-                  color: Theme.of(context).iconTheme.color,
-                  size: 26.0,
-                ),
-                const SizedBox(width: 10.0),
-                Text(PlayerTranslationConstants.playNext.tr),
-              ],
-            ),
+        PopupMenuItem(
+          value: 2,
+          child: Row(
+            children: [
+              Icon(
+                Icons.playlist_play_rounded,
+                color: Theme.of(context).iconTheme.color,
+                size: 26.0,
+              ),
+              const SizedBox(width: 10.0),
+              Text(PlayerTranslationConstants.playNext.tr),
+            ],
           ),
+        ),
         PopupMenuItem(
           value: 3,
           child: Row(

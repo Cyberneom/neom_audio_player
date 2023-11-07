@@ -4,6 +4,8 @@ import 'package:audio_service/audio_service.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:neom_commons/core/utils/app_color.dart';
+import 'package:neom_commons/core/utils/app_theme.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
@@ -20,6 +22,8 @@ class NowPlayingStream extends StatelessWidget {
   final PanelController? panelController;
   final bool head;
   final double headHeight;
+  final bool downloadAllowed;
+  final bool showLikeButton;
 
   const NowPlayingStream({super.key,
     required this.audioHandler,
@@ -27,14 +31,13 @@ class NowPlayingStream extends StatelessWidget {
     this.panelController,
     this.head = false,
     this.headHeight = 50,
+    this.downloadAllowed = false,
+    this.showLikeButton = true,
   });
 
-  void _updateScrollController(
-      ScrollController? controller,
-      int itemIndex,
-      int queuePosition,
-      int queueLength,
-      ) {
+  void _updateScrollController(ScrollController? controller, int itemIndex,
+      int queuePosition, int queueLength,) {
+
     if (panelController != null && !panelController!.isPanelOpen) {
       if (queuePosition > 3) {
         controller?.animateTo(
@@ -76,13 +79,9 @@ class NowPlayingStream extends StatelessWidget {
         );
 
         return ReorderableListView.builder(
-          header: SizedBox(
-            height: head ? headHeight : 0,
-          ),
+          header: SizedBox(height: head ? headHeight : 0,),
           onReorder: (int oldIndex, int newIndex) {
-            if (oldIndex < newIndex) {
-              newIndex--;
-            }
+            if (oldIndex < newIndex) newIndex--;
             audioHandler.moveQueueItem(oldIndex, newIndex);
           },
           scrollController: scrollController,
@@ -97,37 +96,26 @@ class NowPlayingStream extends StatelessWidget {
               direction: index == queueState.queueIndex
                   ? DismissDirection.none
                   : DismissDirection.horizontal,
-              onDismissed: (dir) {
-                audioHandler.removeQueueItemAt(index);
-              },
-              child:
-              ListTileTheme(
+              onDismissed: (dir) => audioHandler.removeQueueItemAt(index),
+              child: ListTileTheme(
                 selectedColor: Theme.of(context).colorScheme.secondary,
                 child: ListTile(
                   contentPadding: const EdgeInsets.only(left: 16.0, right: 10.0),
                   selected: index == queueState.queueIndex,
+                  tileColor: AppColor.main75,
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: (index == queueState.queueIndex)
                         ? [
                       IconButton(
-                        icon: const Icon(
-                          Icons.bar_chart_rounded,
-                        ),
+                        icon: const Icon(Icons.bar_chart_rounded,),
                         tooltip: PlayerTranslationConstants.playing.tr,
                         onPressed: () {},
                       ),
                     ] : [
-                      if (item.extras!['url'].toString()
-                          .startsWith('http')) ...[
-                        LikeButton(
-                          appMediaItem: MediaItemMapper.fromMediaItem(queue[index]),
-                        ),
-                        DownloadButton(
-                          icon: 'download',
-                          size: 25.0,
-                          mediaItem: MediaItemMapper.fromMediaItem(queue[index]),
-                        ),
+                      if(item.extras!['url'].toString().startsWith('http')) ...[
+                        if(showLikeButton) LikeButton(appMediaItem: MediaItemMapper.fromMediaItem(queue[index]),),
+                        if(downloadAllowed) DownloadButton(mediaItem: MediaItemMapper.fromMediaItem(queue[index]),),
                       ],
                       ReorderableDragStartListener(
                         key: Key(item.id),
@@ -175,9 +163,7 @@ class NowPlayingStream extends StatelessWidget {
                                 ),
                               ],
                             ),
-                            const SizedBox(
-                              height: 5.0,
-                            ),
+                            AppTheme.heightSpace5
                           ],
                         ),
                       Card(
@@ -190,44 +176,30 @@ class NowPlayingStream extends StatelessWidget {
                         child: (item.artUri == null)
                             ? const SizedBox.square(
                           dimension: 50,
-                          child: Image(
-                            image: AssetImage(AppAssets.musicPlayerCover),
-                          ),
-                        )
-                            : SizedBox.square(
+                          child: Image(image: AssetImage(AppAssets.musicPlayerCover),),
+                        ) : SizedBox.square(
                           dimension: 50,
-                          child: queue[index]
-                              .artUri
-                              .toString()
-                              .startsWith('file:')
+                          child: queue[index].artUri.toString().startsWith('file:')
                               ? Image(
+                              image: FileImage(File(item.artUri!.toFilePath(),),),
+                              fit: BoxFit.cover,
+                          ) : CachedNetworkImage(
                             fit: BoxFit.cover,
-                            image: FileImage(
-                              File(
-                                item.artUri!.toFilePath(),
-                              ),
-                            ),
-                          )
-                              : CachedNetworkImage(
-                            fit: BoxFit.cover,
-                            errorWidget:
-                                (BuildContext context, _, __) =>
+                            errorWidget: (BuildContext context, _, __) =>
                             const Image(
                               fit: BoxFit.cover,
                               image: AssetImage(
                                 AppAssets.musicPlayerCover,
                               ),
                             ),
-                            placeholder:
-                                (BuildContext context, _) =>
+                            placeholder: (BuildContext context, _) =>
                             const Image(
                               fit: BoxFit.cover,
                               image: AssetImage(
                                 AppAssets.musicPlayerCover,
                               ),
                             ),
-                            imageUrl:
-                            item.artUri.toString(),
+                            imageUrl: item.artUri.toString(),
                           ),
                         ),
                       ),
@@ -238,8 +210,7 @@ class NowPlayingStream extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       fontWeight: index == queueState.queueIndex
-                          ? FontWeight.w600
-                          : FontWeight.normal,
+                          ? FontWeight.w600 : FontWeight.normal,
                     ),
                   ),
                   subtitle: Text(

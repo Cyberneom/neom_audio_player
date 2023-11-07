@@ -9,6 +9,8 @@ import 'package:hive/hive.dart';
 import 'package:neom_commons/core/data/implementations/user_controller.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/domain/model/item_list.dart';
+import 'package:neom_commons/core/utils/app_color.dart';
+import 'package:neom_commons/core/utils/app_theme.dart';
 import 'package:neom_commons/core/utils/constants/app_route_constants.dart';
 import 'package:rxdart/rxdart.dart' as rx;
 import 'package:sliding_up_panel/sliding_up_panel.dart';
@@ -36,6 +38,7 @@ class NameNControls extends StatelessWidget {
   // final List<Color?>? gradientColor;
   final PanelController panelController;
   final NeomAudioHandler audioHandler;
+  final bool downloadAllowed;
 
   const NameNControls({super.key,
     required this.width,
@@ -45,6 +48,7 @@ class NameNControls extends StatelessWidget {
     required this.audioHandler,
     required this.panelController,
     this.offline = false,
+    this.downloadAllowed = false,
   });
 
   Stream<Duration> get _bufferedPositionStream => audioHandler.playbackState
@@ -225,7 +229,6 @@ class NameNControls extends StatelessWidget {
                   },
                 ),
               ),
-
               /// Final row starts from here
               SizedBox(
                 height: controlBoxHeight,
@@ -240,32 +243,26 @@ class NameNControls extends StatelessWidget {
                           Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const SizedBox(height: 6.0),
+                              AppTheme.heightSpace5,
                               StreamBuilder<bool>(
                                 stream: audioHandler.playbackState
                                     .map((state) => state.shuffleMode == AudioServiceShuffleMode.all,).distinct(),
                                 builder: (context, snapshot) {
-                                  final shuffleModeEnabled =
-                                      snapshot.data ?? false;
+                                  final shuffleModeEnabled = snapshot.data ?? false;
                                   return IconButton(icon: shuffleModeEnabled
                                         ? const Icon(Icons.shuffle_rounded,)
                                         : Icon(Icons.shuffle_rounded, color: Theme.of(context).disabledColor,),
                                     tooltip: PlayerTranslationConstants.shuffle.tr,
                                     onPressed: () async {
                                       final enable = !shuffleModeEnabled;
-                                      await audioHandler.setShuffleMode(
-                                        enable
-                                            ? AudioServiceShuffleMode.all
-                                            : AudioServiceShuffleMode.none,
+                                      await audioHandler.setShuffleMode(enable
+                                          ? AudioServiceShuffleMode.all : AudioServiceShuffleMode.none,
                                       );
                                     },
                                   );
                                 },
                               ),
-                              if (!offline)
-                                LikeButton(appMediaItem: appMediaItem,
-                                    size: 25.0,
-                                ),
+                              if (!offline) LikeButton(appMediaItem: appMediaItem),
                             ],
                           ),
                           Column(
@@ -273,27 +270,19 @@ class NameNControls extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               ControlButtons(audioHandler, mediaItem: mediaItem,),
-                              // TextButton(
-                              //     onPressed: () => {}, child: Text(
-                              //   "Escuchar en Spotify", style: TextStyle(decoration: TextDecoration.underline, fontSize: 15, color: AppColor.white),))
                             ],
                           ),
                           Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const SizedBox(height: 6.0),
+                              AppTheme.heightSpace5,
                               StreamBuilder<AudioServiceRepeatMode>(
-                                stream: audioHandler.playbackState
-                                    .map((state) => state.repeatMode)
-                                    .distinct(),
+                                stream: audioHandler.playbackState.map((state) => state.repeatMode).distinct(),
                                 builder: (context, snapshot) {
-                                  final repeatMode = snapshot.data ??
-                                      AudioServiceRepeatMode.none;
+                                  final repeatMode = snapshot.data ?? AudioServiceRepeatMode.none;
                                   const texts = ['None', 'All', 'One'];
                                   final icons = [
-                                    Icon(Icons.repeat_rounded,
-                                      color: Theme.of(context).disabledColor,
-                                    ),
+                                    Icon(Icons.repeat_rounded, color: Theme.of(context).disabledColor,),
                                     const Icon(Icons.repeat_rounded,),
                                     const Icon(Icons.repeat_one_rounded,),
                                   ];
@@ -307,19 +296,18 @@ class NameNControls extends StatelessWidget {
                                     icon: icons[index],
                                     tooltip: 'Repeat ${texts[(index + 1) % texts.length]}',
                                     onPressed: () async {
-                                      await Hive.box(AppHiveConstants.settings).put('repeatMode', texts[(index + 1) % texts.length],);
-                                      await audioHandler.setRepeatMode(cycleModes[
-                                        (cycleModes.indexOf(repeatMode) + 1) % cycleModes.length],
+                                      await Hive.box(AppHiveConstants.settings)
+                                          .put('repeatMode', texts[(index + 1) % texts.length],);
+                                      await audioHandler.setRepeatMode(
+                                        cycleModes[(cycleModes.indexOf(repeatMode) + 1) % cycleModes.length],
                                       );
                                     },
                                   );
                                 },
                               ),
-                              MusicPlayerUtilities.isOwnMediaItem(appMediaItem) ?
-                                DownloadButton(size: 25.0,
-                                  mediaItem: MediaItemMapper.fromMediaItem(mediaItem),
-                                ) : GoSpotifyButton(appMediaItem: appMediaItem),
-
+                              MusicPlayerUtilities.isOwnMediaItem(appMediaItem)
+                                  ? (downloadAllowed ? DownloadButton(mediaItem: MediaItemMapper.fromMediaItem(mediaItem),): Container())
+                                  : GoSpotifyButton(appMediaItem: appMediaItem),
                             ],
                           ),
                         ],
@@ -332,26 +320,18 @@ class NameNControls extends StatelessWidget {
             ],
           ),
           // Up Next with blur background
-          true ? Container() : SlidingUpPanel(
+          false ? Container() : SlidingUpPanel(
             minHeight: nowplayingBoxHeight,
-            maxHeight: 350,
+            maxHeight: AppTheme.fullHeight(context)/2,
             borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(15.0),
               topRight: Radius.circular(15.0),
             ),
-            margin: EdgeInsets.zero,
-            padding: EdgeInsets.zero,
-            boxShadow: const [],
-            color: ['fullLight', 'fullMix'].contains(gradientType)
-                ? const Color.fromRGBO(0, 0, 0, 0.05)
-                : const Color.fromRGBO(0, 0, 0, 0.5),
+            padding: const EdgeInsets.only(right: 10),
+            color: AppColor.main75,
             controller: panelController,
             panelBuilder: (ScrollController scrollController) {
               return ClipRRect(
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(15.0),
-                  topRight: Radius.circular(15.0),
-                ),
                 child: BackdropFilter(
                   filter: ui.ImageFilter.blur(sigmaX: 8.0, sigmaY: 8.0,),
                   child: ShaderMask(
@@ -360,9 +340,8 @@ class NameNControls extends StatelessWidget {
                         end: Alignment.topCenter,
                         begin: Alignment.center,
                         colors: [Colors.black, Colors.black, Colors.black,
-                          Colors.transparent, Colors.transparent,],).createShader(
-                        Rect.fromLTRB(0, 0, rect.width, rect.height,
-                        ),
+                          Colors.transparent, Colors.transparent,],)
+                          .createShader(Rect.fromLTRB(0, 0, rect.width, rect.height,),
                       );
                     },
                     blendMode: BlendMode.dstIn,
@@ -372,6 +351,8 @@ class NameNControls extends StatelessWidget {
                       audioHandler: audioHandler,
                       scrollController: scrollController,
                       panelController: panelController,
+                      showLikeButton: false,
+
                     ),
                   ),
                 ),

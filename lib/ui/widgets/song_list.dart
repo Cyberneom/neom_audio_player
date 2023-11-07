@@ -214,10 +214,7 @@ class _SongsListPageState extends State<SongsListPage> {
                           children: [
                             if((appMediaItem.url.contains(AppFlavour.getHubName()) || appMediaItem.url.contains(UrlConstants.firebaseURL))
                                 && appMediaItem.mediaSource == AppMediaSource.internal)
-                              DownloadButton(size: 25.0,
-                                mediaItem: appMediaItem,
-                                icon: 'download',
-                              )
+                              DownloadButton(mediaItem: appMediaItem,)
                             else GoSpotifyButton(appMediaItem: appMediaItem),
                             LikeButton(appMediaItem: appMediaItem,),
                             SongTileTrailingMenu(appMediaItem: appMediaItem, itemlist: widget.itemlist),

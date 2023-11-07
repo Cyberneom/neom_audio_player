@@ -16,9 +16,9 @@ import 'constants/player_translation_constants.dart';
 
 class MusicPlayerUtilities {
 
-  final NeomAudioHandler audioHandler = GetIt.I<NeomAudioHandler>();
+  static final NeomAudioHandler audioHandler = GetIt.I<NeomAudioHandler>();
 
-  String getSubTitle(Map item) {
+  static String getSubTitle(Map item) {
     AppUtilities.logger.e('Getting SubtTitle.');
     final type = item['type'];
     switch (type) {
@@ -50,7 +50,7 @@ class MusicPlayerUtilities {
     }
   }
 
-  Future<dynamic> setCounter(BuildContext context) async {
+  static Future<dynamic> setCounter(BuildContext context) async {
     showTextInputDialog(
       context: context,
       title: PlayerTranslationConstants.enterSongsCount.tr,
@@ -68,15 +68,15 @@ class MusicPlayerUtilities {
     );
   }
 
-  void sleepTimer(int time) {
+  static void sleepTimer(int time) {
     audioHandler.customAction('sleepTimer', {'time': time});
   }
 
-  void sleepCounter(int count) {
+  static void sleepCounter(int count) {
     audioHandler.customAction('sleepCounter', {'count': count});
   }
 
-  Future<dynamic> setTimer(BuildContext context, BuildContext? scaffoldContext, Duration time,) {
+  static Future<dynamic> setTimer(BuildContext context, BuildContext? scaffoldContext, Duration time,) {
     return showDialog(
       context: context,
       builder: (context) {
@@ -124,7 +124,7 @@ class MusicPlayerUtilities {
                     foregroundColor: Theme.of(context).colorScheme.secondary,
                   ),
                   onPressed: () {
-                    MusicPlayerUtilities().sleepTimer(0);
+                    sleepTimer(0);
                     Navigator.pop(context);
                   },
                   child: Text(PlayerTranslationConstants.cancel.tr),
@@ -137,7 +137,7 @@ class MusicPlayerUtilities {
                         ? Colors.black : Colors.white,
                   ),
                   onPressed: () {
-                    MusicPlayerUtilities().sleepTimer(time.inMinutes);
+                    sleepTimer(time.inMinutes);
                     Navigator.pop(context);
                     AppUtilities.showSnackBar(
                       message: '${PlayerTranslationConstants.sleepTimerSetFor.tr} ${time.inMinutes} ${PlayerTranslationConstants.minutes.tr}',
@@ -186,25 +186,17 @@ class MusicPlayerUtilities {
                   dense: true,
                   onTap: () {
                     Navigator.pop(context);
-                    MusicPlayerUtilities().setTimer(
-                        context,
-                        scaffoldContext,
-                        time,
-                    );
+                    setTimer(context, scaffoldContext, time,);
                   },
                 ),
                 ListTile(
-                  title: Text(
-                    PlayerTranslationConstants.sleepAfter.tr,
-                  ),
-                  subtitle: Text(
-                    PlayerTranslationConstants.sleepAfterSub.tr,
-                  ),
+                  title: Text(PlayerTranslationConstants.sleepAfter.tr,),
+                  subtitle: Text(PlayerTranslationConstants.sleepAfterSub.tr,),
                   dense: true,
                   isThreeLine: true,
                   onTap: () {
                     Navigator.pop(context);
-                    MusicPlayerUtilities().setCounter(context);
+                    setCounter(context);
                   },
                 ),
               ],
@@ -213,7 +205,8 @@ class MusicPlayerUtilities {
         );
       case 10:
         final Map details = appMediaItem.toJSON();
-        details['duration'] = '${(int.parse(details["duration"].toString()) ~/ 60).toString().padLeft(2, "0")}:${(int.parse(details["duration"].toString()) % 60).toString().padLeft(2, "0")}';
+        details['duration'] = '${(int.parse(details["duration"].toString()) ~/ 60).toString().padLeft(2, "0")}'
+            ':${(int.parse(details["duration"].toString()) % 60).toString().padLeft(2, "0")}';
         // style: Theme.of(context).textTheme.caption,
         PopupDialog().showPopup(
           context: context,

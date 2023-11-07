@@ -12,12 +12,12 @@ import '../../utils/constants/player_translation_constants.dart';
 class LikeButton extends StatefulWidget {
 
   final AppMediaItem? appMediaItem;
-  final double? size;
+  final double size;
 
   const LikeButton({
     super.key,
     this.appMediaItem,
-    this.size,
+    this.size = 25,
   });
 
   @override
@@ -76,7 +76,7 @@ class _LikeButtonState extends State<LikeButton>
           liked ? Icons.favorite_rounded : Icons.favorite_border_rounded,
           color: liked ? Colors.redAccent : Theme.of(context).iconTheme.color,
         ),
-        iconSize: widget.size ?? 24.0,
+        iconSize: widget.size,
         tooltip: liked ? PlayerTranslationConstants.unlike.tr : PlayerTranslationConstants.like.tr,
         onPressed: () async {
           String itemId = widget.appMediaItem?.id ?? '';

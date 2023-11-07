@@ -183,7 +183,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
         final int lastIndex = AppHiveController().lastIndex;
         final int lastPos = AppHiveController().lastPos;
 
-        if (lastQueueList.isNotEmpty && lastQueueList.first['genre'] != 'YouTube') {
+        if (lastQueueList.isNotEmpty) {
           final List<MediaItem> lastQueue = lastQueueList.map((e) => MediaItemMapper.fromJSON(e as Map)).toList();
           if (lastQueue.isEmpty) {
             await _player.setAudioSource(_playlist, preload: false);
@@ -379,8 +379,8 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
   }
 
   Future<void> addLastQueue(List<MediaItem> queue) async {
-    if (queue.isNotEmpty && queue.first.genre != 'YouTube') {
-      AppUtilities.logger.i('saving last queue');
+    if (queue.isNotEmpty) {
+      AppUtilities.logger.i('Saving last queue');
       final lastQueue = queue.map((item) {
         return MediaItemMapper.toJSON(item);
       }).toList();

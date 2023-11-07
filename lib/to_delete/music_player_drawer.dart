@@ -62,8 +62,9 @@ class MusicPlayerDrawer extends StatelessWidget {
                       drawerRowOption(MusicPlayerDrawerMenu.nowPlaying,  const Icon(Icons.queue_music_rounded,), context),
                       drawerRowOption(MusicPlayerDrawerMenu.lastSession, const Icon(Icons.history_rounded), context),
                       drawerRowOption(MusicPlayerDrawerMenu.favorites, const Icon(Icons.favorite_rounded), context),
+                      drawerRowOption(MusicPlayerDrawerMenu.stats, const Icon(Icons.download_done_rounded,), context),
                       // drawerRowOption(MusicPlayerDrawerMenu.myMusic, const Icon(MdiIcons.folderMusic,), context),
-                      // drawerRowOption(MusicPlayerDrawerMenu.stats, const Icon(Icons.download_done_rounded,), context),
+
                       // drawerRowOption(MusicPlayerDrawerMenu.downloads, const Icon(Icons.download_done_rounded,), context),
                       drawerRowOption(MusicPlayerDrawerMenu.settings, const Icon(Icons.playlist_play_rounded,), context),
                     ],
@@ -141,8 +142,7 @@ class MusicPlayerDrawer extends StatelessWidget {
             case MusicPlayerDrawerMenu.lastSession:
               Navigator.pushNamed(context, '/recent');
             case MusicPlayerDrawerMenu.favorites:
-              Navigator.push(
-                context,
+              Navigator.push(context,
                 MaterialPageRoute(
                   builder: (context) => const PlaylistPlayerPage(
                     alternativeName: AppHiveConstants.favoriteSongs,
@@ -151,11 +151,9 @@ class MusicPlayerDrawer extends StatelessWidget {
                 ),
               );
             case MusicPlayerDrawerMenu.myMusic:
-              Navigator.push(
-                context,
+              Navigator.push(context,
                 MaterialPageRoute(
-                  builder: (context) =>
-                      const DownloadedSongs(showPlaylists: true,),
+                  builder: (context) => const DownloadedSongs(showPlaylists: true,),
                 ),
               );
             case MusicPlayerDrawerMenu.downloads:

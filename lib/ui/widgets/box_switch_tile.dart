@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/adapters.dart';
+import 'package:neom_commons/core/utils/app_theme.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import '../../utils/constants/app_hive_constants.dart';
 
@@ -15,8 +16,8 @@ class HiveBoxSwitchTile extends StatelessWidget {
     this.contentPadding,
   });
 
-  final Text title;
-  final Text? subtitle;
+  final String title;
+  final String? subtitle;
   final String keyName;
   final bool defaultValue;
   final bool? isThreeLine;
@@ -31,8 +32,8 @@ class HiveBoxSwitchTile extends StatelessWidget {
         return SwitchListTile(
           activeColor: Theme.of(context).colorScheme.secondary,
           contentPadding: contentPadding,
-          title: title,
-          subtitle: subtitle,
+          title: Text(title, style: AppTheme.settingsTitleStyle,),
+          subtitle: subtitle != null ? Text(subtitle!, style: AppTheme.settingsSubtitleStyle, textAlign: TextAlign.justify,) : null,
           isThreeLine: isThreeLine ?? false,
           dense: true,
           value: box.get(keyName, defaultValue: defaultValue) as bool? ??

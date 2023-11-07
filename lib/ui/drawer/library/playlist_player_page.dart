@@ -10,6 +10,7 @@ import 'package:neom_commons/core/ui/widgets/app_circular_progress_indicator.dar
 import 'package:neom_commons/core/ui/widgets/appbar_child.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_theme.dart';
+import 'package:neom_commons/core/utils/constants/app_constants.dart';
 import 'package:neom_itemlists/itemlists/data/firestore/app_media_item_firestore.dart';
 
 import '../../../data/implementations/playlist_hive_controller.dart';
@@ -106,14 +107,13 @@ class _PlaylistPlayerPageState extends State<PlaylistPlayerPage>
     return Scaffold(
       backgroundColor: AppColor.main50,
       appBar: AppBarChild(
-        title: widget.itemlist != null
-            ? widget.itemlist?.name.tr.capitalizeFirst ?? ''
-            : widget.alternativeName.tr.capitalizeFirst,
+        title: widget.itemlist != null ? (widget.itemlist!.name.length > AppConstants.maxAppBarTitleLength ?
+        '${widget.itemlist!.name.capitalizeFirst.substring(0,AppConstants.maxAppBarTitleLength)}...' : widget.itemlist!.name.capitalizeFirst) : '',
         actionWidgets: [
           Theme(
             data: Theme.of(context).copyWith(
               popupMenuTheme: PopupMenuThemeData(
-                color: AppColor.getMain(), // Set your desired color here
+                color: AppColor.getMain(),
               ),
             ),
             child: PopupMenuButton(
