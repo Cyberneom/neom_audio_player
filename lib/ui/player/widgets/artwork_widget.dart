@@ -302,12 +302,11 @@ class _ArtWorkWidgetState extends State<ArtWorkWidget> {
             builder: (context, snapshot) {
               final queueState = snapshot.data ?? QueueState.empty;
 
-              final bool enabled = Hive.box(AppHiveConstants.settings)
-                  .get('enableGesture', defaultValue: true) as bool;
+              final bool enabled = Hive.box(AppHiveConstants.settings).get('enableGesture', defaultValue: true) as bool;
               return GestureDetector(
                 onTap: !enabled ? null : () {
                   AddToPlaylist().addToPlaylist(context, widget.appMediaItem,);
-                  //TODO WHEN ADDING MORE FUNCTIONS
+                  ///TODO WHEN ADDING MORE FUNCTIONS
                   // tapped.value = true;
                   // Future.delayed(const Duration(seconds: 2), () async {
                   //   tapped.value = false;

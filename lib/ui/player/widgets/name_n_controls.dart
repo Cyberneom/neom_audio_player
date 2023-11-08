@@ -12,6 +12,7 @@ import 'package:neom_commons/core/domain/model/item_list.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_theme.dart';
 import 'package:neom_commons/core/utils/constants/app_route_constants.dart';
+import 'package:neom_commons/core/utils/constants/app_translation_constants.dart';
 import 'package:rxdart/rxdart.dart' as rx;
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
@@ -26,7 +27,7 @@ import '../../widgets/go_spotify_button.dart';
 import '../../widgets/like_button.dart';
 import '../../widgets/seek_bar.dart';
 import '../../widgets/song_list.dart';
-import 'animated_text.dart';
+import '../../../to_delete/animated_text.dart';
 import 'control_buttons.dart';
 import 'now_playing_stream.dart';
 
@@ -35,7 +36,6 @@ class NameNControls extends StatelessWidget {
   final bool offline;
   final double width;
   final double height;
-  // final List<Color?>? gradientColor;
   final PanelController panelController;
   final NeomAudioHandler audioHandler;
   final bool downloadAllowed;
@@ -44,7 +44,6 @@ class NameNControls extends StatelessWidget {
     required this.width,
     required this.height,
     required this.appMediaItem,
-    // required this.gradientColor,
     required this.audioHandler,
     required this.panelController,
     this.offline = false,
@@ -61,8 +60,7 @@ class NameNControls extends StatelessWidget {
         AudioService.position,
         _bufferedPositionStream,
         _durationStream,
-            (position, bufferedPosition, duration) =>
-            PositionData(position, bufferedPosition, duration ?? Duration.zero),
+        (position, bufferedPosition, duration) => PositionData(position, bufferedPosition, duration ?? Duration.zero),
       );
 
   @override
@@ -74,8 +72,6 @@ class NameNControls extends StatelessWidget {
         : (height < 350 ? height * 0.4 : height > 500
         ? height * 0.2 : height * 0.3);
     final double nowplayingBoxHeight = min(70, height * 0.15);
-    final String gradientType = Hive.box(AppHiveConstants.settings)
-        .get('gradientType', defaultValue: 'halfDark').toString();
 
     MediaItem mediaItem = MediaItemMapper.appMediaItemToMediaItem(appMediaItem: appMediaItem);
     final List<String> artists = mediaItem.artist.toString().split(', ');
@@ -88,142 +84,71 @@ class NameNControls extends StatelessWidget {
           Column(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              /// Title and subtitle
               SizedBox(
                 height: titleBoxHeight,
-                child: PopupMenuButton<String>(
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(15.0)),
-                  ),
-                  offset: const Offset(1.0, 0.0),
-                  onSelected: (String value) {
-                    if (value == '0') {
-                      Navigator.push(context,
-                        PageRouteBuilder(
-                          opaque: false,
-                          pageBuilder: (_, __, ___) => SongsListPage(itemlist: Itemlist(),
+                child: Center(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: width * 0.07),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(mediaItem.title.trim(),
+                          style: TextStyle(
+                            fontSize: titleBoxHeight/3,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
-                      );
-                    } else {
-                      // Navigator.push(
-                      //   context,
-                      //   PageRouteBuilder(
-                      //     opaque: false,
-                      //     pageBuilder: (_, __, ___) => AlbumSearchPage(
-                      //       query: value,
-                      //       type: 'Artists',
-                      //     ),
-                      //   ),
-                      // );
-                    }
-                  },
-                  itemBuilder: (BuildContext context) =>
-                  <PopupMenuEntry<String>>[
-                    // if (mediaItem.extras?['album_id'] != null)
-                    //   PopupMenuItem<String>(
-                    //     value: '0',
-                    //     child: Row(
-                    //       children: [
-                    //         const Icon(Icons.album_rounded,),
-                    //         const SizedBox(width: 10.0),
-                    //         Text(
-                    //           PlayerTranslationConstants.viewAlbum.tr,
-                    //         ),
-                    //       ],
-                    //     ),
-                    //   ),
-                    // if (mediaItem.artist != null)
-                    //   ...artists.map(
-                    //         (String artist) => PopupMenuItem<String>(
-                    //       value: artist,
-                    //       child: SingleChildScrollView(
-                    //         scrollDirection: Axis.horizontal,
-                    //         child: Row(
-                    //           children: [
-                    //             const Icon(Icons.person_rounded,),
-                    //             const SizedBox(width: 10.0),
-                    //             Text('${PlayerTranslationConstants.viewArtist.tr} ($artist)',),
-                    //           ],
-                    //         ),
-                    //       ),
-                    //     ),
-                    //   )
-                  ],
-                  child: Center(
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: width * 0.07),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          /// Title container
-                          AnimatedText(
-                            text: mediaItem.title.trim(),
-                            pauseAfterRound: const Duration(seconds: 3),
-                            showFadingOnlyWhenScrolling: false,
-                            fadingEdgeEndFraction: 0.05,
-                            fadingEdgeStartFraction: 0.05,
-                            startAfter: const Duration(seconds: 2),
+                        AppTheme.heightSpace5,
+                        GestureDetector(
+                          child: Text(
+                            '${(mediaItem.artist ?? '').isNotEmpty ? mediaItem.artist : AppTranslationConstants.unknown.tr.capitalizeFirst}'
+                                '${(mediaItem.album ?? '').isNotEmpty && (mediaItem.album ?? '') != (mediaItem.artist ?? '') ? ' • ${mediaItem.album}' : ''}',
                             style: TextStyle(
-                              fontSize: titleBoxHeight / 3.5,
-                              fontWeight: FontWeight.bold,
-                              // color: Theme.of(context).accentColor,
+                              fontSize: titleBoxHeight / 6.75,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
-                          SizedBox(
-                            height: titleBoxHeight / 40,
-                          ),
-                          /// Subtitle container
-                          GestureDetector(
-                           child: AnimatedText(
-                             text: ((mediaItem.album ?? '').isEmpty ||
-                                 ((mediaItem.album ?? '') ==
-                                     (mediaItem.artist ?? '')))
-                                 ? '${(mediaItem.artist ?? "").isEmpty ? "Unknown" : mediaItem.artist}'
-                                 : '${(mediaItem.artist ?? "").isEmpty ? "Unknown" : mediaItem.artist} • ${mediaItem.album}',
-                             pauseAfterRound: const Duration(seconds: 3),
-                             showFadingOnlyWhenScrolling: false,
-                             fadingEdgeEndFraction: 0.05,
-                             fadingEdgeStartFraction: 0.05,
-                             startAfter: const Duration(seconds: 2),
-                             style: TextStyle(
-                               fontSize: titleBoxHeight / 6.75,
-                               fontWeight: FontWeight.w600,
-                             ),
-                           ),
-                            onTap: () => Get.find<UserController>().profile.id == appMediaItem.artistId ? Get.toNamed(AppRouteConstants.profile)
-                                : Get.toNamed(AppRouteConstants.mateDetails, arguments: appMediaItem.artistId),
-                          ),
-                        ],
-                      ),
+                          onTap: () => appMediaItem.artistId.isEmpty ? {}
+                              : Get.find<UserController>().profile.id == appMediaItem.artistId ? Get.toNamed(AppRouteConstants.profile)
+                              : Get.toNamed(AppRouteConstants.mateDetails, arguments: appMediaItem.artistId),
+                        ),
+                      ],
                     ),
                   ),
                 ),
               ),
-
               /// Seekbar starts from here
-              SizedBox(
+              Container(
                 height: seekBoxHeight,
-                width: width * 0.95,
+                padding: EdgeInsets.symmetric(horizontal: 10),
                 child: StreamBuilder<PositionData>(
                   stream: _positionDataStream,
                   builder: (context, snapshot) {
-                    final positionData = snapshot.data ??
-                        PositionData(
-                          Duration.zero,
-                          Duration.zero,
-                          MusicPlayerUtilities.isOwnMediaItem(appMediaItem)
-                              ? (mediaItem.duration ?? Duration.zero)
-                              : const Duration(seconds: 30),
-                        );
+
+                    Duration position = Duration.zero;
+                    Duration bufferedPosition = Duration.zero;
+                    Duration duration = Duration.zero;
+
+                    if(MusicPlayerUtilities.isOwnMediaItem(appMediaItem) && appMediaItem.duration != null) {
+                      duration = mediaItem.duration!;
+                    } else {
+                      duration = const Duration(seconds: 30);
+                      bufferedPosition = const Duration(seconds: 30);
+                    }
+
+                    if(snapshot.data != null) {
+                      PositionData positionData = snapshot.data!;
+                      position = positionData.position;
+                      bufferedPosition = positionData.bufferedPosition;
+                      duration = positionData.duration;
+                    }
+
                     return SeekBar(
-                      duration: positionData.duration,
-                      position: positionData.position,
-                      bufferedPosition: positionData.bufferedPosition,
+                      position: position,
+                      bufferedPosition: bufferedPosition,
+                      duration: duration,
                       offline: offline,
-                      onChangeEnd: (newPosition) {
-                        audioHandler.seek(newPosition);
-                      },
+                      onChangeEnd: (newPosition) => audioHandler.seek(newPosition),
                       audioHandler: audioHandler,
                     );
                   },
@@ -319,8 +244,7 @@ class NameNControls extends StatelessWidget {
               SizedBox(height: nowplayingBoxHeight,),
             ],
           ),
-          // Up Next with blur background
-          false ? Container() : SlidingUpPanel(
+          SlidingUpPanel(
             minHeight: nowplayingBoxHeight,
             maxHeight: AppTheme.fullHeight(context)/2,
             borderRadius: const BorderRadius.only(
@@ -330,6 +254,57 @@ class NameNControls extends StatelessWidget {
             padding: const EdgeInsets.only(right: 10),
             color: AppColor.main75,
             controller: panelController,
+            header: GestureDetector(
+              onTap: () {
+                if (panelController.isPanelOpen) {
+                  panelController.close();
+                } else {
+                  if (panelController.panelPosition > 0.9) {
+                    panelController.close();
+                  } else {
+                    panelController.open();
+                  }
+                }
+              },
+              onVerticalDragUpdate: (DragUpdateDetails details) {
+                if (details.delta.dy > 0.0) {
+                  panelController.animatePanelToPosition(0.0);
+                }
+              },
+              child: Container(
+                height: nowplayingBoxHeight,
+                width: width,
+                color: Colors.transparent,
+                child: Column(
+                  children: [
+                    AppTheme.heightSpace5,
+                    Center(
+                      child: Container(
+                        width: 30,
+                        height: 5,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[300],
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: Center(
+                        child: Text(
+                          PlayerTranslationConstants.upNext.tr,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 18,
+                          ),
+                        ),
+                      ),
+                    ),
+                    AppTheme.heightSpace5,
+                  ],
+                ),
+              ),
+            ),
             panelBuilder: (ScrollController scrollController) {
               return ClipRRect(
                 child: BackdropFilter(
@@ -358,57 +333,6 @@ class NameNControls extends StatelessWidget {
                 ),
               );
             },
-            header: GestureDetector(
-              onTap: () {
-                if (panelController.isPanelOpen) {
-                  panelController.close();
-                } else {
-                  if (panelController.panelPosition > 0.9) {
-                    panelController.close();
-                  } else {
-                    panelController.open();
-                  }
-                }
-              },
-              onVerticalDragUpdate: (DragUpdateDetails details) {
-                if (details.delta.dy > 0.0) {
-                  panelController.animatePanelToPosition(0.0);
-                }
-              },
-              child: Container(
-                height: nowplayingBoxHeight,
-                width: width,
-                color: Colors.transparent,
-                child: Column(
-                  children: [
-                    const SizedBox(height: 5,),
-                    Center(
-                      child: Container(
-                        width: 30,
-                        height: 5,
-                        decoration: BoxDecoration(
-                          color: Colors.grey[300],
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: Center(
-                        child: Text(
-                          PlayerTranslationConstants.upNext.tr,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 18,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 5,),
-                  ],
-                ),
-              ),
-            ),
           ),
         ],
       ),

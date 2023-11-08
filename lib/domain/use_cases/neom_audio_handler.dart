@@ -178,17 +178,16 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
       // Broadcast the current queue.
       _effectiveSequence.map((sequence) => sequence.map((source) => _mediaItemExpando[source]!)
           .toList(),).pipe(queue);
+
       if (loadStart) {
         final List lastQueueList = AppHiveController().lastQueueList;
-        final int lastIndex = AppHiveController().lastIndex;
-        final int lastPos = AppHiveController().lastPos;
-
         if (lastQueueList.isNotEmpty) {
           final List<MediaItem> lastQueue = lastQueueList.map((e) => MediaItemMapper.fromJSON(e as Map)).toList();
-          if (lastQueue.isEmpty) {
-            await _player.setAudioSource(_playlist, preload: false);
-          } else {
+          if (lastQueue.isNotEmpty) {
             try {
+              final int lastIndex = AppHiveController().lastIndex;
+              final int lastPos = AppHiveController().lastPos;
+
               await _playlist.addAll(await _itemsToSources(lastQueue));
               await _player.setAudioSource(_playlist,);
               if (lastIndex != 0 || lastPos > 0) {
@@ -196,22 +195,17 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
               }
             } catch (e) {
               AppUtilities.logger.e('Error while setting last audiosource ${e.toString()}');
-              await _player.setAudioSource(_playlist, preload: false);
             }
           }
-        } else {
-          await _player.setAudioSource(_playlist, preload: false);
         }
-      } else {
-        await _player.setAudioSource(_playlist, preload: false);
       }
     } catch (e) {
       AppUtilities.logger.e('Error while loading last queue $e');
-      await _player.setAudioSource(_playlist, preload: false);
     }
-    if (!jobRunning) {
-      refreshJob();
-    }
+
+    _player.setAudioSource(_playlist, preload: false);
+    if (!jobRunning) refreshJob();
+
   }
 
   /// Broadcasts the current state to all clients.
@@ -265,7 +259,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
   }
 
   Future<void> refreshLink(Map newData) async {
-    AppUtilities.logger.i('Audio Player | received new link for ${newData['title']}');
+    AppUtilities.logger.i('Audio Player refreshLink | received new link for ${newData['title']}');
     final MediaItem newItem = MediaItemMapper.fromJSON(newData);
 
     AppUtilities.logger.i('player | inserting refreshed item');
@@ -287,7 +281,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
 
   Future<AudioSource?> _itemToSource(MediaItem mediaItem) async {
     AudioSource? audioSource;
-
+    AppUtilities.logger.d("Moving mediaItem ${mediaItem.title} to audioSource for Music Player ");
     try {
       if (mediaItem.artUri.toString().startsWith('file:')) {
         audioSource = AudioSource.uri(Uri.file(mediaItem.extras!['url'].toString()));
@@ -299,10 +293,11 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
           );
         } else {
           String audioUrl = '';
-          if(mediaItem.extras!['url'] != null
-              && mediaItem.extras!['url'].toString().isNotEmpty) {
+          if(mediaItem.extras!['url'] != null && mediaItem.extras!['url'].toString().isNotEmpty) {
             audioUrl = mediaItem.extras!['url'].toString();
-            audioUrl = audioUrl.replaceAll('_96.', "_${preferredQuality.replaceAll(' kbps', '')}.");
+            if(preferredQuality.isNotEmpty && audioUrl.contains('_96.')) {
+              audioUrl = audioUrl.replaceAll('_96.', "_${preferredQuality.replaceAll(' kbps', '')}.");
+            }
           }
 
           if (cacheSong) {
@@ -326,9 +321,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
     try {
       for (final element in mediaItems) {
         final AudioSource? src = await _itemToSource(element);
-        if(src != null) {
-          sources.add(src);
-        }
+        if(src != null) sources.add(src);
       }
     } catch(e) {
       AppUtilities.logger.e(e.toString());
@@ -423,6 +416,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
 
   @override
   Future<void> updateQueue(List<MediaItem> newQueue) async {
+    AppUtilities.logger.d("Updating Music Player Queue with ${newQueue.length} items");
     try {
       await _playlist.clear();
       final List<AudioSource> sources = await _itemsToSources(newQueue);
@@ -430,7 +424,6 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
     } catch(e) {
       AppUtilities.logger.e(e.toString());
     }
-
   }
 
   @override

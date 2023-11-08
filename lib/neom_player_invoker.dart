@@ -121,10 +121,12 @@ class NeomPlayerInvoker {
   }
 
   static Future<void> updateNowPlaying(List<MediaItem> queue, int index, {bool playItem = true}) async {
-    AppUtilities.logger.t('Updating Now Playing info.');
+
+    bool nowPlaying = audioHandler.playbackState.valueWrapper?.value.playing ?? false;
+    AppUtilities.logger.d('Updating Now Playing info. Now Playing: $nowPlaying');
 
     try {
-      // await audioHandler.startService();
+      ///DEPRECATED await audioHandler.startService();
       if(Platform.isAndroid || Platform.isIOS) {
         await audioHandler.setShuffleMode(AudioServiceShuffleMode.none);
         await audioHandler.updateQueue(queue);
@@ -135,19 +137,17 @@ class NeomPlayerInvoker {
           AppUtilities.logger.d('MediaItem found in Queue with Index $index');
         }
 
-        await audioHandler.customAction('skipToMediaItem',
-            {'id': queue[index].id, 'index': nextIndex},
-        );
+        await audioHandler.customAction('skipToMediaItem', {'id': queue[index].id, 'index': nextIndex},);
 
         audioHandler.currentMediaItem = queue.elementAt(index);
 
-        if(playItem || (audioHandler.playbackState.valueWrapper?.value.playing ?? false)) {
+        if(playItem || nowPlaying) {
           AppUtilities.logger.d("Starting stream for ${queue[index].artist ?? ''} - ${queue[index].title} and URL ${queue[index].extras!['url'].toString()}");
           await audioHandler.play();
         }
 
         getx.Get.find<MiniPlayerController>().setMediaItem(queue.elementAt(index));
-        // await audioHandler.playFromUri(Uri.parse(queue[index].extras!['url'].toString()));
+        ///DEPRECATED await audioHandler.playFromUri(Uri.parse(queue[index].extras!['url'].toString()));
         enforceRepeat();
       } else {
         AppUtilities.logger.i('MusicPlayer not available yet.');

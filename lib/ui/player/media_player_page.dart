@@ -13,6 +13,7 @@ import 'package:neom_commons/core/app_flavour.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_theme.dart';
+import 'package:neom_commons/core/utils/constants/app_page_id_constants.dart';
 import 'package:neom_commons/core/utils/core_utilities.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
@@ -25,6 +26,7 @@ import '../../utils/helpers/media_item_mapper.dart';
 import '../../utils/music_player_utilities.dart';
 import '../../utils/theme/music_player_theme.dart';
 import '../widgets/add_to_playlist.dart';
+import 'media_player_controller.dart';
 import 'widgets/artwork_widget.dart';
 import 'widgets/name_n_controls.dart';
 
@@ -40,22 +42,11 @@ class MediaPlayerPage extends StatefulWidget {
 class _MediaPlayerPageState extends State<MediaPlayerPage> {
 
   final bool getLyricsOnline = Hive.box(AppHiveConstants.settings).get('getLyricsOnline', defaultValue: true) as bool;
-
-  final MusicPlayerTheme currentTheme = MusicPlayerTheme();
-  final ValueNotifier<List<Color?>?> gradientColor = ValueNotifier<List<Color?>?>(MusicPlayerTheme().playGradientColor);
   final PanelController _panelController = PanelController();
   final NeomAudioHandler audioHandler = GetIt.I<NeomAudioHandler>();
-
   GlobalKey<FlipCardState> onlineCardKey = GlobalKey<FlipCardState>();
-
   final Duration _time = Duration.zero;
-
   bool isSharePopupShown = false;
-
-  void updateBackgroundColors(List<Color?> value) {
-    gradientColor.value = value;
-    return;
-  }
 
   @override
   void initState() {
@@ -78,20 +69,10 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
   Widget build(BuildContext context) {
     final AppMediaItem? appMediaItem = widget.appMediaItem;
 
-    return Dismissible(
-      direction: appMediaItem == null ? DismissDirection.down : DismissDirection.endToStart,
-      background: Container(
-        height: MediaQuery.of(context).size.width/2,
-        width: MediaQuery.of(context).size.width/2,
-        color: AppColor.main75,
-        child: Image.asset(AppFlavour.getIconPath(),
-          fit: BoxFit.fitWidth,),
-      ),
-      key: const Key('playScreen'),
-      onDismissed: (direction) {
-        Navigator.pop(context);
-      },
-      child: StreamBuilder<MediaItem?>(
+    return GetBuilder<MediaPlayerController>(
+      id: AppPageIdConstants.mediaPlayer,
+      init: MediaPlayerController(),
+      builder: (_) => StreamBuilder<MediaItem?>(
         stream: audioHandler.mediaItem,
         builder: (context, snapshot) {
           MediaItem mediaItem;
@@ -104,14 +85,7 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
           }
 
           final offline = !mediaItem.extras!['url'].toString().startsWith('http');
-          if(mediaItem.artUri.toString().isNotEmpty) {
-            mediaItem.artUri.toString().startsWith('file')
-                ? getColors(imageProvider: FileImage(File(mediaItem.artUri!.toFilePath(),),),).then((value) => updateBackgroundColors(value))
-                : getColors(imageProvider: CachedNetworkImageProvider(mediaItem.artUri.toString(),),).then((value) => updateBackgroundColors(value));
-          }
-          return ValueListenableBuilder(
-            valueListenable: gradientColor,
-            child: Scaffold(
+          return Scaffold(
                 resizeToAvoidBottomInset: false,
                 backgroundColor: AppColor.main50,
                 appBar: AppBar(
@@ -121,13 +95,10 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
                   leading: IconButton(
                     icon: Icon(appMediaItem == null ? Icons.expand_more_rounded : Icons.chevron_left),
                     tooltip: PlayerTranslationConstants.back.tr,
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
+                    onPressed: () => Navigator.pop(context),
                   ),
-                  actions: [
-                    if(appMediaItem != null)
-                      IconButton(
+                  actions: (appMediaItem != null) ? [
+                    IconButton(
                         icon: const Icon(Icons.playlist_add_rounded),
                         tooltip: PlayerTranslationConstants.addToPlaylist.tr,
                         iconSize: 35,
@@ -158,50 +129,32 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
                       ),
                     ///NOT NEEDED BY NOW - OPTIONS ARE NOT FUNCTIONAL AT THE MOMENT
                     // if(appMediaItem != null) createPopMenuOption(context, appMediaItem, offline: offline),
-                  ],
+                  ] : null,
                 ),
-                body: LayoutBuilder(
-                  builder: (BuildContext context, BoxConstraints constraints,) {
-                    return Container(
-                      decoration: AppTheme.appBoxDecoration,
-                      child: appMediaItem != null ? Column(
-                      children: [
-                        // Artwork
-                        ArtWorkWidget(
-                          cardKey: onlineCardKey, appMediaItem: appMediaItem,
-                          width: constraints.maxWidth, audioHandler: audioHandler,
-                          offline: offline, getLyricsOnline: getLyricsOnline,
-                        ),
-                        // title and controls
-                        NameNControls(
-                          appMediaItem: appMediaItem, offline: offline,
-                          width: constraints.maxWidth,
-                          height: constraints.maxHeight - (constraints.maxWidth * 0.85),
-                          panelController: _panelController, audioHandler: audioHandler,
-                        ),
-                      ],
-                    ) : Container(),
-                    );
-                  },
+                body: Container(
+                  decoration: AppTheme.appBoxDecoration,
+                  padding: EdgeInsets.only(top: 20),
+                  child: appMediaItem != null ? Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      // AppTheme.heightSpace20,
+                      ArtWorkWidget(
+                        cardKey: onlineCardKey, appMediaItem: appMediaItem,
+                        width: AppTheme.fullWidth(context), audioHandler: audioHandler,
+                        offline: offline, getLyricsOnline: getLyricsOnline,
+                      ),
+                      NameNControls(
+                        appMediaItem: appMediaItem!, offline: offline,
+                        width: AppTheme.fullWidth(context),
+                        height: AppTheme.fullHeight(context)*0.45,
+                        panelController: _panelController, audioHandler: audioHandler,
+                      ),
+                    ],
+                  ) : Container(),
                 ),
-            ),
-            builder: (BuildContext context, List<Color?>? value, Widget? child) {
-              return AnimatedContainer(
-                duration: const Duration(milliseconds: 600),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.center,
-                    colors: [value?[1] ?? Colors.grey[900]!, Colors.black],
-                  ),
-                ),
-                child: child,
-              );
-            },
           );
-          // );CachedNetworkImageProvider
         },
-      ),
+    ),
     );
   }
 

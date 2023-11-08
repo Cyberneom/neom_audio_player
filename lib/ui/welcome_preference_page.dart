@@ -140,8 +140,7 @@ class _WelcomePreferencePageState extends State<WelcomePreferencePage> {
                                       height: 57.0,
                                       width: 150,
                                       decoration: BoxDecoration(
-                                        borderRadius:
-                                            BorderRadius.circular(10.0),
+                                        borderRadius: BorderRadius.circular(10.0),
                                         color: AppColor.bondiBlue75,
                                         boxShadow: const [
                                           BoxShadow(
@@ -165,7 +164,7 @@ class _WelcomePreferencePageState extends State<WelcomePreferencePage> {
                                     dense: true,
                                     onTap: () {
                                       showModalBottomSheet(
-                                        backgroundColor: AppColor.main25,
+                                        backgroundColor: AppColor.getMain(),
                                         context: context,
                                         builder: (BuildContext context) {
                                           final List checked = List.from(preferredLanguage);
@@ -267,7 +266,7 @@ class _WelcomePreferencePageState extends State<WelcomePreferencePage> {
                                     onTap: () {
                                       showModalBottomSheet(
                                         isDismissible: true,
-                                        backgroundColor: AppColor.main75,
+                                        backgroundColor: AppColor.getMain(),
                                         context: context,
                                         builder: (BuildContext context) {
                                           const Map<String, String> codes = CountryCodes.localChartCodes;
