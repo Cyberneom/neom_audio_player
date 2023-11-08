@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/domain/model/item_list.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
+import 'package:neom_commons/core/utils/constants/app_route_constants.dart';
 import 'package:neom_commons/core/utils/enums/itemlist_type.dart';
 import '../player/media_player_page.dart';
 import 'custom_physics.dart';
@@ -107,7 +108,8 @@ class HorizontalAlbumsListSeparated extends StatelessWidget {
                     ),
                     onTap: () => onTap(songsList.indexOf(item)),
                     onLongPress: () {
-                      Get.to(() => MediaPlayerPage(appMediaItem: item));
+                      ///DEPRECATED Get.to(() => MediaPlayerPage(appMediaItem: item));
+                      Get.toNamed(AppRouteConstants.musicPlayerMedia, arguments: [item]);
                     },
                   );
                 }).toList(),

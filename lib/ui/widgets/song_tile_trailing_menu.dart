@@ -11,8 +11,9 @@ import 'package:share_plus/share_plus.dart';
 import '../../utils/constants/player_translation_constants.dart';
 import '../../utils/helpers/add_mediaitem_to_queue.dart';
 import '../../utils/helpers/media_item_mapper.dart';
+import '../library/playlist_player_page.dart';
 import 'add_to_playlist.dart';
-import 'song_list.dart';
+import '../../to_delete/song_list.dart';
 
 class SongTileTrailingMenu extends StatefulWidget {
   final AppMediaItem appMediaItem;
@@ -138,7 +139,7 @@ class _SongTileTrailingMenuState extends State<SongTileTrailingMenu> {
                 context,
                 PageRouteBuilder(
                   opaque: false,
-                  pageBuilder: (_, __, ___) => SongsListPage(
+                  pageBuilder: (_, __, ___) => PlaylistPlayerPage(
                     itemlist: widget.itemlist!,
                   ),
                 ),

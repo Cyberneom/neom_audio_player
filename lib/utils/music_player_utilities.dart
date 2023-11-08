@@ -264,4 +264,83 @@ class MusicPlayerUtilities {
 
   }
 
+  static void showSpeedSliderDialog({
+    required BuildContext context,
+    required String title,
+    required int divisions,
+    required double min,
+    required double max,
+    required NeomAudioHandler audioHandler,
+    String valueSuffix = '',
+  }) {
+    showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: AppColor.main75,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15.0),
+        ),
+        title: Text(title, textAlign: TextAlign.center),
+        content: StreamBuilder<double>(
+          stream: audioHandler.speed,
+          builder: (context, snapshot) {
+            double value = snapshot.data ?? audioHandler.speed.valueWrapper?.value ?? 0;
+            if (value > max) {
+              value = max;
+            }
+            if (value < min) {
+              value = min;
+            }
+            return SizedBox(
+              height: 100.0,
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      IconButton(
+                        icon: const Icon(CupertinoIcons.minus),
+                        onPressed: audioHandler.speed.valueWrapper!.value > min
+                            ? () {
+                          audioHandler
+                              .setSpeed(audioHandler.speed.valueWrapper!.value - 0.1);
+                        }
+                            : null,
+                      ),
+                      Text(
+                        '${snapshot.data?.toStringAsFixed(1)}$valueSuffix',
+                        style: const TextStyle(
+                          fontFamily: 'Fixed',
+                          fontWeight: FontWeight.bold,
+                          fontSize: 24.0,
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(CupertinoIcons.plus),
+                        onPressed: audioHandler.speed.valueWrapper!.value < max
+                            ? () {
+                          audioHandler.setSpeed(audioHandler.speed.valueWrapper!.value + 0.1);
+                        } : null,
+                      ),
+                    ],
+                  ),
+                  Slider(
+                    inactiveColor: Theme.of(context).iconTheme.color!.withOpacity(0.4),
+                    activeColor: Theme.of(context).iconTheme.color,
+                    divisions: divisions,
+                    min: min,
+                    max: max,
+                    value: value,
+                    onChanged: audioHandler.setSpeed,
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+
 }

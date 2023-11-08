@@ -13,9 +13,8 @@ import 'package:neom_commons/core/utils/constants/app_route_constants.dart';
 import '../../utils/constants/app_hive_constants.dart';
 import '../../utils/constants/music_player_route_constants.dart';
 import '../../utils/enums/music_player_drawer_menu.dart';
-import '../ui/drawer/library/playlist_player_page.dart';
-import '../ui/drawer/local_music/downloaded_songs.dart';
 import '../ui/drawer/settings/widgets/music_player_settings_page.dart';
+import '../ui/library/playlist_player_page.dart';
 import '../ui/player/miniplayer_controller.dart';
 
 
@@ -64,7 +63,6 @@ class MusicPlayerDrawer extends StatelessWidget {
                       drawerRowOption(MusicPlayerDrawerMenu.favorites, const Icon(Icons.favorite_rounded), context),
                       drawerRowOption(MusicPlayerDrawerMenu.stats, const Icon(Icons.download_done_rounded,), context),
                       // drawerRowOption(MusicPlayerDrawerMenu.myMusic, const Icon(MdiIcons.folderMusic,), context),
-
                       // drawerRowOption(MusicPlayerDrawerMenu.downloads, const Icon(Icons.download_done_rounded,), context),
                       drawerRowOption(MusicPlayerDrawerMenu.settings, const Icon(Icons.playlist_play_rounded,), context),
                     ],
@@ -140,28 +138,28 @@ class MusicPlayerDrawer extends StatelessWidget {
             case MusicPlayerDrawerMenu.nowPlaying:
               Navigator.pushNamed(context, MusicPlayerRouteConstants.nowPlaying);
             case MusicPlayerDrawerMenu.lastSession:
-              Navigator.pushNamed(context, '/recent');
+              Navigator.pushNamed(context, MusicPlayerRouteConstants.recent);
             case MusicPlayerDrawerMenu.favorites:
               Navigator.push(context,
                 MaterialPageRoute(
                   builder: (context) => const PlaylistPlayerPage(
                     alternativeName: AppHiveConstants.favoriteSongs,
-                    // showName: PlayerTranslationConstants.favSongs.tr,
                   ),
                 ),
               );
-            case MusicPlayerDrawerMenu.myMusic:
-              Navigator.push(context,
-                MaterialPageRoute(
-                  builder: (context) => const DownloadedSongs(showPlaylists: true,),
-                ),
-              );
+            ///DEPRECATED
+            // case MusicPlayerDrawerMenu.myMusic:
+            //   Navigator.push(context,
+            //     MaterialPageRoute(
+            //       builder: (context) => const DownloadedSongs(showPlaylists: true,),
+            //     ),
+            //   );
             case MusicPlayerDrawerMenu.downloads:
               Navigator.pushNamed(context, MusicPlayerRouteConstants.downloads);
             case MusicPlayerDrawerMenu.playlists:
               Get.toNamed(AppRouteConstants.lists);
             case MusicPlayerDrawerMenu.stats:
-              Navigator.pushNamed(context, MusicPlayerRouteConstants.stats);
+              Get.toNamed(MusicPlayerRouteConstants.stats);
             case MusicPlayerDrawerMenu.settings:
               final idx =
               sectionsToShow.indexOf(MusicPlayerRouteConstants.setting);

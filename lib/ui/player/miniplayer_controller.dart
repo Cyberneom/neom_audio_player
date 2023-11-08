@@ -132,11 +132,9 @@ class MiniPlayerController extends GetxController {
   }) {
     return ListTile(
       tileColor: AppColor.main75,
-      onTap: item == null ? null : () => Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => MediaPlayerPage(appMediaItem: MediaItemMapper.fromMediaItem(item)),
-        ),
+      onTap: item == null ? null : () =>
+          Get.toNamed(AppRouteConstants.musicPlayerMedia, arguments: [MediaItemMapper.fromMediaItem(item)],
+          ///DEPRECATED Navigator.push(context, MaterialPageRoute(builder: (context) => MediaPlayerPage(appMediaItem: MediaItemMapper.fromMediaItem(item)),),
       ),
       leading: Row(
         mainAxisSize: MainAxisSize.min,

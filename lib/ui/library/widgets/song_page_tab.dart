@@ -5,8 +5,8 @@ import 'package:neom_itemlists/itemlists/ui/widgets/app_item_widgets.dart';
 
 import '../../../../to_delete/search/search_page.dart';
 import '../../../../utils/constants/player_translation_constants.dart';
-import '../../../widgets/empty_screen.dart';
-import '../../../widgets/playlist_head.dart';
+import '../../widgets/empty_screen.dart';
+import '../../widgets/playlist_head.dart';
 import '../playlist_player_page.dart';
 
 class SongsPageTab extends StatelessWidget {
@@ -26,11 +26,10 @@ class SongsPageTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {    
     return (appMediaItems.isEmpty)
-        ? TextButton(
-      onPressed: ()=>Navigator.push(context, MaterialPageRoute(
-        builder: (context) => const SearchPage(
-          query: '', fromHome: true, autofocus: true,
-        ),),
+      ? TextButton(
+      onPressed: ()=> Navigator.push(context, MaterialPageRoute(
+          builder: (context) => const SearchPage(fromHome: true, autofocus: true,),
+        ),
       ),
       child: emptyScreen(context, 3,
         PlayerTranslationConstants.nothingTo.tr, 15.0,

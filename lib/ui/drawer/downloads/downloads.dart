@@ -22,7 +22,8 @@ import '../../widgets/empty_screen.dart';
 import '../../widgets/image_card.dart';
 import '../../widgets/playlist_head.dart';
 
-import 'data_search.dart';
+import '../../../to_delete/data_search.dart';
+import 'widgets/downloads_search.dart';
 
 class Downloads extends StatefulWidget {
   const Downloads({super.key});

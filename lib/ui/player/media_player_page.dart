@@ -30,54 +30,45 @@ import 'media_player_controller.dart';
 import 'widgets/artwork_widget.dart';
 import 'widgets/name_n_controls.dart';
 
-class MediaPlayerPage extends StatefulWidget {
+class MediaPlayerPage extends StatelessWidget {
 
-  AppMediaItem? appMediaItem;
-  bool reproduceItem;
-  MediaPlayerPage({super.key, this.appMediaItem, this.reproduceItem = true});
-  @override
-  _MediaPlayerPageState createState() => _MediaPlayerPageState();
-}
+  const MediaPlayerPage({super.key});
 
-class _MediaPlayerPageState extends State<MediaPlayerPage> {
+  // final bool getLyricsOnline = Hive.box(AppHiveConstants.settings).get('getLyricsOnline', defaultValue: true) as bool;
+  // final PanelController _panelController = PanelController();
+  // final NeomAudioHandler audioHandler = GetIt.I<NeomAudioHandler>();
+  // GlobalKey<FlipCardState> onlineCardKey = GlobalKey<FlipCardState>();
+  // final Duration _time = Duration.zero;
+  // bool isSharePopupShown = false;
 
-  final bool getLyricsOnline = Hive.box(AppHiveConstants.settings).get('getLyricsOnline', defaultValue: true) as bool;
-  final PanelController _panelController = PanelController();
-  final NeomAudioHandler audioHandler = GetIt.I<NeomAudioHandler>();
-  GlobalKey<FlipCardState> onlineCardKey = GlobalKey<FlipCardState>();
-  final Duration _time = Duration.zero;
-  bool isSharePopupShown = false;
-
-  @override
-  void initState() {
-    super.initState();
-    if(widget.appMediaItem != null) {
-      bool alreadyPlaying = audioHandler.currentMediaItem != null && audioHandler.currentMediaItem!.id == widget.appMediaItem!.id;
-      if(widget.reproduceItem && !alreadyPlaying) {
-        Future.delayed(const Duration(milliseconds: 500)).then((value) {
-          NeomPlayerInvoker.init(
-            appMediaItems: [widget.appMediaItem!],
-            index: 0,
-          );
-          // audioHandler.play();
-        });
-      }
-    }
-  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   if(widget.appMediaItem != null) {
+  //     bool alreadyPlaying = audioHandler.currentMediaItem != null && audioHandler.currentMediaItem!.id == widget.appMediaItem!.id;
+  //     if(widget.reproduceItem && !alreadyPlaying) {
+  //       Future.delayed(const Duration(milliseconds: 500)).then((value) {
+  //         NeomPlayerInvoker.init(
+  //           appMediaItems: [widget.appMediaItem!],
+  //           index: 0,
+  //         );
+  //         // audioHandler.play();
+  //       });
+  //     }
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
-    final AppMediaItem? appMediaItem = widget.appMediaItem;
-
     return GetBuilder<MediaPlayerController>(
       id: AppPageIdConstants.mediaPlayer,
       init: MediaPlayerController(),
       builder: (_) => StreamBuilder<MediaItem?>(
-        stream: audioHandler.mediaItem,
+        stream: _.audioHandler.mediaItem,
         builder: (context, snapshot) {
           MediaItem mediaItem;
-          if(appMediaItem != null) {
-            mediaItem = MediaItemMapper.appMediaItemToMediaItem(appMediaItem: appMediaItem);
+          if(_.appMediaItem.value != null) {
+            mediaItem = MediaItemMapper.appMediaItemToMediaItem(appMediaItem: _.appMediaItem.value);
           } else if(snapshot.data != null) {
             mediaItem = snapshot.data!;
           } else {
@@ -93,38 +84,30 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
                   backgroundColor: AppColor.main50,
                   centerTitle: true,
                   leading: IconButton(
-                    icon: Icon(appMediaItem == null ? Icons.expand_more_rounded : Icons.chevron_left),
+                    icon: Icon(Icons.expand_more_rounded),
                     tooltip: PlayerTranslationConstants.back.tr,
                     onPressed: () => Navigator.pop(context),
                   ),
-                  actions: (appMediaItem != null) ? [
+                  actions: (_.appMediaItem.value != null) ? [
                     IconButton(
                         icon: const Icon(Icons.playlist_add_rounded),
                         tooltip: PlayerTranslationConstants.addToPlaylist.tr,
                         iconSize: 35,
                         onPressed: () async {
-                          AddToPlaylist().addToPlaylist(context, appMediaItem);
+                          AddToPlaylist().addToPlaylist(context, _.appMediaItem.value);
                         },
                       ),
                     IconButton(
                       icon: const Icon(Icons.lyrics_rounded),
                       tooltip: PlayerTranslationConstants.lyrics.tr,
-                      onPressed: () => onlineCardKey.currentState!.toggleCard(),
+                      onPressed: () => _.onlineCardKey.currentState!.toggleCard(),
                     ),
                     if (!offline)
                       IconButton(
                         icon: const Icon(Icons.share_rounded),
                         tooltip: PlayerTranslationConstants.share.tr,
                         onPressed: () async {
-                          if (!isSharePopupShown) {
-                            isSharePopupShown = true;
-                            final AppMediaItem item = MediaItemMapper.fromMediaItem(mediaItem);
-                            await CoreUtilities().shareAppWithMediaItem(item).whenComplete(() {
-                              Timer(const Duration(milliseconds: 600), () {
-                                isSharePopupShown = false;
-                              });
-                            });
-                          }
+                          await _.sharePopUp();
                         },
                       ),
                     ///NOT NEEDED BY NOW - OPTIONS ARE NOT FUNCTIONAL AT THE MOMENT
@@ -133,21 +116,22 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
                 ),
                 body: Container(
                   decoration: AppTheme.appBoxDecoration,
-                  padding: EdgeInsets.only(top: 20),
-                  child: appMediaItem != null ? Column(
+                  padding: const EdgeInsets.only(top: 20),
+                  child: _.appMediaItem.value != null ? Column(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       // AppTheme.heightSpace20,
                       ArtWorkWidget(
-                        cardKey: onlineCardKey, appMediaItem: appMediaItem,
-                        width: AppTheme.fullWidth(context), audioHandler: audioHandler,
-                        offline: offline, getLyricsOnline: getLyricsOnline,
+                        mediaPlayerController: _,
+                        cardKey: _.onlineCardKey,
+                        width: AppTheme.fullWidth(context),
+                        offline: offline, getLyricsOnline: _.getLyricsOnline,
                       ),
                       NameNControls(
-                        appMediaItem: appMediaItem!, offline: offline,
+                        mediaPlayerController: _,
                         width: AppTheme.fullWidth(context),
                         height: AppTheme.fullHeight(context)*0.45,
-                        panelController: _panelController, audioHandler: audioHandler,
+                        panelController: _.panelController,
                       ),
                     ],
                   ) : Container(),
@@ -155,87 +139,6 @@ class _MediaPlayerPageState extends State<MediaPlayerPage> {
           );
         },
     ),
-    );
-  }
-
-  Widget createPopMenuOption(BuildContext context, AppMediaItem appMediaItem, {bool offline = false}) {
-    return PopupMenuButton(
-      icon: const Icon(Icons.more_vert_rounded,color: AppColor.white),
-      color: AppColor.getMain(),
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(
-          Radius.circular(15.0),
-        ),
-      ),
-      onSelected: (int? value) {
-        if(value != null) {
-          MusicPlayerUtilities.onSelectedPopUpMenu(context, value, appMediaItem, _time);
-        }
-      },
-      itemBuilder: (context) => offline ? [
-        PopupMenuItem(
-          value: 1,
-          child: Row(
-            children: [
-              Icon(CupertinoIcons.timer,
-                color: Theme.of(context).iconTheme.color,
-              ),
-              const SizedBox(width: 10.0),
-              Text(PlayerTranslationConstants.sleepTimer.tr,),
-            ],
-          ),
-        ),
-        PopupMenuItem(
-          value: 10,
-          child: Row(
-            children: [
-              Icon(Icons.info_rounded,
-                color: Theme.of(context).iconTheme.color,
-              ),
-              AppTheme.widthSpace10,
-              Text(PlayerTranslationConstants.songInfo.tr,),
-            ],
-          ),
-        ),
-      ] : [
-        PopupMenuItem(
-          value: 0,
-          child: Row(
-            children: [
-              Icon(Icons.playlist_add_rounded,
-                color: Theme.of(context).iconTheme.color,
-              ),
-              AppTheme.widthSpace10,
-              Text(PlayerTranslationConstants.addToPlaylist.tr,),],),
-        ),
-        PopupMenuItem(
-          value: 1,
-          child: Row(
-            children: [
-              Icon(
-                CupertinoIcons.timer,
-                color: Theme.of(context).iconTheme.color,
-              ),
-              AppTheme.widthSpace10,
-              Text(
-                PlayerTranslationConstants.sleepTimer.tr,
-              ),
-            ],
-          ),
-        ),
-        PopupMenuItem(
-          value: 10,
-          child: Row(
-            children: [
-              Icon(Icons.info_rounded,
-                color: Theme.of(context).iconTheme.color,
-              ),
-              const SizedBox(width: 10.0),
-              Text(PlayerTranslationConstants.songInfo.tr,),
-            ],
-          ),
-        ),
-      ],
     );
   }
 

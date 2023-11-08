@@ -112,9 +112,7 @@ class _PlaylistPlayerPageState extends State<PlaylistPlayerPage>
         actionWidgets: [
           Theme(
             data: Theme.of(context).copyWith(
-              popupMenuTheme: PopupMenuThemeData(
-                color: AppColor.getMain(),
-              ),
+              popupMenuTheme: PopupMenuThemeData(color: AppColor.getMain(),),
             ),
             child: PopupMenuButton(
               icon: const Icon(Icons.sort_rounded),
@@ -198,51 +196,44 @@ class _PlaylistPlayerPageState extends State<PlaylistPlayerPage>
         decoration: AppTheme.appBoxDecoration,
         child: isLoading ? const AppCircularProgressIndicator() : SongsPageTab(
         appMediaItems: _appMediaItems,
-            onDelete: (AppMediaItem item) {
-              removeFromFavorites(item);
-            },
-            playlistName: widget.itemlist?.name ?? '',
-            scrollController: _scrollController,
-          ),
+          onDelete: (AppMediaItem item) => removeFromFavorites(item),
+          playlistName: widget.itemlist?.name ?? '',
+          scrollController: _scrollController,
+        ),
       ),
-          floatingActionButton: ValueListenableBuilder(
-            valueListenable: _showShuffle,
-            child: FloatingActionButton(
-              backgroundColor: AppColor.bondiBlue,
-              elevation: 20,
-              child: const Icon(
-                Icons.shuffle_rounded,
-                color: Colors.white,
-                size: 24.0,
-              ),
-              onPressed: () {
-                if (_appMediaItems.isNotEmpty) {
-                  NeomPlayerInvoker.init(
-                    appMediaItems: _appMediaItems,
-                    index: 0,
-                    isOffline: false,
-                    recommend: false,
-                    shuffle: true,
-                  );
-                }
-              },
-            ),
-            builder: (
-              BuildContext context,
-              bool showShuffle,
-              Widget? child,
-            ) {
-              return AnimatedSlide(
-                duration: const Duration(milliseconds: 300),
-                offset: showShuffle ? Offset.zero : const Offset(0, 2),
-                child: AnimatedOpacity(
-                  duration: const Duration(milliseconds: 300),
-                  opacity: showShuffle ? 1 : 0,
-                  child: child,
-                ),
-              );
-            },
+      floatingActionButton: ValueListenableBuilder(
+        valueListenable: _showShuffle,
+        child: FloatingActionButton(
+          backgroundColor: AppColor.bondiBlue,
+          elevation: 20,
+          child: const Icon(
+            Icons.shuffle_rounded,
+            color: Colors.white,
+            size: 24.0,
           ),
+          onPressed: () {
+            if (_appMediaItems.isNotEmpty) {
+              NeomPlayerInvoker.init(
+                appMediaItems: _appMediaItems,
+                index: 0,
+                recommend: false,
+                shuffle: true,
+              );
+            }
+          },
+        ),
+        builder: (BuildContext context, bool showShuffle, Widget? child,) {
+          return AnimatedSlide(
+            duration: const Duration(milliseconds: 300),
+            offset: showShuffle ? Offset.zero : const Offset(0, 2),
+            child: AnimatedOpacity(
+              duration: const Duration(milliseconds: 300),
+              opacity: showShuffle ? 1 : 0,
+              child: child,
+            ),
+          );
+          },
+      ),
     );
   }
 

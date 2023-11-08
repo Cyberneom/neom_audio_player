@@ -1,7 +1,12 @@
+import 'dart:async';
+import 'package:get/get.dart';
+
 import 'package:audio_service/audio_service.dart';
 import 'package:flip_card/flip_card.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:flutter_lyric/lyric_ui/ui_netease.dart';
+import 'package:flutter_lyric/lyrics_model_builder.dart';
+import 'package:flutter_lyric/lyrics_reader_model.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:neom_commons/core/app_flavour.dart';
@@ -9,36 +14,41 @@ import 'package:neom_commons/core/data/implementations/user_controller.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
+import 'package:neom_commons/core/utils/constants/app_page_id_constants.dart';
 import 'package:neom_commons/core/utils/constants/app_route_constants.dart';
 import 'package:neom_commons/core/utils/constants/app_translation_constants.dart';
+import 'package:neom_commons/core/utils/core_utilities.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
+import '../../domain/entities/position_data.dart';
 import '../../domain/use_cases/neom_audio_handler.dart';
 import '../../neom_player_invoker.dart';
+import '../../to_delete/lyrics.dart';
 import '../../utils/constants/app_hive_constants.dart';
 import '../../utils/helpers/media_item_mapper.dart';
 import '../widgets/image_card.dart';
 import 'media_player_page.dart';
 import 'widgets/control_buttons.dart';
+import 'package:rxdart/rxdart.dart' as rx;
 
 class MediaPlayerController extends GetxController {
 
   final userController = Get.find<UserController>();
   final NeomAudioHandler audioHandler = GetIt.I<NeomAudioHandler>();
 
-  final Rx<AppMediaItem> appMediaItem = AppMediaItem().obs;
   final Rxn<MediaItem> mediaItem = Rxn<MediaItem>();
+  final Rx<AppMediaItem> appMediaItem = AppMediaItem().obs;
   final RxBool isLoading = true.obs;
   final RxBool isButtonDisabled = false.obs;
   final RxBool isSharePopupShown = false.obs;
-  final RxBool reproduceItem = false.obs;
-
+  final RxBool reproduceItem = true.obs;
+  final bool offline = false;
 
   final bool getLyricsOnline = Hive.box(AppHiveConstants.settings).get('getLyricsOnline', defaultValue: true) as bool;
-  final PanelController _panelController = PanelController();
+  final PanelController panelController = PanelController();
 
   GlobalKey<FlipCardState> onlineCardKey = GlobalKey<FlipCardState>();
-  final Duration _time = Duration.zero;
+  final Duration time = Duration.zero;
 
 
   @override
@@ -47,19 +57,33 @@ class MediaPlayerController extends GetxController {
     AppUtilities.logger.t('onInit MediaPlayer Controller');
 
     try {
-      if(appMediaItem != null) {
-        bool alreadyPlaying = audioHandler.currentMediaItem != null
-            && audioHandler.currentMediaItem!.id == appMediaItem.value.id;
 
-        if(reproduceItem.value && !alreadyPlaying) {
-          Future.delayed(const Duration(milliseconds: 500)).then((value) {
-            NeomPlayerInvoker.init(
-              appMediaItems: [appMediaItem.value],
-              index: 0,
-            );
-            // audioHandler.play();
-          });
+      List<dynamic> arguments  = Get.arguments;
+
+      if(arguments.isNotEmpty) {
+        if (arguments[0] is AppMediaItem) {
+          appMediaItem.value =  arguments.elementAt(0);
+        } else if (arguments[0] is String) {
+          ///VERIFY IF USEFUL
+          ///appMediaItemId = arguments[0];???
         }
+
+        if(arguments.length > 1) {
+          reproduceItem.value = arguments[1] as bool;
+        }
+      }
+
+      bool alreadyPlaying = audioHandler.currentMediaItem != null
+          && audioHandler.currentMediaItem!.id == appMediaItem.value.id;
+
+      if(reproduceItem.value && !alreadyPlaying) {
+        Future.delayed(const Duration(milliseconds: 500)).then((value) {
+          NeomPlayerInvoker.init(
+            appMediaItems: [appMediaItem.value],
+            index: 0,
+          );
+          // audioHandler.play();
+        });
       }
     } catch (e) {
       AppUtilities.logger.e(e.toString());
@@ -89,16 +113,6 @@ class MediaPlayerController extends GetxController {
   void setMediaItem(MediaItem item) {
     AppUtilities.logger.i('Setting new mediaitem ${item.title}');
     mediaItem.value = item;
-    update();
-  }
-
-  void setIsTimeline(bool value) {
-    AppUtilities.logger.d('Setting IsTimeline: $value');
-    update();
-  }
-
-  void setShowInTimeline({bool value = true}) {
-    AppUtilities.logger.i('Setting showInTimeline to $value');
     update();
   }
 
@@ -146,83 +160,17 @@ class MediaPlayerController extends GetxController {
     );
   }
 
-  ListTile miniplayerTile({
-    required BuildContext context,
-    MediaItem? item,
-    required List<String> preferredMiniButtons,
-    bool useDense = false,
-    bool isLocalImage = false,
-    bool isTimeline = true,
-  }) {
-    return ListTile(
-      tileColor: AppColor.main75,
-      onTap: item == null ? null : () => Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => MediaPlayerPage(appMediaItem: MediaItemMapper.fromMediaItem(item)),
-        ),
-      ),
-      leading: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if(!isTimeline)
-            IconButton(
-              padding: EdgeInsets.zero,
-              icon: const Icon(Icons.arrow_back_ios),
-              onPressed: () => goToTimeline(context), ),
-          if(item != null || isTimeline)
-            SizedBox(
-              height: item == null ? 80 : 78,
-              width: isTimeline && item == null ? (MediaQuery.of(context).size.width/6) : null,
-              child: Hero(tag: 'currentArtwork',
-                child: imageCard(
-                  elevation: 8,
-                  boxDimension: useDense ? 40.0 : 50.0,
-                  localImage: item == null ? false : item.artUri?.toString().startsWith('file:') ?? false,
-                  imageUrl: item == null ? AppFlavour.getAppLogoUrl() : (item.artUri?.toString().startsWith('file:') ?? false
-                      ? item.artUri?.toFilePath() : item.artUri?.toString()) ?? '',
-                ),
-              ),
-            ),
-        ],
-      ),
-      title: Text(
-        item == null ? (isTimeline ? AppTranslationConstants.lookingForNewMusic.tr : AppTranslationConstants.lookingForInspiration.tr) : item.title,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        textAlign: isTimeline || item != null ? TextAlign.left : TextAlign.right,
-      ),
-      subtitle: Text(
-        item == null ? (isTimeline ? AppTranslationConstants.tryOurPlatform.tr : AppTranslationConstants.goBackHome.tr) : item.artist ?? '',
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        textAlign: isTimeline || item != null ? TextAlign.left : TextAlign.right,
-      ),
-      trailing: SizedBox(
-        width: item != null || isTimeline ? null : (MediaQuery.of(context).size.width/(item == null ? 6 : 3)),
-        child: item == null
-            ? (isTimeline ? IconButton(onPressed: () => goToMusicPlayerHome(), icon: const Icon(Icons.arrow_forward_ios))
-            : Hero(tag: 'currentArtwork',
-                child: imageCard(
-                  elevation: 8,
-                  boxDimension: useDense ? 40.0 : 50.0,
-                  localImage: item == null ? false : item.artUri?.toString().startsWith('file:') ?? false,
-                  imageUrl: item == null ? AppFlavour.getAppLogoUrl() : (item.artUri?.toString().startsWith('file:') ?? false
-                      ? item.artUri?.toFilePath() : item.artUri?.toString()) ?? '',
-                ),
-              )
-            ) : ControlButtons(audioHandler, miniplayer: true,
-          buttons: isLocalImage ? <String>['Like', 'Play/Pause', 'Next'] : preferredMiniButtons,
-          mediaItem: item,
-        ),
-      ),
-    );
-  }
-
-  void goToMusicPlayerHome() {
-
-    Get.toNamed(AppRouteConstants.musicPlayerHome);
-    update();
+  Future<void> sharePopUp() async {
+    if (!isSharePopupShown.value) {
+      isSharePopupShown.value = true;
+      final AppMediaItem item = MediaItemMapper.fromMediaItem(mediaItem.value!);
+      await CoreUtilities().shareAppWithMediaItem(item).whenComplete(() {
+        Timer(const Duration(milliseconds: 600), () {
+          isSharePopupShown.value = false;
+        });
+      });
+    }
+    update([AppPageIdConstants.mediaPlayer]);
   }
 
   void goToTimeline(BuildContext context) {
@@ -230,6 +178,199 @@ class MediaPlayerController extends GetxController {
     update();
   }
 
+  final ValueNotifier<bool> dragging = ValueNotifier<bool>(false);
+  final ValueNotifier<bool> tapped = ValueNotifier<bool>(false);
+  final ValueNotifier<int> doubletapped = ValueNotifier<int>(0);
+  final ValueNotifier<bool> done = ValueNotifier<bool>(false);
+  final ValueNotifier<String> lyricsSource = ValueNotifier<String>('');
 
+  Map lyrics = {
+    'id': '',
+    'lyrics': '',
+    'source': '',
+    'type': '',
+  };
+  final lyricUI = UINetease();
+  LyricsReaderModel? lyricsReaderModel;
+  bool flipped = false;
+
+  void fetchLyrics() {
+    AppUtilities.logger.i('Fetching lyrics for ${appMediaItem.value.name}');
+    done.value = false;
+    lyricsSource.value = '';
+    String appMediaItemLyric = appMediaItem.value.lyrics.isNotEmpty || (appMediaItem.value.description?.isNotEmpty ?? false)  ? (appMediaItem.value.lyrics.isNotEmpty ? appMediaItem.value.lyrics : appMediaItem.value.description ?? '') : '';
+    if (offline) {
+      if(appMediaItemLyric.isNotEmpty) {
+        lyricsReaderModel = LyricsModelBuilder.create()
+            .bindLyricToMain(appMediaItemLyric).getModel();
+      } else {
+        Lyrics.getOffLyrics(appMediaItem.value.permaUrl,).then((value) {
+          if (value == '' && getLyricsOnline) {
+            Lyrics.getLyrics(
+              id: appMediaItem.value.id,
+              isInternalLyric: appMediaItem.value.lyrics.isNotEmpty,
+              title: appMediaItem.value.name,
+              artist: appMediaItem.value.artist,
+            ).then((Map value) {
+              lyrics['lyrics'] = value['lyrics'];
+              lyrics['type'] = value['type'];
+              lyrics['source'] = value['source'];
+              lyrics['id'] = appMediaItem.value.id;
+              done.value = true;
+              lyricsSource.value = lyrics['source'].toString();
+              lyricsReaderModel = LyricsModelBuilder.create()
+                  .bindLyricToMain(lyrics['lyrics'].toString())
+                  .getModel();
+            });
+          } else {
+            AppUtilities.logger.i('Lyrics found offline');
+            lyrics['lyrics'] = value;
+            lyrics['type'] = value.startsWith('[00') ? 'lrc' : 'text';
+            lyrics['source'] = 'Local';
+            lyrics['id'] = appMediaItem.value.id;
+            done.value = true;
+            lyricsSource.value = lyrics['source'].toString();
+            lyricsReaderModel = LyricsModelBuilder.create()
+                .bindLyricToMain(lyrics['lyrics'].toString())
+                .getModel();
+          }
+        });
+      }
+
+    } else {
+      if(appMediaItemLyric.isNotEmpty) {
+        lyrics['lyrics'] = appMediaItemLyric;
+        lyrics['source'] = 'Gigmeout';
+        lyrics['type'] = 'text';
+        lyrics['id'] = appMediaItem.value.id;
+
+        done.value = true;
+        lyricsSource.value = lyrics['source'].toString();
+        lyricsReaderModel = LyricsModelBuilder.create()
+            .bindLyricToMain(lyrics['lyrics'].toString())
+            .getModel();
+      } else {
+        Lyrics.getLyrics(
+          id: appMediaItem.value.id,
+          isInternalLyric: appMediaItem.value.lyrics.isNotEmpty,
+          title: appMediaItem.value.name,
+          artist: appMediaItem.value.artist.toString(),
+        ).then((Map value) {
+          if (appMediaItem.value.id != value['id']) {
+            done.value = true;
+            return;
+          }
+          lyrics['lyrics'] = value['lyrics'];
+          lyrics['type'] = value['type'];
+          lyrics['source'] = value['source'];
+          lyrics['id'] = appMediaItem.value.id;
+          done.value = true;
+          lyricsSource.value = lyrics['source'].toString();
+          lyricsReaderModel = LyricsModelBuilder.create()
+              .bindLyricToMain(lyrics['lyrics'].toString())
+              .getModel();
+        });
+      }
+    }
+
+    done.value = true;
+
+  }
+
+  Stream<Duration> get bufferedPositionStream => audioHandler.playbackState
+      .map((state) => state.bufferedPosition).distinct();
+
+  Stream<Duration?> get durationStream => audioHandler.mediaItem.map((item) => item?.duration).distinct();
+
+  Stream<PositionData> get positionDataStream =>
+      rx.Rx.combineLatest3<Duration, Duration, Duration?, PositionData>(
+        AudioService.position,
+        bufferedPositionStream,
+        durationStream,
+            (position, bufferedPosition, duration) => PositionData(position, bufferedPosition, duration ?? Duration.zero),
+      );
+
+
+  ///NOT IN USE
+  // Widget createPopMenuOption(BuildContext context, AppMediaItem appMediaItem, {bool offline = false}) {
+  //   return PopupMenuButton(
+  //     icon: const Icon(Icons.more_vert_rounded,color: AppColor.white),
+  //     color: AppColor.getMain(),
+  //     shape: const RoundedRectangleBorder(
+  //       borderRadius: BorderRadius.all(
+  //         Radius.circular(15.0),
+  //       ),
+  //     ),
+  //     onSelected: (int? value) {
+  //       if(value != null) {
+  //         MusicPlayerUtilities.onSelectedPopUpMenu(context, value, appMediaItem, _time);
+  //       }
+  //     },
+  //     itemBuilder: (context) => offline ? [
+  //       PopupMenuItem(
+  //         value: 1,
+  //         child: Row(
+  //           children: [
+  //             Icon(CupertinoIcons.timer,
+  //               color: Theme.of(context).iconTheme.color,
+  //             ),
+  //             const SizedBox(width: 10.0),
+  //             Text(PlayerTranslationConstants.sleepTimer.tr,),
+  //           ],
+  //         ),
+  //       ),
+  //       PopupMenuItem(
+  //         value: 10,
+  //         child: Row(
+  //           children: [
+  //             Icon(Icons.info_rounded,
+  //               color: Theme.of(context).iconTheme.color,
+  //             ),
+  //             AppTheme.widthSpace10,
+  //             Text(PlayerTranslationConstants.songInfo.tr,),
+  //           ],
+  //         ),
+  //       ),
+  //     ] : [
+  //       PopupMenuItem(
+  //         value: 0,
+  //         child: Row(
+  //           children: [
+  //             Icon(Icons.playlist_add_rounded,
+  //               color: Theme.of(context).iconTheme.color,
+  //             ),
+  //             AppTheme.widthSpace10,
+  //             Text(PlayerTranslationConstants.addToPlaylist.tr,),],),
+  //       ),
+  //       PopupMenuItem(
+  //         value: 1,
+  //         child: Row(
+  //           children: [
+  //             Icon(
+  //               CupertinoIcons.timer,
+  //               color: Theme.of(context).iconTheme.color,
+  //             ),
+  //             AppTheme.widthSpace10,
+  //             Text(
+  //               PlayerTranslationConstants.sleepTimer.tr,
+  //             ),
+  //           ],
+  //         ),
+  //       ),
+  //       PopupMenuItem(
+  //         value: 10,
+  //         child: Row(
+  //           children: [
+  //             Icon(Icons.info_rounded,
+  //               color: Theme.of(context).iconTheme.color,
+  //             ),
+  //             const SizedBox(width: 10.0),
+  //             Text(PlayerTranslationConstants.songInfo.tr,),
+  //           ],
+  //         ),
+  //       ),
+  //     ],
+  //   );
+  // }
 
 }

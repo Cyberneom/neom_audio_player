@@ -77,16 +77,16 @@ class NeomPlayerInvoker {
           await setTags(response[i], tempDir),
         );
       }
-      updateNowPlaying(queue, index);
+      await updateNowPlaying(queue, index);
     });
   }
 
-  static void setDownValues(List<AppMediaItem> response, int index) {
+  static Future<void> setDownValues(List<AppMediaItem> response, int index) async {
     final List<MediaItem> queue = [];
     queue.addAll(
       response.map((song) => MediaItemMapper.appMediaItemToMediaItem(appMediaItem: song),),
     );
-    updateNowPlaying(queue, index);
+    await updateNowPlaying(queue, index);
   }
 
   static Future<MediaItem> setTags(AppMediaItem response, Directory tempDir,) async {

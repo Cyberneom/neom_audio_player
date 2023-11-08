@@ -5,12 +5,15 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_theme.dart';
 import 'package:neom_commons/core/utils/constants/app_page_id_constants.dart';
+import 'package:neom_commons/core/utils/constants/app_route_constants.dart';
 import '../../utils/constants/app_hive_constants.dart';
 import '../../utils/helpers/media_item_mapper.dart';
 import 'media_player_page.dart';
 import 'miniplayer_controller.dart';
 
 class MiniPlayer extends StatelessWidget {
+  const MiniPlayer({super.key});
+
 
   ///DEPRECATED
   // static MiniPlayer _instance = MiniPlayer._internal();
@@ -37,12 +40,8 @@ class MiniPlayer extends StatelessWidget {
                   if (direction == DismissDirection.down || direction == DismissDirection.horizontal) {
                     _.audioHandler.stop();
                   } else {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => MediaPlayerPage(appMediaItem: MediaItemMapper.fromMediaItem(_.mediaItem.value!), reproduceItem: false),
-                      ),
-                    );
+                    Get.toNamed(AppRouteConstants.musicPlayerMedia, arguments: [MediaItemMapper.fromMediaItem(_.mediaItem.value!), false]);
+                    // Navigator.push(context, MaterialPageRoute(builder: (context) => MediaPlayerPage(appMediaItem: MediaItemMapper.fromMediaItem(_.mediaItem.value!), reproduceItem: false),),);
                   }
                 }
                 return Future.value(false);

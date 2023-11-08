@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:neom_commons/core/app_flavour.dart';
+import 'package:neom_commons/core/ui/widgets/app_circular_progress_indicator.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_theme.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
@@ -16,7 +17,7 @@ import '../../to_delete/music_player_drawer.dart';
 import '../../to_delete/search/search_page.dart';
 import '../../utils/constants/player_translation_constants.dart';
 import '../widgets/music_player_widgets.dart';
-import 'music_player_home_content.dart';
+import 'widgets/music_player_home_content.dart';
 import 'music_player_home_controller.dart';
 
 class MusicPlayerHomePage extends StatelessWidget {
@@ -34,7 +35,7 @@ class MusicPlayerHomePage extends StatelessWidget {
             backgroundColor: AppColor.main50,
             body: Container(
               decoration: AppTheme.appBoxDecoration,
-              child: Stack(
+              child: _.isLoading.value ? const AppCircularProgressIndicator() : Stack(
                 children: [
                   NestedScrollView(
                     physics: const BouncingScrollPhysics(),
@@ -114,12 +115,12 @@ class MusicPlayerHomePage extends StatelessWidget {
                                       ],
                                     ),
                                   ),
-                                  onTap: () =>
-                                      Navigator.push(context, MaterialPageRoute(
-                                        builder: (context) => const SearchPage(
-                                          query: '', fromHome: true, autofocus: true,
-                                        ),
-                                      ),),
+                                  onTap: () => Navigator.push(context,
+                                    MaterialPageRoute(
+                                      builder: (context) => const SearchPage(
+                                        fromHome: true, autofocus: true,),
+                                    ),
+                                  ),
                                 );
                               },
                             ),

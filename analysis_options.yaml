@@ -10,6 +10,9 @@
 include: package:flutter_lints/flutter.yaml
 
 analyzer:
+  strong-mode:
+  # Will become the default once non-nullable types land
+  # https://github.com/dart-lang/sdk/issues/31410#issuecomment-510683629
   errors:
     # treat missing required parameters as a warning (not a hint)
     missing_required_param: warning
@@ -20,8 +23,6 @@ analyzer:
     invalid_annotation_target: ignore
     invalid_use_of_visible_for_testing_member: ignore # <- Disable the analyzer rule.
     use_build_context_synchronously: ignore
-  language:
-    strict-casts: true
 
 linter:
   # The lint rules applied to this project can be customized in the

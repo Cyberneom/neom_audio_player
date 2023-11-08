@@ -9,22 +9,23 @@ import 'package:neom_commons/core/utils/constants/app_page_id_constants.dart';
 import 'package:neom_commons/core/utils/constants/app_route_constants.dart';
 import 'package:neom_commons/core/utils/enums/itemlist_type.dart';
 
-import '../../neom_player_invoker.dart';
-import '../../to_delete/search/search_page.dart';
-import '../../utils/constants/app_hive_constants.dart';
-import '../../utils/constants/music_player_route_constants.dart';
-import '../../utils/constants/player_translation_constants.dart';
-import '../../utils/enums/image_quality.dart';
-import '../drawer/library/playlist_player_page.dart';
-import '../player/media_player_page.dart';
-import '../widgets/collage.dart';
-import '../widgets/empty_screen.dart';
-import '../widgets/horizontal_albumlist_separated.dart';
-import '../widgets/image_card.dart';
-import '../widgets/on_hover.dart';
-import '../widgets/song_list.dart';
-import '../widgets/song_tile_trailing_menu.dart';
-import 'music_player_home_controller.dart';
+import '../../../neom_player_invoker.dart';
+import '../../../to_delete/search/search_page.dart';
+import '../../../utils/constants/app_hive_constants.dart';
+import '../../../utils/constants/music_player_route_constants.dart';
+import '../../../utils/constants/player_translation_constants.dart';
+import '../../../utils/enums/image_quality.dart';
+import '../../library/playlist_player_page.dart';
+import '../../player/media_player_page.dart';
+import '../../widgets/collage.dart';
+import '../../widgets/empty_screen.dart';
+import '../../widgets/horizontal_albumlist_separated.dart';
+import '../../widgets/image_card.dart';
+import '../../widgets/like_button.dart';
+import '../../widgets/on_hover.dart';
+import '../../../to_delete/song_list.dart';
+import '../../widgets/song_tile_trailing_menu.dart';
+import '../music_player_home_controller.dart';
 
 class MusicPlayerHomeContent extends StatelessWidget {
 
@@ -41,9 +42,9 @@ class MusicPlayerHomeContent extends StatelessWidget {
       builder: (_) => _.isLoading.value ? const Center(child: CircularProgressIndicator(),)
         : (_.myItemLists.isEmpty && _.recentList.isEmpty && _.publicItemlists.isEmpty)
         ? TextButton(
-          onPressed: ()=>Navigator.push(context, MaterialPageRoute(
+          onPressed: ()=> Navigator.push(context, MaterialPageRoute(
             builder: (context) => const SearchPage(
-              query: '', fromHome: true, autofocus: true,
+              fromHome: true, autofocus: true,
             ),
           ),
         ),
@@ -96,24 +97,10 @@ class MusicPlayerHomeContent extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 10),
                   itemCount: publicList.getTotalItems(),
                   ///TRY TO MAKE ALLIANCE WITH RADIO STATIONS ONLINE
-                  // publicList.name == 'Radio Stations'
-                  //     ? (publicItemlists.values.elementAt(idx) as List).length + likedRadio.length
-                  //     : (publicItemlists.values.elementAt(idx) as List).length,
                   itemBuilder: (context, index) {
-
                     List<AppMediaItem> itemsOnLists = AppMediaItem.mapItemsFromItemlist(publicList);
                     if (publicList.id.isEmpty || itemsOnLists.isEmpty) return const SizedBox();
                     AppMediaItem item = itemsOnLists.elementAt(index);
-                    if (publicList.type != ItemlistType.radioStation) {
-                      // item = publicList;
-                    } else {
-                      // index < likedRadio.length
-                      //     ? item = likedRadio[index] as Map
-                      //     : item = publicItemlists.values.elementAt(idx)
-                      // [index - likedRadio.length] as Map;
-                    }
-                    final currentSongList = [];
-                    //publicItemlists.values.elementAt(idx).where((e) => e['type'] == 'song').toList();
                     return GestureDetector(
                       child: SizedBox(
                         width: boxSize - 30,
@@ -128,12 +115,6 @@ class MusicPlayerHomeContent extends StatelessWidget {
                                 .getImgUrls().last,
                             imageQuality: ImageQuality.medium,
                             placeholderImage: const AssetImage(AppAssets.musicPlayerAlbum),
-                            // (item['type'] == 'playlist' ||
-                            //     item['type'] == 'album')
-                            //     ? const AssetImage(AppAssets.musicPlayerAlbum,)
-                            //     : item['type'] == 'artist'
-                            //         ? const AssetImage(AppAssets.musicPlayerArtist,)
-                            //         : const AssetImage(AppAssets.musicPlayerCover,),
                           ),
                           builder: ({
                             required BuildContext context,
@@ -155,26 +136,19 @@ class MusicPlayerHomeContent extends StatelessWidget {
                                         dimension: isHover ? boxSize - 25 : boxSize - 30,
                                         child: child,
                                       ),
-                                      if (isHover
-                                      // && (item['type'] == 'song' || item['type'] == 'radio_station')
-                                      )
+                                      if (isHover)
                                         Positioned.fill(
                                           child: Container(
                                             margin: const EdgeInsets.all(4.0,),
                                             decoration: BoxDecoration(
                                               color: Colors.black54,
-                                              borderRadius: BorderRadius
-                                                  .circular(10,
-                                                // item['type'] == 'radio_station'
-                                                //     ? 1000.0 : 10.0,
-                                              ),
+                                              borderRadius: BorderRadius.circular(10,),
                                             ),
                                             child: Center(
                                               child: DecoratedBox(
                                                 decoration: BoxDecoration(
                                                   color: Colors.black87,
-                                                  borderRadius: BorderRadius
-                                                      .circular(1000.0,),
+                                                  borderRadius: BorderRadius.circular(1000.0,),
                                                 ),
                                                 child: const Icon(
                                                   Icons.play_arrow_rounded,
@@ -185,40 +159,12 @@ class MusicPlayerHomeContent extends StatelessWidget {
                                             ),
                                           ),
                                         ),
-                                      // if (item['type'] == 'radio_station' &&
-                                      //     (Platform.isAndroid || Platform.isIOS || isHover))
-                                      //   Align(
-                                      //     alignment: Alignment.topRight,
-                                      //     child: IconButton(
-                                      //       icon: likedRadio.contains(item)
-                                      //           ? const Icon(Icons.favorite_rounded, color: Colors.red,)
-                                      //           : const Icon(Icons.favorite_border_rounded),
-                                      //       tooltip: likedRadio.contains(item)
-                                      //           ? PlayerTranslationConstants.unlike.tr
-                                      //           : PlayerTranslationConstants.like.tr,
-                                      //       onPressed: () {
-                                      //         likedRadio.contains(item)
-                                      //             ? likedRadio.remove(item)
-                                      //             : likedRadio.add(item);
-                                      //         Hive.box(AppHiveConstants.settings).put('likedRadio', likedRadio,);
-                                      //         setState(() {});
-                                      //       },
-                                      //     ),
-                                      //   ),
-                                      if (publicList.getTotalItems() > 0
-                                      // || item['type'] == 'song'
-                                      )
+                                      if (publicList.getTotalItems() > 0)
                                         Align(
                                           alignment: Alignment.topRight,
                                           child: Row(
                                             mainAxisSize: MainAxisSize.min,
                                             children: [
-                                              ///TODO TO VERIFY
-                                              // if (isHover)
-                                              //   LikeButton(
-                                              //     appMediaItem: null,
-                                              //     data: publicList.toJSON(),
-                                              //   ),
                                               SongTileTrailingMenu(
                                                 appMediaItem: item,
                                                 itemlist: publicList,
@@ -259,92 +205,12 @@ class MusicPlayerHomeContent extends StatelessWidget {
                           },
                         ),
                       ),
-                      // onLongPress: () {
-                      //   Feedback.forLongPress(context);
-                      //   showDialog(
-                      //     context: context,
-                      //     builder: (context) {
-                      //       return InteractiveViewer(
-                      //         child: Stack(
-                      //           children: [
-                      //             GestureDetector(
-                      //               onTap: () => Navigator.pop(context),
-                      //             ),
-                      //             AlertDialog(
-                      //               shape: RoundedRectangleBorder(
-                      //                 borderRadius: BorderRadius.circular(15.0),
-                      //               ),
-                      //               backgroundColor: Colors.transparent,
-                      //               contentPadding: EdgeInsets.zero,
-                      //               content: imageCard(
-                      //                 borderRadius: 15,//item['type'] == 'radio_station' ? 1000.0 : 15.0,
-                      //                 imageUrl: publicList.imgUrl,
-                      //                 imageQuality: ImageQuality.high,
-                      //                 placeholderImage: const AssetImage(AppAssets.musicPlayerAlbum),
-                      //                 // (item['type'] == 'playlist' ||
-                      //                 //     item['type'] == 'album') ? const AssetImage(
-                      //                 //   AppAssets.musicPlayerAlbum,
-                      //                 // ) : item['type'] == 'artist'
-                      //                 //     ? const AssetImage(AppAssets.musicPlayerArtist,)
-                      //                 //     : const AssetImage(AppAssets.musicPlayerCover,),
-                      //               ),
-                      //             ),
-                      //           ],
-                      //         ),
-                      //       );
-                      //       },
-                      //     );
-                      //   },
                       onTap: () {
-                        if (false
-                        // item['type'] == 'radio_station'
-                        ) {
-                          // ShowSnackBar().showSnackBar(
-                          //   context,
-                          //   PlayerTranslationConstants.connectingRadio.tr,
-                          //   duration: const Duration(seconds: 2),
-                          // );
-                          // SaavnAPI().createRadio(
-                          //   names: item['more_info']['featured_station_type'].toString() == 'artist'
-                          //       ? [item['more_info']['query'].toString()] : [item['id'].toString()],
-                          //   language: item['more_info']['language']?.toString() ?? 'Español',
-                          //   stationType: item['more_info']['featured_station_type'].toString(),
-                          // ).then((value) {
-                          //   if (value != null) {
-                          //     SaavnAPI().getRadioSongs(stationId: value)
-                          //         .then((value) {
-                          //       NeomPlayerInvoke.init(
-                          //         appMediaItems: value,
-                          //         index: 0,
-                          //         isOffline: false,
-                          //         shuffle: true,
-                          //       );
-                          //     });
-                          //   }
-                          // });
-                        } else {
-                          if (false
-                          // item['type'] == 'song'
-                          ) {
-                            // NeomPlayerInvoke.init(
-                            //   appMediaItems: AppMediaItem.listFromList(currentSongList as List),
-                            //   index: currentSongList.indexWhere(
-                            //     (e) => e['id'] == item.get['id'],
-                            //   ),
-                            //   isOffline: false,
-                            // );
-                          } else {
-                            Navigator.push(context,
-                              PageRouteBuilder(
-                                opaque: false,
-                                pageBuilder: (_, __, ___) =>
-                                    SongsListPage(
-                                      itemlist: publicList, //TODO Get items from itemlist,
-                                    ),
-                              ),
-                            );
-                          }
-                        }
+                        Navigator.push(context,
+                          MaterialPageRoute(
+                            builder: (context) => PlaylistPlayerPage(itemlist: publicList,),
+                          ),
+                        );
                       },
                     );
                   },
@@ -377,9 +243,7 @@ class MusicPlayerHomeContent extends StatelessWidget {
                 ),
               ],
             ),
-            onTap: () {
-              Navigator.pushNamed(context, MusicPlayerRouteConstants.recent);
-            },
+            onTap: () => Navigator.pushNamed(context, MusicPlayerRouteConstants.recent),
           ),
           HorizontalAlbumsListSeparated(
             songsList: _.recentList.values.toList(),
@@ -441,8 +305,9 @@ class MusicPlayerHomeContent extends StatelessWidget {
                           ? Card(
                         elevation: 5,
                         color: Colors.black,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius
-                            .circular(10.0,),),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0,),
+                        ),
                         clipBehavior: Clip.antiAlias,
                         child: name == AppHiveConstants.favoriteSongs
                             ? const Image(image: AssetImage(AppAssets.musicPlayerCover,),)
@@ -453,10 +318,8 @@ class MusicPlayerHomeContent extends StatelessWidget {
                         showGrid: true,
                         placeholderImage: AppAssets.musicPlayerCover,
                       ),
-                      builder: ({
-                      required BuildContext context,
-                      required bool isHover,
-                      Widget? child,}) {
+                      builder: ({required BuildContext context, required bool isHover,
+                        Widget? child,}) {
                       return Card(
                         color: isHover ? null : Colors.transparent,
                         elevation: 0,
@@ -507,11 +370,7 @@ class MusicPlayerHomeContent extends StatelessWidget {
                     ///DEPRECATED
                     // await Hive.openBox(name);
                     Navigator.push(context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            PlaylistPlayerPage(
-                              alternativeName: name, itemlist: itemlist,
-                            ),
+                      MaterialPageRoute(builder: (context) => PlaylistPlayerPage(itemlist: itemlist,),
                       ),
                     );
                   },
@@ -563,8 +422,9 @@ class MusicPlayerHomeContent extends StatelessWidget {
                         ? Card(
                       elevation: 5,
                       color: Colors.black,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius
-                          .circular(10.0,),),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.0,),
+                      ),
                       clipBehavior: Clip.antiAlias,
                       child: const Image(image: AssetImage(AppAssets.musicPlayerCover,),),
                     ) : Collage(
@@ -625,8 +485,9 @@ class MusicPlayerHomeContent extends StatelessWidget {
                 ),
                 onTap: () async {
                   ///DEPRECATED
-                  // await Hive.openBox(name);
-                  Get.to(() => MediaPlayerPage(appMediaItem: favoriteItem),transition: Transition.leftToRight);
+                  /// await Hive.openBox(name);
+                  /// Get.to(() => MediaPlayerPage(appMediaItem: favoriteItem),transition: Transition.leftToRight);
+                  Get.toNamed(AppRouteConstants.musicPlayerMedia, arguments: [favoriteItem]);
                 },
               );
             },

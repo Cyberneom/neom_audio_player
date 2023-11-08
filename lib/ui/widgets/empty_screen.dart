@@ -1,16 +1,10 @@
 import 'package:flutter/material.dart';
 
-Widget emptyScreen(
-  BuildContext context,
-  int turns,
-  String text1,
-  double size1,
-  String text2,
-  double size2,
-  String text3,
-  double size3, {
-  bool useWhite = false,
-}) {
+Widget emptyScreen(BuildContext context, int turns,
+  String text1, double size1,
+  String text2, double size2,
+  String text3, double size3, {
+  bool useWhite = false,}) {
   return Container(
     padding: const EdgeInsets.symmetric(horizontal: 15),
    child: Column(

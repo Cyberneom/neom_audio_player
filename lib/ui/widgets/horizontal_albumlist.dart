@@ -44,8 +44,6 @@ class HorizontalAlbumsList extends StatelessWidget {
       }
       String artist = item.artist;
       return formatString(artist);
-
-      return '';
     }
   }
 

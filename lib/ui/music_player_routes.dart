@@ -4,10 +4,10 @@ import 'package:hive/hive.dart';
 import '../utils/constants/app_hive_constants.dart';
 import '../utils/constants/music_player_route_constants.dart';
 import 'drawer/downloads/downloads.dart';
-import 'drawer/library/now_playing_page.dart';
-import 'drawer/library/recently_played_page.dart';
-import 'drawer/library/stats_page.dart';
+import 'drawer/recently_played_page.dart';
+import 'drawer/stats_page.dart';
 import 'drawer/settings/widgets/music_player_settings_page.dart';
+import 'library/now_playing_page.dart';
 import 'music_player_root_page.dart';
 import 'player/media_player_page.dart';
 import 'welcome_preference_page.dart';
@@ -22,7 +22,7 @@ class MusicPlayerRoutes {
     MusicPlayerRouteConstants.root: (context) => initialFunction(),
     MusicPlayerRouteConstants.pref: (context) => const WelcomePreferencePage(),
     MusicPlayerRouteConstants.setting: (context) => const MusicPlayerSettingsPage(),
-    MusicPlayerRouteConstants.player: (context) => MediaPlayerPage(),
+    // MusicPlayerRouteConstants.player: (context) => MediaPlayerPage(),
     MusicPlayerRouteConstants.nowPlaying: (context) => const NowPlayingPage(),
     MusicPlayerRouteConstants.recent: (context) => const RecentlyPlayedPage(),
     MusicPlayerRouteConstants.downloads: (context) => const Downloads(),

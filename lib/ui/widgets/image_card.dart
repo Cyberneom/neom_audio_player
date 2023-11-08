@@ -64,30 +64,18 @@ Widget imageCard({
           else
             CachedNetworkImage(
               fit: BoxFit.cover,
-              errorWidget: (context, _, __) => Image(
-                fit: BoxFit.cover,
-                image: placeholderImage,
-              ),
-              imageUrl:
-                  UrlImageGetter([imageUrl]).getImageUrl(quality: imageQuality),
-              placeholder: (context, url) => Image(
-                fit: BoxFit.cover,
-                image: placeholderImage,
-              ),
+              errorWidget: (context, _, __) => Image(fit: BoxFit.cover, image: placeholderImage,),
+              imageUrl: UrlImageGetter([imageUrl]).getImageUrl(quality: imageQuality),
+              placeholder: (context, url) => Image(fit: BoxFit.cover, image: placeholderImage,),
             ),
           if (selected)
             Container(
-              decoration: const BoxDecoration(
-                color: Colors.black54,
-              ),
-              child: const Center(
-                child: Icon(
-                  Icons.check_rounded,
-                ),
-              ),
+              decoration: const BoxDecoration(color: Colors.black54,),
+              child: const Center(child: Icon(Icons.check_rounded,),),
             ),
         ],
       ),
     ),
   );
+
 }

@@ -34,12 +34,14 @@ import '../../utils/constants/app_hive_constants.dart';
 import '../../utils/constants/player_translation_constants.dart';
 
 class SearchPage extends StatefulWidget {
+
   final String query;
   final bool fromHome;
   final bool autofocus;
+
   const SearchPage({
     super.key,
-    required this.query,
+    this.query = '',
     this.fromHome = false,
     this.autofocus = false,
   });
