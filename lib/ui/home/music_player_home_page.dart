@@ -13,7 +13,7 @@ import 'package:neom_commons/core/utils/constants/app_assets.dart';
 import 'package:neom_commons/core/utils/constants/app_page_id_constants.dart';
 import 'package:neom_commons/core/utils/constants/app_translation_constants.dart';
 
-import '../../to_delete/music_player_drawer.dart';
+import '../drawer/music_player_drawer.dart';
 import '../../to_delete/search/search_page.dart';
 import '../../utils/constants/player_translation_constants.dart';
 import '../widgets/music_player_widgets.dart';
@@ -48,11 +48,11 @@ class MusicPlayerHomePage extends StatelessWidget {
                           actions: [
                             GestureDetector(
                                 child: Container(
-                                  padding: const EdgeInsets.only(right: 10),
+                                  padding: const EdgeInsets.only(right: 15),
                                   child: Image.asset(
                                     AppAssets.logoCompanyWhite,
                                     height: 50,
-                                    width: 120,
+                                    width: 130,
                                   ),
                                 ),
                                 onTap: () async {

@@ -84,7 +84,7 @@ class MediaPlayerPage extends StatelessWidget {
                   backgroundColor: AppColor.main50,
                   centerTitle: true,
                   leading: IconButton(
-                    icon: Icon(Icons.expand_more_rounded),
+                    icon: const Icon(Icons.expand_more_rounded),
                     tooltip: PlayerTranslationConstants.back.tr,
                     onPressed: () => Navigator.pop(context),
                   ),

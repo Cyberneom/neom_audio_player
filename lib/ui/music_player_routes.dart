@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 
+import '../neom_music_player_app.dart';
 import '../utils/constants/app_hive_constants.dart';
 import '../utils/constants/music_player_route_constants.dart';
 import 'drawer/downloads/downloads.dart';
-import 'drawer/recently_played_page.dart';
-import 'drawer/stats_page.dart';
-import 'drawer/settings/widgets/music_player_settings_page.dart';
+import 'drawer/recently_played/recently_played_page.dart';
+import 'drawer/stats/stats_page.dart';
+import 'drawer/settings/music_player_settings_page.dart';
 import 'library/now_playing_page.dart';
 import 'music_player_root_page.dart';
-import 'player/media_player_page.dart';
-import 'welcome_preference_page.dart';
+import 'home/widgets/welcome_preference_page.dart';
 
-class MusicPlayerRoutes {
+class MusicPlayerAppRoutes {
 
   static Widget initialFunction() {
     return Hive.box(AppHiveConstants.settings).get('userId') != null ? const MusicPlayerRootPage() : const WelcomePreferencePage();
@@ -20,6 +20,7 @@ class MusicPlayerRoutes {
 
   static final Map<String, Widget Function(BuildContext)> routes = {
     MusicPlayerRouteConstants.root: (context) => initialFunction(),
+    MusicPlayerRouteConstants.home: (context) => const NeomMusicPlayerApp(),
     MusicPlayerRouteConstants.pref: (context) => const WelcomePreferencePage(),
     MusicPlayerRouteConstants.setting: (context) => const MusicPlayerSettingsPage(),
     // MusicPlayerRouteConstants.player: (context) => MediaPlayerPage(),

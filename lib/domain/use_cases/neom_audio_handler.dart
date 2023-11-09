@@ -1,22 +1,3 @@
-/*
- *  This file is part of BlackHole (https://github.com/Sangwan5688/BlackHole).
- * 
- * BlackHole is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * BlackHole is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with BlackHole.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * Copyright (c) 2021-2023, Ankit Sangwan
- */
-
 import 'dart:async';
 
 import 'package:audio_service/audio_service.dart';
@@ -30,6 +11,7 @@ import 'package:rxdart/rxdart.dart';
 
 import '../../data/implementations/app_hive_controller.dart';
 import '../../data/implementations/playlist_hive_controller.dart';
+import '../../ui/player/media_player_controller.dart';
 import '../../ui/player/miniplayer_controller.dart';
 import '../../utils/constants/app_hive_constants.dart';
 import '../../utils/constants/music_player_constants.dart';
@@ -106,7 +88,6 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
     AppUtilities.logger.i('Starting audio service');
 
     try {
-
       preferredCompactNotificationButtons = AppHiveController().preferredCompactNotificationButtons;
       preferredMobileQuality = AppHiveController().preferredMobileQuality;
       preferredWifiQuality = AppHiveController().preferredWifiQuality;
@@ -377,7 +358,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
       final lastQueue = queue.map((item) {
         return MediaItemMapper.toJSON(item);
       }).toList();
-      Hive.box(AppHiveConstants.cache).put('lastQueue', lastQueue);
+      Hive.box(AppHiveConstants.cache).put(AppHiveConstants.lastQueue, lastQueue);
     }
   }
 
@@ -471,7 +452,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
   @override
   Future<void> skipToPrevious() async {
     resetOnSkip =
-        Hive.box(AppHiveConstants.settings).get('resetOnSkip', defaultValue: false) as bool;
+        Hive.box(AppHiveConstants.settings).get(AppHiveConstants.resetOnSkip, defaultValue: false) as bool;
     if (resetOnSkip) {
       if ((_player.position.inSeconds) <= 5) {
         _player.seekToPrevious();
@@ -496,7 +477,17 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
     try {
       _player.play();
       if(currentMediaItem != null) {
-        getx.Get.find<MiniPlayerController>().setMediaItem(currentMediaItem!);
+        if(getx.Get.isRegistered<MiniPlayerController>()) {
+          getx.Get.find<MiniPlayerController>().setMediaItem(currentMediaItem!);
+        } else {
+          getx.Get.put(MiniPlayerController()).setMediaItem(currentMediaItem!);
+        }
+
+        if(getx.Get.isRegistered<MediaPlayerController>()) {
+          getx.Get.find<MediaPlayerController>().setMediaItem(currentMediaItem!);
+        } else {
+          getx.Get.put(MediaPlayerController()).setMediaItem(currentMediaItem!);
+        }
       }
     } catch(e) {
       AppUtilities.logger.e(e.toString());
@@ -507,8 +498,8 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
   @override
   Future<void> pause() async {
     _player.pause();
-    await Hive.box(AppHiveConstants.cache).put('lastIndex', _player.currentIndex);
-    await Hive.box(AppHiveConstants.cache).put('lastPos', _player.position.inSeconds);
+    await Hive.box(AppHiveConstants.cache).put(AppHiveConstants.lastIndex, _player.currentIndex);
+    await Hive.box(AppHiveConstants.cache).put(AppHiveConstants.lastPos, _player.position.inSeconds);
     await addLastQueue(queue.value!);
   }
 
@@ -522,8 +513,8 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
     await playbackState.firstWhere((state) => state.processingState == AudioProcessingState.idle,);
 
     AppUtilities.logger.t('Caching last index ${_player.currentIndex} and position ${_player.position.inSeconds}');
-    await Hive.box(AppHiveConstants.cache).put('lastIndex', _player.currentIndex);
-    await Hive.box(AppHiveConstants.cache).put('lastPos', _player.position.inSeconds);
+    await Hive.box(AppHiveConstants.cache).put(AppHiveConstants.lastIndex, _player.currentIndex);
+    await Hive.box(AppHiveConstants.cache).put(AppHiveConstants.lastPos, _player.position.inSeconds);
     await addLastQueue(queue.valueWrapper!.value);
 
   }

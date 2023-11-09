@@ -5,13 +5,13 @@ import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/ui/widgets/appbar_child.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 
-import '../../neom_player_invoker.dart';
-import '../../utils/constants/app_hive_constants.dart';
-import '../../utils/constants/music_player_route_constants.dart';
-import '../../utils/constants/player_translation_constants.dart';
-import '../widgets/empty_screen.dart';
-import '../widgets/image_card.dart';
-import '../widgets/like_button.dart';
+import '../../../neom_player_invoker.dart';
+import '../../../utils/constants/app_hive_constants.dart';
+import '../../../utils/constants/music_player_route_constants.dart';
+import '../../../utils/constants/player_translation_constants.dart';
+import '../../widgets/empty_screen.dart';
+import '../../widgets/image_card.dart';
+import '../../widgets/like_button.dart';
 
 class RecentlyPlayedPage extends StatefulWidget {
   const RecentlyPlayedPage({super.key});
@@ -59,14 +59,14 @@ class _RecentlyPlayedPageState extends State<RecentlyPlayedPage> {
             ),
           ],
         ),
-        body: _songs.isEmpty
-            ? TextButton(onPressed: ()=>Navigator.pushNamed(context, MusicPlayerRouteConstants.home),
-            child: emptyScreen(
-                context, 3,
-                PlayerTranslationConstants.nothingTo.tr, 16,
-                PlayerTranslationConstants.showHere.tr, 45.0,
-                PlayerTranslationConstants.playSomething.tr, 26.0,
-              ),
+        body: _songs.isEmpty ? TextButton(
+          child: emptyScreen(
+            context, 3,
+            PlayerTranslationConstants.nothingTo.tr, 16,
+            PlayerTranslationConstants.showHere.tr, 45.0,
+            PlayerTranslationConstants.playSomething.tr, 26.0,
+          ),
+          onPressed: ()=> Navigator.pushNamed(context, MusicPlayerRouteConstants.home),
         ) : ListView.builder(
           physics: const BouncingScrollPhysics(),
           padding: const EdgeInsets.only(top: 10, bottom: 10),

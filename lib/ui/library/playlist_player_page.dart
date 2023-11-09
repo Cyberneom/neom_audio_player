@@ -108,7 +108,9 @@ class _PlaylistPlayerPageState extends State<PlaylistPlayerPage>
       backgroundColor: AppColor.main50,
       appBar: AppBarChild(
         title: widget.itemlist != null ? (widget.itemlist!.name.length > AppConstants.maxAppBarTitleLength ?
-        '${widget.itemlist!.name.capitalizeFirst.substring(0,AppConstants.maxAppBarTitleLength)}...' : widget.itemlist!.name.capitalizeFirst) : '',
+        '${widget.itemlist!.name.capitalizeFirst.substring(0,AppConstants.maxAppBarTitleLength)}...' : widget.itemlist!.name.capitalizeFirst)
+            : widget.alternativeName.isNotEmpty ? (widget.alternativeName.length > AppConstants.maxAppBarTitleLength ?
+        '${widget.alternativeName.capitalizeFirst.substring(0,AppConstants.maxAppBarTitleLength)}...' : widget.alternativeName.capitalizeFirst) : '',
         actionWidgets: [
           Theme(
             data: Theme.of(context).copyWith(

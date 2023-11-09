@@ -11,20 +11,20 @@ class MusicPlayerStats {
     AppUtilities.logger.d('Adding ${appMediaItem.id} to recently played');
 
     try {
-      List recentList = await Hive.box(AppHiveConstants.cache).get('recentSongs', defaultValue: [])?.toList() as List;
+      List recentList = await Hive.box(AppHiveConstants.cache).get(AppHiveConstants.recentSongs, defaultValue: [])?.toList() as List;
       final Map songStats = await Hive.box(AppHiveConstants.stats).get(appMediaItem.id, defaultValue: {}) as Map;
-      final Map mostPlayed = await Hive.box(AppHiveConstants.stats).get('mostPlayed', defaultValue: {}) as Map;
+      final Map mostPlayed = await Hive.box(AppHiveConstants.stats).get(AppHiveConstants.mostPlayed, defaultValue: {}) as Map;
 
-      songStats['lastPlayed'] = DateTime.now().millisecondsSinceEpoch;
-      songStats['playCount'] = songStats['playCount'] == null ? 1 : songStats['playCount'] + 1;
-      songStats['title'] = appMediaItem.name;
-      songStats['artist'] = appMediaItem.artist;
-      songStats['album'] = appMediaItem.album;
-      songStats['id'] = appMediaItem.id;
+      songStats[AppHiveConstants.lastPlayed] = DateTime.now().millisecondsSinceEpoch;
+      songStats[AppHiveConstants.playCount] = songStats[AppHiveConstants.playCount] == null ? 1 : songStats[AppHiveConstants.playCount] + 1;
+      songStats[AppHiveConstants.title] = appMediaItem.name;
+      songStats[AppHiveConstants.artist] = appMediaItem.artist;
+      songStats[AppHiveConstants.album] = appMediaItem.album;
+      songStats[AppHiveConstants.id] = appMediaItem.id;
       Hive.box(AppHiveConstants.stats).put(appMediaItem.id, songStats);
 
-      if ((songStats['playCount'] as int) > (mostPlayed['playCount'] as int? ?? 0)) {
-        Hive.box(AppHiveConstants.stats).put('mostPlayed', songStats);
+      if ((songStats[AppHiveConstants.playCount] as int) > (mostPlayed[AppHiveConstants.playCount] as int? ?? 0)) {
+        Hive.box(AppHiveConstants.stats).put(AppHiveConstants.mostPlayed, songStats);
       }
       AppUtilities.logger.i('Adding ${appMediaItem.id} ${appMediaItem.name} data to stats');
 
@@ -37,7 +37,7 @@ class MusicPlayerStats {
       if (recentList.length > 30) {
         recentList = recentList.sublist(0, 30);
       }
-      Hive.box(AppHiveConstants.cache).put('recentSongs', recentList);
+      Hive.box(AppHiveConstants.cache).put(AppHiveConstants.recentSongs, recentList);
     } catch(e) {
       AppUtilities.logger.e(e.toString());
     }

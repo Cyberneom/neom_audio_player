@@ -61,7 +61,7 @@ class MiniPlayerController extends GetxController {
   }
 
   void setMediaItem(MediaItem item) {
-    AppUtilities.logger.i('Setting new mediaitem ${item.title}');
+    AppUtilities.logger.d('Setting new mediaitem ${item.title}');
     mediaItem.value = item;
     update();
   }

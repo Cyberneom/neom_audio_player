@@ -58,9 +58,9 @@ class MusicPlayerHomeContent extends StatelessWidget {
         itemCount: _.publicItemlists.isEmpty ? 3 : (_.publicItemlists.length + 3),
         itemBuilder: (context, idx) {
           AppUtilities.logger.t('Building Music Home Index $idx');
-          if (idx == _.recentIndex) {
-            return buildLastSessionContainer(context, _);
-          }
+
+          if (idx == _.recentIndex) return buildLastSessionContainer(context, _);
+
           if (idx == _.myPlaylistsIndex) {
             return _.myItemLists.isNotEmpty ? buildMyPlaylistsContainer(_, context, boxSize) : Container();
           }

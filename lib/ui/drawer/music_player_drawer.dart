@@ -1,6 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart' as getx;
 import 'package:get/get.dart';
 import 'package:neom_commons/core/app_flavour.dart';
 import 'package:neom_commons/core/data/implementations/app_drawer_controller.dart';
@@ -10,34 +9,18 @@ import 'package:neom_commons/core/utils/app_theme.dart';
 import 'package:neom_commons/core/utils/constants/app_constants.dart';
 import 'package:neom_commons/core/utils/constants/app_page_id_constants.dart';
 import 'package:neom_commons/core/utils/constants/app_route_constants.dart';
-import '../../utils/constants/app_hive_constants.dart';
-import '../../utils/constants/music_player_route_constants.dart';
-import '../../utils/enums/music_player_drawer_menu.dart';
-import '../ui/drawer/settings/widgets/music_player_settings_page.dart';
-import '../ui/library/playlist_player_page.dart';
-import '../ui/player/miniplayer_controller.dart';
+import 'package:neom_commons/core/utils/constants/app_translation_constants.dart';
+import '../../../utils/constants/app_hive_constants.dart';
+import '../../../utils/constants/music_player_route_constants.dart';
+import '../../../utils/enums/music_player_drawer_menu.dart';
+import 'settings/music_player_settings_page.dart';
+import '../library/playlist_player_page.dart';
+import '../player/miniplayer_controller.dart';
 
 
 class MusicPlayerDrawer extends StatelessWidget {
 
   MusicPlayerDrawer({super.key});
-
-  final ValueNotifier<int> _selectedIndex = ValueNotifier<int>(0);
-
-  List sectionsToShow = ['Home', 'Spotify', 'YouTube'];
-  // final PersistentTabController _controller = PersistentTabController();
-
-  void callback() {
-    sectionsToShow = ['Home', 'Spotify', 'YouTube'];
-    onItemTapped(0);
-  }
-
-  void onItemTapped(int index) {
-    _selectedIndex.value = index;
-    // _controller.jumpToTab(
-    //   index,
-    // );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -90,7 +73,7 @@ class MusicPlayerDrawer extends StatelessWidget {
                   constraints: const BoxConstraints(),
                   icon: const Icon(Icons.arrow_back_ios),
                   onPressed: () {
-                    getx.Get.find<MiniPlayerController>().setIsTimeline(true);
+                    Get.find<MiniPlayerController>().setIsTimeline(true);
                     Get.offAllNamed(AppRouteConstants.home);
                   },
               ),
@@ -115,9 +98,8 @@ class MusicPlayerDrawer extends StatelessWidget {
                         ),
                         onTap: ()=> Get.toNamed(AppRouteConstants.profile),
                       ),
-                      Text(
-                        _.appProfile.name.length > AppConstants.maxArtistNameLength
-                            ? '${_.appProfile.name.substring(0,AppConstants.maxArtistNameLength)}...' : _.appProfile.name,
+                      Text(_.appProfile.name.length > AppConstants.maxArtistNameLength
+                          ? '${_.appProfile.name.substring(0,AppConstants.maxArtistNameLength)}...' : _.appProfile.name,
                         style: AppTheme.primaryTitleText,
                         overflow: TextOverflow.fade,
                       ),
@@ -140,10 +122,9 @@ class MusicPlayerDrawer extends StatelessWidget {
             case MusicPlayerDrawerMenu.lastSession:
               Navigator.pushNamed(context, MusicPlayerRouteConstants.recent);
             case MusicPlayerDrawerMenu.favorites:
-              Navigator.push(context,
-                MaterialPageRoute(
-                  builder: (context) => const PlaylistPlayerPage(
-                    alternativeName: AppHiveConstants.favoriteSongs,
+              Navigator.push(context, MaterialPageRoute(
+                  builder: (context) => PlaylistPlayerPage(
+                    alternativeName: AppTranslationConstants.favoriteItems.tr,
                   ),
                 ),
               );
@@ -159,23 +140,18 @@ class MusicPlayerDrawer extends StatelessWidget {
             case MusicPlayerDrawerMenu.playlists:
               Get.toNamed(AppRouteConstants.lists);
             case MusicPlayerDrawerMenu.stats:
-              Get.toNamed(MusicPlayerRouteConstants.stats);
+              Navigator.pushNamed(context, MusicPlayerRouteConstants.stats);
             case MusicPlayerDrawerMenu.settings:
-              final idx =
-              sectionsToShow.indexOf(MusicPlayerRouteConstants.setting);
-              if (idx != -1) {
-                if (_selectedIndex.value != idx) {
-                  onItemTapped(idx);
-                }
-              } else {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        MusicPlayerSettingsPage(callback: callback),
-                  ),
-                );
-              }
+              Navigator.pushNamed(context, MusicPlayerRouteConstants.setting);
+              // final idx = sectionsToShow.indexOf(MusicPlayerRouteConstants.setting);
+              // if (idx != -1) {
+              //   if (_selectedIndex.value != idx) onItemTapped(idx);
+              // } else {
+              //   Navigator.push(context, MaterialPageRoute(
+              //       builder: (context) => MusicPlayerSettingsPage(callback: callback),
+              //     ),
+              //   );
+              // }
             default:
               break;
           }

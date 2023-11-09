@@ -138,9 +138,7 @@ class _NeomMusicPlayerAppState extends State<NeomMusicPlayerApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        // navigatorKey: navigatorKey,
         title: AppFlavour.appInUse.name,
-        // restorationScopeId: AppFlavour.appInUse.name,
         themeMode: MusicAppTheme.themeMode,
         darkTheme: MusicAppTheme.darkTheme(
           context: context,
@@ -164,7 +162,7 @@ class _NeomMusicPlayerAppState extends State<NeomMusicPlayerApp> {
           Locale('fr'), // French, France
           Locale('de'), // German, Germany
         ],
-        routes: MusicPlayerRoutes.routes,
+        routes: MusicPlayerAppRoutes.routes,
         onGenerateRoute: (RouteSettings settings) {
           if (settings.name == '/player') {
             return PageRouteBuilder(

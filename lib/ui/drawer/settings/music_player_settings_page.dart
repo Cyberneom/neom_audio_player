@@ -4,10 +4,10 @@ import 'package:neom_commons/core/ui/widgets/appbar_child.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_theme.dart';
 
-import '../../../../utils/constants/player_translation_constants.dart';
-import 'music_playback_settings_page.dart';
-import 'music_player_interface_page.dart';
-import 'others.dart';
+import '../../../utils/constants/player_translation_constants.dart';
+import 'widgets/music_playback_settings_page.dart';
+import 'widgets/music_player_interface_page.dart';
+import 'widgets/others.dart';
 
 class MusicPlayerSettingsPage extends StatefulWidget {
   final Function? callback;
