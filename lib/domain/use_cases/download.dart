@@ -12,7 +12,7 @@ import 'package:neom_commons/core/utils/enums/app_media_source.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-import '../../to_delete/lyrics.dart';
+import '../../ui/player/lyrics/lyrics.dart';
 
 import '../../utils/constants/app_hive_constants.dart';
 import '../../utils/constants/player_translation_constants.dart';
@@ -40,7 +40,7 @@ class Download with ChangeNotifier {
   String preferredYtDownloadQuality = Hive.box(AppHiveConstants.settings).get('ytDownloadQuality', defaultValue: 'High') as String;
   String downloadFormat = Hive.box(AppHiveConstants.settings).get('downloadFormat', defaultValue: 'm4a').toString();
   bool createDownloadFolder = Hive.box(AppHiveConstants.settings).get('createDownloadFolder', defaultValue: false) as bool;
-  bool createYoutubeFolder = Hive.box(AppHiveConstants.settings).get('createYoutubeFolder', defaultValue: false) as bool;
+
   double? progress = 0.0;
   String lastDownloadId = '';
   bool downloadLyrics = Hive.box(AppHiveConstants.settings).get('downloadLyrics', defaultValue: false) as bool;
@@ -103,16 +103,8 @@ class Download with ChangeNotifier {
       dlPath = temp!;
     }
     AppUtilities.logger.i('New Download path: $dlPath');
-    if (mediaItem.url.contains('google') && createYoutubeFolder) {
-      AppUtilities.logger.i('Youtube audio detected, creating Youtube folder');
-      dlPath = '$dlPath/YouTube';
-      if (!await Directory(dlPath).exists()) {
-        AppUtilities.logger.i('Creating Youtube folder');
-        await Directory(dlPath).create();
-      }
-    }
 
-    if (createFolder && createDownloadFolder && folderName != null) {
+        if (createFolder && createDownloadFolder && folderName != null) {
       final String foldername = folderName.replaceAll(avoid, '');
       dlPath = '$dlPath/$foldername';
       if (!await Directory(dlPath).exists()) {
@@ -271,7 +263,7 @@ class Download with ChangeNotifier {
     String imgPath = '';
     String? appPath;
     final List<int> bytes = [];
-    String lyrics = '';
+    String  lyrics = '';
     final artname = fileName.replaceAll('.m4a', '.jpg');
     if (!Platform.isWindows) {
       AppUtilities.logger.i('Getting App Path for storing image');

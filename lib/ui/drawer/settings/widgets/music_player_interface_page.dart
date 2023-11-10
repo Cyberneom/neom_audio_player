@@ -18,35 +18,18 @@ class MusicPlayerInterfacePage extends StatefulWidget {
 }
 
 class _MusicPlayerInterfacePageState extends State<MusicPlayerInterfacePage> {
+
   final Box settingsBox = Hive.box(AppHiveConstants.settings);
 
-  List blacklistedHomeSections = Hive.box(AppHiveConstants.settings)
-      .get('blacklistedHomeSections', defaultValue: []) as List;
+  List miniButtonsOrder = Hive.box(AppHiveConstants.settings).get('miniButtonsOrder',
+    defaultValue: ['Like', 'Previous', 'Play/Pause', 'Next'],) as List;
 
-  List miniButtonsOrder = Hive.box(AppHiveConstants.settings).get(
-    'miniButtonsOrder',
-    defaultValue: ['Like', 'Previous', 'Play/Pause', 'Next'],
-  ) as List;
+  List preferredMiniButtons = Hive.box(AppHiveConstants.settings).get('preferredMiniButtons',
+    defaultValue: ['Like', 'Play/Pause', 'Next'],)?.toList() as List;
 
-  List preferredMiniButtons = Hive.box(AppHiveConstants.settings).get(
-    'preferredMiniButtons',
-    defaultValue: ['Like', 'Play/Pause', 'Next'],
-  )?.toList() as List;
+  List<int> preferredCompactNotificationButtons = Hive.box(AppHiveConstants.settings).get('preferredCompactNotificationButtons',
+    defaultValue: [1, 2, 3],) as List<int>;
 
-  List<int> preferredCompactNotificationButtons = Hive.box(AppHiveConstants.settings).get(
-    'preferredCompactNotificationButtons',
-    defaultValue: [1, 2, 3],
-  ) as List<int>;
-
-  List sectionsToShow = Hive.box(AppHiveConstants.settings).get(
-    'sectionsToShow',
-    defaultValue: ['Home', 'Top Charts', 'YouTube', 'Library'],
-  ) as List;
-
-  final List sectionsAvailableToShow = Hive.box(AppHiveConstants.settings).get(
-    'sectionsAvailableToShow',
-    defaultValue: ['Top Charts', 'YouTube', 'Library', 'Settings'],
-  ) as List;
 
   @override
   Widget build(BuildContext context) {
@@ -298,9 +281,7 @@ class _MusicPlayerInterfacePageState extends State<MusicPlayerInterfacePage> {
                                       }
                                       preferredCompactNotificationButtons = checked.toList()..sort();
                                       Navigator.pop(context);
-                                      Hive.box(AppHiveConstants.settings).put(
-                                        'preferredCompactNotificationButtons',
-                                        preferredCompactNotificationButtons,
+                                      Hive.box(AppHiveConstants.settings).put('preferredCompactNotificationButtons', preferredCompactNotificationButtons,
                                       );
                                     },
                                   );

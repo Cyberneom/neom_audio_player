@@ -8,7 +8,6 @@ import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/enums/app_media_source.dart';
 
 import '../domain/use_cases/neom_audio_handler.dart';
-import '../to_delete/extensions.dart';
 import '../ui/widgets/add_to_playlist.dart';
 import '../ui/widgets/popup.dart';
 import '../ui/widgets/textinput_dialog.dart';
@@ -18,37 +17,38 @@ class MusicPlayerUtilities {
 
   static final NeomAudioHandler audioHandler = GetIt.I<NeomAudioHandler>();
 
-  static String getSubTitle(Map item) {
-    AppUtilities.logger.e('Getting SubtTitle.');
-    final type = item['type'];
-    switch (type) {
-      case 'charts':
-        return '';
-      case 'radio_station':
-        return 'Radio • ${(item['subtitle']?.toString() ?? '').isEmpty ? 'JioSaavn' : item['subtitle']?.toString().unescape()}';
-      case 'playlist':
-        return 'Playlist • ${(item['subtitle']?.toString() ?? '').isEmpty ? 'JioSaavn' : item['subtitle'].toString().unescape()}';
-      case 'song':
-        return 'Single • ${item['artist']?.toString().unescape()}';
-      case 'mix':
-        return 'Mix • ${(item['subtitle']?.toString() ?? '').isEmpty ? 'JioSaavn' : item['subtitle'].toString().unescape()}';
-      case 'show':
-        return 'Podcast • ${(item['subtitle']?.toString() ?? '').isEmpty ? 'JioSaavn' : item['subtitle'].toString().unescape()}';
-      case 'album':
-        final artists = item['more_info']?['artistMap']?['artists'].map((artist) => artist['name']).toList();
-        if (artists != null) {
-          return 'Album • ${artists?.join(', ')?.toString().unescape()}';
-        } else if (item['subtitle'] != null && item['subtitle'] != '') {
-          return 'Album • ${item['subtitle']?.toString().unescape()}';
-        }
-        return 'Album';
-      default:
-        final artists = item['more_info']?['artistMap']?['artists']
-            .map((artist) => artist['name'])
-            .toList();
-        return artists?.join(', ')?.toString().unescape() ?? '';
-    }
-  }
+  ///DEPRECATED
+  // static String getSubTitle(Map item) {
+  //   AppUtilities.logger.e('Getting SubtTitle.');
+  //   final type = item['type'];
+  //   switch (type) {
+  //     case 'charts':
+  //       return '';
+  //     case 'radio_station':
+  //       return 'Radio • ${(item['subtitle']?.toString() ?? '').isEmpty ? 'JioSaavn' : item['subtitle']?.toString().unescape()}';
+  //     case 'playlist':
+  //       return 'Playlist • ${(item['subtitle']?.toString() ?? '').isEmpty ? 'JioSaavn' : item['subtitle'].toString().unescape()}';
+  //     case 'song':
+  //       return 'Single • ${item['artist']?.toString().unescape()}';
+  //     case 'mix':
+  //       return 'Mix • ${(item['subtitle']?.toString() ?? '').isEmpty ? 'JioSaavn' : item['subtitle'].toString().unescape()}';
+  //     case 'show':
+  //       return 'Podcast • ${(item['subtitle']?.toString() ?? '').isEmpty ? 'JioSaavn' : item['subtitle'].toString().unescape()}';
+  //     case 'album':
+  //       final artists = item['more_info']?['artistMap']?['artists'].map((artist) => artist['name']).toList();
+  //       if (artists != null) {
+  //         return 'Album • ${artists?.join(', ')?.toString().unescape()}';
+  //       } else if (item['subtitle'] != null && item['subtitle'] != '') {
+  //         return 'Album • ${item['subtitle']?.toString().unescape()}';
+  //       }
+  //       return 'Album';
+  //     default:
+  //       final artists = item['more_info']?['artistMap']?['artists']
+  //           .map((artist) => artist['name'])
+  //           .toList();
+  //       return artists?.join(', ')?.toString().unescape() ?? '';
+  //   }
+  // }
 
   static Future<dynamic> setCounter(BuildContext context) async {
     showTextInputDialog(

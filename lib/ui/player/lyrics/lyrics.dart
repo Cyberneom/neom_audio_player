@@ -5,8 +5,8 @@ import 'package:http/http.dart' as http;
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/constants/app_translation_constants.dart';
 
-import '../data/api_services/spotify/spotify_api_calls.dart';
-import '../utils/helpers/spotify_helper.dart';
+import '../../../data/api_services/spotify/spotify_api_calls.dart';
+import '../../../utils/helpers/spotify_helper.dart';
 import 'matcher.dart';
 
 // ignore: avoid_classes_with_only_static_members

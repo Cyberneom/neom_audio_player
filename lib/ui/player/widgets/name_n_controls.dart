@@ -25,8 +25,6 @@ import '../../widgets/download_button.dart';
 import '../../widgets/go_spotify_button.dart';
 import '../../widgets/like_button.dart';
 import '../../widgets/seek_bar.dart';
-import '../../../to_delete/song_list.dart';
-import '../../../to_delete/animated_text.dart';
 import '../media_player_controller.dart';
 import 'control_buttons.dart';
 import 'now_playing_stream.dart';

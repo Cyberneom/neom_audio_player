@@ -13,7 +13,7 @@ import 'package:neom_commons/core/utils/constants/app_page_id_constants.dart';
 import 'package:neom_commons/core/utils/constants/app_route_constants.dart';
 import 'package:neom_commons/core/utils/constants/message_translation_constants.dart';
 import 'package:neom_commons/core/utils/enums/app_in_use.dart';
-import 'package:neom_commons/core/utils/enums/itemlist_owner.dart';
+import 'package:neom_commons/core/utils/enums/owner_type.dart';
 import 'package:neom_commons/core/utils/enums/spotify_search_type.dart';
 import 'package:spotify/spotify.dart' as spotify;
 
@@ -65,7 +65,7 @@ class SpotifyInternalController extends GetxController {
 
     try {
       profile = userController.profile;
-      userController.itemlistOwner = ItemlistOwner.profile;
+      userController.itemlistOwner = OwnerType.profile;
     } catch (e) {
       logger.e(e.toString());
     }

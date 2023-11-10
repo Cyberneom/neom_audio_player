@@ -19,7 +19,7 @@ import 'package:sliding_up_panel/sliding_up_panel.dart';
 import '../../domain/entities/position_data.dart';
 import '../../domain/use_cases/neom_audio_handler.dart';
 import '../../neom_player_invoker.dart';
-import '../../to_delete/lyrics.dart';
+import 'lyrics/lyrics.dart';
 import '../../utils/constants/app_hive_constants.dart';
 import '../../utils/helpers/media_item_mapper.dart';
 import 'package:rxdart/rxdart.dart' as rx;

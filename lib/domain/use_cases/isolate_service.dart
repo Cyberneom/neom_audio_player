@@ -34,16 +34,16 @@ Future<void> startBackgroundProcessing() async {
 
 }
 
-// The function that will run in the background Isolate
 Future<void> _backgroundProcess(SendPort sendPort) async {
-  AppUtilities.logger.d('Backgroung Proccess for SendPort ${sendPort.toString()}');
+  AppUtilities.logger.d('Background Process for SendPort ${sendPort.toString()}');
   final isolateReceivePort = ReceivePort();
 
   try {
-    sendPort.send(isolateReceivePort.sendPort);    
-
+    sendPort.send(isolateReceivePort.sendPort);
     await for (final message in isolateReceivePort) {
-      AppUtilities.logger.d('IsolateReceivePort. Refreshing link for message: ${message.toString()}');      
+      AppUtilities.logger.d('IsolateReceivePort. '
+          'Refreshing link for message: ${message.toString()}'
+      );
     }
   } catch(e) {
     AppUtilities.logger.e(e.toString());

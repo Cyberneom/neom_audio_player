@@ -22,7 +22,7 @@ import 'package:rxdart/rxdart.dart' as rx;
 
 import '../../../domain/entities/queue_state.dart';
 import '../../../domain/use_cases/neom_audio_handler.dart';
-import '../../../to_delete/lyrics.dart';
+import '../lyrics/lyrics.dart';
 import '../../../utils/constants/app_hive_constants.dart';
 import '../../../utils/constants/player_translation_constants.dart';
 import '../../widgets/add_to_playlist.dart';

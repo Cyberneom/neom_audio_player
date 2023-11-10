@@ -3,12 +3,9 @@ import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:neom_commons/core/utils/app_color.dart';
-import 'package:neom_commons/core/utils/app_utilities.dart';
 import '../../domain/use_cases/neom_audio_handler.dart';
 import '../../utils/constants/player_translation_constants.dart';
 import '../../utils/music_player_utilities.dart';
-import '../../to_delete/hidden_thumb_component_shape.dart';
 
 class SeekBar extends StatefulWidget {
   final NeomAudioHandler audioHandler;

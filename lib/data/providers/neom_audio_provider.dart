@@ -6,7 +6,11 @@ import '../../domain/use_cases/neom_audio_handler.dart';
 class NeomAudioProvider {
 
   static final NeomAudioProvider _instance = NeomAudioProvider._internal();
-  factory NeomAudioProvider() => _instance;
+
+  factory NeomAudioProvider() {
+    return _instance;
+  }
+
   NeomAudioProvider._internal();
 
   static bool _isInitialized = false;
