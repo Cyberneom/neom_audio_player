@@ -9,14 +9,10 @@ import 'package:flutter_lyric/lyrics_model_builder.dart';
 import 'package:flutter_lyric/lyrics_reader_model.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/adapters.dart';
-import 'package:neom_commons/core/app_flavour.dart';
 import 'package:neom_commons/core/data/implementations/user_controller.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
-import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/constants/app_page_id_constants.dart';
-import 'package:neom_commons/core/utils/constants/app_route_constants.dart';
-import 'package:neom_commons/core/utils/constants/app_translation_constants.dart';
 import 'package:neom_commons/core/utils/core_utilities.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
@@ -26,9 +22,6 @@ import '../../neom_player_invoker.dart';
 import '../../to_delete/lyrics.dart';
 import '../../utils/constants/app_hive_constants.dart';
 import '../../utils/helpers/media_item_mapper.dart';
-import '../widgets/image_card.dart';
-import 'media_player_page.dart';
-import 'widgets/control_buttons.dart';
 import 'package:rxdart/rxdart.dart' as rx;
 
 class MediaPlayerController extends GetxController {

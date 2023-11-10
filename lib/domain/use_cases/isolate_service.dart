@@ -24,7 +24,7 @@ Future<void> startBackgroundProcessing() async {
         isolateSendPort = message as SendPort;
         isolateSendPort?.send(appDocumentDirectoryPath);
       } else {
-        AppUtilities.logger.d('IsolateSendPort is not null. Sending refreshLink actión with newData: $message');
+        AppUtilities.logger.d('IsolateSendPort is not null. Sending refreshLink action with newData: $message');
         await audioHandler.customAction('refreshLink', {'newData': message});
       }
     });
@@ -42,7 +42,7 @@ Future<void> _backgroundProcess(SendPort sendPort) async {
   try {
     sendPort.send(isolateReceivePort.sendPort);    
 
-    await for (final message in isolateReceivePort) {      
+    await for (final message in isolateReceivePort) {
       AppUtilities.logger.d('IsolateReceivePort. Refreshing link for message: ${message.toString()}');      
     }
   } catch(e) {

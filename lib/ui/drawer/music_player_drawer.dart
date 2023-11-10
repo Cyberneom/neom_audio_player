@@ -10,10 +10,8 @@ import 'package:neom_commons/core/utils/constants/app_constants.dart';
 import 'package:neom_commons/core/utils/constants/app_page_id_constants.dart';
 import 'package:neom_commons/core/utils/constants/app_route_constants.dart';
 import 'package:neom_commons/core/utils/constants/app_translation_constants.dart';
-import '../../../utils/constants/app_hive_constants.dart';
 import '../../../utils/constants/music_player_route_constants.dart';
 import '../../../utils/enums/music_player_drawer_menu.dart';
-import 'settings/music_player_settings_page.dart';
 import '../library/playlist_player_page.dart';
 import '../player/miniplayer_controller.dart';
 

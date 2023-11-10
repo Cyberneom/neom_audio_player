@@ -7,7 +7,6 @@ import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
 import 'package:neom_commons/core/utils/constants/app_page_id_constants.dart';
 import 'package:neom_commons/core/utils/constants/app_route_constants.dart';
-import 'package:neom_commons/core/utils/enums/itemlist_type.dart';
 
 import '../../../neom_player_invoker.dart';
 import '../../../to_delete/search/search_page.dart';
@@ -16,14 +15,11 @@ import '../../../utils/constants/music_player_route_constants.dart';
 import '../../../utils/constants/player_translation_constants.dart';
 import '../../../utils/enums/image_quality.dart';
 import '../../library/playlist_player_page.dart';
-import '../../player/media_player_page.dart';
 import '../../widgets/collage.dart';
 import '../../widgets/empty_screen.dart';
 import '../../widgets/horizontal_albumlist_separated.dart';
 import '../../widgets/image_card.dart';
-import '../../widgets/like_button.dart';
 import '../../widgets/on_hover.dart';
-import '../../../to_delete/song_list.dart';
 import '../../widgets/song_tile_trailing_menu.dart';
 import '../music_player_home_controller.dart';
 

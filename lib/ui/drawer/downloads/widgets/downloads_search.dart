@@ -3,11 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/domain/model/item_list.dart';
-import 'package:on_audio_query/on_audio_query.dart';
 
 import '../../../../neom_player_invoker.dart';
 import '../../../../utils/constants/player_translation_constants.dart';
-import '../../../../utils/helpers/audio_query.dart';
 import '../../../widgets/download_button.dart';
 import '../../../widgets/image_card.dart';
 import '../../../widgets/song_tile_trailing_menu.dart';
