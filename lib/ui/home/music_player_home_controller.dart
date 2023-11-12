@@ -102,7 +102,7 @@ class MusicPlayerHomeController extends GetxController {
   Future<void> getHomePageData() async {
     AppUtilities.logger.d('Get ItemLists Home Data');
     try {
-      myItemLists = await ItemlistFirestore().fetchAll(profileId: profile.id);
+      myItemLists = await ItemlistFirestore().fetchAll(ownerId: profile.id);
       publicItemlists = await ItemlistFirestore().fetchAll(excludeMyFavorites: true, excludeFromProfileId: profile.id, minItems: 0);
       ///DEPRECATED
       // for (final myItemlist in myItemLists.values) {
