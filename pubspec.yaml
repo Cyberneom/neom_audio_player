@@ -1,7 +1,7 @@
 name: neom_music_player
 description: Music Player Module for apps.
 version: 1.1.0
-homepage: https://github.com/Cyberneom/neom_commons
+homepage: https://github.com/Cyberneom/neom_music_player
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
 environment:
