@@ -29,7 +29,7 @@ class SpotifyApiCalls {
   final String spotifyBaseUrl = 'https://accounts.spotify.com';
   final String requestToken = 'https://accounts.spotify.com/api/token';
 
-  String requestAuthorization() => 'https://accounts.spotify.com/authorize?client_id=${AppFlavour.getSpotifyClientId()}&response_type=code&redirect_uri=$redirectUrl&scope=${_scopes.join('%20')}';
+  ///DEPRECATED String requestAuthorization() => 'https://accounts.spotify.com/authorize?client_id=${AppFlavour.getSpotifyClientId()}&response_type=code&redirect_uri=$redirectUrl&scope=${_scopes.join('%20')}';
 
   static Future<String> getSpotifyToken() async {
     AppUtilities.logger.d('Getting access and Spotify Token');
@@ -188,39 +188,10 @@ class SpotifyApiCalls {
       } else {
         AppUtilities.logger.e(
           'Error in getAccessToken, called: $path, returned: ${response.statusCode}',
-          response.body,
         );
       }
     } catch (e) {
       AppUtilities.logger.e('Error in getting spotify access token: $e');
-    }
-    return [];
-  }
-
-  Future<List> getUserPlaylistsV2(String accessToken) async {
-    try {
-      final Uri path =
-      Uri.parse('$spotifyApiBaseUrl$spotifyUserPlaylistEndpoint?limit=50');
-
-      final response = await get(
-        path,
-        headers: {
-          'Authorization': 'Bearer $accessToken',
-          'Accept': 'application/json',
-        },
-      );
-      if (response.statusCode == 200) {
-        final result = jsonDecode(response.body);
-        final List playlists = result['items'] as List;
-        return playlists;
-      } else {
-        AppUtilities.logger.e(
-          'Error in getUserPlaylists, called: $path, returned: ${response.statusCode}',
-          response.body,
-        );
-      }
-    } catch (e) {
-      AppUtilities.logger.e('Error in getting spotify user playlists: $e');
     }
     return [];
   }
@@ -277,9 +248,7 @@ class SpotifyApiCalls {
         return {'tracks': tracks, 'total': total};
       } else {
         AppUtilities.logger.e(
-          'Error in getHundredTracksOfPlaylist, called: $path, returned: ${response.statusCode}',
-          response.body,
-        );
+          'Error in getHundredTracksOfPlaylist, called: $path, returned: ${response.statusCode}',);
       }
     } catch (e) {
       AppUtilities.logger.e('Error in getting spotify playlist tracks: $e');
@@ -311,7 +280,6 @@ class SpotifyApiCalls {
     } else {
       AppUtilities.logger.e(
         'Error in searchTrack, called: $path, returned: ${response.statusCode}',
-        response.body,
       );
     }
     return {};
@@ -335,51 +303,21 @@ class SpotifyApiCalls {
     } else {
       AppUtilities.logger.e(
         'Error in getTrackDetails, called: $path, returned: ${response.statusCode}',
-        response.body,
       );
     }
     return {};
   }
 
-  Future<List<Map>> getFeaturedPlaylists(String accessToken) async {
-    try {
-      final Uri path = Uri.parse(
-        '$spotifyApiBaseUrl/browse/featured-playlists',
-      );
-      final response = await get(
-        path,
-        headers: {
-          'Authorization': 'Bearer $accessToken',
-          'Accept': 'application/json',
-        },
-      );
-      final List<Map> songsData = [];
-      if (response.statusCode == 200) {
-        final result = jsonDecode(response.body);
-        await for (final element in result['playlists']['items'] as Stream) {
-          songsData.add({
-            'name': element['name'],
-            'id': element['id'],
-            'image': element['images'][0]['url'],
-            'description': element['description'],
-            'externalUrl': element['external_urls']['spotify'],
-            'tracks': await SpotifyApiCalls().getAllTracksOfPlaylist(
-              accessToken,
-              element['id'].toString(),
-            ),
-          });
-        }
-      } else {
-        AppUtilities.logger.e(
-          'Error in getFeaturedPlaylists, called: $path, returned: ${response.statusCode}',
-          response.body,
-        );
-      }
-      return songsData;
-    } catch (e) {
-      AppUtilities.logger.e('Error in getting spotify featured playlists: $e');
-      return List.empty();
-    }
+  static Future<spotify.Track> getTrackById(String trackId) async {
+    final spotifyApi = spotify.SpotifyApi(
+        spotify.SpotifyApiCredentials(
+          AppFlavour.getSpotifyClientId(),
+          AppFlavour.getSpotifyClientSecret(),
+        )
+    );
+
+    spotify.Track track = await spotifyApi.tracks.get(trackId);
+    return track;
   }
 
 }

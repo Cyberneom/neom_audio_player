@@ -2,8 +2,9 @@ import 'dart:isolate';
 
 import 'package:get_it/get_it.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
-import 'package:neom_music_player/domain/use_cases/neom_audio_handler.dart';
 import 'package:path_provider/path_provider.dart';
+
+import 'neom_audio_handler.dart';
 
 SendPort? isolateSendPort;
 
@@ -23,7 +24,7 @@ Future<void> startBackgroundProcessing() async {
         isolateSendPort = message as SendPort;
         isolateSendPort?.send(appDocumentDirectoryPath);
       } else {
-        AppUtilities.logger.d('IsolateSendPort is not null. Sending refreshLink actión with newData: $message');
+        AppUtilities.logger.d('IsolateSendPort is not null. Sending refreshLink action with newData: $message');
         await audioHandler.customAction('refreshLink', {'newData': message});
       }
     });
@@ -33,28 +34,16 @@ Future<void> startBackgroundProcessing() async {
 
 }
 
-// The function that will run in the background Isolate
 Future<void> _backgroundProcess(SendPort sendPort) async {
-  AppUtilities.logger.d('Backgroung Proccess');
+  AppUtilities.logger.d('Background Process for SendPort ${sendPort.toString()}');
   final isolateReceivePort = ReceivePort();
 
   try {
     sendPort.send(isolateReceivePort.sendPort);
-    // bool hiveInit = false;
-
     await for (final message in isolateReceivePort) {
-      // if (!hiveInit) {
-      //   Hive.init(message.toString());
-      //   await Hive.openBox('ytlinkcache');
-      //   await Hive.openBox('settings');
-      //   hiveInit = true;
-      //   continue;
-      // }
-      AppUtilities.logger.d('IsolateReceivePort. Refreshing link for message: ${message.toString()}');
-      // if(!message.toString().contains("data")){
-      //   final newData = await YouTubeServices().refreshLink(message.toString());
-      //   sendPort.send(newData);
-      // }
+      AppUtilities.logger.d('IsolateReceivePort. '
+          'Refreshing link for message: ${message.toString()}'
+      );
     }
   } catch(e) {
     AppUtilities.logger.e(e.toString());

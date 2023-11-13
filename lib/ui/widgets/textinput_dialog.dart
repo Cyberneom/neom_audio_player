@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
+import 'package:neom_commons/core/utils/app_color.dart';
+import '../../utils/constants/player_translation_constants.dart';
 
 class TextInputDialog extends StatelessWidget {
   final String title;
@@ -8,7 +9,7 @@ class TextInputDialog extends StatelessWidget {
   final TextInputType keyboardType;
   final Function(String, BuildContext) onSubmitted;
 
-  const TextInputDialog({
+  const TextInputDialog({super.key,
     required this.title,
     this.initialText,
     required this.keyboardType,
@@ -22,6 +23,7 @@ class TextInputDialog extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10.0),
       ),
+      backgroundColor: AppColor.getMain(),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -58,17 +60,13 @@ class TextInputDialog extends StatelessWidget {
         ),
         TextButton(
           style: TextButton.styleFrom(
-            foregroundColor:
-                Theme.of(context).colorScheme.secondary == Colors.white
-                    ? Colors.black
-                    : Colors.white,
-            backgroundColor: Theme.of(context).colorScheme.secondary,
+            backgroundColor: AppColor.bondiBlue,
           ),
           onPressed: () {
             onSubmitted(controller.text.trim(), context);
           },
           child: Text(
-            PlayerTranslationConstants.ok.tr,
+            PlayerTranslationConstants.ok.tr.toUpperCase(),
           ),
         ),
         const SizedBox(

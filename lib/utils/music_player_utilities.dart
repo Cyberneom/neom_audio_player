@@ -2,97 +2,54 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/enums/app_media_source.dart';
-import 'package:neom_music_player/domain/use_cases/neom_audio_handler.dart';
-import 'package:neom_music_player/domain/use_cases/ytmusic/youtube_services.dart';
-import 'package:neom_music_player/ui/widgets/add_to_playlist.dart';
-import 'package:neom_music_player/ui/widgets/popup.dart';
-import 'package:neom_music_player/ui/widgets/snackbar.dart';
-import 'package:neom_music_player/ui/widgets/textinput_dialog.dart';
-import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
-import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
-import 'package:neom_music_player/utils/helpers/extensions.dart';
+
+import '../domain/use_cases/neom_audio_handler.dart';
+import '../ui/player/widgets/add_to_playlist.dart';
+import '../ui/widgets/textinput_dialog.dart';
+import 'constants/player_translation_constants.dart';
 
 class MusicPlayerUtilities {
 
-  final NeomAudioHandler audioHandler = GetIt.I<NeomAudioHandler>();
+  static final NeomAudioHandler audioHandler = GetIt.I<NeomAudioHandler>();
 
-  static Future<AppMediaItem> refreshYtLink(AppMediaItem playItem) async {
-    // final bool cacheSong = Hive.box(AppHiveConstants.settings).get('cacheSong', defaultValue: true) as bool;
-    final int expiredAt = playItem.expireAt ?? 0;
-    if ((DateTime.now().millisecondsSinceEpoch ~/ 1000) + 350 > expiredAt) {
-      AppUtilities.logger.i('Before service | youtube link expired for ${playItem.name}',);
-      if (Hive.box(AppHiveConstants.ytLinkCache).containsKey(playItem.id)) {
-        final Map cache = await Hive.box(AppHiveConstants.ytLinkCache).get(playItem.id) as Map;
-        final int expiredAt = int.parse((cache['expire_at'] ?? '0').toString());
+  ///DEPRECATED
+  // static String getSubTitle(Map item) {
+  //   AppUtilities.logger.e('Getting SubtTitle.');
+  //   final type = item['type'];
+  //   switch (type) {
+  //     case 'charts':
+  //       return '';
+  //     case 'radio_station':
+  //       return 'Radio • ${(item['subtitle']?.toString() ?? '').isEmpty ? 'JioSaavn' : item['subtitle']?.toString().unescape()}';
+  //     case 'playlist':
+  //       return 'Playlist • ${(item['subtitle']?.toString() ?? '').isEmpty ? 'JioSaavn' : item['subtitle'].toString().unescape()}';
+  //     case 'song':
+  //       return 'Single • ${item['artist']?.toString().unescape()}';
+  //     case 'mix':
+  //       return 'Mix • ${(item['subtitle']?.toString() ?? '').isEmpty ? 'JioSaavn' : item['subtitle'].toString().unescape()}';
+  //     case 'show':
+  //       return 'Podcast • ${(item['subtitle']?.toString() ?? '').isEmpty ? 'JioSaavn' : item['subtitle'].toString().unescape()}';
+  //     case 'album':
+  //       final artists = item['more_info']?['artistMap']?['artists'].map((artist) => artist['name']).toList();
+  //       if (artists != null) {
+  //         return 'Album • ${artists?.join(', ')?.toString().unescape()}';
+  //       } else if (item['subtitle'] != null && item['subtitle'] != '') {
+  //         return 'Album • ${item['subtitle']?.toString().unescape()}';
+  //       }
+  //       return 'Album';
+  //     default:
+  //       final artists = item['more_info']?['artistMap']?['artists']
+  //           .map((artist) => artist['name'])
+  //           .toList();
+  //       return artists?.join(', ')?.toString().unescape() ?? '';
+  //   }
+  // }
 
-        if ((DateTime.now().millisecondsSinceEpoch ~/ 1000) + 350 > expiredAt) {
-          AppUtilities.logger.i('youtube link expired in cache for ${playItem.name}');
-          final AppMediaItem? newMediaItem = await YouTubeServices().refreshLink(playItem.id);
-          AppUtilities.logger.i(
-            'before service | received new link for ${playItem.name}',
-          );
-          if (newMediaItem != null) {
-            playItem.url = newMediaItem.url;
-            playItem.duration = newMediaItem.duration;
-            playItem.expireAt = newMediaItem.expireAt;
-          }
-        } else {
-          AppUtilities.logger.i('youtube link found in cache for ${playItem.name}');
-          playItem.url = cache['url'].toString();
-          playItem.expireAt = int.parse(cache['expire_at'].toString());
-        }
-      } else {
-        final newData = await YouTubeServices().refreshLink(playItem.id);
-        AppUtilities.logger.i('before service | received new link for ${playItem.name}',);
-        if (newData != null) {
-          playItem.url = newData.url;
-          playItem.duration = newData.duration;
-          playItem.expireAt = newData.expireAt;
-        }
-      }
-    }
-
-    return playItem;
-  }
-
-  String getSubTitle(Map item) {
-    AppUtilities.logger.e('Getting SubtTitle.');
-    final type = item['type'];
-    switch (type) {
-      case 'charts':
-        return '';
-      case 'radio_station':
-        return 'Radio • ${(item['subtitle']?.toString() ?? '').isEmpty ? 'JioSaavn' : item['subtitle']?.toString().unescape()}';
-      case 'playlist':
-        return 'Playlist • ${(item['subtitle']?.toString() ?? '').isEmpty ? 'JioSaavn' : item['subtitle'].toString().unescape()}';
-      case 'song':
-        return 'Single • ${item['artist']?.toString().unescape()}';
-      case 'mix':
-        return 'Mix • ${(item['subtitle']?.toString() ?? '').isEmpty ? 'JioSaavn' : item['subtitle'].toString().unescape()}';
-      case 'show':
-        return 'Podcast • ${(item['subtitle']?.toString() ?? '').isEmpty ? 'JioSaavn' : item['subtitle'].toString().unescape()}';
-      case 'album':
-        final artists = item['more_info']?['artistMap']?['artists'].map((artist) => artist['name']).toList();
-        if (artists != null) {
-          return 'Album • ${artists?.join(', ')?.toString().unescape()}';
-        } else if (item['subtitle'] != null && item['subtitle'] != '') {
-          return 'Album • ${item['subtitle']?.toString().unescape()}';
-        }
-        return 'Album';
-      default:
-        final artists = item['more_info']?['artistMap']?['artists']
-            .map((artist) => artist['name'])
-            .toList();
-        return artists?.join(', ')?.toString().unescape() ?? '';
-    }
-  }
-
-  Future<dynamic> setCounter(BuildContext context) async {
+  static Future<dynamic> setCounter(BuildContext context) async {
     showTextInputDialog(
       context: context,
       title: PlayerTranslationConstants.enterSongsCount.tr,
@@ -103,23 +60,22 @@ class MusicPlayerUtilities {
           int.parse(value),
         );
         Navigator.pop(context);
-        ShowSnackBar().showSnackBar(
-          context,
-          '${PlayerTranslationConstants.sleepTimerSetFor.tr} $value ${PlayerTranslationConstants.songs.tr}',
+        AppUtilities.showSnackBar(
+          message: '${PlayerTranslationConstants.sleepTimerSetFor.tr} $value ${PlayerTranslationConstants.songs.tr}',
         );
       },
     );
   }
 
-  void sleepTimer(int time) {
+  static void sleepTimer(int time) {
     audioHandler.customAction('sleepTimer', {'time': time});
   }
 
-  void sleepCounter(int count) {
+  static void sleepCounter(int count) {
     audioHandler.customAction('sleepCounter', {'count': count});
   }
 
-  Future<dynamic> setTimer(BuildContext context, BuildContext? scaffoldContext, Duration time,) {
+  static Future<dynamic> setTimer(BuildContext context, BuildContext? scaffoldContext, Duration time,) {
     return showDialog(
       context: context,
       builder: (context) {
@@ -167,7 +123,7 @@ class MusicPlayerUtilities {
                     foregroundColor: Theme.of(context).colorScheme.secondary,
                   ),
                   onPressed: () {
-                    MusicPlayerUtilities().sleepTimer(0);
+                    sleepTimer(0);
                     Navigator.pop(context);
                   },
                   child: Text(PlayerTranslationConstants.cancel.tr),
@@ -180,11 +136,10 @@ class MusicPlayerUtilities {
                         ? Colors.black : Colors.white,
                   ),
                   onPressed: () {
-                    MusicPlayerUtilities().sleepTimer(time.inMinutes);
+                    sleepTimer(time.inMinutes);
                     Navigator.pop(context);
-                    ShowSnackBar().showSnackBar(
-                      context,
-                      '${PlayerTranslationConstants.sleepTimerSetFor.tr} ${time.inMinutes} ${PlayerTranslationConstants.minutes.tr}',
+                    AppUtilities.showSnackBar(
+                      message: '${PlayerTranslationConstants.sleepTimerSetFor.tr} ${time.inMinutes} ${PlayerTranslationConstants.minutes.tr}',
                     );
                   },
                   child: Text(PlayerTranslationConstants.ok.tr.toUpperCase()),
@@ -230,25 +185,17 @@ class MusicPlayerUtilities {
                   dense: true,
                   onTap: () {
                     Navigator.pop(context);
-                    MusicPlayerUtilities().setTimer(
-                        context,
-                        scaffoldContext,
-                        time,
-                    );
+                    setTimer(context, scaffoldContext, time,);
                   },
                 ),
                 ListTile(
-                  title: Text(
-                    PlayerTranslationConstants.sleepAfter.tr,
-                  ),
-                  subtitle: Text(
-                    PlayerTranslationConstants.sleepAfterSub.tr,
-                  ),
+                  title: Text(PlayerTranslationConstants.sleepAfter.tr,),
+                  subtitle: Text(PlayerTranslationConstants.sleepAfterSub.tr,),
                   dense: true,
                   isThreeLine: true,
                   onTap: () {
                     Navigator.pop(context);
-                    MusicPlayerUtilities().setCounter(context);
+                    setCounter(context);
                   },
                 ),
               ],
@@ -257,9 +204,10 @@ class MusicPlayerUtilities {
         );
       case 10:
         final Map details = appMediaItem.toJSON();
-        details['duration'] = '${(int.parse(details["duration"].toString()) ~/ 60).toString().padLeft(2, "0")}:${(int.parse(details["duration"].toString()) % 60).toString().padLeft(2, "0")}';
+        details['duration'] = '${(int.parse(details["duration"].toString()) ~/ 60).toString().padLeft(2, "0")}'
+            ':${(int.parse(details["duration"].toString()) % 60).toString().padLeft(2, "0")}';
         // style: Theme.of(context).textTheme.caption,
-        PopupDialog().showPopup(
+        showPopup(
           context: context,
           child: Container(
             color: AppColor.getMain(),
@@ -299,34 +247,6 @@ class MusicPlayerUtilities {
             ),
           ),
         );
-    // case 5:
-    //   Navigator.push(
-    //     context,
-    //     PageRouteBuilder(
-    //       opaque: false,
-    //       pageBuilder: (_, __, ___) => SongsListPage(
-    //           itemlist: Itemlist()
-    //         //TODO TO VERIFY
-    //         // {
-    //         //   'type': 'album',
-    //         //   'id': mediaItem.extras?['album_id'],
-    //         //   'title': mediaItem.album,
-    //         //   'image': mediaItem.artUri,
-    //         // },
-    //       ),
-    //     ),
-    //   );
-    //   break;
-    // case 3:
-    //   launchUrl(
-    //     Uri.parse(
-    //       appMediaItem.genre == 'YouTube'
-    //           ? 'https://youtube.com/watch?v=${appMediaItem.id}'
-    //           : 'https://www.youtube.com/results?search_query=${appMediaItem.name} by ${appMediaItem.artist}',
-    //     ),
-    //     mode: LaunchMode.externalApplication,
-    //   );
-    //   break;
       default:
         break;
     }
@@ -335,12 +255,139 @@ class MusicPlayerUtilities {
 
   static bool isOwnMediaItem(AppMediaItem appMediaItem) {
 
-    final bool isOwnMediaItem = (appMediaItem.url.contains('gig-me-out')
-        || appMediaItem.url.contains('firebasestorage.googleapis.com'))
-        && appMediaItem.mediaSource == AppMediaSource.internal;
+    final bool isOwnMediaItem = appMediaItem.url.contains('gig-me-out')
+        || appMediaItem.url.contains('firebasestorage.googleapis.com')
+        || appMediaItem.mediaSource == AppMediaSource.internal;
 
     return isOwnMediaItem;
 
   }
+
+  static void showSpeedSliderDialog({
+    required BuildContext context,
+    required String title,
+    required int divisions,
+    required double min,
+    required double max,
+    required NeomAudioHandler audioHandler,
+    String valueSuffix = '',
+  }) {
+    showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: AppColor.main75,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15.0),
+        ),
+        title: Text(title, textAlign: TextAlign.center),
+        content: StreamBuilder<double>(
+          stream: audioHandler.speed,
+          builder: (context, snapshot) {
+            double value = snapshot.data ?? audioHandler.speed.valueWrapper?.value ?? 0;
+            if (value > max) value = max;
+            if (value < min) value = min;
+
+            return SizedBox(
+              height: 100.0,
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      IconButton(
+                        icon: const Icon(CupertinoIcons.minus),
+                        onPressed: audioHandler.speed.valueWrapper!.value > min
+                            ? () {
+                          audioHandler
+                              .setSpeed(audioHandler.speed.valueWrapper!.value - 0.1);
+                        }
+                            : null,
+                      ),
+                      Text(
+                        '${snapshot.data?.toStringAsFixed(1)}$valueSuffix',
+                        style: const TextStyle(
+                          fontFamily: 'Fixed',
+                          fontWeight: FontWeight.bold,
+                          fontSize: 24.0,
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(CupertinoIcons.plus),
+                        onPressed: audioHandler.speed.valueWrapper!.value < max
+                            ? () {
+                          audioHandler.setSpeed(audioHandler.speed.valueWrapper!.value + 0.1);
+                        } : null,
+                      ),
+                    ],
+                  ),
+                  Slider(
+                    inactiveColor: Theme.of(context).iconTheme.color!.withOpacity(0.4),
+                    activeColor: Theme.of(context).iconTheme.color,
+                    divisions: divisions,
+                    min: min,
+                    max: max,
+                    value: value,
+                    onChanged: audioHandler.setSpeed,
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  static void showPopup({
+    required BuildContext context,
+    required Widget child,
+    double radius = 20.0,
+    Color? backColor,
+  }) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          insetPadding: EdgeInsets.zero,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15.0),
+          ),
+          backgroundColor: AppColor.main75,
+          content: Stack(
+            children: [
+              GestureDetector(onTap: () => Navigator.pop(context)),
+              Padding(
+                padding: const EdgeInsets.all(15.0),
+                child: Card(
+                  elevation: 0.0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(radius),
+                  ),
+                  clipBehavior: Clip.antiAlias,
+                  color: backColor,
+                  child: child,
+                ),
+              ),
+              Align(
+                alignment: Alignment.topRight,
+                child: Card(
+                  elevation: 15.0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15.0),
+                  ),
+                  clipBehavior: Clip.antiAlias,
+                  child: IconButton(
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(Icons.close_rounded),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
 
 }

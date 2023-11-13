@@ -1,16 +1,19 @@
 name: neom_music_player
-description: Open Source Music Player Module for any app.
-
-# Prevent accidental publishing to pub.dev.
-publish_to: "none"
-
-version: 1.15.8+39
+description: Music Player Module for apps.
+version: 1.1.0
+homepage: https://github.com/Cyberneom/neom_commons
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
 environment:
   sdk: ">=3.0.0 <4.0.0"
   flutter: ">=3.0.0"
 
 dependencies:
+  flutter:
+    sdk: flutter
+
+  flutter_localizations:
+    sdk: flutter
 
   neom_commons:
     git:
@@ -19,58 +22,39 @@ dependencies:
     git:
       url: https://github.com/Cyberneom/neom_itemlists.git
 
-  app_links: ^3.4.3
-  audio_service: ^0.18.10
-
-#  connectivity_plus: ^4.0.1
-  dart_des: ^1.0.2
-  device_info_plus: ^9.0.2
-  file_picker: ^5.3.2
-  flip_card: ^0.7.0
-
-  flutter:
-    sdk: flutter
-  flutter_archive: ^5.0.0
-  # flutter_downloader: ^1.7.1
-  flutter_localizations:
-    sdk: flutter
-  flutter_lyric: ^2.0.4+6
-  get_it: ^7.6.4
-  hive: ^2.2.3
   hive_flutter: ^1.1.0
-  home_widget: ^0.3.0
-  html_unescape: ^2.0.0
-  just_audio: 0.9.35
-  marquee: ^2.2.3
+
+  permission_handler: ^11.0.1
+
+  audio_service: ^0.18.12
+  just_audio: ^0.9.36
 
   metadata_god: ^0.5.2+1
   on_audio_query: ^2.9.0
-  palette_generator: ^0.3.3+3
-  path_provider: ^2.1.1
-  permission_handler: ^11.0.1
-  persistent_bottom_nav_bar:
-    git:
-      url: https://github.com/Sangwan5688/PersistentBottomNavBar
-      ref: ecdadb0
-#  receive_sharing_intent: ^1.4.5
-#  sizer: ^2.0.15
+
+  flip_card: ^0.7.0
   sliding_up_panel: ^2.0.0+1
-  url_launcher: ^6.1.14
-  uuid: ^4.1.0
-  workmanager: ^0.5.2
-  youtube_explode_dart: ^2.0.2
+  flutter_lyric: ^2.0.4+6
+
+#DEPRECATED
+#  home_widget: ^0.3.0
+#  app_links: ^3.4.5
+#  marquee: ^2.2.3
+#  palette_generator: ^0.3.3+3
+#  CHANGE TO REGULAR BOTTOM TAB BAR TO AVOID USING UNKOWN REPOS
+#  persistent_bottom_nav_bar:
+#    git:
+#      url: https://github.com/Sangwan5688/PersistentBottomNavBar
+#      ref: ecdadb0
+
+
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  lint: ^2.1.2
-  msix: ^3.16.4
+  flutter_lints: ^3.0.0
 
 flutter:
-  uses-material-design: true
-  # Enable generation of localized Strings from arb files.
-  generate: true
-
 
 dependency_overrides:
   neom_commons:
@@ -78,6 +62,7 @@ dependency_overrides:
   neom_itemlists:
     path: ../neom_itemlists
   flutter_rust_bridge: 1.82.3
-  intl: 0.18.1
   uuid: 4.1.0
   http: 1.1.0
+  logger: 2.0.2+1
+  google_api_headers: 2.0.3

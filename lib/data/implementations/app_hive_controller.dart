@@ -1,4 +1,3 @@
-
 import 'dart:async';
 import 'dart:io';
 
@@ -7,11 +6,10 @@ import 'package:enum_to_string/enum_to_string.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
-import 'package:neom_music_player/domain/entities/playlist_section.dart';
-import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
 import 'package:path_provider/path_provider.dart';
 
-
+import '../../domain/entities/playlist_section.dart';
+import '../../utils/constants/app_hive_constants.dart';
 
 class AppHiveController extends GetxController {
 
@@ -40,7 +38,6 @@ class AppHiveController extends GetxController {
   bool enforceRepeat = false;
 
   bool liveSearch = true;
-  bool searchYtMusic = true;
   bool showHistory = true;
   List searchHistory = [];
 
@@ -48,19 +45,24 @@ class AppHiveController extends GetxController {
   @override
   Future<void> onInit() async {
     super.onInit();
-    logger.v('AppHive Controller');
+    logger.t('AppHive Controller');
 
     try {
-      // await fetchCachedData();
-      // await fetchSettingsData();
+      await fetchCachedData();
+      await fetchSettingsData();
     } catch (e) {
       AppUtilities.logger.e(e.toString());
     }
 
   }
+
+  Box? getBox(String boxName) {
+    return Hive.isBoxOpen(boxName) ? Hive.box(boxName) : null;
+  }
+
   static Future<void> openHiveBox(String boxName, {bool limit = false}) async {
     final box = await Hive.openBox(boxName).onError((error, stackTrace) async {
-      AppUtilities.logger.e('Failed to open $boxName Box', error, stackTrace);
+      AppUtilities.logger.e('Failed to open $boxName Box');
       final Directory dir = await getApplicationDocumentsDirectory();
       final String dirPath = dir.path;
       final File dbFile = File('$dirPath/$boxName.hive');
@@ -71,76 +73,50 @@ class AppHiveController extends GetxController {
       await Hive.openBox(boxName);
       throw 'Failed to open $boxName Box\nError: $error';
     });
-    // clear box if it grows large
+
     if (limit && box.length > 500) {
+      AppUtilities.logger.w("Box $boxName would be cleared as it exceeded the limit");
       box.clear();
     }
   }
 
   Future<void> updateCache({PlaylistSection? headList, List<PlaylistSection>? searchedList}) async {
-
-    if(headList != null) {
-      Hive.box(AppHiveConstants.cache).put('ytHomeHead', headList);
-    }
-
-    if(searchedList != null) {
-      Hive.box(AppHiveConstants.cache).put('ytHome', searchedList);
-    }
+    ///REFERENCE
+    // if(headList != null) Hive.box(AppHiveConstants.cache).put('ytHomeHead', headList);
   }
 
 
   Future<void> fetchCachedData() async {
-    searchedList = await Hive.box(AppHiveConstants.cache).get('ytHome', defaultValue: []) as List;
-    headList = await Hive.box(AppHiveConstants.cache).get('ytHomeHead', defaultValue: []) as List;
-    lastQueueList = await Hive.box(AppHiveConstants.cache).get('lastQueue', defaultValue: [])?.toList() as List;
-    lastIndex = await Hive.box(AppHiveConstants.cache).get('lastIndex', defaultValue: 0) as int;
-    lastPos = await Hive.box(AppHiveConstants.cache).get('lastPos', defaultValue: 0) as int;
+    lastQueueList = await Hive.box(AppHiveConstants.cache).get(AppHiveConstants.lastQueue, defaultValue: [])?.toList() as List;
+    lastIndex = await Hive.box(AppHiveConstants.cache).get(AppHiveConstants.lastIndex, defaultValue: 0) as int;
+    lastPos = await Hive.box(AppHiveConstants.cache).get(AppHiveConstants.lastPos, defaultValue: 0) as int;
   }
 
   Future<void> fetchSettingsData() async {
-    preferredMobileQuality = await Hive.box(AppHiveConstants.settings).get('streamingQuality', defaultValue: '96 kbps') as String;
-    preferredWifiQuality = await Hive.box(AppHiveConstants.settings).get('streamingWifiQuality', defaultValue: '320 kbps') as String;
-    resetOnSkip = await Hive.box(AppHiveConstants.settings).get('resetOnSkip', defaultValue: false) as bool;
-    cacheSong = await Hive.box(AppHiveConstants.settings).get('cacheSong', defaultValue: true) as bool;
-    recommend =  await Hive.box(AppHiveConstants.settings).get('autoplay', defaultValue: true) as bool;
-    loadStart = await Hive.box(AppHiveConstants.settings).get('loadStart', defaultValue: true) as bool;
-    useDownload = await Hive.box(AppHiveConstants.settings).get('useDown', defaultValue: true) as bool;
-    preferredCompactNotificationButtons = Hive.box(AppHiveConstants.settings).get('preferredCompactNotificationButtons', defaultValue: [1, 2, 3],) as List<int>;
-    stopForegroundService = Hive.box(AppHiveConstants.settings).get('stopForegroundService', defaultValue: true) as bool;
-    repeatMode = EnumToString.fromString(AudioServiceRepeatMode.values,
-        Hive.box(AppHiveConstants.settings).get('repeatMode',
-            defaultValue: AudioServiceRepeatMode.none.name,).toString(),) ?? AudioServiceRepeatMode.none;
-    enforceRepeat = Hive.box(AppHiveConstants.settings).get('enforceRepeat', defaultValue: false) as bool;
-    searchQueries = Hive.box(AppHiveConstants.settings).get('searchQueries', defaultValue: []) as List;
-    liveSearch = Hive.box(AppHiveConstants.settings).get('liveSearch', defaultValue: true) as bool;
-    searchYtMusic = Hive.box(AppHiveConstants.settings).get('searchYtMusic', defaultValue: true) as bool;
-    showHistory = Hive.box(AppHiveConstants.settings).get('showHistory', defaultValue: true) as bool;
-    searchHistory = Hive.box(AppHiveConstants.settings).get('searchHistory', defaultValue: []) as List;
-  }
-
-  Future<List> getCachedSearchList() async {
-    return await Hive.box(AppHiveConstants.cache).get('ytHome', defaultValue: []) as List;
-  }
-
-  Future<List> getCachedHeadList() async {
-    return await Hive.box(AppHiveConstants.cache).get('ytHomeHead', defaultValue: []) as List;
-  }
-
-  Future<Map> getYouTubeCache(String mediItemId) async {
-    return await Hive.box(AppHiveConstants.ytLinkCache).get(mediItemId) as Map;
-  }
-
-  Box? getBox(String boxName) {
-    return Hive.isBoxOpen(boxName) ? Hive.box(boxName) : null;
+    preferredMobileQuality = await Hive.box(AppHiveConstants.settings).get(AppHiveConstants.streamingQuality, defaultValue: '96 kbps') as String;
+    preferredWifiQuality = await Hive.box(AppHiveConstants.settings).get(AppHiveConstants.streamingWifiQuality, defaultValue: '320 kbps') as String;
+    resetOnSkip = await Hive.box(AppHiveConstants.settings).get(AppHiveConstants.resetOnSkip, defaultValue: false) as bool;
+    cacheSong = await Hive.box(AppHiveConstants.settings).get(AppHiveConstants.cacheSong, defaultValue: true) as bool;
+    recommend =  await Hive.box(AppHiveConstants.settings).get(AppHiveConstants.autoplay, defaultValue: true) as bool;
+    loadStart = await Hive.box(AppHiveConstants.settings).get(AppHiveConstants.loadStart, defaultValue: true) as bool;
+    useDownload = await Hive.box(AppHiveConstants.settings).get(AppHiveConstants.useDown, defaultValue: true) as bool;
+    preferredCompactNotificationButtons = Hive.box(AppHiveConstants.settings).get(AppHiveConstants.preferredCompactNotificationButtons, defaultValue: [1, 2, 3],) as List<int>;
+    stopForegroundService = Hive.box(AppHiveConstants.settings).get(AppHiveConstants.stopForegroundService, defaultValue: true) as bool;
+    repeatMode = EnumToString.fromString(AudioServiceRepeatMode.values, Hive.box(AppHiveConstants.settings)
+        .get(AppHiveConstants.repeatMode, defaultValue: AudioServiceRepeatMode.none.name,).toString(),) ?? AudioServiceRepeatMode.none;
+    enforceRepeat = Hive.box(AppHiveConstants.settings).get(AppHiveConstants.enforceRepeat, defaultValue: false) as bool;
+    searchQueries = Hive.box(AppHiveConstants.settings).get(AppHiveConstants.searchQueries, defaultValue: []) as List;
+    liveSearch = Hive.box(AppHiveConstants.settings).get(AppHiveConstants.liveSearch, defaultValue: true) as bool;
+    showHistory = Hive.box(AppHiveConstants.settings).get(AppHiveConstants.showHistory, defaultValue: true) as bool;
+    searchHistory = Hive.box(AppHiveConstants.settings).get(AppHiveConstants.searchHistory, defaultValue: []) as List;
   }
 
   Future<void> updateRepeatMode(AudioServiceRepeatMode mode) async {
-    await Hive.box(AppHiveConstants.settings).put('repeatMode', mode.name);
+    await Hive.box(AppHiveConstants.settings).put(AppHiveConstants.repeatMode, mode.name);
   }
 
   Future<void> setSearchQueries(List searchQueries) async {
-    Hive.box(AppHiveConstants.settings).put('searchQueries', searchQueries);
+    Hive.box(AppHiveConstants.settings).put(AppHiveConstants.searchQueries, searchQueries);
   }
-
 
 }

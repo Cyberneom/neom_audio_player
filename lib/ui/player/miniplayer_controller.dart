@@ -1,30 +1,25 @@
-
 import 'package:audio_service/audio_service.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 import 'package:neom_commons/core/app_flavour.dart';
-
 import 'package:neom_commons/core/data/implementations/user_controller.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/constants/app_route_constants.dart';
 import 'package:neom_commons/core/utils/constants/app_translation_constants.dart';
-import 'package:neom_music_player/domain/use_cases/neom_audio_handler.dart';
-import 'package:neom_music_player/ui/player/media_player_page.dart';
-import 'package:neom_music_player/ui/player/widgets/control_buttons.dart';
-import 'package:neom_music_player/ui/widgets/image_card.dart';
-import 'package:neom_music_player/utils/helpers/media_item_mapper.dart';
 
+import '../../domain/use_cases/neom_audio_handler.dart';
+import '../../utils/helpers/media_item_mapper.dart';
+import '../widgets/image_card.dart';
+import 'widgets/control_buttons.dart';
 
 class MiniPlayerController extends GetxController {
 
-  final logger = AppUtilities.logger;
   final userController = Get.find<UserController>();
 
-  final Rxn<AppMediaItem> appMediaItem = Rxn<AppMediaItem>();
+  final Rx<AppMediaItem> appMediaItem = AppMediaItem().obs;
   final Rxn<MediaItem> mediaItem = Rxn<MediaItem>();
   final RxBool isLoading = true.obs;
   final RxBool isTimeline = true.obs;
@@ -35,12 +30,12 @@ class MiniPlayerController extends GetxController {
   @override
   void onInit() async {
     super.onInit();
-    logger.d('');
+    AppUtilities.logger.t('onInit miniPlayer Controller');
 
     try {
 
     } catch (e) {
-      logger.e(e.toString());
+      AppUtilities.logger.e(e.toString());
     }
 
   }
@@ -48,11 +43,13 @@ class MiniPlayerController extends GetxController {
   @override
   void onReady() async {
     super.onReady();
+
     try {
 
     } catch (e) {
-
+      AppUtilities.logger.e(e.toString());
     }
+
     isLoading.value = false;
     update();
   }
@@ -63,13 +60,13 @@ class MiniPlayerController extends GetxController {
   }
 
   void setMediaItem(MediaItem item) {
-    AppUtilities.logger.i('Setting new mediaitem ${item.title}');
+    AppUtilities.logger.d('Setting new mediaitem ${item.title}');
     mediaItem.value = item;
     update();
   }
 
   void setIsTimeline(bool value) {
-    AppUtilities.logger.i('Setting IsTimeline');
+    AppUtilities.logger.d('Setting IsTimeline: $value');
     isTimeline.value = value;
     update();
   }
@@ -134,11 +131,9 @@ class MiniPlayerController extends GetxController {
   }) {
     return ListTile(
       tileColor: AppColor.main75,
-      onTap: item == null ? null : () => Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => MediaPlayerPage(appMediaItem: MediaItemMapper.fromMediaItem(item)),
-        ),
+      onTap: item == null ? null : () =>
+          Get.toNamed(AppRouteConstants.musicPlayerMedia, arguments: [MediaItemMapper.fromMediaItem(item)],
+          ///DEPRECATED Navigator.push(context, MaterialPageRoute(builder: (context) => MediaPlayerPage(appMediaItem: MediaItemMapper.fromMediaItem(item)),),
       ),
       leading: Row(
         mainAxisSize: MainAxisSize.min,
@@ -146,9 +141,10 @@ class MiniPlayerController extends GetxController {
           if(!isTimeline)
             IconButton(
               padding: EdgeInsets.zero,
-                onPressed: () => goToTimeline(context), icon: const Icon(Icons.arrow_back_ios),),
+              icon: const Icon(Icons.arrow_back_ios),
+              onPressed: () => goToTimeline(context), ),
           if(item != null || isTimeline)
-            Container(
+            SizedBox(
               height: item == null ? 80 : 78,
               width: isTimeline && item == null ? (MediaQuery.of(context).size.width/6) : null,
               child: Hero(tag: 'currentArtwork',
@@ -175,20 +171,20 @@ class MiniPlayerController extends GetxController {
         overflow: TextOverflow.ellipsis,
         textAlign: isTimeline || item != null ? TextAlign.left : TextAlign.right,
       ),
-      trailing: Container(
+      trailing: SizedBox(
         width: item != null || isTimeline ? null : (MediaQuery.of(context).size.width/(item == null ? 6 : 3)),
-        child: item == null ? (isTimeline
-          ? IconButton(onPressed: () => goToMusicPlayerHome(), icon: Icon(Icons.arrow_forward_ios))
-          : Hero(tag: 'currentArtwork',
-              child: imageCard(
-                elevation: 8,
-                boxDimension: useDense ? 40.0 : 50.0,
-                localImage: item == null ? false : item.artUri?.toString().startsWith('file:') ?? false,
-                imageUrl: item == null ? AppFlavour.getAppLogoUrl() : (item.artUri?.toString().startsWith('file:') ?? false
-                    ? item.artUri?.toFilePath() : item.artUri?.toString()) ?? '',
-              ),
-            ))
-          : ControlButtons(audioHandler, miniplayer: true,
+        child: item == null
+            ? (isTimeline ? IconButton(onPressed: () => goToMusicPlayerHome(), icon: const Icon(Icons.arrow_forward_ios))
+            : Hero(tag: 'currentArtwork',
+                child: imageCard(
+                  elevation: 8,
+                  boxDimension: useDense ? 40.0 : 50.0,
+                  localImage: item == null ? false : item.artUri?.toString().startsWith('file:') ?? false,
+                  imageUrl: item == null ? AppFlavour.getAppLogoUrl() : (item.artUri?.toString().startsWith('file:') ?? false
+                      ? item.artUri?.toFilePath() : item.artUri?.toString()) ?? '',
+                ),
+              )
+            ) : ControlButtons(audioHandler, miniplayer: true,
           buttons: isLocalImage ? <String>['Like', 'Play/Pause', 'Next'] : preferredMiniButtons,
           mediaItem: item,
         ),

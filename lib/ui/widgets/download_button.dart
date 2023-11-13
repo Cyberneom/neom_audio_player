@@ -1,46 +1,27 @@
-/*
- *  This file is part of BlackHole (https://github.com/Sangwan5688/BlackHole).
- * 
- * BlackHole is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * BlackHole is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with BlackHole.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * Copyright (c) 2021-2023, Ankit Sangwan
- */
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
-import 'package:neom_music_player/domain/use_cases/download.dart';
-import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
+
+import '../../domain/use_cases/download.dart';
+import '../../utils/constants/player_translation_constants.dart';
 
 class DownloadButton extends StatefulWidget {
+
   final AppMediaItem mediaItem;
-  final String? icon;
-  final double? size;
+  final double size;
 
   const DownloadButton({
     super.key,
     required this.mediaItem,
-    this.icon,
-    this.size,
+    this.size = 25,
   });
 
   @override
-  _DownloadButtonState createState() => _DownloadButtonState();
+  DownloadButtonState createState() => DownloadButtonState();
 }
 
-class _DownloadButtonState extends State<DownloadButton> {
+class DownloadButtonState extends State<DownloadButton> {
   late Download down;
   final Box downloadsBox = Hive.box('downloads');
   final ValueNotifier<bool> showStopButton = ValueNotifier<bool>(false);
@@ -64,16 +45,16 @@ class _DownloadButtonState extends State<DownloadButton> {
                 icon: const Icon(Icons.download_done_rounded),
                 tooltip: 'Download Done',
                 color: Theme.of(context).colorScheme.secondary,
-                iconSize: widget.size ?? 24.0,
+                iconSize: widget.size,
                 onPressed: () {
                   down.prepareDownload(context, widget.mediaItem);
                 },
               )
             : down.progress == 0
-            ? IconButton(icon: Icon(widget.icon == 'download' ? Icons.download_rounded : Icons.save_alt,),
-          iconSize: widget.size ?? 24.0,
+            ? IconButton(icon: const Icon(Icons.save_alt,),
+          iconSize: widget.size,
           color: Theme.of(context).iconTheme.color,
-          tooltip: 'Download',
+          tooltip: PlayerTranslationConstants.download.tr,
           onPressed: () {down.prepareDownload(context, widget.mediaItem);},
         ) : GestureDetector(
           child: Stack(

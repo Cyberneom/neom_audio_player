@@ -93,11 +93,11 @@ class PlayerTranslationConstants {
   static const String downDone = 'downDone';
   static const String downLocation = 'downLocation';
   static const String downQuality = 'downQuality';
-  static const String downs = 'downs';
   static const String enterSongsCount = 'enterSongsCount';
   static const String enterThemeName = 'enterThemeName';
   static const String downQualitySub = 'downQualitySub';
   static const String downed = 'downed';
+  static const String toDownload = 'toDownload';
   static const String download = 'download';
   static const String downloads = 'downloads';
   static const String downloadSomething = 'downloadSomething';
@@ -132,7 +132,7 @@ class PlayerTranslationConstants {
   static const String checkUpdateSub = 'checkUpdateSub';
   static const String contactUs = 'contactUs';
   static const String contactUsSub = 'contactUsSub';
-  static const String copied = 'copied';
+
   static const String darkMode = 'darkMode';
   static const String createYtFold = 'createYtFold';
   static const String failedImport = 'failedImport';

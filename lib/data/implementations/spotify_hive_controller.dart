@@ -1,7 +1,5 @@
-
 import 'dart:async';
 
-import 'package:app_links/app_links.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
@@ -9,14 +7,12 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:neom_commons/core/data/implementations/user_controller.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
-import 'package:neom_commons/core/utils/core_utilities.dart';
-import 'package:neom_music_player/data/api_services/spotify/spotify_api_calls.dart';
-import 'package:neom_music_player/data/implementations/app_hive_controller.dart';
-import 'package:neom_music_player/ui/widgets/gradient_containers.dart';
-import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
-import 'package:neom_music_player/utils/constants/countrycodes.dart';
-import 'package:neom_music_player/utils/helpers/spotify_helper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../utils/constants/app_hive_constants.dart';
+import '../../utils/constants/countrycodes.dart';
+import '../api_services/spotify/spotify_api_calls.dart';
+import 'app_hive_controller.dart';
 
 class SpotifyHiveController extends GetxController  {
 
@@ -69,70 +65,71 @@ class SpotifyHiveController extends GetxController  {
     return data;
   }
 
-  Future<void> scrapData(String type, {bool signIn = false}) async {
-    final bool spotifySigned =
-    Hive.box(AppHiveConstants.settings).get('spotifySigned', defaultValue: false) as bool;
-
-    if (!spotifySigned && !signIn) {
-      return;
-    }
-    final String spotifyToken = await getSpotifyToken();
-
-    final String? accessToken = await retriveAccessToken();
-    
-    if (accessToken == null) {
-      CoreUtilities.launchURL(SpotifyApiCalls().requestAuthorization(),openInApp: false);
-
-      final appLinks = AppLinks();
-      appLinks.allUriLinkStream.listen(
-            (uri) async {
-          final link = uri.toString();
-          if (link.contains('code=')) {
-            final code = link.split('code=')[1];
-            Hive.box(AppHiveConstants.settings).put('spotifyAppCode', code);
-            final currentTime = DateTime.now().millisecondsSinceEpoch / 1000;
-            final List<String> data = await SpotifyApiCalls().getAccessToken(code: code);
-            if (data.isNotEmpty) {
-              Hive.box(AppHiveConstants.settings).put('spotifyAccessToken', data[0]);
-              Hive.box(AppHiveConstants.settings).put('spotifyRefreshToken', data[1]);
-              Hive.box(AppHiveConstants.settings).put('spotifySigned', true);
-              Hive.box(AppHiveConstants.settings).put('spotifyTokenExpireAt', currentTime + int.parse(data[2]));
-            }
-
-            final temp = await getChartDetails(data[0], type);
-            if (temp.isNotEmpty) {
-              Hive.box(AppHiveConstants.cache).put('${type}_chart', temp);
-              if (type == 'Global') {
-                globalSongs = temp;
-              } else {
-                localSongs = temp;
-              }
-            }
-            if (type == 'Global') {
-              globalFetchFinished.value = true;
-            } else {
-              localFetchFinished.value = true;
-            }
-          }
-        },
-      );
-    } else {
-      final temp = await getChartDetails(spotifyToken, type);
-      if (temp.isNotEmpty) {
-        Hive.box(AppHiveConstants.cache).put('${type}_chart', temp);
-        if (type == 'Global') {
-          globalSongs = temp;
-        } else {
-          localSongs = temp;
-        }
-      }
-      if (type == 'Global') {
-        globalFetchFinished.value = true;
-      } else {
-        localFetchFinished.value = true;
-      }
-    }
-  }
+  ///DEPRECATED
+  // Future<void> scrapData(String type, {bool signIn = false}) async {
+  //   final bool spotifySigned =
+  //   Hive.box(AppHiveConstants.settings).get('spotifySigned', defaultValue: false) as bool;
+  //
+  //   if (!spotifySigned && !signIn) {
+  //     return;
+  //   }
+  //   final String spotifyToken = await getSpotifyToken();
+  //
+  //   final String? accessToken = await retriveAccessToken();
+  //
+  //   if (accessToken == null) {
+  //     CoreUtilities.launchURL(SpotifyApiCalls().requestAuthorization(),openInApp: false);
+  //
+  //     final appLinks = AppLinks();
+  //     appLinks.allUriLinkStream.listen(
+  //           (uri) async {
+  //         final link = uri.toString();
+  //         if (link.contains('code=')) {
+  //           final code = link.split('code=')[1];
+  //           Hive.box(AppHiveConstants.settings).put('spotifyAppCode', code);
+  //           final currentTime = DateTime.now().millisecondsSinceEpoch / 1000;
+  //           final List<String> data = await SpotifyApiCalls().getAccessToken(code: code);
+  //           if (data.isNotEmpty) {
+  //             Hive.box(AppHiveConstants.settings).put('spotifyAccessToken', data[0]);
+  //             Hive.box(AppHiveConstants.settings).put('spotifyRefreshToken', data[1]);
+  //             Hive.box(AppHiveConstants.settings).put('spotifySigned', true);
+  //             Hive.box(AppHiveConstants.settings).put('spotifyTokenExpireAt', currentTime + int.parse(data[2]));
+  //           }
+  //
+  //           final temp = await getChartDetails(data[0], type);
+  //           if (temp.isNotEmpty) {
+  //             Hive.box(AppHiveConstants.cache).put('${type}_chart', temp);
+  //             if (type == 'Global') {
+  //               globalSongs = temp;
+  //             } else {
+  //               localSongs = temp;
+  //             }
+  //           }
+  //           if (type == 'Global') {
+  //             globalFetchFinished.value = true;
+  //           } else {
+  //             localFetchFinished.value = true;
+  //           }
+  //         }
+  //       },
+  //     );
+  //   } else {
+  //     final temp = await getChartDetails(spotifyToken, type);
+  //     if (temp.isNotEmpty) {
+  //       Hive.box(AppHiveConstants.cache).put('${type}_chart', temp);
+  //       if (type == 'Global') {
+  //         globalSongs = temp;
+  //       } else {
+  //         localSongs = temp;
+  //       }
+  //     }
+  //     if (type == 'Global') {
+  //       globalFetchFinished.value = true;
+  //     } else {
+  //       localFetchFinished.value = true;
+  //     }
+  //   }
+  // }
 
   Future<void> getCachedData(String type) async {
     if (type == 'Global') {
@@ -155,17 +152,12 @@ class SpotifyHiveController extends GetxController  {
 
     await showModalBottomSheet(
       isDismissible: true,
-      backgroundColor: AppColor.main75,
+      backgroundColor: AppColor.getMain(),
       context: context,
       builder: (BuildContext context) {
         const Map<String, String> codes = CountryCodes.localChartCodes;
         final List<String> countries = codes.keys.toList();
-        return BottomGradientContainer(
-          borderRadius: BorderRadius.circular(
-            20.0,
-          ),
-          hasOpacity: false,
-          child: ListView.builder(
+        return ListView.builder(
             physics: const BouncingScrollPhysics(),
             shrinkWrap: true,
             padding: const EdgeInsets.fromLTRB(
@@ -205,7 +197,6 @@ class SpotifyHiveController extends GetxController  {
                 ),
               );
             },
-          ),
         );
       },
     );

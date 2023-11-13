@@ -1,60 +1,28 @@
-/*
- *  This file is part of BlackHole (https://github.com/Sangwan5688/BlackHole).
- * 
- * BlackHole is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * BlackHole is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with BlackHole.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * Copyright (c) 2021-2023, Ankit Sangwan
- */
-
 import 'dart:async';
-import 'dart:ffi';
-
-import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_theme.dart';
-import 'package:neom_music_player/domain/use_cases/neom_audio_handler.dart';
-import 'package:neom_music_player/ui/player/media_player_page.dart';
-import 'package:neom_music_player/ui/player/miniplayer_controller.dart';
-import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
-import 'package:neom_music_player/utils/helpers/media_item_mapper.dart';
+import 'package:neom_commons/core/utils/constants/app_page_id_constants.dart';
+import 'package:neom_commons/core/utils/constants/app_route_constants.dart';
+import '../../utils/constants/app_hive_constants.dart';
+import '../../utils/helpers/media_item_mapper.dart';
+import 'miniplayer_controller.dart';
 
-class MiniPlayer extends StatefulWidget {
+class MiniPlayer extends StatelessWidget {
+  const MiniPlayer({super.key});
 
-  static MiniPlayer _instance = MiniPlayer._internal();
-  final StreamController<MediaItem?> mediaItemController = StreamController<MediaItem?>();
-  factory MiniPlayer() {
-    return _instance;
-  }
 
-  MiniPlayer._internal();
-
-  @override
-  _MiniPlayerState createState() => _MiniPlayerState();
-}
-
-class _MiniPlayerState extends State<MiniPlayer> {
-
-  final NeomAudioHandler audioHandler = GetIt.I<NeomAudioHandler>();
+  ///DEPRECATED
+  // static MiniPlayer _instance = MiniPlayer._internal();
+  // factory MiniPlayer() => _instance;
+  // MiniPlayer._internal();
 
   @override
   Widget build(BuildContext context) {
     return GetBuilder<MiniPlayerController>(
-      id: 'miniplayer',
+      id: AppPageIdConstants.miniPlayer,
       init: MiniPlayerController(),
       builder: (_) {
         List preferredButtons = Hive.box(AppHiveConstants.settings).get('preferredMiniButtons', defaultValue: ['Like', 'Play/Pause', 'Next'],)?.toList() as List<dynamic>;
@@ -64,19 +32,15 @@ class _MiniPlayerState extends State<MiniPlayer> {
           height: _.mediaItem.value == null ? 80 : 78,
           width: AppTheme.fullWidth(context),
           child: Dismissible(
-              key: const Key('miniplayer'),
+              key: const Key(AppPageIdConstants.miniPlayer),
               direction: DismissDirection.vertical,
               confirmDismiss: (DismissDirection direction) {
                 if (_.mediaItem.value != null) {
                   if (direction == DismissDirection.down || direction == DismissDirection.horizontal) {
                     _.audioHandler.stop();
                   } else {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => MediaPlayerPage(appMediaItem: MediaItemMapper.fromMediaItem(_.mediaItem.value!), reproduceItem: false),
-                      ),
-                    );
+                    Get.toNamed(AppRouteConstants.musicPlayerMedia, arguments: [MediaItemMapper.fromMediaItem(_.mediaItem.value!), false]);
+                    // Navigator.push(context, MaterialPageRoute(builder: (context) => MediaPlayerPage(appMediaItem: MediaItemMapper.fromMediaItem(_.mediaItem.value!), reproduceItem: false),),);
                   }
                 }
                 return Future.value(false);
@@ -123,7 +87,8 @@ class _MiniPlayerState extends State<MiniPlayer> {
           ),
         ),
         );
-      },);
+      },
+    );
   }
 
 }

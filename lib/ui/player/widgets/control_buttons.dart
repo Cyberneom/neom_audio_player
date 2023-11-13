@@ -2,14 +2,15 @@ import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:neom_commons/core/utils/constants/app_translation_constants.dart';
-import 'package:neom_music_player/domain/entities/queue_state.dart';
-import 'package:neom_music_player/domain/use_cases/neom_audio_handler.dart';
-import 'package:neom_music_player/ui/widgets/download_button.dart';
-import 'package:neom_music_player/ui/widgets/like_button.dart';
-import 'package:neom_music_player/utils/constants/music_player_constants.dart';
-import 'package:neom_music_player/utils/constants/player_translation_constants.dart';
-import 'package:neom_music_player/utils/helpers/media_item_mapper.dart';
 import 'package:rxdart/rxdart.dart' as rx;
+
+import '../../../domain/entities/queue_state.dart';
+import '../../../domain/use_cases/neom_audio_handler.dart';
+import '../../../utils/constants/music_player_constants.dart';
+import '../../../utils/constants/player_translation_constants.dart';
+import '../../../utils/helpers/media_item_mapper.dart';
+import '../../widgets/download_button.dart';
+import '../../widgets/like_button.dart';
 
 class ControlButtons extends StatelessWidget {
   final NeomAudioHandler audioHandler;
@@ -21,7 +22,7 @@ class ControlButtons extends StatelessWidget {
   bool showPlay = true;
 
   ControlButtons(
-      this.audioHandler, {
+      this.audioHandler, {super.key,
         this.shuffle = false,
         this.miniplayer = false,
         this.buttons = const ['Previous', 'Play/Pause', 'Next'],
@@ -34,13 +35,12 @@ class ControlButtons extends StatelessWidget {
     if(mediaItem == null && audioHandler.mediaItem.value != null) {
        mediaItem = audioHandler.mediaItem.value;
     } else {
+      ///DEPRECATED
       // NeomPlayerInvoker.init(
       //   appMediaItems: [MediaItemMapper.fromMediaItem(mediaItem!)],
       //   index: 0,
       // );
     }
-
-
 
     final String url = mediaItem?.extras?['url'].toString() ?? '';
 
@@ -48,7 +48,8 @@ class ControlButtons extends StatelessWidget {
       showPlay = false;
     }
 
-    final bool isOnline = url.startsWith('http');
+    final bool isOnline = url.startsWith('http') || url.startsWith('https');
+
     return SizedBox(
       height: 80,
       width: miniplayer ? MediaQuery.of(context).size.width/3 : null,
@@ -73,15 +74,13 @@ class ControlButtons extends StatelessWidget {
                 child: StreamBuilder<QueueState>(
                 stream: audioHandler.queueState,
                 builder: (context, snapshot) {
-                  final queueState = snapshot.data;
+                  ///DEPRECATED final queueState = snapshot.data;
                   return IconButton(
                     icon: const Icon(Icons.skip_previous_rounded),
                     iconSize: miniplayer ? 24.0 : 45.0,
                     tooltip: PlayerTranslationConstants.skipPrevious.tr,
                     color: dominantColor ?? Theme.of(context).iconTheme.color,
-                    onPressed: queueState?.hasPrevious ?? true
-                        ? audioHandler.skipToPrevious
-                        : null,
+                    onPressed: audioHandler.skipToPrevious,
                   );
                 },),
               );
@@ -179,9 +178,7 @@ class ControlButtons extends StatelessWidget {
               return !isOnline ? const SizedBox() : SizedBox(
                   height: miniplayer ? MusicPlayerConstants.miniPlayerHeight : MusicPlayerConstants.musicPlayerHeight,
                   width: miniplayer ? MusicPlayerConstants.miniPlayerWidth : MusicPlayerConstants.musicPlayerWidth,
-                  child: DownloadButton(
-                    size: 20.0,
-                    icon: 'download',
+                  child: DownloadButton(size: 20.0,
                     mediaItem: MediaItemMapper.fromMediaItem(mediaItem!),
                   ),
               );
@@ -190,7 +187,7 @@ class ControlButtons extends StatelessWidget {
           }
           return const SizedBox();
         }).toList(),
-      ) : Center(child: Text(AppTranslationConstants.noAvailablePreviewUrl.tr),),
+      ) : Center(child: Text(AppTranslationConstants.noAvailablePreviewUrl.tr, style: TextStyle(fontSize: 16)),),
     );
   }
 }

@@ -1,22 +1,3 @@
-/*
- *  This file is part of BlackHole (https://github.com/Sangwan5688/BlackHole).
- * 
- * BlackHole is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * BlackHole is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with BlackHole.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * Copyright (c) 2021-2023, Ankit Sangwan
- */
-
 import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
@@ -24,12 +5,11 @@ import 'package:flutter/material.dart';
 
 import 'package:hive/hive.dart';
 import 'package:neom_commons/core/utils/app_theme.dart';
-import 'package:neom_music_player/data/implementations/app_hive_controller.dart';
-import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
+import '../../data/implementations/app_hive_controller.dart';
+import '../../utils/constants/app_hive_constants.dart';
 
 class MusicSearchBar extends StatefulWidget {
 
-  final bool isYt;
   final Widget body;
   final bool autofocus;
   final bool liveSearch;
@@ -50,7 +30,6 @@ class MusicSearchBar extends StatefulWidget {
     this.onQueryChanged,
     this.onQueryCleared,
     required this.body,
-    required this.isYt,
     required this.controller,
     required this.liveSearch,
     required this.onSubmitted,
@@ -161,32 +140,19 @@ class _MusicSearchBarState extends State<MusicSearchBar> {
                       }
                       if (widget.liveSearch && val.trim() != '') {
                         hide.value = false;
-                        if (widget.isYt) {
-                          Future.delayed(const Duration(milliseconds: 600,),
-                            () async {
-                              if (tempQuery == val && tempQuery.trim() != ''
-                                  && tempQuery != query) {
-                                query = tempQuery;
-                                suggestionsList.value =
-                                await widget.onQueryChanged!(tempQuery) as List;
+                        Future.delayed(const Duration(milliseconds: 600,),
+                              () async {
+                            if (tempQuery == val && tempQuery.trim() != ''
+                                && tempQuery != query) {
+                              query = tempQuery;
+                              if (widget.onQueryChanged == null) {
+                                widget.onSubmitted(tempQuery);
+                              } else {
+                                await widget.onQueryChanged!(tempQuery);
                               }
-                            },
-                          );
-                        } else {
-                          Future.delayed(const Duration(milliseconds: 600,),
-                            () async {
-                              if (tempQuery == val && tempQuery.trim() != ''
-                                  && tempQuery != query) {
-                                query = tempQuery;
-                                if (widget.onQueryChanged == null) {
-                                  widget.onSubmitted(tempQuery);
-                                } else {
-                                  await widget.onQueryChanged!(tempQuery);
-                                }
-                              }
-                            },
-                          );
-                        }
+                            }
+                          },
+                        );
                       }
                     },
                     onSubmitted: (submittedQuery) async {
@@ -209,41 +175,6 @@ class _MusicSearchBarState extends State<MusicSearchBar> {
                 ),
               ),
             ),
-            ///VERIFY IMPLEMENTATION WITH YOUTUBE
-            // if (!widget.isYt)
-            //   Padding(
-            //     padding: const EdgeInsets.only(left: 25.0, right: 25.0),
-            //     child: RichText(
-            //       text: TextSpan(
-            //         children: <TextSpan>[
-            //           TextSpan(
-            //             style: const TextStyle(color: Colors.grey),
-            //             text: PlayerTranslationConstants.cantFind.tr,
-            //           ),
-            //           TextSpan(
-            //             text: PlayerTranslationConstants.searchYt.tr,
-            //             style: TextStyle(
-            //               color: Theme.of(context).textTheme.bodyLarge!.color,
-            //             ),
-            //             recognizer: TapGestureRecognizer()
-            //               ..onTap = () {
-            //                 Navigator.push(
-            //                   context,
-            //                   PageRouteBuilder(
-            //                     opaque: false,
-            //                     pageBuilder: (_, __, ___) => YouTubeSearchPage(
-            //                       query: query.isNotEmpty
-            //                           ? query
-            //                           : widget.controller.text,
-            //                     ),
-            //                   ),
-            //                 );
-            //               },
-            //           ),
-            //         ],
-            //       ),
-            //     ),
-            //   ),
             ValueListenableBuilder(
               valueListenable: hide,
               builder: (

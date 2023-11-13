@@ -1,26 +1,7 @@
-/*
- *  This file is part of BlackHole (https://github.com/Sangwan5688/BlackHole).
- *
- * BlackHole is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * BlackHole is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with BlackHole.  If not, see <http://www.gnu.org/licenses/>.
- *
- * Copyright (c) 2021-2023, Ankit Sangwan
- */
-
 import 'package:audio_service/audio_service.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
-import 'package:neom_music_player/domain/entities/url_image_generator.dart';
-import 'package:youtube_explode_dart/youtube_explode_dart.dart';
+import '../../domain/entities/url_image_generator.dart';
+
 
 // ignore: avoid_classes_with_only_static_members
 class MediaItemMapper  {
@@ -158,26 +139,6 @@ class MediaItemMapper  {
         'playlistBox': playlistBox,
       },
     );
-  }
-
-  static Map<String, dynamic> videoToMap(Video video) {
-    return {
-      'id': video.id.value,
-      'album': video.author.replaceAll('- Topic', '').trim(),
-      'duration': video.duration?.inSeconds ?? 180,
-      'title': video.title.trim(),
-      'artist': video.author.replaceAll('- Topic', '').trim(),
-      'image': video.thumbnails.highResUrl,
-      'language': 'YouTube',
-      'genre': 'YouTube',
-      'year': video.uploadDate?.year,
-      '320kbps': false,
-      'has_lyrics': false,
-      'release_date': video.publishDate.toString(),
-      'album_id': video.channelId.value,
-      'subtitle': video.author,
-      'perma_url': video.url,
-    };
   }
 
   static MediaItem appMediaItemToMediaItem({required AppMediaItem appMediaItem,

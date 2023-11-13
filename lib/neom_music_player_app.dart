@@ -1,22 +1,3 @@
-/*
- *  This file is part of BlackHole (https://github.com/Sangwan5688/BlackHole).
- * 
- * BlackHole is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * BlackHole is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with BlackHole.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * Copyright (c) 2021-2023, Ankit Sangwan
- */
-
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -26,13 +7,15 @@ import 'package:get/get.dart' as getx;
 import 'package:neom_commons/core/app_flavour.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_theme.dart';
-import 'package:neom_music_player/ui/music_player_routes.dart';
-import 'package:neom_music_player/ui/player/media_player_page.dart';
-import 'package:neom_music_player/ui/player/miniplayer_controller.dart';
-import 'package:neom_music_player/utils/helpers/route_handler.dart';
-import 'package:neom_music_player/utils/theme/music_app_theme.dart';
+import 'ui/music_player_routes.dart';
+import 'ui/player/media_player_page.dart';
+import 'ui/player/miniplayer_controller.dart';
+import 'utils/helpers/route_handler.dart';
+import 'utils/theme/music_app_theme.dart';
 
 class NeomMusicPlayerApp extends StatefulWidget {
+  const NeomMusicPlayerApp({super.key});
+
 
   @override
   _NeomMusicPlayerAppState createState() => _NeomMusicPlayerAppState();
@@ -155,9 +138,7 @@ class _NeomMusicPlayerAppState extends State<NeomMusicPlayerApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        // navigatorKey: navigatorKey,
         title: AppFlavour.appInUse.name,
-        // restorationScopeId: AppFlavour.appInUse.name,
         themeMode: MusicAppTheme.themeMode,
         darkTheme: MusicAppTheme.darkTheme(
           context: context,
@@ -181,7 +162,7 @@ class _NeomMusicPlayerAppState extends State<NeomMusicPlayerApp> {
           Locale('fr'), // French, France
           Locale('de'), // German, Germany
         ],
-        routes: MusicPlayerRoutes.routes,
+        routes: MusicPlayerAppRoutes.routes,
         onGenerateRoute: (RouteSettings settings) {
           if (settings.name == '/player') {
             return PageRouteBuilder(

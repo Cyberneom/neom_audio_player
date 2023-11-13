@@ -1,22 +1,3 @@
-/*
- *  This file is part of BlackHole (https://github.com/Sangwan5688/BlackHole).
- * 
- * BlackHole is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * BlackHole is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with BlackHole.  If not, see <http://www.gnu.org/licenses/>.
- * 
- * Copyright (c) 2021-2023, Ankit Sangwan
- */
-
 import 'dart:io';
 
 import 'package:audio_service/audio_service.dart';
@@ -27,13 +8,12 @@ import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
 import 'package:neom_commons/core/utils/constants/message_translation_constants.dart';
-import 'package:neom_commons/core/utils/enums/app_media_source.dart';
-import 'package:neom_music_player/data/implementations/app_hive_controller.dart';
-import 'package:neom_music_player/domain/use_cases/neom_audio_handler.dart';
-import 'package:neom_music_player/ui/player/miniplayer_controller.dart';
-import 'package:neom_music_player/utils/helpers/media_item_mapper.dart';
-import 'package:neom_music_player/utils/music_player_utilities.dart';
 import 'package:path_provider/path_provider.dart';
+
+import 'data/implementations/app_hive_controller.dart';
+import 'domain/use_cases/neom_audio_handler.dart';
+import 'ui/player/miniplayer_controller.dart';
+import 'utils/helpers/media_item_mapper.dart';
 
 // ignore: avoid_classes_with_only_static_members
 class NeomPlayerInvoker {
@@ -60,15 +40,12 @@ class NeomPlayerInvoker {
   }
 
   static Future<void> setValues(List<AppMediaItem> response, int index, {bool recommend = true, bool playItem = false}) async {
-    AppUtilities.logger.v('Settings Values for index $index');
+    AppUtilities.logger.t('Settings Values for index $index');
 
     try {
       final List<MediaItem> queue = [];
       AppMediaItem appMediaItem = response[index];
-      AppUtilities.logger.v('Loading media ${appMediaItem.name} for music player with index $index');
-      if (appMediaItem.mediaSource == AppMediaSource.youtube) {
-        appMediaItem = await MusicPlayerUtilities.refreshYtLink(appMediaItem);
-      }
+      AppUtilities.logger.t('Loading media ${appMediaItem.name} for music player with index $index');
 
       queue.addAll(
         response.map(
@@ -100,16 +77,16 @@ class NeomPlayerInvoker {
           await setTags(response[i], tempDir),
         );
       }
-      updateNowPlaying(queue, index);
+      await updateNowPlaying(queue, index);
     });
   }
 
-  static void setDownValues(List<AppMediaItem> response, int index) {
+  static Future<void> setDownValues(List<AppMediaItem> response, int index) async {
     final List<MediaItem> queue = [];
     queue.addAll(
       response.map((song) => MediaItemMapper.appMediaItemToMediaItem(appMediaItem: song),),
     );
-    updateNowPlaying(queue, index);
+    await updateNowPlaying(queue, index);
   }
 
   static Future<MediaItem> setTags(AppMediaItem response, Directory tempDir,) async {
@@ -144,10 +121,12 @@ class NeomPlayerInvoker {
   }
 
   static Future<void> updateNowPlaying(List<MediaItem> queue, int index, {bool playItem = true}) async {
-    AppUtilities.logger.v('Updating Now Playing info.');
+
+    bool nowPlaying = audioHandler.playbackState.valueWrapper?.value.playing ?? false;
+    AppUtilities.logger.d('Updating Now Playing info. Now Playing: $nowPlaying');
 
     try {
-      // await audioHandler.startService();
+      ///DEPRECATED await audioHandler.startService();
       if(Platform.isAndroid || Platform.isIOS) {
         await audioHandler.setShuffleMode(AudioServiceShuffleMode.none);
         await audioHandler.updateQueue(queue);
@@ -158,25 +137,23 @@ class NeomPlayerInvoker {
           AppUtilities.logger.d('MediaItem found in Queue with Index $index');
         }
 
-        await audioHandler.customAction('skipToMediaItem',
-            {'id': queue[index].id, 'index': nextIndex},
-        );
+        await audioHandler.customAction('skipToMediaItem', {'id': queue[index].id, 'index': nextIndex},);
 
         audioHandler.currentMediaItem = queue.elementAt(index);
 
-        if(playItem || (audioHandler.playbackState.valueWrapper?.value.playing ?? false)) {
-          AppUtilities.logger.d("Starting stream for ${queue[index].title} and URL ${queue[index].extras!['url'].toString()}");
+        if(playItem || nowPlaying) {
+          AppUtilities.logger.d("Starting stream for ${queue[index].artist ?? ''} - ${queue[index].title} and URL ${queue[index].extras!['url'].toString()}");
           await audioHandler.play();
         }
 
         getx.Get.find<MiniPlayerController>().setMediaItem(queue.elementAt(index));
-        // await audioHandler.playFromUri(Uri.parse(queue[index].extras!['url'].toString()));
+        ///DEPRECATED await audioHandler.playFromUri(Uri.parse(queue[index].extras!['url'].toString()));
         enforceRepeat();
       } else {
         AppUtilities.logger.i('MusicPlayer not available yet.');
         AppUtilities.showSnackBar(
-          MessageTranslationConstants.underConstruction.tr,
-          MessageTranslationConstants.featureAvailableSoon.tr,
+          title: MessageTranslationConstants.underConstruction,
+          message: MessageTranslationConstants.featureAvailableSoon,
         );
       }
     } catch(e) {

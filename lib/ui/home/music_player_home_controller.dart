@@ -1,4 +1,3 @@
-
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
@@ -13,9 +12,8 @@ import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/constants/app_page_id_constants.dart';
 import 'package:neom_commons/core/utils/enums/itemlist_type.dart';
 import 'package:neom_itemlists/itemlists/data/firestore/app_media_item_firestore.dart';
-import 'package:neom_music_player/domain/use_cases/neom_audio_handler.dart';
-import 'package:neom_music_player/utils/constants/app_hive_constants.dart';
-
+import '../../domain/use_cases/neom_audio_handler.dart';
+import '../../utils/constants/app_hive_constants.dart';
 
 class MusicPlayerHomeController extends GetxController {
 
@@ -23,9 +21,10 @@ class MusicPlayerHomeController extends GetxController {
   final userController = Get.find<UserController>();
   final ScrollController scrollController = ScrollController();
 
-  final Rxn<MediaItem> _mediaItem = Rxn<MediaItem>();
+  final Rxn<MediaItem> mediaItem = Rxn<MediaItem>();
   final RxBool isLoading = true.obs;
   final RxBool isButtonDisabled = false.obs;
+  final RxBool showSearchBarLeading = false.obs;
 
   final NeomAudioHandler audioHandler = GetIt.I<NeomAudioHandler>();
 
@@ -44,6 +43,7 @@ class MusicPlayerHomeController extends GetxController {
   AppProfile profile = AppProfile();
   Map<String, AppMediaItem> globalMediaItems = {};
   List<AppMediaItem> favoriteItems = [];
+
   // Map data = Hive.box(AppHiveConstants.cache).get('homepage', defaultValue: {}) as Map;
   // Map likedArtists = Hive.box(AppHiveConstants.settings).get('likedArtists', defaultValue: {}) as Map;
   // List playlistNames = Hive.box(AppHiveConstants.settings).get('playlistNames')?.toList() as List? ?? [AppHiveConstants.favoriteSongs];
@@ -52,15 +52,17 @@ class MusicPlayerHomeController extends GetxController {
   @override
   void onInit() async {
     super.onInit();
-    logger.d('Music Player Home Controller Init');
+    logger.t('Music Player Home Controller Init');
     try {
       final userController = Get.find<UserController>();
       profile = userController.profile;
       await getHomePageData();
+
+      scrollController.addListener(_scrollListener);
+
     } catch (e) {
       logger.e(e.toString());
     }
-
   }
 
   @override
@@ -93,17 +95,19 @@ class MusicPlayerHomeController extends GetxController {
   @override
   void dispose() {
     scrollController.dispose();
+    scrollController.removeListener(_scrollListener);
     super.dispose();
   }
 
   Future<void> getHomePageData() async {
-    AppUtilities.logger.i('Get ItemLists Home Data');
+    AppUtilities.logger.d('Get ItemLists Home Data');
     try {
-      myItemLists = await ItemlistFirestore().fetchAll(profileId: profile.id);
-      publicItemlists = await ItemlistFirestore().fetchAll(excludeMyFavorites: true, minItems: 0);
-      for (final myItemlist in myItemLists.values) {
-        publicItemlists.removeWhere((key, publicList) => myItemlist.id == publicList.id);
-      }
+      myItemLists = await ItemlistFirestore().fetchAll(ownerId: profile.id);
+      publicItemlists = await ItemlistFirestore().fetchAll(excludeMyFavorites: true, excludeFromProfileId: profile.id, minItems: 0);
+      ///DEPRECATED
+      // for (final myItemlist in myItemLists.values) {
+      //   publicItemlists.removeWhere((key, publicList) => myItemlist.id == publicList.id);
+      // }
       myItemLists.addAll(publicItemlists);
 
       ///IMPROVE WAY TO SPLIT PLAYLISTS AND GIGLISTS FROM CHAMBERPRESETS AND READLISTS
@@ -124,12 +128,17 @@ class MusicPlayerHomeController extends GetxController {
   }
 
   void clear() {
+
   }
 
-  // void setMediaItem(MediaItem item) {
-  //   AppUtilities.logger.i("Setting new mediaitem)");
-  //   mediaItem = item;
-  //   update();
-  // }
+
+  void _scrollListener() {
+    if (scrollController.offset > 70) {
+      showSearchBarLeading.value = true;
+    } else {
+      showSearchBarLeading.value = false;
+    }
+    update([AppPageIdConstants.musicPlayerHome]);
+  }
 
 }
