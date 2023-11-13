@@ -451,10 +451,9 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
 
   @override
   Future<void> skipToPrevious() async {
-    resetOnSkip =
-        Hive.box(AppHiveConstants.settings).get(AppHiveConstants.resetOnSkip, defaultValue: false) as bool;
+    resetOnSkip = Hive.box(AppHiveConstants.settings).get(AppHiveConstants.resetOnSkip, defaultValue: true) as bool;
     if (resetOnSkip) {
-      if ((_player.position.inSeconds) <= 5) {
+      if ((_player.position.inSeconds) <= 2) {
         _player.seekToPrevious();
       } else {
         _player.seek(Duration.zero);

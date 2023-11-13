@@ -18,10 +18,10 @@ class DownloadButton extends StatefulWidget {
   });
 
   @override
-  _DownloadButtonState createState() => _DownloadButtonState();
+  DownloadButtonState createState() => DownloadButtonState();
 }
 
-class _DownloadButtonState extends State<DownloadButton> {
+class DownloadButtonState extends State<DownloadButton> {
   late Download down;
   final Box downloadsBox = Hive.box('downloads');
   final ValueNotifier<bool> showStopButton = ValueNotifier<bool>(false);

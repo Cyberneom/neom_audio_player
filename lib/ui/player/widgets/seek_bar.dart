@@ -1,20 +1,19 @@
 import 'dart:math';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../domain/use_cases/neom_audio_handler.dart';
-import '../../utils/constants/player_translation_constants.dart';
-import '../../utils/music_player_utilities.dart';
+import '../../../domain/use_cases/neom_audio_handler.dart';
+import '../../../utils/constants/player_translation_constants.dart';
+import '../../../utils/music_player_utilities.dart';
 
 class SeekBar extends StatefulWidget {
   final NeomAudioHandler audioHandler;
   final Duration duration;
   final Duration position;
-  final Duration bufferedPosition;
+  ///DEPRECATED final Duration bufferedPosition;
   final bool offline;
-  // final double width;
-  // final double height;
+  ///DEPRECATED final double width;
+  ///DEPRECATED final double height;
   final ValueChanged<Duration>? onChanged;
   final ValueChanged<Duration>? onChangeEnd;
 
@@ -23,9 +22,9 @@ class SeekBar extends StatefulWidget {
     required this.position,
     required this.offline,
     required this.audioHandler,
-    // required this.width,
-    // required this.height,
-    this.bufferedPosition = Duration.zero,
+    ///DEPRECATED required this.width,
+    ///DEPRECATED required this.height,
+    ///DEPRECATED this.bufferedPosition = Duration.zero,
     this.onChanged,
     this.onChangeEnd,
   });
@@ -66,6 +65,7 @@ class _SeekBarState extends State<SeekBar> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
+                //TODO Verify
                 // if (widget.offline)
                 //   Text(
                 //     'Offline',
@@ -108,42 +108,16 @@ class _SeekBarState extends State<SeekBar> {
               ],
             ),
           ),
-          Padding(
+          Container(
             padding: const EdgeInsets.symmetric(
               horizontal: 10.0,
               vertical: 2.0,
             ),
             child: Stack(
               children: [
-                // Padding(
-                //   padding: const EdgeInsets.symmetric(
-                //     horizontal: 10.0,
-                //     vertical: 6.0,
-                //   ),
-                //   child: SliderTheme(
-                //     data: _sliderThemeData.copyWith(
-                //       thumbShape: HiddenThumbComponentShape(),
-                //       overlayShape: SliderComponentShape.noThumb,
-                //       activeTrackColor: Theme.of(context).iconTheme.color!.withOpacity(0.5),
-                //       inactiveTrackColor: Theme.of(context).iconTheme.color!.withOpacity(0.3),
-                //       // trackShape: RoundedRectSliderTrackShape(),
-                //       trackShape: const RectangularSliderTrackShape(),
-                //     ),
-                //     child: ExcludeSemantics(
-                //       child: Slider(
-                //         max: widget.duration.inMilliseconds.toDouble(),
-                //         value: min(
-                //           widget.bufferedPosition.inMilliseconds.toDouble(),
-                //           widget.duration.inMilliseconds.toDouble(),
-                //         ),
-                //         onChanged: (value) {},
-                //       ),
-                //     ),
-                //   ),
-                // ),
                 SliderTheme(
                   data: _sliderThemeData.copyWith(
-                    inactiveTrackColor: Colors.transparent,
+                    inactiveTrackColor: Theme.of(context).iconTheme.color!.withOpacity(0.3),
                     activeTrackColor: Theme.of(context).iconTheme.color,
                     thumbColor: Theme.of(context).iconTheme.color,
                     thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8.0,),
@@ -153,9 +127,7 @@ class _SeekBarState extends State<SeekBar> {
                     max: widget.duration.inMilliseconds.toDouble(),
                     value: value,
                     onChanged: (value) {
-                      if (!_dragging) {
-                        _dragging = true;
-                      }
+                      if (!_dragging) _dragging = true;
                       setState(() {
                         _dragValue = value;
                       });
@@ -177,13 +149,10 @@ class _SeekBarState extends State<SeekBar> {
               children: [
                 Text(
                   RegExp(r'((^0*[1-9]\d*:)?\d{2}:\d{2})\.\d+$')
-                          .firstMatch('$_position')?.group(1) ??
-                      '$_position',
+                      .firstMatch('$_position')?.group(1) ?? '$_position',
                 ),
-                Text(
-                  RegExp(r'((^0*[1-9]\d*:)?\d{2}:\d{2})\.\d+$')
-                          .firstMatch('$_duration')?.group(1) ??
-                      '$_duration',
+                Text(RegExp(r'((^0*[1-9]\d*:)?\d{2}:\d{2})\.\d+$')
+                    .firstMatch('$_duration')?.group(1) ?? '$_duration',
                   ///DEPRECATED
                   // style: Theme.of(context).textTheme.caption!.copyWith(
                   //       color: Theme.of(context).iconTheme.color,

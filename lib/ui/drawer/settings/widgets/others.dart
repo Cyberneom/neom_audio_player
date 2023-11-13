@@ -9,7 +9,7 @@ import 'package:neom_commons/core/utils/app_theme.dart';
 
 import '../../../../utils/constants/app_hive_constants.dart';
 import '../../../../utils/constants/player_translation_constants.dart';
-import '../../../widgets/box_switch_tile.dart';
+import 'hive_box_switch_tile.dart';
 
 class OthersPage extends StatefulWidget {
   const OthersPage({super.key});

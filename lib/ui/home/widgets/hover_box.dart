@@ -14,10 +14,10 @@ class HoverBox extends StatefulWidget {
   });
 
   @override
-  _HoverBox createState() => _HoverBox();
+  HoverBoxState createState() => HoverBoxState();
 }
 
-class _HoverBox extends State<HoverBox> {
+class HoverBoxState extends State<HoverBox> {
   final ValueNotifier<bool> isInside = ValueNotifier<bool>(false);
 
   void _onEnter(PointerEvent details) {

@@ -4,8 +4,6 @@ version: 1.1.0
 homepage: https://github.com/Cyberneom/neom_commons
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-
-
 environment:
   sdk: ">=3.0.0 <4.0.0"
   flutter: ">=3.0.0"
@@ -24,32 +22,32 @@ dependencies:
     git:
       url: https://github.com/Cyberneom/neom_itemlists.git
 
-  home_widget: ^0.3.0
-
   hive_flutter: ^1.1.0
 
-  audio_service: ^0.18.12
-  just_audio: 0.9.35
-
   permission_handler: ^11.0.1
+
+  audio_service: ^0.18.12
+  just_audio: ^0.9.36
+
   metadata_god: ^0.5.2+1
   on_audio_query: ^2.9.0
 
-  app_links: ^3.4.5
   flip_card: ^0.7.0
+  sliding_up_panel: ^2.0.0+1
   flutter_lyric: ^2.0.4+6
 
-  marquee: ^2.2.3
-  palette_generator: ^0.3.3+3
-
+#DEPRECATED
+#  home_widget: ^0.3.0
+#  app_links: ^3.4.5
+#  marquee: ^2.2.3
+#  palette_generator: ^0.3.3+3
 #  CHANGE TO REGULAR BOTTOM TAB BAR TO AVOID USING UNKOWN REPOS
 #  persistent_bottom_nav_bar:
 #    git:
 #      url: https://github.com/Sangwan5688/PersistentBottomNavBar
 #      ref: ecdadb0
 
-# VERIFY IF NEEDED
-  sliding_up_panel: ^2.0.0+1
+
 
 dev_dependencies:
   flutter_test:

@@ -9,7 +9,7 @@ import '../../../domain/use_cases/neom_audio_handler.dart';
 import '../../../utils/constants/music_player_route_constants.dart';
 import '../../../utils/constants/player_translation_constants.dart';
 import '../player/widgets/now_playing_stream.dart';
-import '../widgets/bouncy_sliver_scroll_view.dart';
+import 'widgets/bouncy_sliver_scroll_view.dart';
 import '../widgets/empty_screen.dart';
 
 class NowPlayingPage extends StatefulWidget {

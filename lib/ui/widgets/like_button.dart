@@ -21,10 +21,10 @@ class LikeButton extends StatefulWidget {
   });
 
   @override
-  _LikeButtonState createState() => _LikeButtonState();
+  LikeButtonState createState() => LikeButtonState();
 }
 
-class _LikeButtonState extends State<LikeButton>
+class LikeButtonState extends State<LikeButton>
     with SingleTickerProviderStateMixin {
   bool liked = false;
   late AnimationController _controller;

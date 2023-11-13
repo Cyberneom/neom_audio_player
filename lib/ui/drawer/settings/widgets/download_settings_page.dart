@@ -10,7 +10,7 @@ import '../../../../domain/use_cases/ext_storage_provider.dart';
 import '../../../../utils/constants/app_hive_constants.dart';
 import '../../../../utils/constants/player_translation_constants.dart';
 import '../../../../utils/helpers/picker.dart';
-import '../../../widgets/box_switch_tile.dart';
+import 'hive_box_switch_tile.dart';
 
 
 class DownloadSettingsPage extends StatefulWidget {

@@ -6,28 +6,20 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flip_card/flip_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_lyric/lyric_ui/ui_netease.dart';
-import 'package:flutter_lyric/lyrics_model_builder.dart';
 import 'package:flutter_lyric/lyrics_reader.dart';
-import 'package:flutter_lyric/lyrics_reader_model.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:neom_commons/core/app_flavour.dart';
-import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
-import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
 import 'package:neom_commons/core/utils/constants/app_translation_constants.dart';
 import 'package:neom_commons/core/utils/core_utilities.dart';
 import 'package:rxdart/rxdart.dart' as rx;
 
 import '../../../domain/entities/queue_state.dart';
-import '../../../domain/use_cases/neom_audio_handler.dart';
-import '../lyrics/lyrics.dart';
 import '../../../utils/constants/app_hive_constants.dart';
 import '../../../utils/constants/player_translation_constants.dart';
-import '../../widgets/add_to_playlist.dart';
 import '../../widgets/empty_screen.dart';
-import '../../widgets/seek_bar.dart';
 import '../media_player_controller.dart';
 
 class ArtWorkWidget extends StatelessWidget {
@@ -204,11 +196,10 @@ class ArtWorkWidget extends StatelessWidget {
             stream: _.audioHandler.queueState,
             builder: (context, snapshot) {
               final queueState = snapshot.data ?? QueueState.empty;
-
               final bool enabled = Hive.box(AppHiveConstants.settings).get('enableGesture', defaultValue: true) as bool;
               return GestureDetector(
                 onTap: !enabled ? null : () {
-                  AddToPlaylist().addToPlaylist(context, _.appMediaItem.value,);
+                  // AddToPlaylist().addToPlaylist(context, _.appMediaItem.value,);
                   ///TODO WHEN ADDING MORE FUNCTIONS
                   // tapped.value = true;
                   // Future.delayed(const Duration(seconds: 2), () async {
@@ -218,9 +209,9 @@ class ArtWorkWidget extends StatelessWidget {
                 onDoubleTapDown: (details) {
                   if (details.globalPosition.dx <= width * 2 / 5) {
                     _.audioHandler.customAction('rewind');
-                    _.doubletapped.value = -1;
+                    _.doubleTapped.value = -1;
                     Future.delayed(const Duration(milliseconds: 500), () async {
-                      _.doubletapped.value = 0;
+                      _.doubleTapped.value = 0;
                     });
                   }
                   if (details.globalPosition.dx > width * 2 / 5 &&
@@ -229,9 +220,9 @@ class ArtWorkWidget extends StatelessWidget {
                   }
                   if (details.globalPosition.dx >= width * 3 / 5) {
                     _.audioHandler.customAction('fastForward');
-                    _.doubletapped.value = 1;
+                    _.doubleTapped.value = 1;
                     Future.delayed(const Duration(milliseconds: 500), () async {
-                      _.doubletapped.value = 0;
+                      _.doubleTapped.value = 0;
                     });
                   }
                 },
@@ -257,11 +248,11 @@ class ArtWorkWidget extends StatelessWidget {
                     // AddToPlaylist().addToPlaylist(context, MediaItemMapper.appMediaItemToMediaItem(appMediaItem: _.appMediaItem));
                   }
                 },
-                onVerticalDragStart: !enabled ? null : (_) {
-                  // _.dragging.value = true;
+                onVerticalDragStart: !enabled ? null : (details) {
+                  _.dragging.value = true;
                 },
-                onVerticalDragEnd: !enabled ? null : (_) {
-                  // _.dragging.value = false;
+                onVerticalDragEnd: !enabled ? null : (details) {
+                  _.dragging.value = false;
                 },
                 onVerticalDragUpdate: !enabled ? null
                     : (DragUpdateDetails details) {
@@ -312,70 +303,7 @@ class ArtWorkWidget extends StatelessWidget {
                       ),
                     ),
                     ValueListenableBuilder(
-                      valueListenable: _.dragging,
-                      child: StreamBuilder<double>(
-                        stream: _.audioHandler.volume,
-                        builder: (context, snapshot) {
-                          final double volumeValue = snapshot.data ?? 1.0;
-                          return Center(
-                            child: SizedBox(
-                              width: 60.0,
-                              height: width * 0.7,
-                              child: Card(
-                                color: Colors.black87,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10.0),
-                                ),
-                                clipBehavior: Clip.antiAlias,
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Expanded(
-                                      child: FittedBox(
-                                        fit: BoxFit.fitHeight,
-                                        child: RotatedBox(
-                                          quarterTurns: -1,
-                                          child: SliderTheme(
-                                            data: SliderTheme.of(context).copyWith(
-                                              activeTrackColor: Theme.of(context).colorScheme.secondary,
-                                              inactiveTrackColor: Theme.of(context).colorScheme.secondary.withOpacity(0.4),
-                                              trackShape: const RoundedRectSliderTrackShape(),
-                                            ),
-                                            child: ExcludeSemantics(
-                                              child: Slider(
-                                                value: _.audioHandler.volume.valueWrapper!.value,
-                                                onChanged: (_) {},
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.only(bottom: 20.0,),
-                                      child: Icon(
-                                        volumeValue == 0
-                                            ? Icons.volume_off_rounded
-                                            : volumeValue > 0.6
-                                            ? Icons.volume_up_rounded
-                                            : Icons.volume_down_rounded,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                      builder: (BuildContext context, bool value, Widget? child,) {
-                        return Visibility(visible: value, child: child!,);
-                      },
-                    ),
-                    ValueListenableBuilder(
-                      valueListenable: _.doubletapped,
+                      valueListenable: _.doubleTapped,
                       child: const Icon(
                         Icons.forward_10_rounded,
                         size: 60.0,
@@ -432,6 +360,63 @@ class ArtWorkWidget extends StatelessWidget {
                             ),
                           ),
                         );
+                      },
+                    ),
+                    ValueListenableBuilder(
+                      valueListenable: _.dragging,
+                      child: StreamBuilder<double>(
+                        stream: _.audioHandler.volume,
+                        builder: (context, snapshot) {
+                          final double volumeValue = snapshot.data ?? 1.0;
+                          return Center(
+                            child: SizedBox(
+                              width: 60.0,
+                              height: width * 0.7,
+                              child: Card(
+                                color: Colors.black87,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                ),
+                                clipBehavior: Clip.antiAlias,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    RotatedBox(
+                                      quarterTurns: -1,
+                                      child: SliderTheme(
+                                        data: SliderTheme.of(context).copyWith(
+                                          activeTrackColor: Theme.of(context).iconTheme.color,
+                                          inactiveTrackColor: Theme.of(context).iconTheme.color!.withOpacity(0.3),
+                                          thumbColor: Theme.of(context).iconTheme.color,
+                                          thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8.0,),
+                                          trackShape: const RoundedRectSliderTrackShape(),
+                                        ),
+                                        child: Slider(
+                                          value: _.audioHandler.volume.valueWrapper!.value,
+                                          onChanged: (_) {},
+                                        ),
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.only(bottom: 20.0,),
+                                      child: Icon(
+                                        volumeValue == 0
+                                            ? Icons.volume_off_rounded
+                                            : volumeValue > 0.6
+                                            ? Icons.volume_up_rounded
+                                            : Icons.volume_down_rounded,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                      builder: (BuildContext context, bool value, Widget? child,) {
+                        return Visibility(visible: value, child: child!,);
                       },
                     ),
                   ],

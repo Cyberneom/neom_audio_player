@@ -9,10 +9,10 @@ import 'package:neom_commons/core/utils/constants/app_translation_constants.dart
 import 'package:neom_itemlists/itemlists/data/api_services/spotify/spotify_search.dart';
 import 'package:neom_itemlists/itemlists/ui/widgets/app_item_widgets.dart';
 
-import '../../ui/widgets/empty_screen.dart';
-import '../../ui/widgets/music_search_bar.dart' as searchbar;
-import '../../utils/constants/app_hive_constants.dart';
-import '../../utils/constants/player_translation_constants.dart';
+import '../../widgets/empty_screen.dart';
+import '../../widgets/music_search_bar.dart' as searchbar;
+import '../../../utils/constants/app_hive_constants.dart';
+import '../../../utils/constants/player_translation_constants.dart';
 
 class SearchPage extends StatefulWidget {
 
@@ -75,7 +75,7 @@ class _SearchPageState extends State<SearchPage> {
       }
     }
 
-    appMediaItems.addAll(await SpotifySearch().searchSongs(searchParam));
+    appMediaItems.addAll(await SpotifySearch.searchSongs(searchParam));
     // final List songResults = result['songs'] as List;
     // if (songResults.isNotEmpty) searchedData['Songs'] = songResults;
     fetched = true;

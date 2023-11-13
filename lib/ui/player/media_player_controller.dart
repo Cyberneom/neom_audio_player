@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:get/get.dart';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:flip_card/flip_card.dart';
@@ -7,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_lyric/lyric_ui/ui_netease.dart';
 import 'package:flutter_lyric/lyrics_model_builder.dart';
 import 'package:flutter_lyric/lyrics_reader_model.dart';
+import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:neom_commons/core/data/implementations/user_controller.dart';
@@ -14,15 +14,15 @@ import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/constants/app_page_id_constants.dart';
 import 'package:neom_commons/core/utils/core_utilities.dart';
+import 'package:rxdart/rxdart.dart' as rx;
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 import '../../domain/entities/position_data.dart';
 import '../../domain/use_cases/neom_audio_handler.dart';
 import '../../neom_player_invoker.dart';
-import 'lyrics/lyrics.dart';
 import '../../utils/constants/app_hive_constants.dart';
 import '../../utils/helpers/media_item_mapper.dart';
-import 'package:rxdart/rxdart.dart' as rx;
+import 'lyrics/lyrics.dart';
 
 class MediaPlayerController extends GetxController {
 
@@ -173,7 +173,7 @@ class MediaPlayerController extends GetxController {
 
   final ValueNotifier<bool> dragging = ValueNotifier<bool>(false);
   final ValueNotifier<bool> tapped = ValueNotifier<bool>(false);
-  final ValueNotifier<int> doubletapped = ValueNotifier<int>(0);
+  final ValueNotifier<int> doubleTapped = ValueNotifier<int>(0);
   final ValueNotifier<bool> done = ValueNotifier<bool>(false);
   final ValueNotifier<String> lyricsSource = ValueNotifier<String>('');
 

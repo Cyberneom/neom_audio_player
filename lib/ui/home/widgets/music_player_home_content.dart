@@ -9,17 +9,17 @@ import 'package:neom_commons/core/utils/constants/app_page_id_constants.dart';
 import 'package:neom_commons/core/utils/constants/app_route_constants.dart';
 
 import '../../../neom_player_invoker.dart';
-import '../../../to_delete/search/search_page.dart';
+import 'search_page.dart';
 import '../../../utils/constants/app_hive_constants.dart';
 import '../../../utils/constants/music_player_route_constants.dart';
 import '../../../utils/constants/player_translation_constants.dart';
 import '../../../utils/enums/image_quality.dart';
 import '../../library/playlist_player_page.dart';
-import '../../widgets/collage.dart';
+import 'collage.dart';
 import '../../widgets/empty_screen.dart';
-import '../../widgets/horizontal_albumlist_separated.dart';
+import 'horizontal_albumlist_separated.dart';
 import '../../widgets/image_card.dart';
-import '../../widgets/on_hover.dart';
+import 'hover_box.dart';
 import '../../widgets/song_tile_trailing_menu.dart';
 import '../music_player_home_controller.dart';
 

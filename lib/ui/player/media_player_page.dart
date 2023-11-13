@@ -9,7 +9,7 @@ import 'package:neom_commons/core/utils/constants/app_page_id_constants.dart';
 
 import '../../utils/constants/player_translation_constants.dart';
 import '../../utils/helpers/media_item_mapper.dart';
-import '../widgets/add_to_playlist.dart';
+import 'widgets/add_to_playlist.dart';
 import 'media_player_controller.dart';
 import 'widgets/artwork_widget.dart';
 import 'widgets/name_n_controls.dart';
@@ -18,6 +18,7 @@ class MediaPlayerPage extends StatelessWidget {
 
   const MediaPlayerPage({super.key});
 
+  ///DEPRECATED
   // final bool getLyricsOnline = Hive.box(AppHiveConstants.settings).get('getLyricsOnline', defaultValue: true) as bool;
   // final PanelController _panelController = PanelController();
   // final NeomAudioHandler audioHandler = GetIt.I<NeomAudioHandler>();
@@ -51,7 +52,7 @@ class MediaPlayerPage extends StatelessWidget {
         stream: _.audioHandler.mediaItem,
         builder: (context, snapshot) {
           MediaItem mediaItem;
-          if(_.appMediaItem.value != null) {
+          if(_.appMediaItem.value.id.isNotEmpty) {
             mediaItem = MediaItemMapper.appMediaItemToMediaItem(appMediaItem: _.appMediaItem.value);
           } else if(snapshot.data != null) {
             mediaItem = snapshot.data!;
@@ -72,7 +73,7 @@ class MediaPlayerPage extends StatelessWidget {
                     tooltip: PlayerTranslationConstants.back.tr,
                     onPressed: () => Navigator.pop(context),
                   ),
-                  actions: (_.appMediaItem.value != null) ? [
+                  actions: (_.appMediaItem.value.id.isNotEmpty) ? [
                     IconButton(
                         icon: const Icon(Icons.playlist_add_rounded),
                         tooltip: PlayerTranslationConstants.addToPlaylist.tr,
@@ -101,7 +102,7 @@ class MediaPlayerPage extends StatelessWidget {
                 body: Container(
                   decoration: AppTheme.appBoxDecoration,
                   padding: const EdgeInsets.only(top: 20),
-                  child: _.appMediaItem.value != null ? Column(
+                  child: _.appMediaItem.value.id.isNotEmpty ? Column(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       // AppTheme.heightSpace20,

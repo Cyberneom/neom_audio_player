@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:neom_commons/core/utils/app_theme.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
-import '../../utils/constants/app_hive_constants.dart';
+import '../../../../utils/constants/app_hive_constants.dart';
 
 class HiveBoxSwitchTile extends StatelessWidget {
   const HiveBoxSwitchTile({

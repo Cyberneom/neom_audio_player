@@ -5,9 +5,6 @@ import 'package:http/http.dart' as http;
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/constants/app_translation_constants.dart';
 
-import '../../../data/api_services/spotify/spotify_api_calls.dart';
-import '../../../utils/helpers/spotify_helper.dart';
-import 'matcher.dart';
 
 // ignore: avoid_classes_with_only_static_members
 class Lyrics {
@@ -25,7 +22,7 @@ class Lyrics {
     };
 
     AppUtilities.logger.i('Getting Synced Lyrics');
-    final res = await getSpotifyLyrics(title, artist);
+    final res = await getSpotifyLyricsFromId(id);
     result['lyrics'] = res['lyrics']!;
     result['type'] = res['type']!;
     result['source'] = res['source']!;
@@ -90,61 +87,61 @@ class Lyrics {
     }
   }
 
-  static Future<Map<String, String>> getSpotifyLyrics(
-    String title,
-    String artist,
-  ) async {
-    final Map<String, String> result = {
-      'lyrics': '',
-      'type': 'text',
-      'source': 'Spotify',
-    };
-    await callSpotifyFunction(
-      function: (String accessToken) async {
-        final value = await SpotifyApiCalls().searchTrack(
-          accessToken: accessToken,
-          query: '$title - $artist',
-          limit: 1,
-        );
-        try {
-          // AppUtilities.logger.i(jsonEncode(value['tracks']['items'][0]));
-          if (value['tracks']['items'].length == 0) {
-            AppUtilities.logger.i('No song found');
-            return result;
-          }
-          String title2 = '';
-          String artist2 = '';
-          try {
-            title2 = value['tracks']['items'][0]['name'].toString();
-            artist2 =
-                value['tracks']['items'][0]['artists'][0]['name'].toString();
-          } catch (e) {
-            AppUtilities.logger.e(
-              'Error in extracting artist/title in getSpotifyLyrics for $title - $artist ${e.toString()}');
-          }
-          final trackId = value['tracks']['items'][0]['id'].toString();
-          if (matchSongs(
-            title: title,
-            artist: artist,
-            title2: title2,
-            artist2: artist2,
-          )) {
-            final Map<String, String> res =
-                await getSpotifyLyricsFromId(trackId);
-            result['lyrics'] = res['lyrics']!;
-            result['type'] = res['type']!;
-            result['source'] = res['source']!;
-          } else {
-            AppUtilities.logger.i('Song not matched');
-          }
-        } catch (e) {
-          AppUtilities.logger.e('Error in getSpotifyLyrics ${e.toString()}');
-        }
-      },
-      forceSign: false,
-    );
-    return result;
-  }
+  // static Future<Map<String, String>> getSpotifyLyrics(
+  //   String title,
+  //   String artist,
+  // ) async {
+  //   final Map<String, String> result = {
+  //     'lyrics': '',
+  //     'type': 'text',
+  //     'source': 'Spotify',
+  //   };
+  //   await callSpotifyFunction(
+  //     function: (String accessToken) async {
+  //       final value = await SpotifyApiCalls().searchTrack(
+  //         accessToken: accessToken,
+  //         query: '$title - $artist',
+  //         limit: 1,
+  //       );
+  //       try {
+  //         // AppUtilities.logger.i(jsonEncode(value['tracks']['items'][0]));
+  //         if (value['tracks']['items'].length == 0) {
+  //           AppUtilities.logger.i('No song found');
+  //           return result;
+  //         }
+  //         String title2 = '';
+  //         String artist2 = '';
+  //         try {
+  //           title2 = value['tracks']['items'][0]['name'].toString();
+  //           artist2 =
+  //               value['tracks']['items'][0]['artists'][0]['name'].toString();
+  //         } catch (e) {
+  //           AppUtilities.logger.e(
+  //             'Error in extracting artist/title in getSpotifyLyrics for $title - $artist ${e.toString()}');
+  //         }
+  //         final trackId = value['tracks']['items'][0]['id'].toString();
+  //         if (matchSongs(
+  //           title: title,
+  //           artist: artist,
+  //           title2: title2,
+  //           artist2: artist2,
+  //         )) {
+  //           final Map<String, String> res =
+  //               await getSpotifyLyricsFromId(trackId);
+  //           result['lyrics'] = res['lyrics']!;
+  //           result['type'] = res['type']!;
+  //           result['source'] = res['source']!;
+  //         } else {
+  //           AppUtilities.logger.i('Song not matched');
+  //         }
+  //       } catch (e) {
+  //         AppUtilities.logger.e('Error in getSpotifyLyrics ${e.toString()}');
+  //       }
+  //     },
+  //     forceSign: false,
+  //   );
+  //   return result;
+  // }
 
   static Future<Map<String, String>> getSpotifyLyricsFromId(
     String trackId,

@@ -13,7 +13,6 @@ import 'package:neom_commons/core/utils/constants/app_translation_constants.dart
 import '../../domain/use_cases/neom_audio_handler.dart';
 import '../../utils/helpers/media_item_mapper.dart';
 import '../widgets/image_card.dart';
-import 'media_player_page.dart';
 import 'widgets/control_buttons.dart';
 
 class MiniPlayerController extends GetxController {

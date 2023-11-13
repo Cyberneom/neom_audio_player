@@ -35,7 +35,9 @@ class AddToPlaylist {
       } else {
         searchController = Get.put(AppMediaItemSearchController());
       }
-      itemlists = searchController.profile.itemlists!.values.toList();
+      itemlists = searchController.itemlists!.values.toList();
+      itemlists.removeWhere((element) => !element.isModifiable);
+
       if(itemlists.isEmpty) return;
       searchController.setSelectedItemlist(itemlists.first.id);
       type = searchController.profile.type;

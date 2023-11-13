@@ -35,6 +35,7 @@ class ControlButtons extends StatelessWidget {
     if(mediaItem == null && audioHandler.mediaItem.value != null) {
        mediaItem = audioHandler.mediaItem.value;
     } else {
+      ///DEPRECATED
       // NeomPlayerInvoker.init(
       //   appMediaItems: [MediaItemMapper.fromMediaItem(mediaItem!)],
       //   index: 0,
@@ -47,7 +48,8 @@ class ControlButtons extends StatelessWidget {
       showPlay = false;
     }
 
-    final bool isOnline = url.startsWith('http');
+    final bool isOnline = url.startsWith('http') || url.startsWith('https');
+
     return SizedBox(
       height: 80,
       width: miniplayer ? MediaQuery.of(context).size.width/3 : null,
@@ -72,15 +74,13 @@ class ControlButtons extends StatelessWidget {
                 child: StreamBuilder<QueueState>(
                 stream: audioHandler.queueState,
                 builder: (context, snapshot) {
-                  final queueState = snapshot.data;
+                  ///DEPRECATED final queueState = snapshot.data;
                   return IconButton(
                     icon: const Icon(Icons.skip_previous_rounded),
                     iconSize: miniplayer ? 24.0 : 45.0,
                     tooltip: PlayerTranslationConstants.skipPrevious.tr,
                     color: dominantColor ?? Theme.of(context).iconTheme.color,
-                    onPressed: queueState?.hasPrevious ?? true
-                        ? audioHandler.skipToPrevious
-                        : null,
+                    onPressed: audioHandler.skipToPrevious,
                   );
                 },),
               );
@@ -187,7 +187,7 @@ class ControlButtons extends StatelessWidget {
           }
           return const SizedBox();
         }).toList(),
-      ) : Center(child: Text(AppTranslationConstants.noAvailablePreviewUrl.tr),),
+      ) : Center(child: Text(AppTranslationConstants.noAvailablePreviewUrl.tr, style: TextStyle(fontSize: 16)),),
     );
   }
 }

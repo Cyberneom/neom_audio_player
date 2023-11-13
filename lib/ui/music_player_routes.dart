@@ -6,11 +6,11 @@ import '../utils/constants/app_hive_constants.dart';
 import '../utils/constants/music_player_route_constants.dart';
 import 'drawer/downloads/downloads.dart';
 import 'drawer/recently_played/recently_played_page.dart';
-import 'drawer/stats/stats_page.dart';
 import 'drawer/settings/music_player_settings_page.dart';
+import 'drawer/stats/stats_page.dart';
+import 'home/widgets/welcome_preference_page.dart';
 import 'library/now_playing_page.dart';
 import 'music_player_root_page.dart';
-import 'home/widgets/welcome_preference_page.dart';
 
 class MusicPlayerAppRoutes {
 

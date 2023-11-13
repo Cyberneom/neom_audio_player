@@ -11,10 +11,10 @@ class GradientCard extends StatefulWidget {
     this.elevation,
   });
   @override
-  _GradientCardState createState() => _GradientCardState();
+  GradientCardState createState() => GradientCardState();
 }
 
-class _GradientCardState extends State<GradientCard> {
+class GradientCardState extends State<GradientCard> {
   MusicPlayerTheme currentTheme = MusicPlayerTheme();
   @override
   Widget build(BuildContext context) {

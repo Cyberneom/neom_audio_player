@@ -29,7 +29,7 @@ class SpotifyApiCalls {
   final String spotifyBaseUrl = 'https://accounts.spotify.com';
   final String requestToken = 'https://accounts.spotify.com/api/token';
 
-  String requestAuthorization() => 'https://accounts.spotify.com/authorize?client_id=${AppFlavour.getSpotifyClientId()}&response_type=code&redirect_uri=$redirectUrl&scope=${_scopes.join('%20')}';
+  ///DEPRECATED String requestAuthorization() => 'https://accounts.spotify.com/authorize?client_id=${AppFlavour.getSpotifyClientId()}&response_type=code&redirect_uri=$redirectUrl&scope=${_scopes.join('%20')}';
 
   static Future<String> getSpotifyToken() async {
     AppUtilities.logger.d('Getting access and Spotify Token');
@@ -306,6 +306,18 @@ class SpotifyApiCalls {
       );
     }
     return {};
+  }
+
+  static Future<spotify.Track> getTrackById(String trackId) async {
+    final spotifyApi = spotify.SpotifyApi(
+        spotify.SpotifyApiCredentials(
+          AppFlavour.getSpotifyClientId(),
+          AppFlavour.getSpotifyClientSecret(),
+        )
+    );
+
+    spotify.Track track = await spotifyApi.tracks.get(trackId);
+    return track;
   }
 
 }

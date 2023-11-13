@@ -8,7 +8,6 @@ import 'package:neom_commons/core/utils/constants/app_page_id_constants.dart';
 import 'package:neom_commons/core/utils/constants/app_route_constants.dart';
 import '../../utils/constants/app_hive_constants.dart';
 import '../../utils/helpers/media_item_mapper.dart';
-import 'media_player_page.dart';
 import 'miniplayer_controller.dart';
 
 class MiniPlayer extends StatelessWidget {

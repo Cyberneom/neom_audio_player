@@ -12,7 +12,6 @@ import '../../../utils/constants/countrycodes.dart';
 import '../../../utils/constants/music_player_constants.dart';
 import '../../../utils/constants/music_player_route_constants.dart';
 import '../../../utils/constants/player_translation_constants.dart';
-import '../../music_player_routes.dart';
 
 class WelcomePreferencePage extends StatefulWidget {
   const WelcomePreferencePage({super.key});

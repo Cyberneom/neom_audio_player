@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:math';
 import 'dart:ui' as ui;
 
@@ -7,8 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:neom_commons/core/data/implementations/user_controller.dart';
-import 'package:neom_commons/core/domain/model/app_media_item.dart';
-import 'package:neom_commons/core/domain/model/item_list.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_theme.dart';
 import 'package:neom_commons/core/utils/constants/app_route_constants.dart';
@@ -16,7 +13,6 @@ import 'package:neom_commons/core/utils/constants/app_translation_constants.dart
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 import '../../../domain/entities/position_data.dart';
-import '../../../domain/use_cases/neom_audio_handler.dart';
 import '../../../utils/constants/app_hive_constants.dart';
 import '../../../utils/constants/player_translation_constants.dart';
 import '../../../utils/helpers/media_item_mapper.dart';
@@ -24,10 +20,10 @@ import '../../../utils/music_player_utilities.dart';
 import '../../widgets/download_button.dart';
 import '../../widgets/go_spotify_button.dart';
 import '../../widgets/like_button.dart';
-import '../../widgets/seek_bar.dart';
 import '../media_player_controller.dart';
 import 'control_buttons.dart';
 import 'now_playing_stream.dart';
+import 'seek_bar.dart';
 
 class NameNControls extends StatelessWidget {
 
@@ -60,7 +56,7 @@ class NameNControls extends StatelessWidget {
     final double nowPlayingBoxHeight = min(70, height * 0.15);
 
     MediaItem mediaItem = MediaItemMapper.appMediaItemToMediaItem(appMediaItem: _.appMediaItem.value);
-    final List<String> artists = mediaItem.artist.toString().split(', ');
+    ///DEPRECATED final List<String> artists = mediaItem.artist.toString().split(', ');
 
     return SizedBox(
       width: width,
@@ -73,7 +69,7 @@ class NameNControls extends StatelessWidget {
               SizedBox(
                 child: Center(
                   child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 10),
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
                     child: Column(
                       children: [
                         Text(mediaItem.title.trim(),
@@ -108,31 +104,27 @@ class NameNControls extends StatelessWidget {
               /// Seekbar starts from here
               Container(
                 height: seekBoxHeight,
-                padding: EdgeInsets.symmetric(horizontal: 10),
+                padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: StreamBuilder<PositionData>(
                   stream: _.positionDataStream,
                   builder: (context, snapshot) {
                     Duration position = Duration.zero;
-                    Duration bufferedPosition = Duration.zero;
+                    ///DEPRECATED Duration bufferedPosition = Duration.zero;
                     Duration duration = Duration.zero;
 
                     if(_.appMediaItem.value.duration != null && MusicPlayerUtilities.isOwnMediaItem(_.appMediaItem.value)) {
                       duration = Duration(seconds: _.appMediaItem.value.duration);
                     } else {
                       duration = const Duration(seconds: 30);
-                      bufferedPosition = const Duration(seconds: 30);
                     }
 
                     if(snapshot.data != null) {
                       PositionData positionData = snapshot.data!;
                       position = positionData.position;
-                      bufferedPosition = positionData.bufferedPosition;
-                      duration = positionData.duration;
                     }
 
                     return SeekBar(
                       position: position,
-                      bufferedPosition: bufferedPosition,
                       duration: duration,
                       offline: _.offline,
                       onChangeEnd: (newPosition) => _.audioHandler.seek(newPosition),

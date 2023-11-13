@@ -8,8 +8,7 @@ import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/enums/app_media_source.dart';
 
 import '../domain/use_cases/neom_audio_handler.dart';
-import '../ui/widgets/add_to_playlist.dart';
-import '../ui/widgets/popup.dart';
+import '../ui/player/widgets/add_to_playlist.dart';
 import '../ui/widgets/textinput_dialog.dart';
 import 'constants/player_translation_constants.dart';
 
@@ -208,7 +207,7 @@ class MusicPlayerUtilities {
         details['duration'] = '${(int.parse(details["duration"].toString()) ~/ 60).toString().padLeft(2, "0")}'
             ':${(int.parse(details["duration"].toString()) % 60).toString().padLeft(2, "0")}';
         // style: Theme.of(context).textTheme.caption,
-        PopupDialog().showPopup(
+        showPopup(
           context: context,
           child: Container(
             color: AppColor.getMain(),
@@ -256,9 +255,9 @@ class MusicPlayerUtilities {
 
   static bool isOwnMediaItem(AppMediaItem appMediaItem) {
 
-    final bool isOwnMediaItem = (appMediaItem.url.contains('gig-me-out')
-        || appMediaItem.url.contains('firebasestorage.googleapis.com'))
-        && appMediaItem.mediaSource == AppMediaSource.internal;
+    final bool isOwnMediaItem = appMediaItem.url.contains('gig-me-out')
+        || appMediaItem.url.contains('firebasestorage.googleapis.com')
+        || appMediaItem.mediaSource == AppMediaSource.internal;
 
     return isOwnMediaItem;
 
@@ -285,12 +284,9 @@ class MusicPlayerUtilities {
           stream: audioHandler.speed,
           builder: (context, snapshot) {
             double value = snapshot.data ?? audioHandler.speed.valueWrapper?.value ?? 0;
-            if (value > max) {
-              value = max;
-            }
-            if (value < min) {
-              value = min;
-            }
+            if (value > max) value = max;
+            if (value < min) value = min;
+
             return SizedBox(
               height: 100.0,
               child: Column(
@@ -339,6 +335,57 @@ class MusicPlayerUtilities {
           },
         ),
       ),
+    );
+  }
+
+  static void showPopup({
+    required BuildContext context,
+    required Widget child,
+    double radius = 20.0,
+    Color? backColor,
+  }) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          insetPadding: EdgeInsets.zero,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15.0),
+          ),
+          backgroundColor: AppColor.main75,
+          content: Stack(
+            children: [
+              GestureDetector(onTap: () => Navigator.pop(context)),
+              Padding(
+                padding: const EdgeInsets.all(15.0),
+                child: Card(
+                  elevation: 0.0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(radius),
+                  ),
+                  clipBehavior: Clip.antiAlias,
+                  color: backColor,
+                  child: child,
+                ),
+              ),
+              Align(
+                alignment: Alignment.topRight,
+                child: Card(
+                  elevation: 15.0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15.0),
+                  ),
+                  clipBehavior: Clip.antiAlias,
+                  child: IconButton(
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(Icons.close_rounded),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
