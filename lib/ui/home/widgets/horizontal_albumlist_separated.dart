@@ -5,7 +5,6 @@ import 'package:neom_commons/core/domain/model/item_list.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
 import 'package:neom_commons/core/utils/constants/app_route_constants.dart';
 import 'package:neom_commons/core/utils/enums/itemlist_type.dart';
-import '../../player/media_player_page.dart';
 import '../../widgets/custom_physics.dart';
 import '../../widgets/image_card.dart';
 import '../../widgets/song_tile_trailing_menu.dart';

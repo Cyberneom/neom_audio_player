@@ -112,7 +112,7 @@ class NameNControls extends StatelessWidget {
                     ///DEPRECATED Duration bufferedPosition = Duration.zero;
                     Duration duration = Duration.zero;
 
-                    if(_.appMediaItem.value.duration != null && MusicPlayerUtilities.isOwnMediaItem(_.appMediaItem.value)) {
+                    if(MusicPlayerUtilities.isOwnMediaItem(_.appMediaItem.value)) {
                       duration = Duration(seconds: _.appMediaItem.value.duration);
                     } else {
                       duration = const Duration(seconds: 30);

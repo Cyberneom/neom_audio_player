@@ -35,7 +35,7 @@ class AddToPlaylist {
       } else {
         searchController = Get.put(AppMediaItemSearchController());
       }
-      itemlists = searchController.itemlists!.values.toList();
+      itemlists = searchController.itemlists.values.toList();
       itemlists.removeWhere((element) => !element.isModifiable);
 
       if(itemlists.isEmpty) return;

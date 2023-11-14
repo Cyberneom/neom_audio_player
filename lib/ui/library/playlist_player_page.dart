@@ -34,11 +34,12 @@ class PlaylistPlayerPage extends StatefulWidget {
     this.alternativeName = '',
     this.appMediaItems,
   });
+
   @override
-  _PlaylistPlayerPageState createState() => _PlaylistPlayerPageState();
+  PlaylistPlayerPageState createState() => PlaylistPlayerPageState();
 }
 
-class _PlaylistPlayerPageState extends State<PlaylistPlayerPage>
+class PlaylistPlayerPageState extends State<PlaylistPlayerPage>
     with SingleTickerProviderStateMixin {
 
   Box? likedBox;

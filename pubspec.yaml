@@ -37,7 +37,6 @@ dependencies:
   flutter_lyric: ^2.0.4+6
 
 #DEPRECATED
-#  home_widget: ^0.3.0
 #  app_links: ^3.4.5
 #  marquee: ^2.2.3
 #  palette_generator: ^0.3.3+3

@@ -9,23 +9,23 @@ import 'package:neom_commons/core/utils/constants/app_page_id_constants.dart';
 import 'package:neom_commons/core/utils/constants/app_route_constants.dart';
 
 import '../../../neom_player_invoker.dart';
-import 'search_page.dart';
 import '../../../utils/constants/app_hive_constants.dart';
 import '../../../utils/constants/music_player_route_constants.dart';
 import '../../../utils/constants/player_translation_constants.dart';
 import '../../../utils/enums/image_quality.dart';
 import '../../library/playlist_player_page.dart';
-import 'collage.dart';
 import '../../widgets/empty_screen.dart';
-import 'horizontal_albumlist_separated.dart';
 import '../../widgets/image_card.dart';
-import 'hover_box.dart';
 import '../../widgets/song_tile_trailing_menu.dart';
 import '../music_player_home_controller.dart';
+import 'collage.dart';
+import 'horizontal_albumlist_separated.dart';
+import 'hover_box.dart';
+import 'search_page.dart';
 
 class MusicPlayerHomeContent extends StatelessWidget {
 
-  MusicPlayerHomeContent({super.key});
+  const MusicPlayerHomeContent({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -408,7 +408,6 @@ class MusicPlayerHomeContent extends StatelessWidget {
             itemCount: _.favoriteItems.length,
             itemBuilder: (context, index) {
               AppMediaItem favoriteItem = _.favoriteItems.elementAt(index);
-              final String name = favoriteItem.name;
               final String subtitle = favoriteItem.artist;
               return GestureDetector(
                 child: SizedBox(

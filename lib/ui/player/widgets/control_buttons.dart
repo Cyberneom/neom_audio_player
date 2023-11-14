@@ -19,7 +19,7 @@ class ControlButtons extends StatelessWidget {
   final List<String> buttons;
   final Color? dominantColor;
   MediaItem? mediaItem;
-  bool showPlay = true;
+  bool showPlay;
 
   ControlButtons(
       this.audioHandler, {super.key,
@@ -28,6 +28,7 @@ class ControlButtons extends StatelessWidget {
         this.buttons = const ['Previous', 'Play/Pause', 'Next'],
         this.dominantColor,
         this.mediaItem,
+        this.showPlay = true,
       });
 
   @override
@@ -187,7 +188,7 @@ class ControlButtons extends StatelessWidget {
           }
           return const SizedBox();
         }).toList(),
-      ) : Center(child: Text(AppTranslationConstants.noAvailablePreviewUrl.tr, style: TextStyle(fontSize: 16)),),
+      ) : Center(child: Text(AppTranslationConstants.noAvailablePreviewUrl.tr, style: const TextStyle(fontSize: 16)),),
     );
   }
 }

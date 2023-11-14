@@ -17,15 +17,14 @@ class WelcomePreferencePage extends StatefulWidget {
   const WelcomePreferencePage({super.key});
 
   @override
-  _WelcomePreferencePageState createState() => _WelcomePreferencePageState();
+  WelcomePreferencePageState createState() => WelcomePreferencePageState();
 }
 
-class _WelcomePreferencePageState extends State<WelcomePreferencePage> {
+class WelcomePreferencePageState extends State<WelcomePreferencePage> {
 
-  List<bool> isSelected = [true, false];
+  UserController userController = Get.find<UserController>();
   List preferredLanguage = Hive.box(AppHiveConstants.settings).get(AppHiveConstants.preferredLanguage, defaultValue: ['Español'])?.toList() as List;
   String region = Hive.box(AppHiveConstants.settings).get(AppHiveConstants.region, defaultValue: 'México') as String;
-  bool useProxy = Hive.box(AppHiveConstants.settings).get(AppHiveConstants.useProxy, defaultValue: false) as bool;
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +41,10 @@ class _WelcomePreferencePageState extends State<WelcomePreferencePage> {
                     alignment: Alignment.topRight,
                     padding: const EdgeInsets.only(right: 15),
                     child: TextButton(
-                      onPressed: () => Navigator.popAndPushNamed(context, MusicPlayerRouteConstants.root),
+                      onPressed: () {
+                        Hive.box(AppHiveConstants.settings).put(AppHiveConstants.userId, userController.user!.id,);
+                        Navigator.popAndPushNamed(context, MusicPlayerRouteConstants.root,);
+                      },
                       child: Text(
                         PlayerTranslationConstants.skip.tr,
                         style: TextStyle(color: Colors.grey.withOpacity(0.9),),
@@ -94,9 +96,7 @@ class _WelcomePreferencePageState extends State<WelcomePreferencePage> {
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 54,
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .secondary,
+                                      color: Theme.of(context).colorScheme.secondary,
                                     ),
                                   ),
                                   TextSpan(
@@ -194,8 +194,8 @@ class _WelcomePreferencePageState extends State<WelcomePreferencePage> {
                                                         onPressed: () {
                                                           setState(() {
                                                             preferredLanguage = checked;
-                                                            Navigator.pop(context,);
                                                             Hive.box(AppHiveConstants.settings,).put(AppHiveConstants.preferredLanguage, checked,);
+                                                            Navigator.pop(context,);
                                                           });
                                                           if (preferredLanguage.isEmpty) {
                                                             AppUtilities.showSnackBar(
@@ -280,7 +280,6 @@ class _WelcomePreferencePageState extends State<WelcomePreferencePage> {
                                 const SizedBox(height: 20.0,),
                                 GestureDetector(
                                   onTap: () {
-                                    final userController = Get.find<UserController>();
                                     Hive.box(AppHiveConstants.settings).put(AppHiveConstants.userId, userController.user!.id,);
                                     Navigator.popAndPushNamed(context, MusicPlayerRouteConstants.root,);
                                   },

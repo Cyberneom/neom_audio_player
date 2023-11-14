@@ -1,48 +1,20 @@
 
 import 'package:audio_service/audio_service.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:neom_commons/core/utils/app_color.dart';
-import 'package:neom_commons/core/utils/app_theme.dart';
-import 'package:neom_commons/core/utils/constants/app_page_id_constants.dart';
+import 'package:neom_commons/neom_commons.dart';
 
 import '../../utils/constants/player_translation_constants.dart';
 import '../../utils/helpers/media_item_mapper.dart';
-import 'widgets/add_to_playlist.dart';
 import 'media_player_controller.dart';
+import 'widgets/add_to_playlist.dart';
 import 'widgets/artwork_widget.dart';
 import 'widgets/name_n_controls.dart';
 
 class MediaPlayerPage extends StatelessWidget {
 
   const MediaPlayerPage({super.key});
-
-  ///DEPRECATED
-  // final bool getLyricsOnline = Hive.box(AppHiveConstants.settings).get('getLyricsOnline', defaultValue: true) as bool;
-  // final PanelController _panelController = PanelController();
-  // final NeomAudioHandler audioHandler = GetIt.I<NeomAudioHandler>();
-  // GlobalKey<FlipCardState> onlineCardKey = GlobalKey<FlipCardState>();
-  // final Duration _time = Duration.zero;
-  // bool isSharePopupShown = false;
-
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   if(widget.appMediaItem != null) {
-  //     bool alreadyPlaying = audioHandler.currentMediaItem != null && audioHandler.currentMediaItem!.id == widget.appMediaItem!.id;
-  //     if(widget.reproduceItem && !alreadyPlaying) {
-  //       Future.delayed(const Duration(milliseconds: 500)).then((value) {
-  //         NeomPlayerInvoker.init(
-  //           appMediaItems: [widget.appMediaItem!],
-  //           index: 0,
-  //         );
-  //         // audioHandler.play();
-  //       });
-  //     }
-  //   }
-  // }
-
+  
   @override
   Widget build(BuildContext context) {
     return GetBuilder<MediaPlayerController>(
@@ -55,13 +27,13 @@ class MediaPlayerPage extends StatelessWidget {
           if(_.appMediaItem.value.id.isNotEmpty) {
             mediaItem = MediaItemMapper.appMediaItemToMediaItem(appMediaItem: _.appMediaItem.value);
           } else if(snapshot.data != null) {
-            mediaItem = snapshot.data!;
+            mediaItem = snapshot.data!;            
           } else {
-            return const SizedBox();
+            return SizedBox(child: Text(AppTranslationConstants.noAvailablePreviewUrl.tr),);
           }
 
           final offline = !mediaItem.extras!['url'].toString().startsWith('http');
-          return Scaffold(
+          return Obx(()=> Scaffold(
                 resizeToAvoidBottomInset: false,
                 backgroundColor: AppColor.main50,
                 appBar: AppBar(
@@ -105,7 +77,7 @@ class MediaPlayerPage extends StatelessWidget {
                   child: _.appMediaItem.value.id.isNotEmpty ? Column(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      // AppTheme.heightSpace20,
+                      ///DEPRECATED AppTheme.heightSpace20,
                       ArtWorkWidget(
                         mediaPlayerController: _,
                         cardKey: _.onlineCardKey,
@@ -121,7 +93,7 @@ class MediaPlayerPage extends StatelessWidget {
                     ],
                   ) : Container(),
                 ),
-          );
+          ),);
         },
     ),
     );

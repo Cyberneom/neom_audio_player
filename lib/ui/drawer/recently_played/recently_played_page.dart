@@ -17,10 +17,10 @@ class RecentlyPlayedPage extends StatefulWidget {
   const RecentlyPlayedPage({super.key});
 
   @override
-  _RecentlyPlayedPageState createState() => _RecentlyPlayedPageState();
+  RecentlyPlayedPageState createState() => RecentlyPlayedPageState();
 }
 
-class _RecentlyPlayedPageState extends State<RecentlyPlayedPage> {
+class RecentlyPlayedPageState extends State<RecentlyPlayedPage> {
   Map<String, AppMediaItem> _songs = {};
   bool added = false;
 

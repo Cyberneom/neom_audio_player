@@ -30,10 +30,10 @@ class SeekBar extends StatefulWidget {
   });
 
   @override
-  _SeekBarState createState() => _SeekBarState();
+  SeekBarState createState() => SeekBarState();
 }
 
-class _SeekBarState extends State<SeekBar> {
+class SeekBarState extends State<SeekBar> {
   double? _dragValue;
   bool _dragging = false;
   late SliderThemeData _sliderThemeData;

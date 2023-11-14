@@ -18,11 +18,11 @@ class NeomMusicPlayerApp extends StatefulWidget {
 
 
   @override
-  _NeomMusicPlayerAppState createState() => _NeomMusicPlayerAppState();
+  NeomMusicPlayerAppState createState() => NeomMusicPlayerAppState();
 
-  // ignore: unreachable_from_main
-  static _NeomMusicPlayerAppState of(BuildContext context) =>
-      context.findAncestorStateOfType<_NeomMusicPlayerAppState>()!;
+  // // ignore: unreachable_from_main
+  // static NeomMusicPlayerAppState of(BuildContext context) =>
+  //     context.findAncestorStateOfType<NeomMusicPlayerAppState>()!;
 
   /// Called when Doing Background Work initiated from Widget
   // @pragma('vm:entry-point')
@@ -43,7 +43,7 @@ class NeomMusicPlayerApp extends StatefulWidget {
 
 }
 
-class _NeomMusicPlayerAppState extends State<NeomMusicPlayerApp> {
+class NeomMusicPlayerAppState extends State<NeomMusicPlayerApp> {
 
   // late StreamSubscription _intentTextStreamSubscription;
   // late StreamSubscription _intentDataStreamSubscription;

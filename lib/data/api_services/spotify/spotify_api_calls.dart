@@ -11,12 +11,13 @@ import 'package:spotify_sdk/spotify_sdk.dart';
 
 class SpotifyApiCalls {
 
-  final List<String> _scopes = [
-    'user-read-private',
-    'user-read-email',
-    'playlist-read-private',
-    'playlist-read-collaborative',
-  ];
+  ///DEPRECATED
+  // final List<String> _scopes = [
+  //   'user-read-private',
+  //   'user-read-email',
+  //   'playlist-read-private',
+  //   'playlist-read-collaborative',
+  // ];
 
   /// You can signup for spotify developer account and get your own clientID and clientSecret incase you don't want to use these
   final String redirectUrl = 'https://www.gigmeout.io/spotify_auth.html';
