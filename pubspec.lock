@@ -1013,6 +1013,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.1.0"
+  home_widget:
+    dependency: "direct main"
+    description:
+      name: home_widget
+      sha256: "9a0ed6094823b07025727a39d3dc2d3e02c5281372af22d72e611137e0b3c10d"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.3.0"
   html:
     dependency: transitive
     description:
@@ -1349,7 +1357,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "07bc21cee5564ea22a65ac04c75f4e7232b03b20"
+      resolved-ref: f63ce7311b077b1f61377e324057eb450a684634
       url: "https://github.com/emmanuel-montoya/neom_commerce.git"
     source: git
     version: "1.1.0"
@@ -1365,7 +1373,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "81cdbc3541049e1883a3588f6d6c2f5e09e659a0"
+      resolved-ref: "77e2b61c423898b220ad0a549e0cd5393accf52c"
       url: "https://github.com/Cyberneom/neom_events.git"
     source: git
     version: "1.1.0"
@@ -1426,7 +1434,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: bd7a163acab71822778cc6bcadcb7e4aab567cf8
+      resolved-ref: "0fd0f53b8aea169a59729db003b0fbb09b945068"
       url: "https://github.com/Cyberneom/neom_posts.git"
     source: git
     version: "1.1.0"
@@ -1435,7 +1443,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "725a7eedcc23cb92850c7fb226f99cbe28b1f67c"
+      resolved-ref: f2544cb7ef1a2715d19879d9619a78645aa5f7ea
       url: "https://github.com/Cyberneom/neom_profile.git"
     source: git
     version: "1.1.0"
@@ -1444,7 +1452,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "77bf3771636bc646f13f04288806b1fe029d929e"
+      resolved-ref: "466fd6ce897908727d027798c88029eb504a7d5f"
       url: "https://github.com/Cyberneom/neom_timeline.git"
     source: git
     version: "1.1.0"
