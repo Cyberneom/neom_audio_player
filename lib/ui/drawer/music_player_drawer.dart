@@ -18,7 +18,7 @@ import '../player/miniplayer_controller.dart';
 
 class MusicPlayerDrawer extends StatelessWidget {
 
-  MusicPlayerDrawer({super.key});
+  const MusicPlayerDrawer({super.key});
 
   @override
   Widget build(BuildContext context) {

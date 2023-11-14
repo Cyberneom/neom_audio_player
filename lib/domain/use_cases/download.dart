@@ -264,7 +264,7 @@ class Download with ChangeNotifier {
     String? appPath;
     final List<int> bytes = [];
     String  lyrics = '';
-    final artname = fileName.replaceAll('.m4a', '.jpg');
+    final artName = fileName.replaceAll('.m4a', '.jpg');
     if (!Platform.isWindows) {
       AppUtilities.logger.i('Getting App Path for storing image');
       appPath = Hive.box(AppHiveConstants.settings).get('tempDirPath')?.toString();
@@ -278,8 +278,8 @@ class Download with ChangeNotifier {
       AppUtilities.logger.i('Creating audio file $dlPath/$fileName');
       await File('$dlPath/$fileName').create(recursive: true)
           .then((value) => mediaPath = value.path);
-      AppUtilities.logger.i('Creating image file $appPath/$artname');
-      await File('$appPath/$artname').create(recursive: true)
+      AppUtilities.logger.i('Creating image file $appPath/$artName');
+      await File('$appPath/$artName').create(recursive: true)
           .then((value) => imgPath = value.path);
     } catch (e) {
       AppUtilities.logger.i('Error creating files, requesting additional permission');
@@ -301,7 +301,7 @@ class Download with ChangeNotifier {
           .then((value) => mediaPath = value.path);
 
       AppUtilities.logger.i('Retrying to create image file');
-      await File('$appPath/$artname').create(recursive: true)
+      await File('$appPath/$artName').create(recursive: true)
           .then((value) => imgPath = value.path);
     }
     final String kUrl = mediaItem.url;
@@ -324,15 +324,15 @@ class Download with ChangeNotifier {
     final client = Client();
     final response = await client.send(Request('GET', Uri.parse(kUrl)));
     final int total = response.contentLength ?? 0;
-    int recieved = 0;
+    int received = 0;
     AppUtilities.logger.i('Client connected, Starting download');
     response.stream.asBroadcastStream();
     AppUtilities.logger.i('broadcasting download state');
     response.stream.listen((value) {
       bytes.addAll(value);
       try {
-        recieved += value.length;
-        progress = recieved / total;
+        received += value.length;
+        progress = received / total;
         notifyListeners();
         if (!download) {
           client.close();

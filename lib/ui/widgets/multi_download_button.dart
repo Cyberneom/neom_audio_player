@@ -14,10 +14,10 @@ class MultiDownloadButton extends StatefulWidget {
   });
 
   @override
-  _MultiDownloadButtonState createState() => _MultiDownloadButtonState();
+  MultiDownloadButtonState createState() => MultiDownloadButtonState();
 }
 
-class _MultiDownloadButtonState extends State<MultiDownloadButton> {
+class MultiDownloadButtonState extends State<MultiDownloadButton> {
   late Download down;
   int done = 0;
 

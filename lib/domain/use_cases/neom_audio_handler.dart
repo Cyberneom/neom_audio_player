@@ -244,19 +244,15 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
     final MediaItem newItem = MediaItemMapper.fromJSON(newData);
 
     AppUtilities.logger.i('player | inserting refreshed item');
-    late AudioSource audioSource;
-    if (cacheSong) {
-      audioSource = LockCachingAudioSource(
-        Uri.parse(newItem.extras!['url'].toString(),),);
-    } else {
-      audioSource = AudioSource.uri(Uri.parse(newItem.extras!['url'].toString(),),);
-    }
+    // late AudioSource audioSource;
+    // if (cacheSong) {
+    //   audioSource = LockCachingAudioSource(Uri.parse(newItem.extras!['url'].toString(),),);
+    // } else {
+    //   audioSource = AudioSource.uri(Uri.parse(newItem.extras!['url'].toString(),),);
+    // }
     // final index = queue.value.indexWhere((item) => item.id == newItem.id);
     // _mediaItemExpando[audioSource] = newItem;
-    // _playlist
-    // .removeAt(index)
-    // .then((value) =>
-    // _playlist.insert(index, audioSource));
+    // _playlist.removeAt(index).then((value) => _playlist.insert(index, audioSource));
     addQueueItem(newItem);
   }
 
@@ -430,7 +426,30 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
   }
 
   @override
-  Future<void> skipToNext() => _player.seekToNext();
+  Future<void> skipToNext() async {
+    AppUtilities.logger.d('skipToNext');
+
+    final index = queue.value!.indexWhere((item) => item.id == currentMediaItem!.id);
+    if(queue.value!.length >= index+1) {
+      MediaItem nextMedia = queue.value!.elementAt(index+1);
+      currentMediaItem = nextMedia;
+
+      if(getx.Get.isRegistered<MiniPlayerController>()) {
+        getx.Get.find<MiniPlayerController>().setMediaItem(nextMedia);
+      } else {
+        getx.Get.put(MiniPlayerController()).setMediaItem(nextMedia);
+      }
+
+      if(getx.Get.isRegistered<MediaPlayerController>()) {
+        getx.Get.find<MediaPlayerController>().setMediaItem(nextMedia);
+      } else {
+        getx.Get.put(MediaPlayerController()).setMediaItem(nextMedia);
+      }
+
+    }
+
+    _player.seekToNext();
+  }
 
   /// This is called when the user presses the "like" button.
   @override
@@ -454,8 +473,30 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
     resetOnSkip = Hive.box(AppHiveConstants.settings).get(AppHiveConstants.resetOnSkip, defaultValue: true) as bool;
     if (resetOnSkip) {
       if ((_player.position.inSeconds) <= 2) {
+        AppUtilities.logger.d('skipToPrevious');
+
+        final index = queue.value!.indexWhere((item) => item.id == currentMediaItem!.id);
+        if(queue.value!.isNotEmpty && (index-1 >= 0)) {
+          MediaItem previousMedia = queue.value!.elementAt(index-1);
+          currentMediaItem = previousMedia;
+
+          if(getx.Get.isRegistered<MiniPlayerController>()) {
+            getx.Get.find<MiniPlayerController>().setMediaItem(previousMedia);
+          } else {
+            getx.Get.put(MiniPlayerController()).setMediaItem(previousMedia);
+          }
+
+          if(getx.Get.isRegistered<MediaPlayerController>()) {
+            getx.Get.find<MediaPlayerController>().setMediaItem(previousMedia);
+          } else {
+            getx.Get.put(MediaPlayerController()).setMediaItem(previousMedia);
+          }
+
+        }
+
         _player.seekToPrevious();
       } else {
+        AppUtilities.logger.d('Reset curren item');
         _player.seek(Duration.zero);
       }
     } else {

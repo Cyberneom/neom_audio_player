@@ -4,7 +4,6 @@ import 'package:hive/hive.dart';
 import '../neom_music_player_app.dart';
 import '../utils/constants/app_hive_constants.dart';
 import '../utils/constants/music_player_route_constants.dart';
-import 'drawer/downloads/downloads.dart';
 import 'drawer/recently_played/recently_played_page.dart';
 import 'drawer/settings/music_player_settings_page.dart';
 import 'drawer/stats/stats_page.dart';
@@ -26,7 +25,7 @@ class MusicPlayerAppRoutes {
     // MusicPlayerRouteConstants.player: (context) => MediaPlayerPage(),
     MusicPlayerRouteConstants.nowPlaying: (context) => const NowPlayingPage(),
     MusicPlayerRouteConstants.recent: (context) => const RecentlyPlayedPage(),
-    MusicPlayerRouteConstants.downloads: (context) => const Downloads(),
+    // MusicPlayerRouteConstants.downloads: (context) => const Downloads(),
     MusicPlayerRouteConstants.stats: (context) => const StatsPage(),
   };
 }

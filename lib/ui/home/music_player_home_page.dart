@@ -13,12 +13,12 @@ import 'package:neom_commons/core/utils/constants/app_assets.dart';
 import 'package:neom_commons/core/utils/constants/app_page_id_constants.dart';
 import 'package:neom_commons/core/utils/constants/app_translation_constants.dart';
 
-import '../drawer/music_player_drawer.dart';
-import 'widgets/search_page.dart';
 import '../../utils/constants/player_translation_constants.dart';
+import '../drawer/music_player_drawer.dart';
 import '../widgets/music_player_widgets.dart';
-import 'widgets/music_player_home_content.dart';
 import 'music_player_home_controller.dart';
+import 'widgets/music_player_home_content.dart';
+import 'widgets/search_page.dart';
 
 class MusicPlayerHomePage extends StatelessWidget {
 

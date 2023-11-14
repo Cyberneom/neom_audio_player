@@ -188,16 +188,12 @@ class NowPlayingStream extends StatelessWidget {
                             errorWidget: (BuildContext context, _, __) =>
                             const Image(
                               fit: BoxFit.cover,
-                              image: AssetImage(
-                                AppAssets.musicPlayerCover,
-                              ),
+                              image: AssetImage(AppAssets.musicPlayerCover,),
                             ),
                             placeholder: (BuildContext context, _) =>
                             const Image(
                               fit: BoxFit.cover,
-                              image: AssetImage(
-                                AppAssets.musicPlayerCover,
-                              ),
+                              image: AssetImage(AppAssets.musicPlayerCover,),
                             ),
                             imageUrl: item.artUri.toString(),
                           ),
@@ -217,9 +213,7 @@ class NowPlayingStream extends StatelessWidget {
                     item.artist!,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  onTap: () {
-                    audioHandler.skipToQueueItem(index);
-                  },
+                  onTap: () => audioHandler.skipToQueueItem(index),
                 ),
               ),
             );

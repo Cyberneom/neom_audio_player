@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
+import 'package:neom_commons/core/app_flavour.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
@@ -254,13 +255,18 @@ class MusicPlayerUtilities {
   }
 
   static bool isOwnMediaItem(AppMediaItem appMediaItem) {
-
-    final bool isOwnMediaItem = appMediaItem.url.contains('gig-me-out')
-        || appMediaItem.url.contains('firebasestorage.googleapis.com')
+    final bool isOwnMediaItem = appMediaItem.url.contains(AppFlavour.getHubName())
+        || appMediaItem.url.contains(AppFlavour.getStorageServerName())
         || appMediaItem.mediaSource == AppMediaSource.internal;
 
     return isOwnMediaItem;
+  }
 
+  static bool isInternal(String url) {
+    final bool isInternal = url.contains(AppFlavour.getHubName())
+        || url.contains(AppFlavour.getStorageServerName());
+
+    return isInternal;
   }
 
   static void showSpeedSliderDialog({
