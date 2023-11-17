@@ -103,20 +103,14 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
                       () {},
                     );
                   } else {
-                    AppUtilities.showSnackBar(
-                      message: PlayerTranslationConstants.noFolderSelected.tr,
-                    );
+                    AppUtilities.showSnackBar(message: PlayerTranslationConstants.noFolderSelected.tr,);
                   }
                 },
                 dense: true,
               ),
               ListTile(
-                title: Text(
-                  PlayerTranslationConstants.downFilename.tr,
-                ),
-                subtitle: Text(
-                  PlayerTranslationConstants.downFilenameSub.tr,
-                ),
+                title: Text(PlayerTranslationConstants.downFilename.tr,),
+                subtitle: Text(PlayerTranslationConstants.downFilenameSub.tr,),
                 dense: true,
                 onTap: () {
                   showModalBottomSheet(

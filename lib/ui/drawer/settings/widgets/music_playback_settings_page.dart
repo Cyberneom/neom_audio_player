@@ -241,8 +241,8 @@ class _MusicPlaybackSettingsPageState extends State<MusicPlaybackSettingsPage> {
                 isThreeLine: true,
               ),
               HiveBoxSwitchTile(
-                title: PlayerTranslationConstants.cacheSong.tr,
-                subtitle: PlayerTranslationConstants.cacheSongSub.tr,
+                title: PlayerTranslationConstants.cacheMediaItem.tr,
+                subtitle: PlayerTranslationConstants.cacheMediaItemSub.tr,
                 keyName: 'cacheSong',
                 defaultValue: true,
               ),

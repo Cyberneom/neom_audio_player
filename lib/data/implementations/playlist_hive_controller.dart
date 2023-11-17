@@ -17,7 +17,6 @@ import 'app_hive_controller.dart';
 
 class PlaylistHiveController extends GetxController  {
 
-  final logger = AppUtilities.logger;
   final userController = Get.find<UserController>();
   final appHiveController = Get.find<AppHiveController>();
   Map<String, AppMediaItem> globalMediaItems = {};
@@ -29,7 +28,7 @@ class PlaylistHiveController extends GetxController  {
   @override
   Future<void> onInit() async {
     super.onInit();
-    logger.d('');
+    AppUtilities.logger.d('onInit PlaylistHive Controller');
     globalMediaItems = await AppMediaItemFirestore().fetchAll();
 
   }
@@ -105,5 +104,33 @@ class PlaylistHiveController extends GetxController  {
     Hive.box(AppHiveConstants.settings).put('playlistNames', playlistNames);
   }
 
+  Future<void> addQueryEntry(String inputName, List data) async {
+    final RegExp avoid = RegExp(r'[\.\\\*\:\"\?#/;\|]');
+    String name = inputName.replaceAll(avoid, '').replaceAll('  ', ' ');
+
+    await Hive.openBox(name);
+    final Box playlistBox = Hive.box(name);
+
+    songs_count.addSongsCount(
+      name,
+      data.length,
+      data.length >= 4 ? data.sublist(0, 4) : data.sublist(0, data.length),
+    );
+    final Map result = {for (final v in data) v['id'].toString(): v};
+    playlistBox.putAll(result);
+
+    final List playlistNames =
+    Hive.box(AppHiveConstants.settings).get('playlistNames', defaultValue: []) as List;
+
+    if (name.trim() == '') {
+      name = 'Playlist ${playlistNames.length}';
+    }
+    while (playlistNames.contains(name)) {
+      // ignore: use_string_buffers
+      name += ' (1)';
+    }
+    playlistNames.add(name);
+    Hive.box(AppHiveConstants.settings).put('playlistNames', playlistNames);
+  }
 
 }

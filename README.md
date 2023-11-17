@@ -1,2 +1,2 @@
 # neom_music_player
-Common modules between apps.
+Music Player Module for Cyberneom.

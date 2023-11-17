@@ -32,6 +32,7 @@ class SearchPage extends StatefulWidget {
 }
 
 class SearchPageState extends State<SearchPage> {
+
   String searchParam = '';
   bool status = false;
   // Map searchedData = {};
@@ -42,9 +43,9 @@ class SearchPageState extends State<SearchPage> {
   bool alertShown = false;
   bool albumFetched = false;
   bool? fromHome;
-  List search = Hive.box(AppHiveConstants.settings).get('search', defaultValue: [],) as List;
-  bool showHistory = Hive.box(AppHiveConstants.settings).get('showHistory', defaultValue: true) as bool;
-  bool liveSearch = Hive.box(AppHiveConstants.settings).get('liveSearch', defaultValue: true) as bool;
+  List search = Hive.box(AppHiveConstants.settings).get(AppHiveConstants.search, defaultValue: [],) as List;
+  bool showHistory = Hive.box(AppHiveConstants.settings).get(AppHiveConstants.showHistory, defaultValue: true) as bool;
+  bool liveSearch = Hive.box(AppHiveConstants.settings).get(AppHiveConstants.liveSearch, defaultValue: true) as bool;
 
   final controller = TextEditingController();
 
@@ -324,43 +325,6 @@ class SearchPageState extends State<SearchPage> {
                             fontWeight: FontWeight.w800,
                           ),
                         ),
-                        // if (item.e.name != 'Top Result')
-                        //   Padding(
-                        //     padding: const EdgeInsets.fromLTRB(25, 0, 25, 0,),
-                        //     child: Row(
-                        //       mainAxisAlignment:
-                        //           MainAxisAlignment.end,
-                        //       children: [
-                        //         GestureDetector(
-                        //           onTap: () {
-                        //             if (e.type ==  MediaItemType.song) {
-                        //               Navigator.push(
-                        //                 context,
-                        //                 PageRouteBuilder(
-                        //                   opaque: false,
-                        //                   pageBuilder: (_, __, ___,) => SongsListPage(itemlist: Itemlist()),
-                        //                 ),
-                        //               );
-                        //             }
-                        //           },
-                        //           child: Row(
-                        //             children: [
-                        //               Text(
-                        //                 PlayerTranslationConstants.viewAll.tr,
-                        //                 style: TextStyle(
-                        //                   color: Theme.of(context,).textTheme.bodySmall!.color,
-                        //                   fontWeight: FontWeight.w800,
-                        //                 ),
-                        //               ),
-                        //               Icon(Icons.chevron_right_rounded,
-                        //                 color: Theme.of(context,).textTheme.bodySmall!.color,
-                        //               ),
-                        //             ],
-                        //           ),
-                        //         ),
-                        //       ],
-                        //     ),
-                        //   ),
                       ],
                     ),
                   ),
@@ -371,10 +335,6 @@ class SearchPageState extends State<SearchPage> {
                     padding: const EdgeInsets.only(left: 5, right: 10,),
                     itemBuilder: (context, index) {
                       AppMediaItem item = appMediaItems.values.elementAt(index);
-                      // final int count = item.likes;
-                      // String countText = item.artist;
-                      // countText = count > 1 ? '$count ${PlayerTranslationConstants.songs.tr}'
-                      //     : '$count ${PlayerTranslationConstants.song.tr}';
                       return createCoolMediaItemTile(context, item, query: searchParam);
                     },
                   ),

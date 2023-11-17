@@ -85,7 +85,7 @@ class _MusicPlayerSettingsPageState extends State<MusicPlayerSettingsPage> {
           PlayerTranslationConstants.resetOnSkip.tr,
           PlayerTranslationConstants.enforceRepeat.tr,
           PlayerTranslationConstants.autoplay.tr,
-          PlayerTranslationConstants.cacheSong.tr,
+          PlayerTranslationConstants.cacheMediaItem.tr,
         ],
       },
       ///DOWNLOAD IN PROGRESS

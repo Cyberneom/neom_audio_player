@@ -1,8 +1,9 @@
 class MusicPlayerConstants {
 
-  static int rewindSeconds = 5;
-  static String wifi = 'wifi';
-  static List<String> musicLanguages = [
+  static const int rewindSeconds = 5;
+  static const int externalDuration = 30;
+  static const String wifi = 'wifi';
+  static const List<String> musicLanguages = [
     'English',
     'Español',
     'French',
@@ -25,9 +26,9 @@ class MusicPlayerConstants {
     'Vietnamese',
   ];
 
-  static double miniPlayerHeight = 40;
-  static double miniPlayerWidth = 40;
-  static double musicPlayerHeight= 65;
-  static double musicPlayerWidth= 65;
+  static const double miniPlayerHeight = 40;
+  static const double miniPlayerWidth = 40;
+  static const double musicPlayerHeight= 65;
+  static const double musicPlayerWidth= 65;
 
 }

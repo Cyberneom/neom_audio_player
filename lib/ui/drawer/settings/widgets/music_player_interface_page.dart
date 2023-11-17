@@ -165,12 +165,8 @@ class _MusicPlayerInterfacePageState extends State<MusicPlayerInterfacePage> {
                 },
               ),
               ListTile(
-                title: Text(
-                  PlayerTranslationConstants.compactNotificationButtons.tr,
-                ),
-                subtitle: Text(
-                  PlayerTranslationConstants.compactNotificationButtonsSub.tr,
-                ),
+                title: Text(PlayerTranslationConstants.compactNotificationButtons.tr,),
+                subtitle: Text(PlayerTranslationConstants.compactNotificationButtonsSub.tr),
                 dense: true,
                 onTap: () {
                   showDialog(

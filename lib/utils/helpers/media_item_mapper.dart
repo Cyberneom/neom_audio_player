@@ -194,6 +194,7 @@ class MediaItemMapper  {
       description: mediaItem.extras?['description'].toString() ?? '',
       lyrics: mediaItem.extras?['lyrics'].toString() ?? '',
       artistId: mediaItem.extras?['artistId'].toString() ?? '',
+      permaUrl: mediaItem.extras?['perma_url'].toString() ?? '',
       mediaSource: MusicPlayerUtilities.isInternal(mediaItem.extras?['url'].toString() ?? '') ? AppMediaSource.internal : AppMediaSource.spotify,
     );
   }

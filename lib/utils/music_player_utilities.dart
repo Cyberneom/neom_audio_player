@@ -53,7 +53,7 @@ class MusicPlayerUtilities {
   static Future<dynamic> setCounter(BuildContext context) async {
     showTextInputDialog(
       context: context,
-      title: PlayerTranslationConstants.enterSongsCount.tr,
+      title: PlayerTranslationConstants.enterItemsCount.tr,
       initialText: '',
       keyboardType: TextInputType.number,
       onSubmitted: (String value, BuildContext context) {
@@ -62,7 +62,7 @@ class MusicPlayerUtilities {
         );
         Navigator.pop(context);
         AppUtilities.showSnackBar(
-          message: '${PlayerTranslationConstants.sleepTimerSetFor.tr} $value ${PlayerTranslationConstants.songs.tr}',
+          message: '${PlayerTranslationConstants.sleepTimerSetFor.tr} $value ${PlayerTranslationConstants.mediaItems.tr}',
         );
       },
     );
@@ -265,7 +265,6 @@ class MusicPlayerUtilities {
   static bool isInternal(String url) {
     final bool isInternal = url.contains(AppFlavour.getHubName())
         || url.contains(AppFlavour.getStorageServerName());
-
     return isInternal;
   }
 

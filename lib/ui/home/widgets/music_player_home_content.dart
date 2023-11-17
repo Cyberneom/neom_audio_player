@@ -292,7 +292,7 @@ class MusicPlayerHomeContent extends StatelessWidget {
                 Itemlist itemlist = _.myItemLists.values.elementAt(index);
                 final String name = itemlist.name;
                 final String? subtitle = itemlist.getTotalItems() == 0 ? null :
-                '${itemlist.getTotalItems()} ${PlayerTranslationConstants.songs.tr}';
+                '${itemlist.getTotalItems()} ${PlayerTranslationConstants.mediaItems.tr}';
                 return GestureDetector(
                   child: SizedBox(
                     width: boxSize - 20,

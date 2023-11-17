@@ -119,4 +119,14 @@ class AppHiveController extends GetxController {
     Hive.box(AppHiveConstants.settings).put(AppHiveConstants.searchQueries, searchQueries);
   }
 
+  Future<void> addQuery(String query) async {
+    query = query.trim();
+    List searchQueries = Hive.box(AppHiveConstants.settings).get(AppHiveConstants.search, defaultValue: [],) as List;
+    final idx = searchQueries.indexOf(query);
+    if (idx != -1) searchQueries.removeAt(idx);
+    searchQueries.insert(0, query);
+    if (searchQueries.length > 10) searchQueries = searchQueries.sublist(0, 10);
+    Hive.box(AppHiveConstants.settings).put(AppHiveConstants.search, searchQueries);
+  }
+
 }

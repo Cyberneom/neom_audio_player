@@ -25,17 +25,15 @@ class ArtWorkWidget extends StatelessWidget {
 
   final MediaPlayerController mediaPlayerController;
   final GlobalKey<FlipCardState>? cardKey;
-  // final NeomAudioHandler audioHandler;
-  // final AppMediaItem appMediaItem;
   final bool offline;
   final bool? getLyricsOnline;
+  final double height;
   final double width;
 
 
   const ArtWorkWidget({super.key,
     required this.mediaPlayerController,
-    // required this.audioHandler,
-    // required this.appMediaItem,
+    required this.height,
     required this.width,
     this.cardKey,
     this.offline = false,
@@ -45,23 +43,18 @@ class ArtWorkWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     MediaPlayerController _ = mediaPlayerController;
+    double flipCardWidth = width * 0.75;
 
-    if(_.flipped && _.lyrics['id'] != _.appMediaItem.value.id) {
-      _.fetchLyrics();
-    }
     return SizedBox(
-      height: width * 0.85,
-      width: width * 0.85,
+      height: height,
+      width: flipCardWidth,
       child: Hero(
         tag: 'currentArtwork_',
         child: FlipCard(
           key: cardKey,
           flipOnTouch: false,
           onFlipDone: (value) {
-            _.flipped = value;
-            if (_.flipped && _.lyrics['id'] != _.appMediaItem.value.id) {
-              _.fetchLyrics();
-            }
+            _.setFlipped(value);
           },
           back: GestureDetector(
             onTap: () => cardKey?.currentState!.toggleCard(),
@@ -74,15 +67,11 @@ class ArtWorkWidget extends StatelessWidget {
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
                       colors: [
-                        Colors.transparent,
-                        Colors.black,
-                        Colors.black,
-                        Colors.black,
+                        Colors.transparent, Colors.black,
+                        Colors.black, Colors.black,
                         Colors.transparent,
                       ],
-                    ).createShader(
-                      Rect.fromLTRB(0, 0, rect.width, rect.height),
-                    );
+                    ).createShader(Rect.fromLTRB(0, 0, rect.width, rect.height),);
                   },
                   blendMode: BlendMode.dstIn,
                   child: Center(
@@ -100,15 +89,14 @@ class ArtWorkWidget extends StatelessWidget {
                             bool value,
                             Widget? child,
                             ) {
-                          return value ? _.lyrics['lyrics'] == '' ? emptyScreen(
+                          return value ? _.mediaLyrics.lyrics.isEmpty ? emptyScreen(
                             context, 0,
                             ':( ', 80.0,
                             PlayerTranslationConstants.lyrics.tr, 40.0,
                             PlayerTranslationConstants.notAvailable.tr, 20.0,
                             useWhite: true,
-                          ) : _.lyrics['type'] == 'text'
-                              ? SelectableText(
-                            _.lyrics['lyrics'].toString(),
+                          ) : _.mediaLyrics.type.name == 'text'
+                              ? SelectableText(_.mediaLyrics.lyrics,
                             textAlign: TextAlign.center,
                             style: const TextStyle(
                               fontSize: 16.0,
@@ -123,10 +111,7 @@ class ArtWorkWidget extends StatelessWidget {
                                 position: position.inMilliseconds,
                                 lyricUi: UINetease(highlight: false),
                                 playing: true,
-                                size: Size(
-                                  width * 0.85,
-                                  width * 0.85,
-                                ),
+                                size: Size(flipCardWidth, flipCardWidth,),
                                 emptyBuilder: () => Center(
                                   child: Text('Lyrics Not Found',
                                     style: _.lyricUI.getOtherMainTextStyle(),
@@ -143,21 +128,14 @@ class ArtWorkWidget extends StatelessWidget {
                 ValueListenableBuilder(
                   valueListenable: _.lyricsSource,
                   child: const CircularProgressIndicator(),
-                  builder: (
-                      BuildContext context,
-                      String value,
-                      Widget? child,
-                      ) {
+                  builder: (BuildContext context, String value, Widget? child,) {
                     if (value == '' || value == AppFlavour.getAppName()) {
                       return const SizedBox();
                     }
                     return Align(
                       alignment: Alignment.bottomRight,
-                      child: Text(
-                        '${AppTranslationConstants.poweredBy.tr} $value',
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodySmall!
+                      child: Text('${AppTranslationConstants.poweredBy.tr} $value',
+                        style: Theme.of(context).textTheme.bodySmall!
                             .copyWith(fontSize: 10.0, color: Colors.white70),
                       ),
                     );
@@ -179,7 +157,7 @@ class ArtWorkWidget extends StatelessWidget {
                         Feedback.forLongPress(context);
                         CoreUtilities.copyToClipboard(
                           context: context,
-                          text: _.lyrics['lyrics'].toString(),
+                          text: _.mediaLyrics.lyrics,
                         );
                       },
                       icon: const Icon(Icons.copy_rounded),
@@ -279,7 +257,7 @@ class ArtWorkWidget extends StatelessWidget {
                       child: _.appMediaItem.value.imgUrl.startsWith('file')
                           ? Image(
                         fit: BoxFit.contain,
-                        width: width * 0.85,
+                        width: flipCardWidth,
                         gaplessPlayback: true,
                         errorBuilder: (BuildContext context, Object exception, StackTrace? stackTrace,) {
                           return const Image(fit: BoxFit.cover,
@@ -298,7 +276,7 @@ class ArtWorkWidget extends StatelessWidget {
                           image: AssetImage(AppAssets.musicPlayerCover),
                         ),
                         imageUrl: _.appMediaItem.value.imgUrl,
-                        width: width * 0.85,
+                        width: flipCardWidth,
                       ),
                     ),
                     ValueListenableBuilder(
@@ -368,9 +346,10 @@ class ArtWorkWidget extends StatelessWidget {
                         builder: (context, snapshot) {
                           final double volumeValue = snapshot.data ?? 1.0;
                           return Center(
-                            child: SizedBox(
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(vertical: 10),
                               width: 60.0,
-                              height: width * 0.7,
+                              height: flipCardWidth,
                               child: Card(
                                 color: Colors.black87,
                                 shape: RoundedRectangleBorder(
@@ -399,11 +378,8 @@ class ArtWorkWidget extends StatelessWidget {
                                     Padding(
                                       padding: const EdgeInsets.only(bottom: 20.0,),
                                       child: Icon(
-                                        volumeValue == 0
-                                            ? Icons.volume_off_rounded
-                                            : volumeValue > 0.6
-                                            ? Icons.volume_up_rounded
-                                            : Icons.volume_down_rounded,
+                                        volumeValue == 0 ? Icons.volume_off_rounded : volumeValue > 0.6
+                                            ? Icons.volume_up_rounded : Icons.volume_down_rounded,
                                         color: Colors.white,
                                       ),
                                     ),

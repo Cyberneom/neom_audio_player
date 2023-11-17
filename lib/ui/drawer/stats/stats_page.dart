@@ -40,7 +40,7 @@ class StatsPage extends StatelessWidget {
                         style: const TextStyle(fontSize: 60, fontWeight: FontWeight.bold,
                         ),
                       ),
-                      Text(PlayerTranslationConstants.songsPlayed.tr),
+                      Text(PlayerTranslationConstants.mediaItemsPlayed.tr),
                     ],
                   ),
                 ),
@@ -58,7 +58,7 @@ class StatsPage extends StatelessWidget {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(PlayerTranslationConstants.mostPlayedSong.tr),
+                      Text(PlayerTranslationConstants.mostPlayedMediaItem.tr),
                       const SizedBox(
                         height: 10,
                       ),

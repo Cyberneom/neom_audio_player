@@ -19,7 +19,7 @@ import '../../../utils/constants/app_hive_constants.dart';
 import '../../../utils/constants/player_translation_constants.dart';
 import '../../../utils/helpers/songs_count.dart' as songs_count;
 import '../../../utils/neom_audio_utilities.dart';
-import 'widgets/song_page_tab.dart';
+import 'widgets/songs_page_tab.dart';
 
 final ValueNotifier<bool> selectMode = ValueNotifier<bool>(false);
 
@@ -44,9 +44,9 @@ class PlaylistPlayerPageState extends State<PlaylistPlayerPage>
 
   Box? likedBox;
   List<AppMediaItem> _appMediaItems = [];
-  int sortValue = Hive.box(AppHiveConstants.settings).get('sortValue', defaultValue: 1) as int;
-  int orderValue = Hive.box(AppHiveConstants.settings).get('orderValue', defaultValue: 1) as int;
-  int albumSortValue =   Hive.box(AppHiveConstants.settings).get('albumSortValue', defaultValue: 2) as int;
+  int sortValue = Hive.box(AppHiveConstants.settings).get(AppHiveConstants.sortValue, defaultValue: 1) as int;
+  int orderValue = Hive.box(AppHiveConstants.settings).get(AppHiveConstants.orderValue, defaultValue: 1) as int;
+  int albumSortValue =   Hive.box(AppHiveConstants.settings).get(AppHiveConstants.albumSortValue, defaultValue: 2) as int;
   final ScrollController _scrollController = ScrollController();
   final ValueNotifier<bool> _showShuffle = ValueNotifier<bool>(true);
   PlaylistHiveController playlistHiveController = PlaylistHiveController();
@@ -125,10 +125,10 @@ class PlaylistPlayerPageState extends State<PlaylistPlayerPage>
               onSelected: (int value) {
                 if (value < 5) {
                   sortValue = value;
-                  Hive.box(AppHiveConstants.settings).put('sortValue', value);
+                  Hive.box(AppHiveConstants.settings).put(AppHiveConstants.sortValue, value);
                 } else {
                   orderValue = value - 5;
-                  Hive.box(AppHiveConstants.settings).put('orderValue', orderValue);
+                  Hive.box(AppHiveConstants.settings).put(AppHiveConstants.orderValue, orderValue);
                 }
                 _appMediaItems = NeomAudioUtilities.sortSongs(_appMediaItems,
                   sortVal: sortValue,

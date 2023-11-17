@@ -17,6 +17,7 @@ import 'package:neom_commons/core/utils/core_utilities.dart';
 import 'package:rxdart/rxdart.dart' as rx;
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
+import '../../domain/entities/media_lyrics.dart';
 import '../../domain/entities/position_data.dart';
 import '../../domain/use_cases/neom_audio_handler.dart';
 import '../../neom_player_invoker.dart';
@@ -155,6 +156,19 @@ class MediaPlayerController extends GetxController {
   //   );
   // }
 
+  void toggleLyricsCard() {
+    onlineCardKey.currentState!.toggleCard();
+    setFlipped(!flipped);
+    update([AppPageIdConstants.mediaPlayer]);
+  }
+
+  void setFlipped(bool value) {
+    flipped = value;
+    if (flipped && mediaLyrics.mediaId != appMediaItem.value.id) {
+      fetchLyrics();
+    }
+    update([AppPageIdConstants.mediaPlayer]);
+  }
   Future<void> sharePopUp() async {
     if (!isSharePopupShown.value) {
       isSharePopupShown.value = true;
@@ -179,110 +193,40 @@ class MediaPlayerController extends GetxController {
   final ValueNotifier<bool> done = ValueNotifier<bool>(false);
   final ValueNotifier<String> lyricsSource = ValueNotifier<String>('');
 
-  Map lyrics = {
-    'id': '',
-    'lyrics': '',
-    'source': '',
-    'type': '',
-  };
+  MediaLyrics mediaLyrics = MediaLyrics();
+  
   final lyricUI = UINetease();
   LyricsReaderModel? lyricsReaderModel;
   bool flipped = false;
 
-  void fetchLyrics() {
+  Future<void> fetchLyrics() async {
     AppUtilities.logger.i('Fetching lyrics for ${appMediaItem.value.name}');
     done.value = false;
     lyricsSource.value = '';
     String appMediaItemLyric = appMediaItem.value.lyrics.isNotEmpty || (appMediaItem.value.description?.isNotEmpty ?? false)  ? (appMediaItem.value.lyrics.isNotEmpty ? appMediaItem.value.lyrics : appMediaItem.value.description ?? '') : '';
-    if (offline) {
-      if(appMediaItemLyric.isNotEmpty) {
-        lyricsReaderModel = LyricsModelBuilder.create()
-            .bindLyricToMain(appMediaItemLyric).getModel();
-      } else {
-        Lyrics.getOffLyrics(appMediaItem.value.permaUrl,).then((value) {
-          if (value == '' && getLyricsOnline) {
-            Lyrics.getLyrics(
-              id: appMediaItem.value.id,
-              isInternalLyric: appMediaItem.value.lyrics.isNotEmpty,
-              title: appMediaItem.value.name,
-              artist: appMediaItem.value.artist,
-            ).then((Map value) {
-              lyrics['lyrics'] = value['lyrics'];
-              lyrics['type'] = value['type'];
-              lyrics['source'] = value['source'];
-              lyrics['id'] = appMediaItem.value.id;
-              done.value = true;
-              lyricsSource.value = lyrics['source'].toString();
-              lyricsReaderModel = LyricsModelBuilder.create()
-                  .bindLyricToMain(lyrics['lyrics'].toString())
-                  .getModel();
-            });
-          } else {
-            AppUtilities.logger.i('Lyrics found offline');
-            lyrics['lyrics'] = value;
-            lyrics['type'] = value.startsWith('[00') ? 'lrc' : 'text';
-            lyrics['source'] = 'Local';
-            lyrics['id'] = appMediaItem.value.id;
-            done.value = true;
-            lyricsSource.value = lyrics['source'].toString();
-            lyricsReaderModel = LyricsModelBuilder.create()
-                .bindLyricToMain(lyrics['lyrics'].toString())
-                .getModel();
-          }
-        });
-      }
-
+    if (appMediaItemLyric.isNotEmpty || offline) {
+      mediaLyrics.lyrics = appMediaItemLyric;
+      mediaLyrics.mediaId = appMediaItem.value.id;
+      lyricsReaderModel = LyricsModelBuilder.create().bindLyricToMain(mediaLyrics.lyrics).getModel();
     } else {
-      if(appMediaItemLyric.isNotEmpty) {
-        lyrics['lyrics'] = appMediaItemLyric;
-        lyrics['source'] = 'Gigmeout';
-        lyrics['type'] = 'text';
-        lyrics['id'] = appMediaItem.value.id;
-
-        done.value = true;
-        lyricsSource.value = lyrics['source'].toString();
-        lyricsReaderModel = LyricsModelBuilder.create()
-            .bindLyricToMain(lyrics['lyrics'].toString())
-            .getModel();
-      } else {
-        Lyrics.getLyrics(
-          id: appMediaItem.value.id,
-          isInternalLyric: appMediaItem.value.lyrics.isNotEmpty,
-          title: appMediaItem.value.name,
-          artist: appMediaItem.value.artist.toString(),
-        ).then((Map value) {
-          if (appMediaItem.value.id != value['id']) {
-            done.value = true;
-            return;
-          }
-          lyrics['lyrics'] = value['lyrics'];
-          lyrics['type'] = value['type'];
-          lyrics['source'] = value['source'];
-          lyrics['id'] = appMediaItem.value.id;
-          done.value = true;
-          lyricsSource.value = lyrics['source'].toString();
-          lyricsReaderModel = LyricsModelBuilder.create()
-              .bindLyricToMain(lyrics['lyrics'].toString())
-              .getModel();
-        });
-      }
+      mediaLyrics = await Lyrics.getLyrics(id: appMediaItem.value.id,
+        title: appMediaItem.value.name, artist: appMediaItem.value.artist.toString(),);
     }
 
+    lyricsSource.value = mediaLyrics.source.name.capitalizeFirst;
+    lyricsReaderModel = LyricsModelBuilder.create().bindLyricToMain(mediaLyrics.lyrics).getModel();
     done.value = true;
-
+    // update([AppPageIdConstants.mediaPlayer]);
   }
 
-  Stream<Duration> get bufferedPositionStream => audioHandler.playbackState
-      .map((state) => state.bufferedPosition).distinct();
+  Stream<Duration> get bufferedPositionStream => audioHandler.playbackState.map((state) => state.bufferedPosition).distinct();
 
   Stream<Duration?> get durationStream => audioHandler.mediaItem.map((item) => item?.duration).distinct();
 
   Stream<PositionData> get positionDataStream =>
       rx.Rx.combineLatest3<Duration, Duration, Duration?, PositionData>(
-        AudioService.position,
-        bufferedPositionStream,
-        durationStream,
-            (position, bufferedPosition, duration) => PositionData(position, bufferedPosition, duration ?? Duration.zero),
+        AudioService.position, bufferedPositionStream, durationStream,
+        (position, bufferedPosition, duration) => PositionData(position, bufferedPosition, duration ?? Duration.zero),
       );
 
 

@@ -15,6 +15,7 @@ class SongsPageTab extends StatelessWidget {
   final String playlistName;
   final Function(AppMediaItem item) onDelete;
   final ScrollController scrollController;
+
   const SongsPageTab({
     super.key,
     required this.appMediaItems,
@@ -37,11 +38,7 @@ class SongsPageTab extends StatelessWidget {
         PlayerTranslationConstants.addSomething.tr, 23.0,),)
         : Column(
       children: [
-        PlaylistHead(
-          songsList: appMediaItems,
-          offline: false,
-          fromDownloads: false,
-        ),
+        PlaylistHead(songsList: appMediaItems,),
         Expanded(
           child: ListView.builder(
             controller: scrollController,

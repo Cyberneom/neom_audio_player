@@ -31,7 +31,7 @@ class MusicPlayerHomePage extends StatelessWidget {
         init: MusicPlayerHomeController(),
         builder: (_) {
           return Scaffold(
-            drawer: MusicPlayerDrawer(),
+            drawer: const MusicPlayerDrawer(),
             backgroundColor: AppColor.main50,
             body: Container(
               decoration: AppTheme.appBoxDecoration,
@@ -128,7 +128,7 @@ class MusicPlayerHomePage extends StatelessWidget {
                         ),
                       ];
                     },
-                    body: Obx(()=> _.isLoading.value ? Container() : MusicPlayerHomeContent()),
+                    body: Obx(()=> _.isLoading.value ? Container() : const MusicPlayerHomeContent()),
                   ),
                 ],),
             ),

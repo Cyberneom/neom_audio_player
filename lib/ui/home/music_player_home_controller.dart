@@ -1,7 +1,6 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
-import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
 import 'package:neom_commons/core/data/firestore/itemlist_firestore.dart';
 import 'package:neom_commons/core/data/implementations/user_controller.dart';
@@ -12,12 +11,10 @@ import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/constants/app_page_id_constants.dart';
 import 'package:neom_commons/core/utils/enums/itemlist_type.dart';
 import 'package:neom_itemlists/itemlists/data/firestore/app_media_item_firestore.dart';
-import '../../domain/use_cases/neom_audio_handler.dart';
 import '../../utils/constants/app_hive_constants.dart';
 
 class MusicPlayerHomeController extends GetxController {
 
-  final logger = AppUtilities.logger;
   final userController = Get.find<UserController>();
   final ScrollController scrollController = ScrollController();
 
@@ -26,13 +23,10 @@ class MusicPlayerHomeController extends GetxController {
   final RxBool isButtonDisabled = false.obs;
   final RxBool showSearchBarLeading = false.obs;
 
-  final NeomAudioHandler audioHandler = GetIt.I<NeomAudioHandler>();
-
-  List preferredLanguage = Hive.box(AppHiveConstants.settings).get('preferredLanguage', defaultValue: ['Español']) as List;
-  List likedRadio = Hive.box(AppHiveConstants.settings).get('likedRadio', defaultValue: []) as List;
+  List preferredLanguage = Hive.box(AppHiveConstants.settings).get(AppHiveConstants.preferredLanguage, defaultValue: ['Español']) as List;
   Map<String, Itemlist> itemLists = {};
 
-  List recentSongs = Hive.box(AppHiveConstants.cache).get('recentSongs', defaultValue: []) as List;
+  List recentSongs = Hive.box(AppHiveConstants.cache).get(AppHiveConstants.recentSongs, defaultValue: []) as List;
   Map<String, AppMediaItem> recentList = {};
   Map<String, Itemlist> myItemLists = {};
   Map<String, Itemlist> publicItemlists = {};
@@ -44,15 +38,10 @@ class MusicPlayerHomeController extends GetxController {
   Map<String, AppMediaItem> globalMediaItems = {};
   List<AppMediaItem> favoriteItems = [];
 
-  // Map data = Hive.box(AppHiveConstants.cache).get('homepage', defaultValue: {}) as Map;
-  // Map likedArtists = Hive.box(AppHiveConstants.settings).get('likedArtists', defaultValue: {}) as Map;
-  // List playlistNames = Hive.box(AppHiveConstants.settings).get('playlistNames')?.toList() as List? ?? [AppHiveConstants.favoriteSongs];
-  // Map playlistDetails = Hive.box(AppHiveConstants.settings).get('playlistDetails', defaultValue: {}) as Map;
-
   @override
   void onInit() async {
     super.onInit();
-    logger.t('Music Player Home Controller Init');
+    AppUtilities.logger.t('Music Player Home Controller Init');
     try {
       final userController = Get.find<UserController>();
       profile = userController.profile;
@@ -61,7 +50,7 @@ class MusicPlayerHomeController extends GetxController {
       scrollController.addListener(_scrollListener);
 
     } catch (e) {
-      logger.e(e.toString());
+      AppUtilities.logger.e(e.toString());
     }
   }
 
@@ -70,7 +59,7 @@ class MusicPlayerHomeController extends GetxController {
     super.onReady();
     try {
       if(recentSongs.isNotEmpty) {
-        logger.d('Retrieving recent songs from Hive.');
+        AppUtilities.logger.d('Retrieving recent songs from Hive.');
         for (final element in recentSongs) {
           AppMediaItem recentMediaItem = AppMediaItem.fromJSON(element);
           recentList[recentMediaItem.id] = recentMediaItem;

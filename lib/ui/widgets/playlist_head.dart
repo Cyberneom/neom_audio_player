@@ -8,12 +8,14 @@ class PlaylistHead extends StatelessWidget {
   final List<AppMediaItem> songsList;
   final bool offline;
   final bool fromDownloads;
+
   const PlaylistHead({
     super.key,
     required this.songsList,
-    required this.fromDownloads,
-    required this.offline,
+    this.fromDownloads = false,
+    this.offline = false,
   });
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -27,7 +29,7 @@ class PlaylistHead extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            '${songsList.length} ${PlayerTranslationConstants.songs.tr}',
+            '${songsList.length} ${PlayerTranslationConstants.mediaItems.tr}',
             style: const TextStyle(fontWeight: FontWeight.w600),
           ),
           const Spacer(),

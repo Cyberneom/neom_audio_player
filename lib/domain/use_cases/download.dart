@@ -12,7 +12,6 @@ import 'package:neom_commons/core/utils/enums/app_media_source.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-import '../../ui/player/lyrics/lyrics.dart';
 
 import '../../utils/constants/app_hive_constants.dart';
 import '../../utils/constants/player_translation_constants.dart';
@@ -37,13 +36,11 @@ class Download with ChangeNotifier {
   int? rememberOption;
   final ValueNotifier<bool> remember = ValueNotifier<bool>(false);
   String preferredDownloadQuality = Hive.box(AppHiveConstants.settings).get('downloadQuality', defaultValue: '320 kbps') as String;
-  String preferredYtDownloadQuality = Hive.box(AppHiveConstants.settings).get('ytDownloadQuality', defaultValue: 'High') as String;
   String downloadFormat = Hive.box(AppHiveConstants.settings).get('downloadFormat', defaultValue: 'm4a').toString();
   bool createDownloadFolder = Hive.box(AppHiveConstants.settings).get('createDownloadFolder', defaultValue: false) as bool;
 
   double? progress = 0.0;
   String lastDownloadId = '';
-  bool downloadLyrics = Hive.box(AppHiveConstants.settings).get('downloadLyrics', defaultValue: false) as bool;
   bool download = true;
 
   Future<void> prepareDownload(
@@ -263,7 +260,6 @@ class Download with ChangeNotifier {
     String imgPath = '';
     String? appPath;
     final List<int> bytes = [];
-    String  lyrics = '';
     final artName = fileName.replaceAll('.m4a', '.jpg');
     if (!Platform.isWindows) {
       AppUtilities.logger.i('Getting App Path for storing image');
@@ -345,31 +341,8 @@ class Download with ChangeNotifier {
         AppUtilities.logger.i('Download complete, modifying file');
         final file = File(mediaPath!);
         await file.writeAsBytes(bytes);
-
         imgPath = await CoreUtilities.downloadImage(mediaItem.imgUrl);
-
-          if(mediaItem.lyrics.isNotEmpty) {
-            lyrics = mediaItem.lyrics;
-          } else {
-            try {
-              AppUtilities.logger.i('Checking if lyrics required');
-              if (downloadLyrics) {
-                AppUtilities.logger.i('downloading lyrics');
-                final Map res = await Lyrics.getLyrics(
-                  id: mediaItem.id,
-                  title: mediaItem.name,
-                  artist: mediaItem.artist,
-                  isInternalLyric: mediaItem.lyrics.isEmpty,
-                );
-                lyrics = res['lyrics'].toString();
-                }
-            } catch (e) {
-              AppUtilities.logger.e('Error fetching lyrics: $e');
-              lyrics = '';
-            }
-          }
-
-        AppUtilities.logger.i('Getting audio tags');
+        if(mediaItem.lyrics.isNotEmpty) AppUtilities.logger.i('Getting audio tags');
         if (Platform.isAndroid) {
           try {
             AppUtilities.logger.i('Started tag editing');

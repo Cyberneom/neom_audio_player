@@ -5,6 +5,7 @@ import 'package:neom_commons/core/domain/model/item_list.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
 import 'package:neom_commons/core/utils/constants/app_route_constants.dart';
 import 'package:neom_commons/core/utils/enums/itemlist_type.dart';
+import '../../player/media_player_controller.dart';
 import '../../widgets/custom_physics.dart';
 import '../../widgets/image_card.dart';
 import '../../widgets/song_tile_trailing_menu.dart';
@@ -21,13 +22,8 @@ class HorizontalAlbumsListSeparated extends StatelessWidget {
   });
 
   String formatString(String? text) {
-    return text == null
-        ? ''
-        : text
-            .replaceAll('&amp;', '&')
-            .replaceAll('&#039;', "'")
-            .replaceAll('&quot;', '"')
-            .trim();
+    return text == null ? '' : text.replaceAll('&amp;', '&').replaceAll('&#039;', "'")
+        .replaceAll('&quot;', '"').trim();
   }
 
   String getSubTitle(Map item) {
@@ -107,8 +103,12 @@ class HorizontalAlbumsListSeparated extends StatelessWidget {
                     ),
                     onTap: () => onTap(songsList.indexOf(item)),
                     onLongPress: () {
-                      ///DEPRECATED Get.to(() => MediaPlayerPage(appMediaItem: item));
-                      Get.toNamed(AppRouteConstants.musicPlayerMedia, arguments: [item]);
+                      if (Get.isRegistered<MediaPlayerController>()) {
+                        Get.delete<MediaPlayerController>();
+                        Get.toNamed(AppRouteConstants.musicPlayerMedia, arguments: [item]);
+                      } else {
+                        Get.toNamed(AppRouteConstants.musicPlayerMedia, arguments: [item]);
+                      }
                     },
                   );
                 }).toList(),

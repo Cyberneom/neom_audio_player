@@ -50,6 +50,11 @@ class AppHiveConstants {
   static const String liveSearch = 'liveSearch';
   static const String showHistory = 'showHistory';
   static const String searchHistory = 'searchHistory';
+  static const String search = 'searchHistory';
+
+  static const String sortValue = 'sortValue';
+  static const String orderValue = 'orderValue';
+  static const String albumSortValue = 'albumSortValue';
 
   ///PREFERENCES
 

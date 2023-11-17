@@ -17,6 +17,7 @@ import '../../utils/constants/app_hive_constants.dart';
 import '../../utils/constants/music_player_constants.dart';
 import '../../utils/helpers/media_item_mapper.dart';
 import '../../utils/music_player_stats.dart';
+import '../../utils/music_player_utilities.dart';
 import '../../utils/neom_audio_utilities.dart';
 import '../entities/queue_state.dart';
 import 'isolate_service.dart';
@@ -277,7 +278,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
             }
           }
 
-          if (cacheSong) {
+          if (cacheSong && MusicPlayerUtilities.isInternal(audioUrl)) {
             audioSource = LockCachingAudioSource(Uri.parse(audioUrl));
           } else {
             audioSource = AudioSource.uri(Uri.parse(audioUrl));
@@ -578,7 +579,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
         }
       case 'rewind':
         try {
-          final stepInterval = Duration(seconds: MusicPlayerConstants.rewindSeconds);
+          const stepInterval = Duration(seconds: MusicPlayerConstants.rewindSeconds);
           Duration newPosition = _player.position - stepInterval;
           if (newPosition < Duration.zero) newPosition = Duration.zero;
           if (newPosition > _player.duration!) newPosition = _player.duration!;
