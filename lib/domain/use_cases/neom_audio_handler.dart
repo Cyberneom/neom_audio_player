@@ -202,7 +202,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
       final queueIndex = NeomAudioUtilities.getQueueIndex(_player, event.currentIndex);
 
       playbackState.add(
-        playbackState.valueWrapper!.value.copyWith(
+        playbackState.value.copyWith(
           controls: [
             if (liked) MediaControl.rewind else MediaControl.fastForward,
             MediaControl.skipToPrevious,
@@ -362,8 +362,8 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
   Future<void> skipToMediaItem(String id, {int index = 0}) async {
     AppUtilities.logger.t('skipToMediaItem $id');
 
-    if(queue.valueWrapper!.value.indexWhere((item) => item.id == id) >= 0) {
-      index = queue.valueWrapper!.value.indexWhere((item) => item.id == id);
+    if(queue.value.indexWhere((item) => item.id == id) >= 0) {
+      index = queue.value.indexWhere((item) => item.id == id);
       AppUtilities.logger.t('SkipToMediaItem: mediaItem found in queue with Index $index');
     }
 
@@ -556,7 +556,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
     AppUtilities.logger.t('Caching last index ${_player.currentIndex} and position ${_player.position.inSeconds}');
     await Hive.box(AppHiveConstants.cache).put(AppHiveConstants.lastIndex, _player.currentIndex);
     await Hive.box(AppHiveConstants.cache).put(AppHiveConstants.lastPos, _player.position.inSeconds);
-    await addLastQueue(queue.valueWrapper!.value);
+    await addLastQueue(queue.value);
 
   }
 
@@ -679,7 +679,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
           _timer = null;
         });
       } else {
-        final current = _tappedMediaActionNumber.valueWrapper!.value;
+        final current = _tappedMediaActionNumber.value;
         _tappedMediaActionNumber.add(current + 1);
       }
     }

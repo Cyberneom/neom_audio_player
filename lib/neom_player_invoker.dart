@@ -122,7 +122,7 @@ class NeomPlayerInvoker {
 
   static Future<void> updateNowPlaying(List<MediaItem> queue, int index, {bool playItem = true}) async {
 
-    bool nowPlaying = audioHandler.playbackState.valueWrapper?.value.playing ?? false;
+    bool nowPlaying = audioHandler.playbackState.value.playing ?? false;
     AppUtilities.logger.d('Updating Now Playing info. Now Playing: $nowPlaying');
 
     try {

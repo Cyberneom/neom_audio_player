@@ -288,7 +288,7 @@ class MusicPlayerUtilities {
         content: StreamBuilder<double>(
           stream: audioHandler.speed,
           builder: (context, snapshot) {
-            double value = snapshot.data ?? audioHandler.speed.valueWrapper?.value ?? 0;
+            double value = snapshot.data ?? audioHandler.speed.value ?? 0;
             if (value > max) value = max;
             if (value < min) value = min;
 
@@ -301,10 +301,10 @@ class MusicPlayerUtilities {
                     children: [
                       IconButton(
                         icon: const Icon(CupertinoIcons.minus),
-                        onPressed: audioHandler.speed.valueWrapper!.value > min
+                        onPressed: audioHandler.speed.value > min
                             ? () {
                           audioHandler
-                              .setSpeed(audioHandler.speed.valueWrapper!.value - 0.1);
+                              .setSpeed(audioHandler.speed.value - 0.1);
                         }
                             : null,
                       ),
@@ -318,9 +318,9 @@ class MusicPlayerUtilities {
                       ),
                       IconButton(
                         icon: const Icon(CupertinoIcons.plus),
-                        onPressed: audioHandler.speed.valueWrapper!.value < max
+                        onPressed: audioHandler.speed.value < max
                             ? () {
-                          audioHandler.setSpeed(audioHandler.speed.valueWrapper!.value + 0.1);
+                          audioHandler.setSpeed(audioHandler.speed.value + 0.1);
                         } : null,
                       ),
                     ],

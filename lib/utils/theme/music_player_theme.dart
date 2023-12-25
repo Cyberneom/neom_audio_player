@@ -4,50 +4,14 @@ import '../constants/app_hive_constants.dart';
 
 class MusicPlayerTheme with ChangeNotifier {
 
-  bool _useSystemTheme =
-      Hive.box(AppHiveConstants.settings).get('useSystemTheme', defaultValue: false) as bool;
-  String accentColor =
-      Hive.box(AppHiveConstants.settings).get('themeColor', defaultValue: 'Teal') as String;
-  String canvasColor =
-      Hive.box(AppHiveConstants.settings).get('canvasColor', defaultValue: 'Grey') as String;
-  String cardColor =
-      Hive.box(AppHiveConstants.settings).get('cardColor', defaultValue: 'Grey900') as String;
-
+  final bool _useSystemTheme = Hive.box(AppHiveConstants.settings).get('useSystemTheme', defaultValue: false) as bool;
+  String accentColor = Hive.box(AppHiveConstants.settings).get('themeColor', defaultValue: 'Teal') as String;
+  String canvasColor = Hive.box(AppHiveConstants.settings).get('canvasColor', defaultValue: 'Grey') as String;
+  String cardColor = Hive.box(AppHiveConstants.settings).get('cardColor', defaultValue: 'Grey900') as String;
   int backGrad = Hive.box(AppHiveConstants.settings).get('backGrad', defaultValue: 2) as int;
   int cardGrad = Hive.box(AppHiveConstants.settings).get('cardGrad', defaultValue: 4) as int;
   int bottomGrad = Hive.box(AppHiveConstants.settings).get('bottomGrad', defaultValue: 3) as int;
-
   int colorHue = Hive.box(AppHiveConstants.settings).get('colorHue', defaultValue: 400) as int;
-  List<Color?>? playGradientColor;
-
-  List<List<Color>> get backOpt => _backOpt;
-  List<List<Color>> get cardOpt => _cardOpt;
-
-  final List<List<Color>> _backOpt = [
-    [
-      Colors.grey[850]!,
-      Colors.grey[900]!,
-      Colors.black,
-    ],
-    [
-      Colors.grey[900]!,
-      Colors.grey[900]!,
-      Colors.black,
-    ],
-    [
-      Colors.grey[900]!,
-      Colors.black,
-    ],
-    [
-      Colors.grey[900]!,
-      Colors.black,
-      Colors.black,
-    ],
-    [
-      Colors.black,
-      Colors.black,
-    ]
-  ];
 
   final List<List<Color>> _cardOpt = [
     [
@@ -85,65 +49,6 @@ class MusicPlayerTheme with ChangeNotifier {
     ]
   ];
 
-  final List<List<Color>> _transOpt = [
-    [
-      Colors.grey[850]!.withOpacity(0.8),
-      Colors.grey[900]!.withOpacity(0.9),
-      Colors.black.withOpacity(1),
-    ],
-    [
-      Colors.grey[900]!.withOpacity(0.8),
-      Colors.grey[900]!.withOpacity(0.9),
-      Colors.black.withOpacity(1),
-    ],
-    [
-      Colors.grey[900]!.withOpacity(0.9),
-      Colors.black.withOpacity(1),
-    ],
-    [
-      Colors.grey[900]!.withOpacity(0.9),
-      Colors.black.withOpacity(0.9),
-      Colors.black.withOpacity(1),
-    ],
-    [
-      Colors.black.withOpacity(0.9),
-      Colors.black.withOpacity(1),
-    ]
-  ];
-
-  void refresh() {
-    final Box settingsBox = Hive.box(AppHiveConstants.settings);
-
-    _useSystemTheme = settingsBox.get('useSystemTheme', defaultValue: false) as bool;
-
-    accentColor = settingsBox.get('themeColor', defaultValue: 'Teal') as String;
-    canvasColor = settingsBox.get('canvasColor', defaultValue: 'Grey') as String;
-    cardColor = settingsBox.get('cardColor', defaultValue: 'Grey900') as String;
-    backGrad = settingsBox.get('backGrad', defaultValue: 2) as int;
-    cardGrad = settingsBox.get('cardGrad', defaultValue: 4) as int;
-    bottomGrad = settingsBox.get('bottomGrad', defaultValue: 3) as int;
-
-    colorHue = settingsBox.get('colorHue', defaultValue: 400) as int;
-    notifyListeners();
-  }
-
-  void switchTheme({bool? useSystemTheme, bool notify = true}) {
-    if (useSystemTheme != null) {
-      _useSystemTheme = useSystemTheme;
-    }
-
-    Hive.box(AppHiveConstants.settings).put('useSystemTheme', _useSystemTheme);
-    if (notify) notifyListeners();
-  }
-
-  void switchColor(String color, int hue, {bool notify = true}) {
-    Hive.box(AppHiveConstants.settings).put('themeColor', color);
-    accentColor = color;
-    Hive.box(AppHiveConstants.settings).put('colorHue', hue);
-    colorHue = hue;
-    if (notify) notifyListeners();
-  }
-
   ThemeMode currentTheme() {
     if (_useSystemTheme == true) {
       return ThemeMode.system;
@@ -156,58 +61,10 @@ class MusicPlayerTheme with ChangeNotifier {
     return colorHue;
   }
 
-  Color getColor(String color, int hue) {
-    switch (color) {
-      case 'Red':
-        return Colors.redAccent[hue]!;
-      case 'Teal':
-        return Colors.tealAccent[hue]!;
-      case 'Light Blue':
-        return Colors.lightBlueAccent[hue]!;
-      case 'Yellow':
-        return Colors.yellowAccent[hue]!;
-      case 'Orange':
-        return Colors.orangeAccent[hue]!;
-      case 'Blue':
-        return Colors.blueAccent[hue]!;
-      case 'Cyan':
-        return Colors.cyanAccent[hue]!;
-      case 'Lime':
-        return Colors.limeAccent[hue]!;
-      case 'Pink':
-        return Colors.pinkAccent[hue]!;
-      case 'Green':
-        return Colors.greenAccent[hue]!;
-      case 'Amber':
-        return Colors.amberAccent[hue]!;
-      case 'Indigo':
-        return Colors.indigoAccent[hue]!;
-      case 'Purple':
-        return Colors.purpleAccent[hue]!;
-      case 'Deep Orange':
-        return Colors.deepOrangeAccent[hue]!;
-      case 'Deep Purple':
-        return Colors.deepPurpleAccent[hue]!;
-      case 'Light Green':
-        return Colors.lightGreenAccent[hue]!;
-      case 'White':
-        return Colors.white;
-
-      default:
-        return Colors.tealAccent[400]!;
-    }
-  }
-
   Color getCanvasColor() {
     if (canvasColor == 'Black') return Colors.black;
     if (canvasColor == 'Grey') return Colors.grey[900]!;
     return Colors.grey[900]!;
-  }
-
-  void switchCanvasColor(String color, {bool notify = true}) {
-    Hive.box(AppHiveConstants.settings).put('canvasColor', color);
-    canvasColor = color;
-    if (notify) notifyListeners();
   }
 
   Color getCardColor() {
@@ -218,30 +75,8 @@ class MusicPlayerTheme with ChangeNotifier {
     return Colors.grey[850]!;
   }
 
-  void switchCardColor(String color, {bool notify = true}) {
-    Hive.box(AppHiveConstants.settings).put('cardColor', color);
-    cardColor = color;
-    if (notify) notifyListeners();
-  }
-
   List<Color> getCardGradient() {
     return _cardOpt[cardGrad];
-  }
-
-  List<Color> getBackGradient() {
-    return _backOpt[backGrad];
-  }
-
-  Color getPlayGradient() {
-    return _backOpt[backGrad].last;
-  }
-
-  List<Color> getTransBackGradient() {
-    return _transOpt[backGrad];
-  }
-
-  List<Color> getBottomGradient() {
-    return _backOpt[bottomGrad];
   }
 
   Color currentColor() {
@@ -286,42 +121,4 @@ class MusicPlayerTheme with ChangeNotifier {
     }
   }
 
-  void saveTheme(String themeName) {
-    final userThemes =
-        Hive.box(AppHiveConstants.settings).get('userThemes', defaultValue: {}) as Map;
-    Hive.box(AppHiveConstants.settings).put('userThemes', {
-      ...userThemes,
-      themeName: {
-        'isDark': true,
-        'useSystemTheme': _useSystemTheme,
-        'accentColor': accentColor,
-        'canvasColor': canvasColor,
-        'cardColor': cardColor,
-        'backGrad': backGrad,
-        'cardGrad': cardGrad,
-        'bottomGrad': bottomGrad,
-        'colorHue': colorHue,
-      },
-    });
-  }
-
-  void deleteTheme(String themeName) {
-    final userThemes =
-        Hive.box(AppHiveConstants.settings).get('userThemes', defaultValue: {}) as Map;
-    userThemes.remove(themeName);
-
-    Hive.box(AppHiveConstants.settings).put('userThemes', {...userThemes});
-  }
-
-  Map getThemes() {
-    return Hive.box(AppHiveConstants.settings).get('userThemes', defaultValue: {}) as Map;
-  }
-
-  void setInitialTheme(String themeName) {
-    Hive.box(AppHiveConstants.settings).put('theme', themeName);
-  }
-
-  String getInitialTheme() {
-    return Hive.box(AppHiveConstants.settings).get('theme') as String;
-  }
 }

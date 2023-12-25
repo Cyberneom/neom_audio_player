@@ -13,10 +13,10 @@ void addToNowPlaying({
   bool showNotification = true,
 }) {
   final NeomAudioHandler audioHandler = GetIt.I<NeomAudioHandler>();
-  final MediaItem? currentMediaItem = audioHandler.mediaItem.valueWrapper?.value;
+  final MediaItem? currentMediaItem = audioHandler.mediaItem.value;
   if (currentMediaItem != null &&
       currentMediaItem.extras!['url'].toString().startsWith('http')) {
-    if (audioHandler.queue.valueWrapper!.value.contains(mediaItem) && showNotification) {
+    if (audioHandler.queue.value.contains(mediaItem) && showNotification) {
       AppUtilities.showSnackBar(
         message: PlayerTranslationConstants.alreadyInQueue.tr,
       );
@@ -45,10 +45,10 @@ void playNext(
   BuildContext context,
 ) {
   final NeomAudioHandler audioHandler = GetIt.I<NeomAudioHandler>();
-  final MediaItem? currentMediaItem = audioHandler.mediaItem.valueWrapper?.value;
+  final MediaItem? currentMediaItem = audioHandler.mediaItem.value;
   if (currentMediaItem != null &&
       currentMediaItem.extras!['url'].toString().startsWith('http')) {
-    final queue = audioHandler.queue.valueWrapper?.value;
+    final queue = audioHandler.queue.value;
     if (queue?.contains(mediaItem) ?? false) {
       audioHandler.moveQueueItem(
         queue!.indexOf(mediaItem),

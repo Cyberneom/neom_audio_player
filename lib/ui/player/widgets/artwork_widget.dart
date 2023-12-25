@@ -370,7 +370,7 @@ class ArtWorkWidget extends StatelessWidget {
                                           trackShape: const RoundedRectSliderTrackShape(),
                                         ),
                                         child: Slider(
-                                          value: _.audioHandler.volume.valueWrapper!.value,
+                                          value: _.audioHandler.volume.value,
                                           onChanged: (_) {},
                                         ),
                                       ),
