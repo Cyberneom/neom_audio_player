@@ -13,7 +13,6 @@ import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
 import 'package:neom_commons/core/utils/constants/app_translation_constants.dart';
 import 'package:neom_commons/core/utils/core_utilities.dart';
-import 'package:rxdart/rxdart.dart' as rx;
 
 import '../../../domain/entities/queue_state.dart';
 import '../../../utils/constants/app_hive_constants.dart';
@@ -234,7 +233,7 @@ class ArtWorkWidget extends StatelessWidget {
                 onVerticalDragUpdate: !enabled ? null
                     : (DragUpdateDetails details) {
                   if (details.delta.dy != 0.0) {
-                    double volume = _.audioHandler.volume.value ?? 0;
+                    double volume = _.audioHandler.volume.value;
                     volume -= details.delta.dy / 150;
                     if (volume < 0) {
                       volume = 0;

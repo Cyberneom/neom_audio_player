@@ -2,7 +2,6 @@ import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:neom_commons/core/utils/constants/app_translation_constants.dart';
-import 'package:rxdart/rxdart.dart' as rx;
 
 import '../../../domain/entities/queue_state.dart';
 import '../../../domain/use_cases/neom_audio_handler.dart';

@@ -49,15 +49,15 @@ void playNext(
   if (currentMediaItem != null &&
       currentMediaItem.extras!['url'].toString().startsWith('http')) {
     final queue = audioHandler.queue.value;
-    if (queue?.contains(mediaItem) ?? false) {
+    if (queue.contains(mediaItem)) {
       audioHandler.moveQueueItem(
-        queue!.indexOf(mediaItem),
+        queue.indexOf(mediaItem),
         queue.indexOf(currentMediaItem) + 1,
       );
     } else {
       audioHandler.addQueueItem(mediaItem).then(
             (value) => audioHandler.moveQueueItem(
-              queue!.length,
+              queue.length,
               queue.indexOf(currentMediaItem) + 1,
             ),
           );

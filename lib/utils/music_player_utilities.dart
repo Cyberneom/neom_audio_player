@@ -288,7 +288,7 @@ class MusicPlayerUtilities {
         content: StreamBuilder<double>(
           stream: audioHandler.speed,
           builder: (context, snapshot) {
-            double value = snapshot.data ?? audioHandler.speed.value ?? 0;
+            double value = snapshot.data ?? audioHandler.speed.value;
             if (value > max) value = max;
             if (value < min) value = min;
 

@@ -102,7 +102,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
       await startBackgroundProcessing();
 
       speed.debounceTime(const Duration(milliseconds: 250)).listen((speed) {
-        playbackState.add(playbackState.value!.copyWith(speed: speed));
+        playbackState.add(playbackState.value.copyWith(speed: speed));
       });
 
       mediaItem.whereType<MediaItem>().listen((item) {
@@ -322,9 +322,9 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
   ]) async {
     switch (parentMediaId) {
       case AudioService.recentRootId:
-        return _recentSubject.value!;
+        return _recentSubject.value;
       default:
-        return queue.value!;
+        return queue.value;
     }
   }
 
@@ -406,13 +406,13 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
 
   @override
   Future<void> updateMediaItem(MediaItem mediaItem) async {
-    final index = queue.value!.indexWhere((item) => item.id == mediaItem.id);
+    final index = queue.value.indexWhere((item) => item.id == mediaItem.id);
     _mediaItemExpando[_player.sequence![index]] = mediaItem;
   }
 
   @override
   Future<void> removeQueueItem(MediaItem mediaItem) async {
-    final index = queue.value!.indexOf(mediaItem);
+    final index = queue.value.indexOf(mediaItem);
     await _playlist.removeAt(index);
   }
 
@@ -430,9 +430,9 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
   Future<void> skipToNext() async {
     AppUtilities.logger.d('skipToNext');
 
-    final index = queue.value!.indexWhere((item) => item.id == currentMediaItem!.id);
-    if(queue.value!.length >= index+1) {
-      MediaItem nextMedia = queue.value!.elementAt(index+1);
+    final index = queue.value.indexWhere((item) => item.id == currentMediaItem!.id);
+    if(queue.value.length >= index+1) {
+      MediaItem nextMedia = queue.value.elementAt(index+1);
       currentMediaItem = nextMedia;
 
       if(getx.Get.isRegistered<MiniPlayerController>()) {
@@ -476,9 +476,9 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
       if ((_player.position.inSeconds) <= 2) {
         AppUtilities.logger.d('skipToPrevious');
 
-        final index = queue.value!.indexWhere((item) => item.id == currentMediaItem!.id);
-        if(queue.value!.isNotEmpty && (index-1 >= 0)) {
-          MediaItem previousMedia = queue.value!.elementAt(index-1);
+        final index = queue.value.indexWhere((item) => item.id == currentMediaItem!.id);
+        if(queue.value.isNotEmpty && (index-1 >= 0)) {
+          MediaItem previousMedia = queue.value.elementAt(index-1);
           currentMediaItem = previousMedia;
 
           if(getx.Get.isRegistered<MiniPlayerController>()) {
@@ -541,7 +541,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
     _player.pause();
     await Hive.box(AppHiveConstants.cache).put(AppHiveConstants.lastIndex, _player.currentIndex);
     await Hive.box(AppHiveConstants.cache).put(AppHiveConstants.lastPos, _player.position.inSeconds);
-    await addLastQueue(queue.value!);
+    await addLastQueue(queue.value);
   }
 
   @override
@@ -618,13 +618,13 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
       if (enabled) {
         await _player.shuffle();
       }
-      playbackState.add(playbackState.value!.copyWith(shuffleMode: shuffleMode));
+      playbackState.add(playbackState.value.copyWith(shuffleMode: shuffleMode));
       await _player.setShuffleModeEnabled(enabled);
     }
 
     @override
     Future<void> setRepeatMode(AudioServiceRepeatMode repeatMode) async {
-      playbackState.add(playbackState.value!.copyWith(repeatMode: repeatMode));
+      playbackState.add(playbackState.value.copyWith(repeatMode: repeatMode));
       await _player.setLoopMode(LoopMode.values[repeatMode.index]);
     }
 
@@ -662,7 +662,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
           final tappedNumber = _tappedMediaActionNumber.value;
           switch (tappedNumber) {
             case 1:
-              if (playbackState.value!.playing) {
+              if (playbackState.value.playing) {
                 pause();
               } else {
                 play();

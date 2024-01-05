@@ -99,8 +99,8 @@ class MusicPlayerHomeController extends GetxController {
       // }
       myItemLists.addAll(publicItemlists);
 
-      ///IMPROVE WAY TO SPLIT PLAYLISTS AND GIGLISTS FROM CHAMBERPRESETS AND READLISTS
-      myItemLists.removeWhere((key, publicList) => publicList.type == ItemlistType.chamberPresets || publicList.type == ItemlistType.readlist);
+      ///IMPROVE WAY TO SPLIT PLAYLISTS AND GIGLISTS FROM READLISTS
+      myItemLists.removeWhere((key, publicList) => publicList.type == ItemlistType.readlist);
     } catch(e) {
       AppUtilities.logger.e(e.toString());
     }
