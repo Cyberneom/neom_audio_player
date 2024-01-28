@@ -48,5 +48,4 @@ Future<void> _backgroundProcess(SendPort sendPort) async {
   } catch(e) {
     AppUtilities.logger.e(e.toString());
   }
-
 }

@@ -1,6 +1,6 @@
 name: neom_music_player
 description: Music Player Module for apps.
-version: 1.1.1
+version: 1.1.2
 homepage: https://github.com/Cyberneom/neom_music_player
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
@@ -17,10 +17,12 @@ dependencies:
 
   neom_commons:
     git:
-      url: https://github.com/Cyberneom/neom_commons.git
+      url: git@github.com:Cyberneom/neom_commons.git
+      ref: main
   neom_itemlists:
     git:
-      url: https://github.com/Cyberneom/neom_itemlists.git
+      url: git@github.com:Cyberneom/neom_itemlists.git
+      ref: main
 
   hive_flutter: ^1.1.0
 
@@ -36,32 +38,18 @@ dependencies:
   sliding_up_panel: ^2.0.0+1
   flutter_lyric: ^2.0.4+6
 
-#DEPRECATED
-#  app_links: ^3.4.5
-#  marquee: ^2.2.3
-#  palette_generator: ^0.3.3+3
-#  CHANGE TO REGULAR BOTTOM TAB BAR TO AVOID USING UNKOWN REPOS
-#  persistent_bottom_nav_bar:
-#    git:
-#      url: https://github.com/Sangwan5688/PersistentBottomNavBar
-#      ref: ecdadb0
-
-
-
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^3.0.0
 
 dependency_overrides:
-  neom_commons:
-    path: ../neom_commons
-  neom_itemlists:
-    path: ../neom_itemlists
+#  neom_commons:
+#    path: ../neom_commons
+#  neom_itemlists:
+#    path: ../neom_itemlists
   flutter_rust_bridge: 1.82.3
   uuid: 4.1.0
   logger: 2.0.2+1
-#  http: 1.1.0
-#  google_api_headers: 2.0.3
 
 flutter:

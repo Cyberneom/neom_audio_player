@@ -154,10 +154,7 @@ class ArtWorkWidget extends StatelessWidget {
                       tooltip: PlayerTranslationConstants.copy.tr,
                       onPressed: () {
                         Feedback.forLongPress(context);
-                        CoreUtilities.copyToClipboard(
-                          context: context,
-                          text: _.mediaLyrics.lyrics,
-                        );
+                        CoreUtilities.copyToClipboard(text: _.mediaLyrics.lyrics,);
                       },
                       icon: const Icon(Icons.copy_rounded),
                       color:
