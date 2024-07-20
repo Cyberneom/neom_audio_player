@@ -6,6 +6,7 @@ import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_theme.dart';
 
 import '../../../../utils/constants/app_hive_constants.dart';
+import '../../../../utils/constants/music_player_constants.dart';
 import '../../../../utils/constants/player_translation_constants.dart';
 import 'hive_box_switch_tile.dart';
 
@@ -21,14 +22,15 @@ class _MusicPlayerInterfacePageState extends State<MusicPlayerInterfacePage> {
 
   final Box settingsBox = Hive.box(AppHiveConstants.settings);
 
-  List miniButtonsOrder = Hive.box(AppHiveConstants.settings).get('miniButtonsOrder',
-    defaultValue: ['Like', 'Previous', 'Play/Pause', 'Next'],) as List;
+  List miniButtonsOrder = Hive.box(AppHiveConstants.settings).get(AppHiveConstants.miniButtonsOrder,
+    defaultValue: MusicPlayerConstants.defaultMiniButtonsOrder,) as List;
 
-  List preferredMiniButtons = Hive.box(AppHiveConstants.settings).get('preferredMiniButtons',
-    defaultValue: ['Like', 'Play/Pause', 'Next'],)?.toList() as List;
+  List preferredMiniButtons = Hive.box(AppHiveConstants.settings).get(AppHiveConstants.preferredMiniButtons,
+    defaultValue: MusicPlayerConstants.defaultControlButtons)?.toList() as List;
 
-  List<int> preferredCompactNotificationButtons = Hive.box(AppHiveConstants.settings).get('preferredCompactNotificationButtons',
-    defaultValue: [1, 2, 3],) as List<int>;
+  List<int> preferredCompactNotificationButtons = Hive.box(AppHiveConstants.settings)
+      .get(AppHiveConstants.preferredCompactNotificationButtons,
+      defaultValue: MusicPlayerConstants.preferredCompactNotificationButtons) as List<int>;
 
 
   @override

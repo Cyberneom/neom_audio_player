@@ -6,7 +6,9 @@ enum MusicPlayerDrawerMenu {
   downloads('downloads'),
   playlists('playlists'),
   stats('stats'),
-  settings('settings');
+  settings('settings'),
+  podcastUpload('podcastUpload'),
+  audiobookUpload('audiobookUpload');
 
   final String value;
   const MusicPlayerDrawerMenu(this.value);

@@ -2,13 +2,13 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_theme.dart';
 import 'package:neom_commons/core/utils/constants/app_page_id_constants.dart';
 import 'package:neom_commons/core/utils/constants/app_route_constants.dart';
 import '../../utils/constants/app_hive_constants.dart';
 import '../../utils/helpers/media_item_mapper.dart';
 import 'miniplayer_controller.dart';
+import 'widgets/miniplayer_tile.dart';
 
 class MiniPlayer extends StatelessWidget {
   const MiniPlayer({super.key});
@@ -25,12 +25,17 @@ class MiniPlayer extends StatelessWidget {
       id: AppPageIdConstants.miniPlayer,
       init: MiniPlayerController(),
       builder: (_) {
-        List preferredButtons = Hive.box(AppHiveConstants.settings).get('preferredMiniButtons', defaultValue: ['Like', 'Play/Pause', 'Next'],)?.toList() as List<dynamic>;
+        List preferredButtons = Hive.box(AppHiveConstants.settings).get(AppHiveConstants.preferredMiniButtons, defaultValue: ['Like', 'Play/Pause', 'Next'],)?.toList() as List<dynamic>;
         final List<String> preferredMiniButtons = preferredButtons.map((e) => e.toString()).toList();
-        return Obx(() => _.isLoading.value || (_.isTimeline.value && !_.showInTimeline.value) ? Container() : Container(
-          decoration: AppTheme.appBoxDecoration,
+        return Obx(() => _.isLoading.value || (_.isTimeline.value && !_.showInTimeline.value) ? const SizedBox.shrink() :
+        Container(
+          decoration: AppTheme.appBoxDecoration.copyWith(
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(30),
+              topRight: Radius.circular(30),
+            ),
+          ),
           height: _.mediaItem.value == null ? 80 : 78,
-          width: AppTheme.fullWidth(context),
           child: Dismissible(
               key: const Key(AppPageIdConstants.miniPlayer),
               direction: DismissDirection.vertical,
@@ -65,23 +70,26 @@ class MiniPlayer extends StatelessWidget {
                 },
                 child: Card(
                   margin: EdgeInsets.zero,
-                  color: AppColor.getMain(),
+
+                  ///VERIFY IF DEPRECATED
+                  // color: AppColor.getMain(),
                   elevation: 1,
                   child: SizedBox(
                     height: _.mediaItem.value == null ? 80 : 78,
                     width: AppTheme.fullWidth(context),
-                  child: Column(
+                    child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        _.miniplayerTile(
-                          context: context,
+                        MiniPlayerTile(
+                          miniPlayerController: _,
                           preferredMiniButtons: preferredMiniButtons,
                           item: _.mediaItem.value,
                           isTimeline: _.isTimeline.value,
                         ),
                         _.positionSlider(_.mediaItem.value?.duration?.inSeconds.toDouble(),),
                       ],
-                  ),),
+                    ),
+                  ),
                 ),
               ),
           ),

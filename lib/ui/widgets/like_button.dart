@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:neom_commons/core/data/firestore/app_media_item_firestore.dart';
 import 'package:neom_commons/core/data/firestore/profile_firestore.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/domain/model/app_profile.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
-import 'package:neom_itemlists/itemlists/data/firestore/app_media_item_firestore.dart';
 
 import '../../data/implementations/playlist_hive_controller.dart';
 import '../../utils/constants/player_translation_constants.dart';

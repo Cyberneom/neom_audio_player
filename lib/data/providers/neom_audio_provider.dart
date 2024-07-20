@@ -28,13 +28,12 @@ class NeomAudioProvider {
         notificationColor: Colors.grey[900],
       ),
     );
+
+    _isInitialized = true;
   }
 
   Future<NeomAudioHandler> getAudioHandler() async {
-    if (!_isInitialized) {
-      await _initialize();
-      _isInitialized = true;
-    }
+    if (!_isInitialized) await _initialize();
     return audioHandler!;
   }
 

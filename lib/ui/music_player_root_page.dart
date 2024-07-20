@@ -10,6 +10,7 @@ import 'package:neom_commons/core/utils/constants/app_translation_constants.dart
 import 'package:neom_commons/core/utils/enums/app_in_use.dart';
 
 import '../utils/constants/player_translation_constants.dart';
+import '../utils/music_player_utilities.dart';
 import 'drawer/music_player_drawer.dart';
 import 'player/miniplayer.dart';
 import 'widgets/music_player_bottom_app_bar.dart';
@@ -54,7 +55,7 @@ class MusicPlayerRootPageState extends State<MusicPlayerRootPage> {
             PageView(
                 physics: const NeverScrollableScrollPhysics(),
                 controller: pageController,
-                children: AppFlavour.getMusicPlayerPages()
+                children: MusicPlayerUtilities.getMusicPlayerPages()
             ),
             if(AppFlavour.appInUse == AppInUse.g
                 // || _.userController.user!.userRole == UserRole.superAdmin
@@ -80,7 +81,7 @@ class MusicPlayerRootPageState extends State<MusicPlayerRootPage> {
             onTabSelected:(int index) => selectPageView(index, context: context),
             items: [
               MusicPlayerBottomAppBarItem(iconData: Icons.play_circle_fill,
-                text: PlayerTranslationConstants.music.tr,
+                text: AppFlavour.appInUse == AppInUse.g ? PlayerTranslationConstants.music.tr : AppTranslationConstants.audioLibrary.tr,
               ),
               MusicPlayerBottomAppBarItem(
                 iconData: Icons.library_music,

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
+import 'package:neom_commons/core/app_flavour.dart';
+import 'package:neom_commons/core/utils/enums/app_in_use.dart';
 
 import '../neom_music_player_app.dart';
 import '../utils/constants/app_hive_constants.dart';
@@ -14,7 +16,11 @@ import 'music_player_root_page.dart';
 class MusicPlayerAppRoutes {
 
   static Widget initialFunction() {
-    return Hive.box(AppHiveConstants.settings).get('userId') != null ? const MusicPlayerRootPage() : const WelcomePreferencePage();
+    if(Hive.box(AppHiveConstants.settings).get('userId') != null || AppFlavour.appInUse == AppInUse.e) {
+      return const MusicPlayerRootPage();
+    } else {
+      return const WelcomePreferencePage();
+    }
   }
 
   static final Map<String, Widget Function(BuildContext)> routes = {

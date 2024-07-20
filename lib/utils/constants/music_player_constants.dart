@@ -31,4 +31,8 @@ class MusicPlayerConstants {
   static const double musicPlayerHeight= 65;
   static const double musicPlayerWidth= 65;
 
+  static const List<String> defaultControlButtons = ['Like', 'Play/Pause', 'Next'];
+  static const List<String> defaultMiniButtonsOrder = ['Like', 'Previous', 'Play/Pause', 'Next'];
+  static const List<int> preferredCompactNotificationButtons = [1, 2, 3];
+
 }

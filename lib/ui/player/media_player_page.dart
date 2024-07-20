@@ -94,7 +94,7 @@ class MediaPlayerPage extends StatelessWidget {
                     panelController: _.panelController,
                   ),
                 ],
-              ) : Container(),
+              ) : const SizedBox.shrink(),
             ),
           ),);
           },

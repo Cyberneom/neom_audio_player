@@ -2,12 +2,13 @@ import 'dart:async';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:audio_session/audio_session.dart';
-import 'package:get/get.dart' as getx;
+import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
-import 'package:rxdart/rxdart.dart';
+import 'package:neom_commons/core/utils/constants/app_constants.dart';
+import 'package:rxdart/rxdart.dart' as rx;
 
 import '../../data/implementations/app_hive_controller.dart';
 import '../../data/implementations/playlist_hive_controller.dart';
@@ -49,15 +50,15 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
   bool useDownload = true;
   bool stopForegroundService = true;
 
-  final BehaviorSubject<List<MediaItem>> _recentSubject = BehaviorSubject.seeded(<MediaItem>[]);
+  final rx.BehaviorSubject<List<MediaItem>> _recentSubject = rx.BehaviorSubject.seeded(<MediaItem>[]);
 
   @override
-  final BehaviorSubject<double> volume = BehaviorSubject.seeded(1.0);
+  final rx.BehaviorSubject<double> volume = rx.BehaviorSubject.seeded(1.0);
   @override
-  final BehaviorSubject<double> speed = BehaviorSubject.seeded(1.0);
+  final rx.BehaviorSubject<double> speed = rx.BehaviorSubject.seeded(1.0);
   final _mediaItemExpando = Expando<MediaItem>();
 
-  Stream<List<IndexedAudioSource>> get _effectiveSequence => Rx.combineLatest3<List<IndexedAudioSource>?,
+  Stream<List<IndexedAudioSource>> get _effectiveSequence => rx.Rx.combineLatest3<List<IndexedAudioSource>?,
               List<int>?, bool, List<IndexedAudioSource>?>(_player.sequenceStream, _player.shuffleIndicesStream,
       _player.shuffleModeEnabledStream, (sequence, shuffleIndices, shuffleModeEnabled) {
         if (sequence == null) return [];
@@ -68,9 +69,8 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
       }).whereType<List<IndexedAudioSource>>();
 
   @override
-  Stream<QueueState> get queueState =>
-      Rx.combineLatest3<List<MediaItem>, PlaybackState, List<int>, QueueState>(
-        queue, playbackState, _player.shuffleIndicesStream.whereType<List<int>>(),
+  Stream<QueueState> get queueState => rx.Rx.combineLatest3<List<MediaItem>, PlaybackState, List<int>,
+      QueueState>(queue, playbackState, _player.shuffleIndicesStream.whereType<List<int>>(),
         (queue, playbackState, shuffleIndices) => QueueState(
           queue, playbackState.queueIndex,
           playbackState.shuffleMode == AudioServiceShuffleMode.all
@@ -114,22 +114,13 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
           }
         }
 
-        if (item.artUri.toString().startsWith('http')) {
+        if (item.artUri.toString().startsWith(AppConstants.http)) {
           MusicPlayerStats.addRecentlyPlayed(MediaItemMapper.fromMediaItem(item));
           _recentSubject.add([item]);
-
-          ///VERIFY IF NEEDED
-          // if (recommend && item.extras!['autoplay'] as bool) {
-          //   final List<MediaItem> mediaQueue = queue.value!;
-          //   final int index = mediaQueue.indexOf(item);
-          //   if ((mediaQueue.length - index) < 3) {
-          //     AppUtilities.logger.i('Less than 3 songs remaining, this would add more songs');
-          //   }
-          // }
         }
       });
 
-      Rx.combineLatest4<int?, List<MediaItem>, bool, List<int>?, MediaItem?>(
+      rx.Rx.combineLatest4<int?, List<MediaItem>, bool, List<int>?, MediaItem?>(
           _player.currentIndexStream, queue, _player.shuffleModeEnabledStream, _player.shuffleIndicesStream,
           (index, queue, shuffleModeEnabled, shuffleIndices) {
         final queueIndex = NeomAudioUtilities.getQueueIndex(_player, index);
@@ -245,6 +236,8 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
     final MediaItem newItem = MediaItemMapper.fromJSON(newData);
 
     AppUtilities.logger.i('player | inserting refreshed item');
+
+    ///VERIFY IF NEEDED - 16/07/24
     // late AudioSource audioSource;
     // if (cacheSong) {
     //   audioSource = LockCachingAudioSource(Uri.parse(newItem.extras!['url'].toString(),),);
@@ -329,7 +322,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
   }
 
   @override
-  ValueStream<Map<String, dynamic>> subscribeToChildren(String parentMediaId) {
+  rx.ValueStream<Map<String, dynamic>> subscribeToChildren(String parentMediaId) {
     switch (parentMediaId) {
       case AudioService.recentRootId:
         final stream = _recentSubject.map((_) => <String, dynamic>{});
@@ -435,16 +428,16 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
       MediaItem nextMedia = queue.value.elementAt(index+1);
       currentMediaItem = nextMedia;
 
-      if(getx.Get.isRegistered<MiniPlayerController>()) {
-        getx.Get.find<MiniPlayerController>().setMediaItem(nextMedia);
+      if(Get.isRegistered<MiniPlayerController>()) {
+        Get.find<MiniPlayerController>().setMediaItem(nextMedia);
       } else {
-        getx.Get.put(MiniPlayerController()).setMediaItem(nextMedia);
+        Get.put(MiniPlayerController()).setMediaItem(nextMedia);
       }
 
-      if(getx.Get.isRegistered<MediaPlayerController>()) {
-        getx.Get.find<MediaPlayerController>().setMediaItem(nextMedia);
+      if(Get.isRegistered<MediaPlayerController>()) {
+        Get.find<MediaPlayerController>().setMediaItem(nextMedia);
       } else {
-        getx.Get.put(MediaPlayerController()).setMediaItem(nextMedia);
+        Get.put(MediaPlayerController()).setMediaItem(nextMedia);
       }
 
     }
@@ -481,16 +474,16 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
           MediaItem previousMedia = queue.value.elementAt(index-1);
           currentMediaItem = previousMedia;
 
-          if(getx.Get.isRegistered<MiniPlayerController>()) {
-            getx.Get.find<MiniPlayerController>().setMediaItem(previousMedia);
+          if(Get.isRegistered<MiniPlayerController>()) {
+            Get.find<MiniPlayerController>().setMediaItem(previousMedia);
           } else {
-            getx.Get.put(MiniPlayerController()).setMediaItem(previousMedia);
+            Get.put(MiniPlayerController()).setMediaItem(previousMedia);
           }
 
-          if(getx.Get.isRegistered<MediaPlayerController>()) {
-            getx.Get.find<MediaPlayerController>().setMediaItem(previousMedia);
+          if(Get.isRegistered<MediaPlayerController>()) {
+            Get.find<MediaPlayerController>().setMediaItem(previousMedia);
           } else {
-            getx.Get.put(MediaPlayerController()).setMediaItem(previousMedia);
+            Get.put(MediaPlayerController()).setMediaItem(previousMedia);
           }
 
         }
@@ -518,16 +511,16 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
     try {
       _player.play();
       if(currentMediaItem != null) {
-        if(getx.Get.isRegistered<MiniPlayerController>()) {
-          getx.Get.find<MiniPlayerController>().setMediaItem(currentMediaItem!);
+        if(Get.isRegistered<MiniPlayerController>()) {
+          Get.find<MiniPlayerController>().setMediaItem(currentMediaItem!);
         } else {
-          getx.Get.put(MiniPlayerController()).setMediaItem(currentMediaItem!);
+          Get.put(MiniPlayerController()).setMediaItem(currentMediaItem!);
         }
 
-        if(getx.Get.isRegistered<MediaPlayerController>()) {
-          getx.Get.find<MediaPlayerController>().setMediaItem(currentMediaItem!);
+        if(Get.isRegistered<MediaPlayerController>()) {
+          Get.find<MediaPlayerController>().setMediaItem(currentMediaItem!);
         } else {
-          getx.Get.put(MediaPlayerController()).setMediaItem(currentMediaItem!);
+          Get.put(MediaPlayerController()).setMediaItem(currentMediaItem!);
         }
       }
     } catch(e) {
@@ -549,7 +542,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
 
   @override
   Future<void> stop() async {
-    AppUtilities.logger.d('stopping player');
+    AppUtilities.logger.d('Stopping player');
     await _player.stop();
     await playbackState.firstWhere((state) => state.processingState == AudioProcessingState.idle,);
 
@@ -652,12 +645,12 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
       }
     }
 
-    late BehaviorSubject<int> _tappedMediaActionNumber;
+    late rx.BehaviorSubject<int> _tappedMediaActionNumber;
     Timer? _timer;
 
     void _handleMediaActionPressed() {
       if (_timer == null) {
-        _tappedMediaActionNumber = BehaviorSubject.seeded(1);
+        _tappedMediaActionNumber = rx.BehaviorSubject.seeded(1);
         _timer = Timer(const Duration(milliseconds: 800), () {
           final tappedNumber = _tappedMediaActionNumber.value;
           switch (tappedNumber) {

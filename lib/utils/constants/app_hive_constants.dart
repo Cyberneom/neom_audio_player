@@ -56,6 +56,11 @@ class AppHiveConstants {
   static const String orderValue = 'orderValue';
   static const String albumSortValue = 'albumSortValue';
 
+  static const String preferredMiniButtons = 'preferredMiniButtons';
+  static const String miniButtonsOrder = 'miniButtonsOrder';
+  static const String enableImageOptimization = 'enableImageOptimization';
+
+
   ///PREFERENCES
 
 }

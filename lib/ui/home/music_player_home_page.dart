@@ -1,17 +1,13 @@
 import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:neom_commons/core/app_flavour.dart';
 import 'package:neom_commons/core/ui/widgets/app_circular_progress_indicator.dart';
+import 'package:neom_commons/core/ui/widgets/right_side_company_logo.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_theme.dart';
-import 'package:neom_commons/core/utils/app_utilities.dart';
-import 'package:neom_commons/core/utils/constants/app_assets.dart';
 import 'package:neom_commons/core/utils/constants/app_page_id_constants.dart';
-import 'package:neom_commons/core/utils/constants/app_translation_constants.dart';
 
 import '../../utils/constants/player_translation_constants.dart';
 import '../drawer/music_player_drawer.dart';
@@ -30,7 +26,7 @@ class MusicPlayerHomePage extends StatelessWidget {
         id: AppPageIdConstants.musicPlayerHome,
         init: MusicPlayerHomeController(),
         builder: (_) {
-          return Scaffold(
+          return SafeArea(child: Scaffold(
             drawer: const MusicPlayerDrawer(),
             backgroundColor: AppColor.main50,
             body: Container(
@@ -45,25 +41,12 @@ class MusicPlayerHomePage extends StatelessWidget {
                       return [
                         SliverAppBar(
                           leading: homeDrawer(context: context,),
-                          actions: [
-                            GestureDetector(
-                                child: Container(
-                                  padding: const EdgeInsets.only(right: 15),
-                                  child: Image.asset(
-                                    AppAssets.logoCompanyWhite,
-                                    height: 50,
-                                    width: 130,
-                                  ),
-                                ),
-                                onTap: () async {
-                                  AppUtilities.showAlert(context, message: "${AppTranslationConstants.version.tr} "
-                                      "${AppFlavour.appVersion}${kDebugMode ? " - Dev Mode" : ""}");
-                                }
-                            )
+                          actions: const [
+                            RightSideCompanyLogo()
                           ],
                           backgroundColor: AppColor.main75,
                           elevation: 10,
-                          toolbarHeight: 55,
+                          toolbarHeight: 40,
                         ),
                         SliverAppBar(
                           leading: _.showSearchBarLeading.value ? homeDrawer(context: context,) : null,
@@ -71,7 +54,7 @@ class MusicPlayerHomePage extends StatelessWidget {
                           pinned: true,
                           backgroundColor: AppColor.main75,
                           elevation: 0,
-                          toolbarHeight: 55,
+                          toolbarHeight: 40,
                           title: Align(
                             alignment: Alignment.centerRight,
                             child: AnimatedBuilder(
@@ -128,11 +111,11 @@ class MusicPlayerHomePage extends StatelessWidget {
                         ),
                       ];
                     },
-                    body: Obx(()=> _.isLoading.value ? Container() : const MusicPlayerHomeContent()),
+                    body: Obx(()=> _.isLoading.value ? const SizedBox.shrink() : const MusicPlayerHomeContent()),
                   ),
                 ],),
             ),
-          );
+          ),);
         },
     );
   }

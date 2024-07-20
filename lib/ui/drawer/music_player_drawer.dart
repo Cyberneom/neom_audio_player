@@ -10,6 +10,8 @@ import 'package:neom_commons/core/utils/constants/app_constants.dart';
 import 'package:neom_commons/core/utils/constants/app_page_id_constants.dart';
 import 'package:neom_commons/core/utils/constants/app_route_constants.dart';
 import 'package:neom_commons/core/utils/constants/app_translation_constants.dart';
+import 'package:neom_commons/core/utils/enums/app_in_use.dart';
+import 'package:neom_commons/core/utils/enums/verification_level.dart';
 import '../../../utils/constants/music_player_route_constants.dart';
 import '../../../utils/enums/music_player_drawer_menu.dart';
 import '../library/playlist_player_page.dart';
@@ -32,7 +34,7 @@ class MusicPlayerDrawer extends StatelessWidget {
           child: SafeArea(
             child: Stack(
               children: <Widget>[
-                Container(
+                Padding(
                   padding: const EdgeInsets.only(bottom: 20),
                   child: ListView(
                     physics: const BouncingScrollPhysics(),
@@ -46,6 +48,23 @@ class MusicPlayerDrawer extends StatelessWidget {
                       // drawerRowOption(MusicPlayerDrawerMenu.myMusic, const Icon(MdiIcons.folderMusic,), context),
                       // drawerRowOption(MusicPlayerDrawerMenu.downloads, const Icon(Icons.download_done_rounded,), context),
                       drawerRowOption(MusicPlayerDrawerMenu.settings, const Icon(Icons.playlist_play_rounded,), context),
+                      if(_.appProfile.value.verificationLevel != VerificationLevel.none)
+                      Column(
+                        children: [
+                          const Divider(),
+                          Text(AppTranslationConstants.professionals.tr,
+                            textAlign: TextAlign.start,
+                            style: const TextStyle(
+                              fontSize: 20,
+                              color: AppColor.lightGrey,
+                              fontWeight: FontWeight.bold
+                            ), ),
+                          const Divider(),
+                          drawerRowOption(MusicPlayerDrawerMenu.podcastUpload, const Icon(Icons.podcasts), context),
+                          if(AppFlavour.appInUse == AppInUse.e)
+                            drawerRowOption(MusicPlayerDrawerMenu.audiobookUpload, const Icon(Icons.multitrack_audio), context),
+                        ],
+                      ),
                     ],
                   ),
                 ),
@@ -88,16 +107,16 @@ class MusicPlayerDrawer extends StatelessWidget {
                             border: Border.all(color: Colors.white, width: 2),
                             borderRadius: BorderRadius.circular(28),
                             image: DecorationImage(
-                              image: CachedNetworkImageProvider(_.appProfile.photoUrl.isNotEmpty
-                                  ? _.appProfile.photoUrl : AppFlavour.getNoImageUrl(),),
+                              image: CachedNetworkImageProvider(_.appProfile.value.photoUrl.isNotEmpty
+                                  ? _.appProfile.value.photoUrl : AppFlavour.getNoImageUrl(),),
                               fit: BoxFit.cover,
                             ),
                           ),
                         ),
                         onTap: ()=> Get.toNamed(AppRouteConstants.profile),
                       ),
-                      Text(_.appProfile.name.length > AppConstants.maxArtistNameLength
-                          ? '${_.appProfile.name.substring(0,AppConstants.maxArtistNameLength)}...' : _.appProfile.name,
+                      Text(_.appProfile.value.name.length > AppConstants.maxArtistNameLength
+                          ? '${_.appProfile.value.name.substring(0,AppConstants.maxArtistNameLength)}...' : _.appProfile.value.name,
                         style: AppTheme.primaryTitleText,
                         overflow: TextOverflow.fade,
                       ),
@@ -155,8 +174,8 @@ class MusicPlayerDrawer extends StatelessWidget {
           }
         }
       },
-      leading: Container(
-          padding: const EdgeInsets.only(top: 5),
+      leading: Padding(
+        padding: const EdgeInsets.only(top: 5),
           child: icon,
       ),
       title: customText(

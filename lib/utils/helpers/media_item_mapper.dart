@@ -1,7 +1,6 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/enums/app_media_source.dart';
-import '../../domain/entities/url_image_generator.dart';
 import '../music_player_utilities.dart';
 
 
@@ -46,16 +45,13 @@ class MediaItemMapper  {
       duration: Duration(
         seconds: int.parse(
           (song['duration'] == null ||
-                  song['duration'] == 'null' ||
-                  song['duration'] == '')
-              ? '180'
-              : song['duration'].toString(),
+              song['duration'] == 'null' ||
+              song['duration'] == '')
+              ? '180' : song['duration'].toString(),
         ),
       ),
       title: song['title'].toString(),
-      artUri: Uri.parse(
-        UrlImageGetter([song['image'].toString()]).highQuality,
-      ),
+      artUri: Uri.parse(song['image'].toString()),
       genre: song['language'].toString(),
       extras: {
         'url': song['url'],
@@ -119,9 +115,7 @@ class MediaItemMapper  {
       artist: '${appMediaItem.artist} ${appMediaItem.externalArtists?.join(', ')}',
       duration: Duration(seconds: appMediaItem.duration),
       title: appMediaItem.name,
-      artUri: Uri.parse(
-        UrlImageGetter([appMediaItem.imgUrl]).highQuality,
-      ),
+      artUri: Uri.parse(appMediaItem.imgUrl),
       genre: appMediaItem.genre,
       extras: {
         'url': appMediaItem.url,
@@ -152,9 +146,7 @@ class MediaItemMapper  {
       artist: appMediaItem.artist,
       duration: Duration(seconds: appMediaItem.duration),
       title: appMediaItem.name,
-      artUri: Uri.parse(
-        UrlImageGetter([appMediaItem.imgUrl]).highQuality,
-      ),
+      artUri: Uri.parse(appMediaItem.imgUrl),
       genre: appMediaItem.genre,
       extras: {
         'url': appMediaItem.url,
@@ -176,7 +168,6 @@ class MediaItemMapper  {
         'description': appMediaItem.description,
         'lyrics': appMediaItem.lyrics,
         'artistId': appMediaItem.artistId,
-
       },
     );
   }

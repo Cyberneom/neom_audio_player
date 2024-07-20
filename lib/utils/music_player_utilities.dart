@@ -2,53 +2,30 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
-import 'package:neom_commons/core/app_flavour.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
-import 'package:neom_commons/core/utils/app_color.dart';
-import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/enums/app_media_source.dart';
+import 'package:neom_commons/neom_commons.dart';
 
 import '../domain/use_cases/neom_audio_handler.dart';
 import '../ui/player/widgets/add_to_playlist.dart';
 import '../ui/widgets/textinput_dialog.dart';
+import 'constants/music_player_route_constants.dart';
 import 'constants/player_translation_constants.dart';
 
 class MusicPlayerUtilities {
 
   static final NeomAudioHandler audioHandler = GetIt.I<NeomAudioHandler>();
 
-  ///DEPRECATED
-  // static String getSubTitle(Map item) {
-  //   AppUtilities.logger.e('Getting SubtTitle.');
-  //   final type = item['type'];
-  //   switch (type) {
-  //     case 'charts':
-  //       return '';
-  //     case 'radio_station':
-  //       return 'Radio • ${(item['subtitle']?.toString() ?? '').isEmpty ? 'JioSaavn' : item['subtitle']?.toString().unescape()}';
-  //     case 'playlist':
-  //       return 'Playlist • ${(item['subtitle']?.toString() ?? '').isEmpty ? 'JioSaavn' : item['subtitle'].toString().unescape()}';
-  //     case 'song':
-  //       return 'Single • ${item['artist']?.toString().unescape()}';
-  //     case 'mix':
-  //       return 'Mix • ${(item['subtitle']?.toString() ?? '').isEmpty ? 'JioSaavn' : item['subtitle'].toString().unescape()}';
-  //     case 'show':
-  //       return 'Podcast • ${(item['subtitle']?.toString() ?? '').isEmpty ? 'JioSaavn' : item['subtitle'].toString().unescape()}';
-  //     case 'album':
-  //       final artists = item['more_info']?['artistMap']?['artists'].map((artist) => artist['name']).toList();
-  //       if (artists != null) {
-  //         return 'Album • ${artists?.join(', ')?.toString().unescape()}';
-  //       } else if (item['subtitle'] != null && item['subtitle'] != '') {
-  //         return 'Album • ${item['subtitle']?.toString().unescape()}';
-  //       }
-  //       return 'Album';
-  //     default:
-  //       final artists = item['more_info']?['artistMap']?['artists']
-  //           .map((artist) => artist['name'])
-  //           .toList();
-  //       return artists?.join(', ')?.toString().unescape() ?? '';
-  //   }
-  // }
+  static List<Widget> getMusicPlayerPages() {
+    switch (AppFlavour.appInUse) {
+      case AppInUse.c:
+        return MusicPlayerRouteConstants.cMusicPlayerPages;
+      case AppInUse.g:
+        return MusicPlayerRouteConstants.gMusicPlayerPages;
+      case AppInUse.e:
+        return MusicPlayerRouteConstants.eMusicPlayerPages;
+    }
+  }
 
   static Future<dynamic> setCounter(BuildContext context) async {
     showTextInputDialog(

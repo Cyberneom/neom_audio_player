@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/domain/model/item_list.dart';
+import 'package:neom_commons/core/ui/widgets/neom_image_card.dart';
 
 import '../../../../neom_player_invoker.dart';
 import '../../../../utils/constants/player_translation_constants.dart';
 import '../../../widgets/download_button.dart';
-import '../../../widgets/image_card.dart';
 import '../../../widgets/song_tile_trailing_menu.dart';
 
 class DownloadsSearch extends SearchDelegate {
@@ -76,7 +76,7 @@ class DownloadsSearch extends SearchDelegate {
       itemExtent: 70.0,
       itemCount: suggestionList.length,
       itemBuilder: (context, index) => ListTile(
-        leading: imageCard(
+        leading: NeomImageCard(
           imageUrl: isDowns
               ? suggestionList[index]['image'].toString()
               : suggestionList[index]['image'].toString(),
@@ -143,7 +143,7 @@ class DownloadsSearch extends SearchDelegate {
       itemExtent: 70.0,
       itemCount: suggestionList.length,
       itemBuilder: (context, index) => ListTile(
-        leading: imageCard(
+        leading: NeomImageCard(
           imageUrl: isDowns
               ? suggestionList[index]['image'].toString()
               : suggestionList[index]['image'].toString(),

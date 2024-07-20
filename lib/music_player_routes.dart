@@ -10,7 +10,7 @@ class MusicPlayerRoutes {
     GetPage(
         name: AppRouteConstants.musicPlayerHome,
         page: () => const NeomMusicPlayerApp(),
-        transition: Transition.zoom,
+        transition: Transition.rightToLeftWithFade,
     ),
     GetPage(
       name: AppRouteConstants.musicPlayerMedia,

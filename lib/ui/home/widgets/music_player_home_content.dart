@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/domain/model/item_list.dart';
+import 'package:neom_commons/core/ui/widgets/neom_image_card.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
 import 'package:neom_commons/core/utils/constants/app_page_id_constants.dart';
@@ -12,10 +13,8 @@ import '../../../neom_player_invoker.dart';
 import '../../../utils/constants/app_hive_constants.dart';
 import '../../../utils/constants/music_player_route_constants.dart';
 import '../../../utils/constants/player_translation_constants.dart';
-import '../../../utils/enums/image_quality.dart';
 import '../../library/playlist_player_page.dart';
 import '../../widgets/empty_screen.dart';
-import '../../widgets/image_card.dart';
 import '../../widgets/song_tile_trailing_menu.dart';
 import '../music_player_home_controller.dart';
 import 'collage.dart';
@@ -58,11 +57,11 @@ class MusicPlayerHomeContent extends StatelessWidget {
           if (idx == _.recentIndex) return buildLastSessionContainer(context, _);
 
           if (idx == _.myPlaylistsIndex) {
-            return _.myItemLists.isNotEmpty ? buildMyPlaylistsContainer(_, context, boxSize) : Container();
+            return _.myItemLists.isNotEmpty ? buildMyPlaylistsContainer(_, context, boxSize) : const SizedBox.shrink();
           }
 
           if (idx == _.favoriteItemsIndex) {
-            return _.favoriteItems.isNotEmpty ? buildFavoriteItemsContainer(_, context, boxSize) : Container();
+            return _.favoriteItems.isNotEmpty ? buildFavoriteItemsContainer(_, context, boxSize) : const SizedBox.shrink();
           }
 
           final Itemlist publicList = _.publicItemlists.values.elementAt(idx - 3);
@@ -101,7 +100,7 @@ class MusicPlayerHomeContent extends StatelessWidget {
                       child: SizedBox(
                         width: boxSize - 30,
                         child: HoverBox(
-                          child: imageCard(
+                          child: NeomImageCard(
                             margin: const EdgeInsets.all(4.0),
                             borderRadius: 10,
                             // item['type'] == 'radio_station' ? 1000.0 : 10.0,
@@ -109,7 +108,6 @@ class MusicPlayerHomeContent extends StatelessWidget {
                                 .length > index ? publicList.getImgUrls()
                                 .elementAt(index) : publicList
                                 .getImgUrls().last,
-                            imageQuality: ImageQuality.medium,
                             placeholderImage: const AssetImage(AppAssets.musicPlayerAlbum),
                           ),
                           builder: ({
@@ -170,7 +168,7 @@ class MusicPlayerHomeContent extends StatelessWidget {
                                         ),
                                     ],
                                   ),
-                                  Container(
+                                  Padding(
                                     padding: const EdgeInsets.symmetric(horizontal: 10,),
                                     child: Column(
                                       children: [

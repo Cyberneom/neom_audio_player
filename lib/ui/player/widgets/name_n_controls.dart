@@ -67,7 +67,7 @@ class NameNControls extends StatelessWidget {
             children: [
               SizedBox(
                 child: Center(
-                  child: Container(
+                  child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 10),
                     child: Column(
                       children: [
@@ -91,12 +91,12 @@ class NameNControls extends StatelessWidget {
                             textAlign: TextAlign.center,
                             maxLines: 2,
                           ),
-                          onTap: () => _.appMediaItem.value.artistId.isEmpty ? {}
+                          onTap: () => (_.appMediaItem.value.artistId?.isEmpty ?? true) ? {}
                               : Get.find<UserController>().profile.id == _.appMediaItem.value.artistId ? Get.toNamed(AppRouteConstants.profile)
                               : Get.toNamed(AppRouteConstants.mateDetails, arguments: _.appMediaItem.value.artistId),
                         ),
                         if(!MusicPlayerUtilities.isOwnMediaItem(_.appMediaItem.value))
-                          Container(
+                          Padding(
                             padding: const EdgeInsets.only(top: 5),
                             child: AnimatedTextKit(
                               repeatForever: true,
@@ -240,7 +240,7 @@ class NameNControls extends StatelessWidget {
                               },
                             ),
                             MusicPlayerUtilities.isOwnMediaItem(_.appMediaItem.value)
-                                ? (downloadAllowed ? DownloadButton(mediaItem: MediaItemMapper.fromMediaItem(mediaItem),): Container())
+                                ? (downloadAllowed ? DownloadButton(mediaItem: MediaItemMapper.fromMediaItem(mediaItem),): const SizedBox.shrink())
                                 : GoSpotifyButton(appMediaItem: _.appMediaItem.value),
                           ],
                         ),

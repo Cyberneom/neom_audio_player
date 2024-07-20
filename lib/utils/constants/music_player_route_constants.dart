@@ -1,5 +1,13 @@
 
+import 'package:neom_itemlists/itemlists/ui/itemlist_page.dart';
+
+import '../../ui/home/music_player_home_page.dart';
+
 class MusicPlayerRouteConstants {
+
+  static final eMusicPlayerPages = [const MusicPlayerHomePage(), const ItemlistPage()];
+  static final gMusicPlayerPages = [const MusicPlayerHomePage(), const ItemlistPage()];
+  static final cMusicPlayerPages = [const MusicPlayerHomePage(), const ItemlistPage()];
 
   static const String root = '/';
   static const String home = '/home';

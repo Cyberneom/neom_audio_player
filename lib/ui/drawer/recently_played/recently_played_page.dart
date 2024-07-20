@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/ui/widgets/appbar_child.dart';
+import 'package:neom_commons/core/ui/widgets/neom_image_card.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 
 import '../../../neom_player_invoker.dart';
@@ -10,7 +11,6 @@ import '../../../utils/constants/app_hive_constants.dart';
 import '../../../utils/constants/music_player_route_constants.dart';
 import '../../../utils/constants/player_translation_constants.dart';
 import '../../widgets/empty_screen.dart';
-import '../../widgets/image_card.dart';
 import '../../widgets/like_button.dart';
 
 class RecentlyPlayedPage extends StatefulWidget {
@@ -95,10 +95,10 @@ class RecentlyPlayedPageState extends State<RecentlyPlayedPage> {
               onDismissed: (direction) {
                 _songs.remove(item.id);
                 setState(() {});
-                Hive.box(AppHiveConstants.cache).put('recentSongs', _songs);
+                Hive.box(AppHiveConstants.cache).put(AppHiveConstants.recentSongs, _songs);
                 },
               child: ListTile(
-                leading: imageCard(imageUrl: item.imgUrl,),
+                leading: NeomImageCard(imageUrl: item.imgUrl,),
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [

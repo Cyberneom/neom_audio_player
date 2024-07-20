@@ -219,7 +219,7 @@ class _OthersPageState extends State<OthersPage> {
             //                     onPressed: () {
             //                       includedExcludedPaths.removeAt(idx - 2);
             //                       Hive.box(AppHiveConstants.settings).put('includedExcludedPaths', includedExcludedPaths,);
-            //                       listKey.currentState!.removeItem(idx, (context, animation) => Container(),);
+            //                       listKey.currentState!.removeItem(idx, (context, animation) => SizedBox.shrink(),);
             //                     },
             //                   ),
             //                 ),

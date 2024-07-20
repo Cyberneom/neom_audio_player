@@ -1,0 +1,10 @@
+dependency_overrides:
+  neom_commons:
+    path: ../neom_commons
+  neom_itemlists:
+    path: ../neom_itemlists
+  uuid: 4.4.0
+  rxdart: 0.28.0
+#  flutter_rust_bridge: 1.82.3
+#  logger: 2.0.2+1
+

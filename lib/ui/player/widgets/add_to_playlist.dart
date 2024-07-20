@@ -63,7 +63,7 @@ class AddToPlaylist {
                           children: [
                             Text(itemState.name.tr),
                             if(itemState.value != 0) const Text(' - '),
-                            if (itemState.value == 0) Container() else RatingBar(
+                            if (itemState.value == 0) const SizedBox.shrink() else RatingBar(
                               initialRating: itemState.value.toDouble(),
                               minRating: 1,
                               ignoreGestures: true,
@@ -100,7 +100,7 @@ class AddToPlaylist {
                     color: Colors.grey,
                   ),
                 ),
-            ) else Container(),
+            ) else const SizedBox.shrink(),
             if (itemlists.length > 1) Obx(()=> DropdownButton<String>(
               items: itemlists.map((itemlist) =>
                   DropdownMenuItem<String>(
