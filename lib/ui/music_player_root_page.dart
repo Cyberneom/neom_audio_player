@@ -1,13 +1,11 @@
 
-import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:neom_commons/core/app_flavour.dart';
+import 'package:neom_commons/core/ui/widgets/app_circular_progress_indicator.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_theme.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
-import 'package:neom_commons/core/utils/constants/app_translation_constants.dart';
-import 'package:neom_commons/core/utils/enums/app_in_use.dart';
 
 import '../utils/constants/player_translation_constants.dart';
 import '../utils/music_player_utilities.dart';
@@ -45,29 +43,22 @@ class MusicPlayerRootPageState extends State<MusicPlayerRootPage> {
     return Scaffold(
         backgroundColor: AppColor.main50,
         drawer: const MusicPlayerDrawer(),
-        body: isLoading ? Container(
-            decoration: AppTheme.appBoxDecoration,
-            child: const Center(
-                child: CircularProgressIndicator()
-            )
-        ) : Stack(
+        body: isLoading ? const AppCircularProgressIndicator() :
+        Stack(
           children: [
             PageView(
                 physics: const NeverScrollableScrollPhysics(),
                 controller: pageController,
                 children: MusicPlayerUtilities.getMusicPlayerPages()
             ),
-            if(AppFlavour.appInUse == AppInUse.g
-                // || _.userController.user!.userRole == UserRole.superAdmin
-            )
-              Positioned(
-                left: 0, right: 0,
-                bottom: 0.1, // Adjust this value according to your BottomNavigationBar's height
-                child: Container(
-                    decoration: AppTheme.appBoxDecoration,
-                    child: MiniPlayer()
-                ),
+            Positioned(
+              left: 0, right: 0,
+              bottom: 0.1, // Adjust this value according to your BottomNavigationBar's height
+              child: Container(
+                  decoration: AppTheme.appBoxDecoration,
+                  child: MiniPlayer()
               ),
+            ),
           ],
         ),
         bottomNavigationBar: Theme(
@@ -75,37 +66,12 @@ class MusicPlayerRootPageState extends State<MusicPlayerRootPage> {
           child: MusicPlayerBottomAppBar(
             backgroundColor: AppColor.bottomNavigationBar,
             color: Colors.white54,
-            selectedColor: Theme.of(context).colorScheme.secondary,
+            selectedColor: Colors.white.withOpacity(0.9),
             notchedShape: const CircularNotchedRectangle(),
-            iconSize: 20.0,
             onTabSelected:(int index) => selectPageView(index, context: context),
             items: [
-              MusicPlayerBottomAppBarItem(iconData: Icons.play_circle_fill,
-                text: AppFlavour.appInUse == AppInUse.g ? PlayerTranslationConstants.music.tr : AppTranslationConstants.audioLibrary.tr,
-              ),
-              MusicPlayerBottomAppBarItem(
-                iconData: Icons.library_music,
-                text: PlayerTranslationConstants.playlists.capitalizeFirst,
-                animation: hasItems ? null : Column(
-                  children: [
-                    SizedBox(
-                      child: DefaultTextStyle(
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          fontSize: 6,
-                        ),
-                        child: AnimatedTextKit(
-                          repeatForever: true,
-                          animatedTexts: [
-                            FlickerAnimatedText(AppFlavour.appInUse == AppInUse.g ? AppTranslationConstants.addItems.tr : ''),
-                          ],
-                          onTap: () {},
-                        ),
-                      ),
-                    ),
-                    AppTheme.widthSpace10,
-                  ],),
-              ),
+              MusicPlayerBottomAppBarItem(iconData: Icons.play_circle_fill, text: AppFlavour.getMusicPlayerHomeTitle(),),
+              MusicPlayerBottomAppBarItem(iconData: Icons.library_music, text: PlayerTranslationConstants.playlists.tr,),
             ],
           ),
         ),

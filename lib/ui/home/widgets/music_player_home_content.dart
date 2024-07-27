@@ -66,7 +66,7 @@ class MusicPlayerHomeContent extends StatelessWidget {
 
           final Itemlist publicList = _.publicItemlists.values.elementAt(idx - 3);
           if (publicList.getTotalItems() == 0) {
-            return const SizedBox();
+            return const SizedBox.shrink();
           } else if (publicList.name == 'likedArtists') {
             return buildLikedArtistContainer(publicList, context);
           }
@@ -94,7 +94,7 @@ class MusicPlayerHomeContent extends StatelessWidget {
                   ///TRY TO MAKE ALLIANCE WITH RADIO STATIONS ONLINE
                   itemBuilder: (context, index) {
                     List<AppMediaItem> itemsOnLists = AppMediaItem.mapItemsFromItemlist(publicList);
-                    if (publicList.id.isEmpty || itemsOnLists.isEmpty) return const SizedBox();
+                    if (publicList.id.isEmpty || itemsOnLists.isEmpty) return const SizedBox.shrink();
                     AppMediaItem item = itemsOnLists.elementAt(index);
                     return GestureDetector(
                       child: SizedBox(
@@ -253,7 +253,7 @@ class MusicPlayerHomeContent extends StatelessWidget {
       builder: (BuildContext context, Box box, Widget? child) {
         return (_.recentList.isEmpty ||
             !(box.get('showRecent', defaultValue: true) as bool))
-            ? const SizedBox() : child!;
+            ? const SizedBox.shrink() : child!;
       },
     );
   }
@@ -493,7 +493,7 @@ class MusicPlayerHomeContent extends StatelessWidget {
   Widget buildLikedArtistContainer(Itemlist itemlist, BuildContext context) {
     final Itemlist likedArtistsList = itemlist;
     return likedArtistsList.getTotalItems() == 0
-        ? const SizedBox()
+        ? const SizedBox.shrink()
         : Column(
       children: [
         Row(

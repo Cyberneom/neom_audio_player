@@ -76,7 +76,7 @@ class SeekBarState extends State<SeekBar> {
                 //     ),
                 //   )
                 // else
-                const SizedBox(),
+                const SizedBox.shrink(),
                 StreamBuilder<double>(
                   stream: widget.audioHandler.speed,
                   builder: (context, snapshot) {

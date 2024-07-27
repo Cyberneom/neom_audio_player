@@ -12,6 +12,7 @@ import '../../widgets/download_button.dart';
 import '../../widgets/like_button.dart';
 
 class ControlButtons extends StatelessWidget {
+
   final NeomAudioHandler audioHandler;
   final bool shuffle;
   final bool miniplayer;
@@ -59,13 +60,15 @@ class ControlButtons extends StatelessWidget {
           switch (e) {
             case 'Like':
               return !isOnline
-                  ? const SizedBox()
+                  ? const SizedBox.shrink()
                   : SizedBox(
                 height: miniplayer ? MusicPlayerConstants.miniPlayerHeight : MusicPlayerConstants.musicPlayerHeight,
                 width: miniplayer ? MusicPlayerConstants.miniPlayerWidth : MusicPlayerConstants.musicPlayerWidth,
                 child: LikeButton(
-                appMediaItem: MediaItemMapper.fromMediaItem(mediaItem!),
-                size: 22.0,),
+                  padding: EdgeInsets.zero,
+                  size: 22.0,
+                  appMediaItem: MediaItemMapper.fromMediaItem(mediaItem!),
+                ),
               );
             case 'Previous':
               return SizedBox(
@@ -76,6 +79,7 @@ class ControlButtons extends StatelessWidget {
                 builder: (context, snapshot) {
                   ///DEPRECATED final queueState = snapshot.data;
                   return IconButton(
+                    padding: EdgeInsets.zero,
                     icon: const Icon(Icons.skip_previous_rounded),
                     iconSize: miniplayer ? 24.0 : 45.0,
                     tooltip: PlayerTranslationConstants.skipPrevious.tr,
@@ -105,17 +109,16 @@ class ControlButtons extends StatelessWidget {
                                 ),
                             ),
                           ),
-                          if (miniplayer)
+                          if(miniplayer)
                             Center(
-                              child: playing ? IconButton(
-                                tooltip: PlayerTranslationConstants.pause.tr,
-                                onPressed: audioHandler.pause,
-                                icon: const Icon(Icons.pause_rounded,),
-                                color: Theme.of(context).iconTheme.color,
-                              ) : IconButton(
-                                tooltip: PlayerTranslationConstants.play.tr,
-                                onPressed: audioHandler.play,
-                                icon: const Icon(Icons.play_arrow_rounded,),
+                              child: IconButton(
+                                padding: EdgeInsets.zero,
+                                tooltip: playing ? PlayerTranslationConstants.pause.tr
+                                    : PlayerTranslationConstants.play.tr,
+                                onPressed: playing ? audioHandler.pause
+                                    : audioHandler.play,
+                                icon: Icon(playing ? Icons.pause_rounded
+                                    : Icons.play_arrow_rounded,),
                                 color: Theme.of(context).iconTheme.color,
                               ),
                             )
@@ -157,25 +160,26 @@ class ControlButtons extends StatelessWidget {
               );
             case 'Next':
               return SizedBox(
-                  height: miniplayer ? MusicPlayerConstants.miniPlayerHeight : MusicPlayerConstants.musicPlayerHeight,
-                  width: miniplayer ? MusicPlayerConstants.miniPlayerWidth : MusicPlayerConstants.musicPlayerWidth,
-                  child: StreamBuilder<QueueState>(
-                stream: audioHandler.queueState,
-                builder: (context, snapshot) {
-                  final queueState = snapshot.data;
-                  return IconButton(
-                    icon: const Icon(Icons.skip_next_rounded),
-                    iconSize: miniplayer ? 24.0 : 45.0,
-                    tooltip: PlayerTranslationConstants.skipNext.tr,
-                    color: dominantColor ?? Theme.of(context).iconTheme.color,
-                    onPressed: queueState?.hasNext ?? true
-                        ? audioHandler.skipToNext
-                        : null,
-                  );
-                },),
+                height: miniplayer ? MusicPlayerConstants.miniPlayerHeight : MusicPlayerConstants.musicPlayerHeight,
+                width: miniplayer ? MusicPlayerConstants.miniPlayerWidth : MusicPlayerConstants.musicPlayerWidth,
+                child: StreamBuilder<QueueState>(
+                  stream: audioHandler.queueState,
+                  builder: (context, snapshot) {
+                    final queueState = snapshot.data;
+                    return IconButton(
+                      padding: EdgeInsets.zero,
+                      icon: const Icon(Icons.skip_next_rounded),
+                      iconSize: miniplayer ? 24.0 : 45.0,
+                      tooltip: PlayerTranslationConstants.skipNext.tr,
+                      color: dominantColor ?? Theme.of(context).iconTheme.color,
+                      onPressed: queueState?.hasNext ?? true
+                          ? audioHandler.skipToNext : null,
+                    );
+                  },
+                ),
               );
             case 'Download':
-              return !isOnline ? const SizedBox() : SizedBox(
+              return !isOnline ? const SizedBox.shrink() : SizedBox(
                   height: miniplayer ? MusicPlayerConstants.miniPlayerHeight : MusicPlayerConstants.musicPlayerHeight,
                   width: miniplayer ? MusicPlayerConstants.miniPlayerWidth : MusicPlayerConstants.musicPlayerWidth,
                   child: DownloadButton(size: 20.0,
@@ -185,7 +189,7 @@ class ControlButtons extends StatelessWidget {
             default:
               break;
           }
-          return const SizedBox();
+          return const SizedBox.shrink();
         }).toList(),
       ) : Center(child: Text(AppTranslationConstants.noAvailablePreviewUrl.tr, style: const TextStyle(fontSize: 16)),),
     );

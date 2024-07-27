@@ -158,7 +158,7 @@ class _MusicPlaybackSettingsPageState extends State<MusicPlaybackSettingsPage> {
                     fontSize: 12,
                     color: Theme.of(context).textTheme.bodyLarge!.color,
                   ),
-                  underline: const SizedBox(),
+                  underline: const SizedBox.shrink(),
                   onChanged: (String? newValue) {
                     if (newValue != null) {
                       setState(() {
@@ -193,7 +193,7 @@ class _MusicPlaybackSettingsPageState extends State<MusicPlaybackSettingsPage> {
                     fontSize: 12,
                     color: Theme.of(context).textTheme.bodyLarge!.color,
                   ),
-                  underline: const SizedBox(),
+                  underline: const SizedBox.shrink(),
                   onChanged: (String? newValue) {
                     if (newValue != null) {
                       setState(

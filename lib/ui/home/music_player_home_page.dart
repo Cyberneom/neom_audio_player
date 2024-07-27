@@ -36,17 +36,14 @@ class MusicPlayerHomePage extends StatelessWidget {
                   NestedScrollView(
                     physics: const BouncingScrollPhysics(),
                     controller: _.scrollController,
-                    headerSliverBuilder: (BuildContext context,
-                        bool innerBoxScrolled,) {
+                    headerSliverBuilder: (BuildContext context, bool innerBoxScrolled,) {
                       return [
                         SliverAppBar(
                           leading: homeDrawer(context: context,),
-                          actions: const [
-                            RightSideCompanyLogo()
-                          ],
+                          actions: const [RightSideCompanyLogo()],
                           backgroundColor: AppColor.main75,
                           elevation: 10,
-                          toolbarHeight: 40,
+                          toolbarHeight: 45,
                         ),
                         SliverAppBar(
                           leading: _.showSearchBarLeading.value ? homeDrawer(context: context,) : null,
@@ -54,7 +51,7 @@ class MusicPlayerHomePage extends StatelessWidget {
                           pinned: true,
                           backgroundColor: AppColor.main75,
                           elevation: 0,
-                          toolbarHeight: 40,
+                          toolbarHeight: 45,
                           title: Align(
                             alignment: Alignment.centerRight,
                             child: AnimatedBuilder(

@@ -247,7 +247,7 @@
 //                                           : Colors.grey[700],
 //                                     )
 //                                   else
-//                                     const SizedBox(),
+//                                     const SizedBox.shrink(),
 //                                   const SizedBox(width: 10),
 //                                   Text(
 //                                     e,
@@ -279,7 +279,7 @@
 //                                           : Colors.grey[700],
 //                                     )
 //                                   else
-//                                     const SizedBox(),
+//                                     const SizedBox.shrink(),
 //                                   const SizedBox(width: 10),
 //                                   Text(
 //                                     e,

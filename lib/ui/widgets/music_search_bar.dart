@@ -192,7 +192,7 @@ class _MusicSearchBarState extends State<MusicSearchBar> {
                       Widget? child,
                     ) {
                       return suggestedList.isEmpty
-                          ? const SizedBox()
+                          ? const SizedBox.shrink()
                           : Card(
                               margin: const EdgeInsets.symmetric(
                                 horizontal: 18.0,

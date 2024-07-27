@@ -6,6 +6,7 @@ class MusicPlayerBottomAppBar extends StatefulWidget {
   final String centerItemText;
   final double height;
   final double iconSize;
+  final double fontSize;
   final Color? backgroundColor;
   final Color color;
   final Color selectedColor;
@@ -16,7 +17,8 @@ class MusicPlayerBottomAppBar extends StatefulWidget {
     required this.items,
     this.centerItemText = "",
     this.height = 60.0,
-    this.iconSize = 20.0,
+    this.iconSize = 18.0,
+    this.fontSize = 12.0,
     this.backgroundColor,
     required this.color,
     required this.selectedColor,
@@ -49,33 +51,17 @@ class MusicPlayerBottomAppBarState extends State<MusicPlayerBottomAppBar> {
         onPressed: _updateIndex,
       );
     });
-    items.insert(items.length >> 1, _buildMiddleTabItem());
+
 
     return BottomAppBar(
+      height: widget.height,
       shape: widget.notchedShape,
       color: widget.backgroundColor,
+      notchMargin: 0,
       child: Row(
-        mainAxisSize: MainAxisSize.max,
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: items,
       ),
-    );
-  }
-
-  Widget _buildMiddleTabItem() {
-    return SizedBox(
-        height: widget.height,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            SizedBox(height: widget.iconSize),
-            Text(
-              widget.centerItemText,
-              style: TextStyle(color: widget.color),
-            ),
-          ],
-        ),
     );
   }
 
@@ -86,25 +72,16 @@ class MusicPlayerBottomAppBarState extends State<MusicPlayerBottomAppBar> {
   }) {
     Color color = _selectedIndex == index ? widget.selectedColor : widget.color;
     return Expanded(
-      child: SizedBox(
-        height: widget.height,
-        child: Material(
-          type: MaterialType.transparency,
-          child: InkWell(
-            onTap: () => onPressed!(index),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                if(item?.animation != null) item!.animation!,
-                Icon(item!.iconData, color: color, size: widget.iconSize),
-                Text(
-                  item.text,
-                  style: TextStyle(color: color),
-                ),
-              ],
-            ),
-          ),
+      child: GestureDetector(
+        onTap: () => onPressed!(index),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            if(item?.animation != null) item!.animation!,
+            Icon(item!.iconData, color: color, size: widget.iconSize),
+            Text(item.text, style: TextStyle(color: color, fontSize: widget.fontSize),),
+          ],
         ),
       ),
     );

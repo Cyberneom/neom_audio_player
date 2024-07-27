@@ -47,7 +47,7 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
                     fontSize: 12,
                     color: Theme.of(context).textTheme.bodyLarge!.color,
                   ),
-                  underline: const SizedBox(),
+                  underline: const SizedBox.shrink(),
                   onChanged: (String? newValue) {
                     if (newValue != null) {
                       setState(

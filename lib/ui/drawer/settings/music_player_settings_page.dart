@@ -172,7 +172,7 @@ class _MusicPlayerSettingsPageState extends State<MusicPlayerSettingsPage> {
               final List<Map> results = _getSearchResults(searchOptions, query);
               return _searchSuggestions(context, results);
             }
-            return const SizedBox();
+            return const SizedBox.shrink();
           },
         ),
       ],

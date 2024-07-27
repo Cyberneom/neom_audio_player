@@ -76,7 +76,7 @@ class RecentlyPlayedPageState extends State<RecentlyPlayedPage> {
           itemBuilder: (context, index) {
             final AppMediaItem item = _songs.values.elementAt(index);
             return _songs.isEmpty
-                ? const SizedBox()
+                ? const SizedBox.shrink()
                 : Dismissible(
               key: Key(item.id),
               direction: DismissDirection.endToStart,

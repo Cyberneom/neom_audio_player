@@ -118,10 +118,10 @@ class MediaPlayerController extends GetxController {
   //     builder: (context, snapshot) {
   //       final position = snapshot.data;
   //       return position == null
-  //           ? const SizedBox()
+  //           ? const SizedBox.shrink()
   //           : (position.inSeconds.toDouble() < 0.0 ||
   //           (position.inSeconds.toDouble() > (maxDuration ?? 180.0)))
-  //           ? const SizedBox()
+  //           ? const SizedBox.shrink()
   //           : SliderTheme(
   //         data: SliderTheme.of(context).copyWith(
   //           activeTrackColor: Theme.of(context).colorScheme.secondary,

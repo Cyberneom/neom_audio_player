@@ -13,42 +13,6 @@ class MusicPlayerTheme with ChangeNotifier {
   int bottomGrad = Hive.box(AppHiveConstants.settings).get('bottomGrad', defaultValue: 3) as int;
   int colorHue = Hive.box(AppHiveConstants.settings).get('colorHue', defaultValue: 400) as int;
 
-  final List<List<Color>> _cardOpt = [
-    [
-      Colors.grey[850]!,
-      Colors.grey[850]!,
-      Colors.grey[900]!,
-    ],
-    [
-      Colors.grey[850]!,
-      Colors.grey[900]!,
-      Colors.grey[900]!,
-    ],
-    [
-      Colors.grey[850]!,
-      Colors.grey[900]!,
-      Colors.black,
-    ],
-    [
-      Colors.grey[900]!,
-      Colors.grey[900]!,
-      Colors.black,
-    ],
-    [
-      Colors.grey[900]!,
-      Colors.black,
-    ],
-    [
-      Colors.grey[900]!,
-      Colors.black,
-      Colors.black,
-    ],
-    [
-      Colors.black,
-      Colors.black,
-    ]
-  ];
-
   ThemeMode currentTheme() {
     if (_useSystemTheme == true) {
       return ThemeMode.system;
@@ -75,9 +39,9 @@ class MusicPlayerTheme with ChangeNotifier {
     return Colors.grey[850]!;
   }
 
-  List<Color> getCardGradient() {
-    return _cardOpt[cardGrad];
-  }
+  // List<Color> getCardGradient() {
+  //   return _cardOpt[cardGrad];
+  // }
 
   Color currentColor() {
     switch (accentColor) {

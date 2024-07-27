@@ -26,8 +26,8 @@ class MusicPlayerConstants {
     'Vietnamese',
   ];
 
-  static const double miniPlayerHeight = 40;
-  static const double miniPlayerWidth = 40;
+  static const double miniPlayerHeight = 30;
+  static const double miniPlayerWidth = 30;
   static const double musicPlayerHeight= 65;
   static const double musicPlayerWidth= 65;
 

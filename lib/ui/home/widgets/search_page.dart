@@ -203,7 +203,7 @@ class SearchPageState extends State<SearchPage> {
                         List<String> value,
                         Widget? child,
                         ) {
-                      if (value.isEmpty) return const SizedBox();
+                      if (value.isEmpty) return const SizedBox.shrink();
                       return Column(
                         children: [
                           Padding(

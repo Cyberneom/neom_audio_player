@@ -129,7 +129,7 @@ class ArtWorkWidget extends StatelessWidget {
                   child: const CircularProgressIndicator(),
                   builder: (BuildContext context, String value, Widget? child,) {
                     if (value == '' || value == AppFlavour.getAppName()) {
-                      return const SizedBox();
+                      return const SizedBox.shrink();
                     }
                     return Align(
                       alignment: Alignment.bottomRight,
@@ -322,7 +322,7 @@ class ArtWorkWidget extends StatelessWidget {
                                         size: 60.0,
                                       ),
                                     ),
-                                    const SizedBox(),
+                                    const SizedBox.shrink(),
                                     Visibility(
                                       visible: value == 1,
                                       child: child!,

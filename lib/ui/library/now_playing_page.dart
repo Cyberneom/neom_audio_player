@@ -54,7 +54,7 @@ class NowPlayingPageState extends State<NowPlayingPage> {
               builder: (context, snapshot) {
                 final mediaItem = snapshot.data;
                 return mediaItem == null
-                    ? const SizedBox()
+                    ? const SizedBox.shrink()
                     : BouncyImageSliverScrollView(
                   scrollController: _scrollController,
                   title: PlayerTranslationConstants.nowPlaying.tr,

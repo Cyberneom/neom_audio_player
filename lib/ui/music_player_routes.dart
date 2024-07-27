@@ -16,7 +16,7 @@ import 'music_player_root_page.dart';
 class MusicPlayerAppRoutes {
 
   static Widget initialFunction() {
-    if(Hive.box(AppHiveConstants.settings).get('userId') != null || AppFlavour.appInUse == AppInUse.e) {
+    if(Hive.box(AppHiveConstants.settings).get(AppHiveConstants.userId) != null || AppFlavour.appInUse == AppInUse.e) {
       return const MusicPlayerRootPage();
     } else {
       return const WelcomePreferencePage();

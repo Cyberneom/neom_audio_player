@@ -1,3 +1,4 @@
+//
 // import 'package:flutter/material.dart';
 // import 'package:get/get.dart';
 // import 'package:neom_commons/core/utils/app_color.dart';
@@ -49,7 +50,7 @@
 //                   },
 //                 ),
 //                 if (playlistDetails.isEmpty)
-//                   const SizedBox()
+//                   const SizedBox.shrink()
 //                 else
 //                   ListView.builder(
 //                     physics: const NeverScrollableScrollPhysics(),

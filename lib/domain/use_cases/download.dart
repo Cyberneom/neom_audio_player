@@ -235,7 +235,7 @@ class Download with ChangeNotifier {
                               ),
                             ),
                           ),
-                          const SizedBox(),
+                          const SizedBox.shrink(),
                         ],
                       ),
                     ),

@@ -40,7 +40,7 @@ class MultiDownloadButtonState extends State<MultiDownloadButton> {
   @override
   Widget build(BuildContext context) {
     if (widget.data.isEmpty) {
-      return const SizedBox();
+      return const SizedBox.shrink();
     }
     return SizedBox(
       width: 50,

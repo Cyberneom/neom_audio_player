@@ -260,7 +260,7 @@ class WelcomePreferencePageState extends State<WelcomePreferencePage> {
                                                 child: ListTile(
                                                   contentPadding: const EdgeInsets.only(left: 25.0, right: 25.0,),
                                                   title: Text(countries[idx],),
-                                                  trailing: region == countries[idx] ? const Icon(Icons.check_rounded,) : const SizedBox(),
+                                                  trailing: region == countries[idx] ? const Icon(Icons.check_rounded,) : const SizedBox.shrink(),
                                                   selected: region == countries[idx],
                                                   onTap: () {
                                                     region = countries[idx];

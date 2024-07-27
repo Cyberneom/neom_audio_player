@@ -145,13 +145,6 @@ class MusicPlayerDrawer extends StatelessWidget {
                   ),
                 ),
               );
-            ///DEPRECATED
-            // case MusicPlayerDrawerMenu.myMusic:
-            //   Navigator.push(context,
-            //     MaterialPageRoute(
-            //       builder: (context) => const DownloadedSongs(showPlaylists: true,),
-            //     ),
-            //   );
             case MusicPlayerDrawerMenu.downloads:
               Navigator.pushNamed(context, MusicPlayerRouteConstants.downloads);
             case MusicPlayerDrawerMenu.playlists:
@@ -160,15 +153,6 @@ class MusicPlayerDrawer extends StatelessWidget {
               Navigator.pushNamed(context, MusicPlayerRouteConstants.stats);
             case MusicPlayerDrawerMenu.settings:
               Navigator.pushNamed(context, MusicPlayerRouteConstants.setting);
-              // final idx = sectionsToShow.indexOf(MusicPlayerRouteConstants.setting);
-              // if (idx != -1) {
-              //   if (_selectedIndex.value != idx) onItemTapped(idx);
-              // } else {
-              //   Navigator.push(context, MaterialPageRoute(
-              //       builder: (context) => MusicPlayerSettingsPage(callback: callback),
-              //     ),
-              //   );
-              // }
             default:
               break;
           }

@@ -5,6 +5,7 @@ import 'package:get_it/get_it.dart';
 import 'package:neom_commons/core/data/implementations/user_controller.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
+import 'package:neom_commons/core/utils/constants/app_page_id_constants.dart';
 import 'package:neom_commons/core/utils/constants/app_route_constants.dart';
 
 import '../../domain/use_cases/neom_audio_handler.dart';
@@ -13,12 +14,12 @@ class MiniPlayerController extends GetxController {
 
   final userController = Get.find<UserController>();
 
-  final Rx<AppMediaItem> appMediaItem = AppMediaItem().obs;
-  final Rxn<MediaItem> mediaItem = Rxn<MediaItem>();
-  final RxBool isLoading = true.obs;
-  final RxBool isTimeline = true.obs;
-  final RxBool isButtonDisabled = false.obs;
-  final RxBool showInTimeline = true.obs;
+  AppMediaItem appMediaItem = AppMediaItem();
+  MediaItem? mediaItem;
+  bool isLoading = true;
+  bool isTimeline = true;
+  bool isButtonDisabled = false;
+  bool showInTimeline = true;
   late final NeomAudioHandler audioHandler;
 
   @override
@@ -44,8 +45,8 @@ class MiniPlayerController extends GetxController {
       AppUtilities.logger.e(e.toString());
     }
 
-    isLoading.value = false;
-    update();
+    isLoading = false;
+    update([AppPageIdConstants.miniPlayer]);
   }
 
 
@@ -55,20 +56,20 @@ class MiniPlayerController extends GetxController {
 
   void setMediaItem(MediaItem item) {
     AppUtilities.logger.d('Setting new mediaitem ${item.title}');
-    mediaItem.value = item;
-    update();
+    mediaItem = item;
+    update([AppPageIdConstants.miniPlayer]);
   }
 
   void setIsTimeline(bool value) {
     AppUtilities.logger.d('Setting IsTimeline: $value');
-    isTimeline.value = value;
-    update();
+    isTimeline = value;
+    update([AppPageIdConstants.home, AppPageIdConstants.timeline]);
   }
 
   void setShowInTimeline({bool value = true}) {
     AppUtilities.logger.i('Setting showInTimeline to $value');
-    showInTimeline.value =  value;
-    update();
+    showInTimeline =  value;
+    update([AppPageIdConstants.home, AppPageIdConstants.musicPlayerHome, AppPageIdConstants.miniPlayer]);
   }
 
   StreamBuilder<Duration> positionSlider(double? maxDuration) {
@@ -77,10 +78,10 @@ class MiniPlayerController extends GetxController {
       builder: (context, snapshot) {
         final position = snapshot.data;
         return position == null
-            ? const SizedBox()
+            ? const SizedBox.shrink()
             : (position.inSeconds.toDouble() < 0.0 ||
             (position.inSeconds.toDouble() > (maxDuration ?? 180.0)))
-            ? const SizedBox()
+            ? const SizedBox.shrink()
             : SliderTheme(
           data: SliderTheme.of(context).copyWith(
             activeTrackColor: Theme.of(context).colorScheme.secondary,
@@ -116,16 +117,17 @@ class MiniPlayerController extends GetxController {
   }
 
   void goToMusicPlayerHome() {
-    isTimeline.value = false;
+    isTimeline = false;
     Get.toNamed(AppRouteConstants.musicPlayerHome);
-    update();
+    update([AppPageIdConstants.home, AppPageIdConstants.musicPlayerHome, AppPageIdConstants.miniPlayer]);
   }
 
   void goToTimeline(BuildContext context) {
-    isTimeline.value = true;
-    showInTimeline.value = true;
+    isTimeline = true;
+    showInTimeline = mediaItem != null;
+
     Get.back();
-    update();
+    update([AppPageIdConstants.home, AppPageIdConstants.musicPlayerHome, AppPageIdConstants.miniPlayer]);
   }
 
 }

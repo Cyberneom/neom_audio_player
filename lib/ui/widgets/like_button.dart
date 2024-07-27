@@ -11,13 +11,15 @@ import '../../utils/constants/player_translation_constants.dart';
 
 class LikeButton extends StatefulWidget {
 
-  final AppMediaItem? appMediaItem;
   final double size;
+  final EdgeInsets? padding;
+  final AppMediaItem? appMediaItem;
 
   const LikeButton({
     super.key,
-    this.appMediaItem,
     this.size = 25,
+    this.padding,
+    this.appMediaItem,
   });
 
   @override
@@ -32,6 +34,7 @@ class LikeButtonState extends State<LikeButton>
   late Animation<double> _curve;
   PlaylistHiveController playlistHiveController = PlaylistHiveController();
   AppProfile profile = AppProfile();
+
   @override
   void initState() {
     super.initState();
@@ -72,6 +75,7 @@ class LikeButtonState extends State<LikeButton>
     return ScaleTransition(
       scale: _scale,
       child: IconButton(
+        padding: widget.padding,
         icon: Icon(
           liked ? Icons.favorite_rounded : Icons.favorite_border_rounded,
           color: liked ? Colors.redAccent : Theme.of(context).iconTheme.color,

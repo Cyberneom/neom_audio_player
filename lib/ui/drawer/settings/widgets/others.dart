@@ -231,6 +231,8 @@ class _OthersPageState extends State<OthersPage> {
             //     );
             //   },
             // ),
+
+            ///DEPRECATED
             // ListTile(
             //   title: Text(
             //     PlayerTranslationConstants.minAudioLen.tr,
@@ -254,6 +256,7 @@ class _OthersPageState extends State<OthersPage> {
             //     );
             //   },
             // ),
+
             ListTile(
               title: Text(PlayerTranslationConstants.clearCache.tr,),
               subtitle: Text(PlayerTranslationConstants.clearCacheSub.tr,),

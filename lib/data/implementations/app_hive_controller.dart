@@ -13,8 +13,6 @@ import '../../utils/constants/app_hive_constants.dart';
 
 class AppHiveController extends GetxController {
 
-  final logger = AppUtilities.logger;
-
   //Music Player Cache
   List searchedList = [];
   List searchQueries = [];
@@ -41,11 +39,10 @@ class AppHiveController extends GetxController {
   bool showHistory = true;
   List searchHistory = [];
 
-
   @override
   Future<void> onInit() async {
     super.onInit();
-    logger.t('AppHive Controller');
+    AppUtilities.logger.t('AppHive Controller');
 
     try {
       await fetchCachedData();
