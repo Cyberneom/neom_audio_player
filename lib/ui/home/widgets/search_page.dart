@@ -71,7 +71,7 @@ class SearchPageState extends State<SearchPage> {
     }
 
     for (var item in items.values) {
-      if(item.name.toLowerCase().contains(searchParam.toLowerCase()) || item.ownerName.toLowerCase().contains(searchParam.toLowerCase())){
+      if(item.name.toLowerCase().contains(searchParam.toLowerCase()) || (item.ownerName?.toLowerCase().contains(searchParam.toLowerCase()) ?? false)){
         appMediaItems[item.id] = AppMediaItem.fromAppReleaseItem(item);
       }
     }

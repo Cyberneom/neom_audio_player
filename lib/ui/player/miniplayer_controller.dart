@@ -2,13 +2,18 @@ import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:metadata_god/metadata_god.dart';
 import 'package:neom_commons/core/data/implementations/user_controller.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/constants/app_page_id_constants.dart';
 import 'package:neom_commons/core/utils/constants/app_route_constants.dart';
 
+import '../../data/implementations/app_hive_controller.dart';
+import '../../data/providers/neom_audio_provider.dart';
 import '../../domain/use_cases/neom_audio_handler.dart';
+import '../../utils/constants/app_hive_constants.dart';
 
 class MiniPlayerController extends GetxController {
 
@@ -28,7 +33,8 @@ class MiniPlayerController extends GetxController {
     AppUtilities.logger.t('onInit miniPlayer Controller');
 
     try {
-      audioHandler = await GetIt.I.getAsync<NeomAudioHandler>();
+      // await initAudioPlayerModule();
+      // audioHandler = await GetIt.I.getAsync<NeomAudioHandler>();
     } catch (e) {
       AppUtilities.logger.e(e.toString());
     }
@@ -128,6 +134,34 @@ class MiniPlayerController extends GetxController {
 
     Get.back();
     update([AppPageIdConstants.home, AppPageIdConstants.musicPlayerHome, AppPageIdConstants.miniPlayer]);
+  }
+
+  Future<void> initHiveMeta() async {
+    AppUtilities.logger.d('initHiveMeta');
+
+    await Hive.initFlutter();
+    for (final box in AppHiveConstants.hiveBoxes) {
+      await AppHiveController.openHiveBox(
+        box[AppHiveConstants.name].toString(),
+        limit: box[AppHiveConstants.limit] as bool? ?? false,
+      );
+    }
+    await AppHiveController().onInit();
+    MetadataGod.initialize();
+  }
+
+  Future<void> initAudioPlayerModule() async {
+    AppUtilities.logger.d('initAudioPlayerModule');
+
+    try {
+      GetIt.I.registerLazySingletonAsync<NeomAudioHandler>(() async {
+        final neomAudioProvider = NeomAudioProvider();
+        audioHandler = await neomAudioProvider.getAudioHandler();
+        return audioHandler;
+      });
+    } catch (e) {
+      AppUtilities.logger.e(e.toString());
+    }
   }
 
 }

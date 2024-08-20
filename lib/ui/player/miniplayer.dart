@@ -23,11 +23,15 @@ class MiniPlayer extends StatelessWidget {
       id: AppPageIdConstants.miniPlayer,
       init: MiniPlayerController(),
       builder: (_) {
-        List preferredButtons = Hive.box(AppHiveConstants.settings).get(AppHiveConstants.preferredMiniButtons, defaultValue: ['Like', 'Play/Pause', 'Next'],)?.toList() as List<dynamic>;
+        if(_.isLoading || (_.isTimeline && !_.showInTimeline)) return const SizedBox.shrink();
+
+        List preferredButtons = Hive.box(AppHiveConstants.settings)
+            .get(AppHiveConstants.preferredMiniButtons,
+          defaultValue: ['Like', 'Play/Pause', 'Next'],)?.toList() as List<dynamic>;
+
         final List<String> preferredMiniButtons = preferredButtons.map((e) => e.toString()).toList();
-        return _.isLoading || (_.isTimeline && !_.showInTimeline)
-            ? const SizedBox.shrink() :
-        SizedBox(
+
+        return SizedBox(
           ///DEPRECATED
           // height: _.mediaItem == null ? 76 : 74,
           child: Dismissible(

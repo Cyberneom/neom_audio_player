@@ -42,7 +42,7 @@ class WelcomePreferencePageState extends State<WelcomePreferencePage> {
                     padding: const EdgeInsets.only(right: 15),
                     child: TextButton(
                       onPressed: () {
-                        Hive.box(AppHiveConstants.settings).put(AppHiveConstants.userId, userController.user!.id,);
+                        Hive.box(AppHiveConstants.settings).put(AppHiveConstants.userId, userController.user.id,);
                         Navigator.popAndPushNamed(context, MusicPlayerRouteConstants.root,);
                       },
                       child: Text(
@@ -280,7 +280,7 @@ class WelcomePreferencePageState extends State<WelcomePreferencePage> {
                                 const SizedBox(height: 20.0,),
                                 GestureDetector(
                                   onTap: () {
-                                    Hive.box(AppHiveConstants.settings).put(AppHiveConstants.userId, userController.user!.id,);
+                                    Hive.box(AppHiveConstants.settings).put(AppHiveConstants.userId, userController.user.id,);
                                     Navigator.popAndPushNamed(context, MusicPlayerRouteConstants.root,);
                                   },
                                   child: Container(

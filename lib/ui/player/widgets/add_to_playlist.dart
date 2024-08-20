@@ -25,7 +25,7 @@ class AddToPlaylist {
   Future<void> addToPlaylist(BuildContext context, AppMediaItem appMediaItem, {bool fromSearch = false}) async {
 
     List<Itemlist> itemlists = []; ///GET INFO FROM CONTROLLER
-    ProfileType type = ProfileType.fan; ///GET INFO FROM CONTROLLER
+    ProfileType type = ProfileType.casual; ///GET INFO FROM CONTROLLER
     AppMediaItemSearchController searchController;
 
     try {
@@ -49,11 +49,11 @@ class AddToPlaylist {
           backgroundColor: AppColor.main75,
           titleStyle: const TextStyle(color: Colors.white),
         ),
-        title: type == ProfileType.instrumentist ? AppTranslationConstants.appItemPrefs.tr
+        title: type == ProfileType.artist ? AppTranslationConstants.appItemPrefs.tr
             : AppTranslationConstants.playlistToChoose.tr,
         content: Column(
           children: <Widget>[
-            if (type == ProfileType.instrumentist) Obx(()=>
+            if(type == ProfileType.artist) Obx(()=>
                 DropdownButton<String>(
                   items: AppItemState.values.map((AppItemState itemState) {
                     return DropdownMenuItem<String>(
@@ -147,7 +147,7 @@ class AddToPlaylist {
                 : Text(AppTranslationConstants.add.tr,
             ),),
             onPressed: () async => {
-              if(type == ProfileType.instrumentist)
+              if(type == ProfileType.artist)
                 searchController.appItemState > 0
                     ? await searchController.addItemlistItem(context, fanItemState: searchController.appItemState.value)
                     : AppUtilities.showSnackBar(

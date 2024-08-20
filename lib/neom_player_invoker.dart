@@ -17,6 +17,7 @@ import 'utils/helpers/media_item_mapper.dart';
 
 // ignore: avoid_classes_with_only_static_members
 class NeomPlayerInvoker {
+
   static final NeomAudioHandler audioHandler = GetIt.I<NeomAudioHandler>();
 
   static Future<void> init({required List<AppMediaItem> appMediaItems, required int index,

@@ -11,6 +11,7 @@ import '../../../utils/helpers/media_item_mapper.dart';
 import '../../widgets/download_button.dart';
 import '../../widgets/like_button.dart';
 
+// ignore: must_be_immutable
 class ControlButtons extends StatelessWidget {
 
   final NeomAudioHandler audioHandler;

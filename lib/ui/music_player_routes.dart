@@ -3,7 +3,7 @@ import 'package:hive/hive.dart';
 import 'package:neom_commons/core/app_flavour.dart';
 import 'package:neom_commons/core/utils/enums/app_in_use.dart';
 
-import '../neom_music_player_app.dart';
+import '../audio_player_app.dart';
 import '../utils/constants/app_hive_constants.dart';
 import '../utils/constants/music_player_route_constants.dart';
 import 'drawer/recently_played/recently_played_page.dart';
@@ -25,7 +25,7 @@ class MusicPlayerAppRoutes {
 
   static final Map<String, Widget Function(BuildContext)> routes = {
     MusicPlayerRouteConstants.root: (context) => initialFunction(),
-    MusicPlayerRouteConstants.home: (context) => const NeomMusicPlayerApp(),
+    MusicPlayerRouteConstants.home: (context) => const AudioPlayerApp(),
     MusicPlayerRouteConstants.pref: (context) => const WelcomePreferencePage(),
     MusicPlayerRouteConstants.setting: (context) => const MusicPlayerSettingsPage(),
     // MusicPlayerRouteConstants.player: (context) => MediaPlayerPage(),

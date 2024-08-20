@@ -132,7 +132,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
       _player.shuffleModeEnabledStream.listen((enabled) => _broadcastState(_player.playbackEvent));
       _player.loopModeStream.listen((event) => _broadcastState(_player.playbackEvent));
       _player.processingStateStream.listen((state) {
-        AppUtilities.logger.i('Music Player - Processing Stream: ${state.name}');
+        AppUtilities.logger.i('Audio Player - Processing Stream: ${state.name}');
         switch(state) {
           case ProcessingState.loading:
             break;

@@ -1,15 +1,15 @@
 import 'package:get/get.dart';
 import 'package:neom_commons/core/utils/constants/app_route_constants.dart';
-import 'neom_music_player_app.dart';
+import 'audio_player_app.dart';
 import 'ui/player/media_player_page.dart';
 import 'ui/player/miniplayer.dart';
 
-class MusicPlayerRoutes {
+class AudioPlayerRoutes {
 
   static final List<GetPage<dynamic>> routes = [
     GetPage(
         name: AppRouteConstants.musicPlayerHome,
-        page: () => const NeomMusicPlayerApp(),
+        page: () => const AudioPlayerApp(),
         transition: Transition.rightToLeftWithFade,
     ),
     GetPage(
