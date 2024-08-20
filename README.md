@@ -1,2 +1,2 @@
-# neom_music_player
-Music Player Module for Cyberneom.
+# neom_audio_player
+Audio Player Module for Cyberneom.
