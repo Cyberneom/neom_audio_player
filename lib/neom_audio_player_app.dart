@@ -13,12 +13,12 @@ import 'ui/player/miniplayer_controller.dart';
 import 'utils/helpers/route_handler.dart';
 import 'utils/theme/music_app_theme.dart';
 
-class AudioPlayerApp extends StatefulWidget {
-  const AudioPlayerApp({super.key});
+class NeomAudioPlayerApp extends StatefulWidget {
+  const NeomAudioPlayerApp({super.key});
 
 
   @override
-  AudioPlayerAppState createState() => AudioPlayerAppState();
+  NeomAudioPlayerAppState createState() => NeomAudioPlayerAppState();
 
   // // ignore: unreachable_from_main
   // static NeomMusicPlayerAppState of(BuildContext context) =>
@@ -43,7 +43,7 @@ class AudioPlayerApp extends StatefulWidget {
 
 }
 
-class AudioPlayerAppState extends State<AudioPlayerApp> {
+class NeomAudioPlayerAppState extends State<NeomAudioPlayerApp> {
 
   // late StreamSubscription _intentTextStreamSubscription;
   // late StreamSubscription _intentDataStreamSubscription;
