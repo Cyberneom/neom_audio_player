@@ -5,11 +5,13 @@ import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
+import 'package:neom_commons/core/app_flavour.dart';
 import 'package:neom_commons/core/data/implementations/user_controller.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_theme.dart';
 import 'package:neom_commons/core/utils/constants/app_route_constants.dart';
 import 'package:neom_commons/core/utils/constants/app_translation_constants.dart';
+import 'package:neom_commons/core/utils/enums/app_in_use.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -95,7 +97,7 @@ class NameNControls extends StatelessWidget {
                               : Get.find<UserController>().profile.id == _.appMediaItem.value.artistId ? Get.toNamed(AppRouteConstants.profile)
                               : Get.toNamed(AppRouteConstants.mateDetails, arguments: _.appMediaItem.value.artistId),
                         ),
-                        if(!MusicPlayerUtilities.isOwnMediaItem(_.appMediaItem.value))
+                        if(!MusicPlayerUtilities.isOwnMediaItem(_.appMediaItem.value) && AppFlavour.appInUse == AppInUse.g)
                           Padding(
                             padding: const EdgeInsets.only(top: 5),
                             child: AnimatedTextKit(
@@ -126,10 +128,10 @@ class NameNControls extends StatelessWidget {
                     ///DEPRECATED Duration bufferedPosition = Duration.zero;
                     Duration duration = Duration.zero;
 
-                    if(MusicPlayerUtilities.isOwnMediaItem(_.appMediaItem.value)) {
-                      duration = Duration(seconds: _.appMediaItem.value.duration);
-                    } else {
+                    if(!MusicPlayerUtilities.isOwnMediaItem(_.appMediaItem.value) && AppFlavour.appInUse == AppInUse.g) {
                       duration = const Duration(seconds: MusicPlayerConstants.externalDuration);
+                    } else {
+                      duration = Duration(seconds: _.appMediaItem.value.duration);
                     }
 
                     if(snapshot.data != null) {
@@ -187,7 +189,7 @@ class NameNControls extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             ControlButtons(_.audioHandler, mediaItem: mediaItem,),
-                            if(!MusicPlayerUtilities.isOwnMediaItem(_.appMediaItem.value))
+                            if(!MusicPlayerUtilities.isOwnMediaItem(_.appMediaItem.value) && AppFlavour.appInUse == AppInUse.g)
                               ElevatedButton(
                                 onPressed: () async {
                                   await launchUrl(Uri.parse(_.appMediaItem.value.permaUrl),
@@ -239,9 +241,8 @@ class NameNControls extends StatelessWidget {
                                 );
                               },
                             ),
-                            MusicPlayerUtilities.isOwnMediaItem(_.appMediaItem.value)
-                                ? (downloadAllowed ? DownloadButton(mediaItem: MediaItemMapper.fromMediaItem(mediaItem),): const SizedBox.shrink())
-                                : GoSpotifyButton(appMediaItem: _.appMediaItem.value),
+                            (!MusicPlayerUtilities.isOwnMediaItem(_.appMediaItem.value) && AppFlavour.appInUse == AppInUse.g)
+                                ? GoSpotifyButton(appMediaItem: _.appMediaItem.value) : (downloadAllowed ? DownloadButton(mediaItem: MediaItemMapper.fromMediaItem(mediaItem),): const SizedBox.shrink()),
                           ],
                         ),
                       ],

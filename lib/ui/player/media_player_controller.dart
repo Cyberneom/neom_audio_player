@@ -52,18 +52,16 @@ class MediaPlayerController extends GetxController {
 
     try {
 
-      List<dynamic> arguments  = Get.arguments;
-
-      if(arguments.isNotEmpty) {
-        if (arguments[0] is AppMediaItem) {
-          appMediaItem.value =  arguments.elementAt(0);
-        } else if (arguments[0] is String) {
+      if(Get.arguments != null && Get.arguments.isNotEmpty) {
+        if (Get.arguments[0] is AppMediaItem) {
+          appMediaItem.value =  Get.arguments.elementAt(0);
+        } else if (Get.arguments[0] is String) {
           ///VERIFY IF USEFUL
           ///appMediaItemId = arguments[0];???
         }
 
-        if(arguments.length > 1) {
-          reproduceItem.value = arguments[1] as bool;
+        if(Get.arguments.length > 1) {
+          reproduceItem.value = Get.arguments[1] as bool;
         }
       }
 

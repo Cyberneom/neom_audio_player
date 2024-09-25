@@ -86,7 +86,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
   }
 
   Future<void> _init() async {
-    AppUtilities.logger.i('Starting audio service');
+    AppUtilities.logger.i('Starting NeomAudioHandler');
 
     try {
       preferredCompactNotificationButtons = AppHiveController().preferredCompactNotificationButtons;
@@ -337,7 +337,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
   }
 
   Future<void> startService() async {
-    AppUtilities.logger.i('Starting AudioPlayer Service');
+    AppUtilities.logger.d('Starting AudioPlayer Service');
     if(_player.playing) _player.dispose();
     _player = AudioPlayer();
   }

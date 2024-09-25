@@ -77,6 +77,8 @@ class MusicPlayerHomeController extends GetxController {
     } catch (e) {
       AppUtilities.logger.e(e.toString());
     }
+
+    userController.defaultItemlistType = ItemlistType.playlist;
     isLoading.value = false;
     update([AppPageIdConstants.musicPlayerHome]);
   }

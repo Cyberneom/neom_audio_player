@@ -11,7 +11,6 @@ import 'package:neom_commons/core/utils/constants/app_page_id_constants.dart';
 import 'package:neom_commons/core/utils/constants/app_route_constants.dart';
 
 import '../../data/implementations/app_hive_controller.dart';
-import '../../data/providers/neom_audio_provider.dart';
 import '../../domain/use_cases/neom_audio_handler.dart';
 import '../../utils/constants/app_hive_constants.dart';
 
@@ -25,16 +24,15 @@ class MiniPlayerController extends GetxController {
   bool isTimeline = true;
   bool isButtonDisabled = false;
   bool showInTimeline = true;
-  late final NeomAudioHandler audioHandler;
+  late NeomAudioHandler audioHandler;
 
   @override
   void onInit() async {
     super.onInit();
-    AppUtilities.logger.t('onInit miniPlayer Controller');
+    AppUtilities.logger.d('onInit miniPlayer Controller');
 
     try {
-      // await initAudioPlayerModule();
-      // audioHandler = await GetIt.I.getAsync<NeomAudioHandler>();
+      audioHandler = await GetIt.I.getAsync<NeomAudioHandler>();
     } catch (e) {
       AppUtilities.logger.e(e.toString());
     }
@@ -150,18 +148,19 @@ class MiniPlayerController extends GetxController {
     MetadataGod.initialize();
   }
 
-  Future<void> initAudioPlayerModule() async {
-    AppUtilities.logger.d('initAudioPlayerModule');
-
-    try {
-      GetIt.I.registerLazySingletonAsync<NeomAudioHandler>(() async {
-        final neomAudioProvider = NeomAudioProvider();
-        audioHandler = await neomAudioProvider.getAudioHandler();
-        return audioHandler;
-      });
-    } catch (e) {
-      AppUtilities.logger.e(e.toString());
-    }
-  }
+  ///NOT NEEDED
+  // Future<void> initAudioPlayerModule() async {
+  //   AppUtilities.logger.d('initAudioPlayerModule');
+  //
+  //   try {
+  //     GetIt.I.registerLazySingletonAsync<NeomAudioHandler>(() async {
+  //       final neomAudioProvider = NeomAudioProvider();
+  //       audioHandler = await neomAudioProvider.getAudioHandler();
+  //       return audioHandler;
+  //     });
+  //   } catch (e) {
+  //     AppUtilities.logger.e(e.toString());
+  //   }
+  // }
 
 }

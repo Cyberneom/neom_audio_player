@@ -18,11 +18,18 @@ import 'utils/helpers/media_item_mapper.dart';
 // ignore: avoid_classes_with_only_static_members
 class NeomPlayerInvoker {
 
-  static final NeomAudioHandler audioHandler = GetIt.I<NeomAudioHandler>();
+  // static final NeomAudioHandler audioHandler = GetIt.I<NeomAudioHandler>();
+  static NeomAudioHandler audioHandler = GetIt.I<NeomAudioHandler>();
 
   static Future<void> init({required List<AppMediaItem> appMediaItems, required int index,
     bool fromMiniPlayer = false, bool isOffline = false, bool recommend = true,
     bool fromDownloads = false, bool shuffle = false, String? playlistBox, bool playItem = true,}) async {
+
+    if (GetIt.I.isRegistered<NeomAudioHandler>()) {
+      audioHandler = await GetIt.I.getAsync<NeomAudioHandler>();
+    }
+
+
 
     final int globalIndex = index < 0 ? 0 : index;
     final List<AppMediaItem> finalList = appMediaItems;

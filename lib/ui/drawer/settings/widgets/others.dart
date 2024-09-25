@@ -3,9 +3,11 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
+import 'package:neom_commons/core/app_flavour.dart';
 import 'package:neom_commons/core/ui/widgets/appbar_child.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_theme.dart';
+import 'package:neom_commons/core/utils/enums/app_in_use.dart';
 
 import '../../../../utils/constants/app_hive_constants.dart';
 import '../../../../utils/constants/player_translation_constants.dart';
@@ -38,13 +40,6 @@ class _OthersPageState extends State<OthersPage> {
           physics: const BouncingScrollPhysics(),
           padding: const EdgeInsets.all(10.0),
           children: [
-            // HiveBoxSwitchTile(
-            //   title: Text(PlayerTranslationConstants.liveSearch.tr,),
-            //   subtitle: Text(PlayerTranslationConstants.liveSearchSub.tr,),
-            //   keyName: 'liveSearch',
-            //   isThreeLine: false,
-            //   defaultValue: true,
-            // ),
             ///DOWNLOAD FEATURE IN PROGRESS
             // BoxSwitchTile(
             //   title: Text(PlayerTranslationConstants.useDown.tr,),
@@ -53,7 +48,7 @@ class _OthersPageState extends State<OthersPage> {
             //   isThreeLine: true,
             //   defaultValue: true,
             // ),
-            HiveBoxSwitchTile(
+            if(AppFlavour.appInUse == AppInUse.g) HiveBoxSwitchTile(
               title: PlayerTranslationConstants.getLyricsOnline.tr,
               subtitle: PlayerTranslationConstants.getLyricsOnlineSub.tr,
               keyName: 'getLyricsOnline',
@@ -67,17 +62,6 @@ class _OthersPageState extends State<OthersPage> {
               keyName: 'stopForegroundService',
               defaultValue: false,
             ),
-            ///DEPRECATED
-            // const HiveBoxSwitchTile(
-            //   title: Text('Remove Service from foreground when paused'),
-            //   subtitle: Text("If turned on, you can slide notification when paused to stop the service. "
-            //       "But Service can also be stopped by android to release memory. "
-            //       "If you don't want android to stop service while paused, turn it off\nDefault: On\n",
-            //   ),
-            //   isThreeLine: true,
-            //   keyName: 'stopServiceOnPause',
-            //   defaultValue: false,
-            // ),
             ///VERITY TO PLAY LOCAL FILES
             // ListTile(
             //   title: Text(PlayerTranslationConstants.includeExcludeFolder.tr,),
@@ -231,32 +215,6 @@ class _OthersPageState extends State<OthersPage> {
             //     );
             //   },
             // ),
-
-            ///DEPRECATED
-            // ListTile(
-            //   title: Text(
-            //     PlayerTranslationConstants.minAudioLen.tr,
-            //   ),
-            //   subtitle: Text(
-            //     PlayerTranslationConstants.minAudioLenSub.tr,
-            //   ),
-            //   dense: true,
-            //   onTap: () {
-            //     showTextInputDialog(
-            //       context: context,
-            //       title: PlayerTranslationConstants.minAudioAlert.tr,
-            //       initialText: (Hive.box(AppHiveConstants.settings).get('minDuration', defaultValue: 30) as int)
-            //           .toString(),
-            //       keyboardType: TextInputType.number,
-            //       onSubmitted: (String value, BuildContext context) {
-            //         if (value.trim() == '') value = '0';
-            //         Hive.box(AppHiveConstants.settings).put('minDuration', int.parse(value));
-            //         Navigator.pop(context);
-            //       },
-            //     );
-            //   },
-            // ),
-
             ListTile(
               title: Text(PlayerTranslationConstants.clearCache.tr,),
               subtitle: Text(PlayerTranslationConstants.clearCacheSub.tr,),

@@ -9,7 +9,7 @@ import 'neom_audio_handler.dart';
 SendPort? isolateSendPort;
 
 Future<void> startBackgroundProcessing() async {
-  AppUtilities.logger.i('Starting Backgroung Proccessing for NeomAudioHandler');
+  AppUtilities.logger.d('Starting Backgroung Proccessing for NeomAudioHandler');
 
   try {
     final NeomAudioHandler audioHandler = GetIt.I<NeomAudioHandler>();

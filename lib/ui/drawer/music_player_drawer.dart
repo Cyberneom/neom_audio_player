@@ -48,7 +48,7 @@ class MusicPlayerDrawer extends StatelessWidget {
                       // drawerRowOption(MusicPlayerDrawerMenu.myMusic, const Icon(MdiIcons.folderMusic,), context),
                       // drawerRowOption(MusicPlayerDrawerMenu.downloads, const Icon(Icons.download_done_rounded,), context),
                       drawerRowOption(MusicPlayerDrawerMenu.settings, const Icon(Icons.playlist_play_rounded,), context),
-                      if(_.appProfile.value.verificationLevel != VerificationLevel.none)
+                      if(_.appProfile.verificationLevel != VerificationLevel.none)
                       Column(
                         children: [
                           const Divider(),
@@ -107,16 +107,16 @@ class MusicPlayerDrawer extends StatelessWidget {
                             border: Border.all(color: Colors.white, width: 2),
                             borderRadius: BorderRadius.circular(28),
                             image: DecorationImage(
-                              image: CachedNetworkImageProvider(_.appProfile.value.photoUrl.isNotEmpty
-                                  ? _.appProfile.value.photoUrl : AppFlavour.getNoImageUrl(),),
+                              image: CachedNetworkImageProvider(_.appProfile.photoUrl.isNotEmpty
+                                  ? _.appProfile.photoUrl : AppFlavour.getNoImageUrl(),),
                               fit: BoxFit.cover,
                             ),
                           ),
                         ),
                         onTap: ()=> Get.toNamed(AppRouteConstants.profile),
                       ),
-                      Text(_.appProfile.value.name.length > AppConstants.maxArtistNameLength
-                          ? '${_.appProfile.value.name.substring(0,AppConstants.maxArtistNameLength)}...' : _.appProfile.value.name,
+                      Text(_.appProfile.name.length > AppConstants.maxArtistNameLength
+                          ? '${_.appProfile.name.substring(0,AppConstants.maxArtistNameLength)}...' : _.appProfile.name,
                         style: AppTheme.primaryTitleText,
                         overflow: TextOverflow.fade,
                       ),

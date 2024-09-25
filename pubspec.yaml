@@ -22,8 +22,8 @@ dependencies:
     git:
       url: git@github.com:Cyberneom/neom_itemlists.git
 
-  audio_service: ^0.18.13
-  just_audio: ^0.9.38
+  audio_service: ^0.18.15
+  just_audio: ^0.9.40
 
   metadata_god: ^0.5.2+1
 

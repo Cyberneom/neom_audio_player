@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:neom_commons/core/app_flavour.dart';
 import 'package:neom_commons/core/ui/widgets/appbar_child.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_theme.dart';
+import 'package:neom_commons/core/utils/enums/app_in_use.dart';
 
 import '../../../utils/constants/player_translation_constants.dart';
 import 'widgets/music_playback_settings_page.dart';
@@ -76,15 +78,15 @@ class _MusicPlayerSettingsPageState extends State<MusicPlayerSettingsPage> {
         ),
         'isThreeLine': true,
         'items': [
-          PlayerTranslationConstants.musicLang.tr,
+          // PlayerTranslationConstants.musicLang.tr,
           PlayerTranslationConstants.streamQuality.tr,
-          PlayerTranslationConstants.chartLocation.tr,
+          // PlayerTranslationConstants.chartLocation.tr,
           PlayerTranslationConstants.streamWifiQuality.tr,
           /// PlayerTranslationConstants.ytStreamQuality.tr,
           PlayerTranslationConstants.loadLast.tr,
           PlayerTranslationConstants.resetOnSkip.tr,
           PlayerTranslationConstants.enforceRepeat.tr,
-          PlayerTranslationConstants.autoplay.tr,
+          // PlayerTranslationConstants.autoplay.tr,
           PlayerTranslationConstants.cacheMediaItem.tr,
         ],
       },
@@ -104,11 +106,11 @@ class _MusicPlayerSettingsPageState extends State<MusicPlayerSettingsPage> {
       //   ],
       // },
       {
-        'title': PlayerTranslationConstants.others.tr,
+        'title': PlayerTranslationConstants.others.tr.capitalize,
         'icon': Icons.miscellaneous_services_rounded,
         'onTap': const OthersPage(),
         'isThreeLine': true,
-        'items': [
+        'items': AppFlavour.appInUse == AppInUse.g ? [
           PlayerTranslationConstants.getLyricsOnline.tr,
           PlayerTranslationConstants.stopOnClose.tr,
           PlayerTranslationConstants.clearCache.tr,
@@ -116,9 +118,10 @@ class _MusicPlayerSettingsPageState extends State<MusicPlayerSettingsPage> {
           // PlayerTranslationConstants.includeExcludeFolder.tr,
           // PlayerTranslationConstants.minAudioLen.tr,
           // PlayerTranslationConstants.supportEq.tr,
-          // PlayerTranslationConstants.liveSearch.tr,
           // PlayerTranslationConstants.checkUpdate.tr,
           // PlayerTranslationConstants.shareLogs.tr,
+        ] : [ PlayerTranslationConstants.stopOnClose.tr,
+          PlayerTranslationConstants.clearCache.tr,
         ],
       },
     ];

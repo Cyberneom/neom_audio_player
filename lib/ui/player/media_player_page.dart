@@ -85,6 +85,7 @@ class MediaPlayerPage extends StatelessWidget {
                     cardKey: _.onlineCardKey,
                     height: AppTheme.fullHeight(context)*0.425,
                     width: AppTheme.fullWidth(context),
+
                     offline: offline, getLyricsOnline: _.getLyricsOnline,
                   ),
                   NameNControls(

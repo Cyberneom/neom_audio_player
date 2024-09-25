@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
+import 'package:neom_commons/core/app_flavour.dart';
 import 'package:neom_commons/core/ui/widgets/appbar_child.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_theme.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
+import 'package:neom_commons/core/utils/enums/app_in_use.dart';
 
 import '../../../../utils/constants/app_hive_constants.dart';
 import '../../../../utils/constants/music_player_constants.dart';
@@ -37,7 +39,7 @@ class _MusicPlaybackSettingsPageState extends State<MusicPlaybackSettingsPage> {
             physics: const BouncingScrollPhysics(),
             padding: const EdgeInsets.all(10.0),
             children: [
-              ListTile(
+              if(AppFlavour.appInUse == AppInUse.g) ListTile(
                 title: Text(PlayerTranslationConstants.musicLang.tr,),
                 subtitle: Text(PlayerTranslationConstants.musicLangSub.tr,),
                 trailing: SizedBox(
@@ -129,24 +131,6 @@ class _MusicPlaybackSettingsPageState extends State<MusicPlaybackSettingsPage> {
                   );
                 },
               ),
-              ///VERIFY IF NEEDED WITHOUT SPOTIFY. USEFUL WHEN HAVING UPLOADED SONGS AROUND THE GLOBE
-              // ListTile(
-              //   title: Text(PlayerTranslationConstants.chartLocation.tr,),
-              //   subtitle: Text(PlayerTranslationConstants.chartLocationSub.tr,),
-              //   trailing: SizedBox(
-              //     width: 150,
-              //     child: Text(region,
-              //       textAlign: TextAlign.end,
-              //     ),
-              //   ),
-              //   dense: true,
-              //   onTap: () async {
-              //     region = await SpotifyHiveController().changeCountry(context: context);
-              //     setState(
-              //       () {},
-              //     );
-              //   },
-              // ),
               ListTile(
                 title: Text(PlayerTranslationConstants.streamQuality.tr,),
                 subtitle: Text(PlayerTranslationConstants.streamQualitySub.tr,),
@@ -233,13 +217,13 @@ class _MusicPlaybackSettingsPageState extends State<MusicPlaybackSettingsPage> {
                 keyName: 'enforceRepeat',
                 defaultValue: false,
               ),
-              HiveBoxSwitchTile(
-                title: PlayerTranslationConstants.autoplay.tr,
-                subtitle: PlayerTranslationConstants.autoplaySub.tr,
-                keyName: 'autoplay',
-                defaultValue: true,
-                isThreeLine: true,
-              ),
+              // HiveBoxSwitchTile(
+              //   title: PlayerTranslationConstants.autoplay.tr,
+              //   subtitle: PlayerTranslationConstants.autoplaySub.tr,
+              //   keyName: 'autoplay',
+              //   defaultValue: true,
+              //   isThreeLine: true,
+              // ),
               HiveBoxSwitchTile(
                 title: PlayerTranslationConstants.cacheMediaItem.tr,
                 subtitle: PlayerTranslationConstants.cacheMediaItemSub.tr,
