@@ -8,9 +8,9 @@ import 'package:neom_commons/core/utils/app_theme.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 
 import '../../../utils/constants/app_hive_constants.dart';
+import '../../../utils/constants/audio_player_constants.dart';
+import '../../../utils/constants/audio_player_route_constants.dart';
 import '../../../utils/constants/countrycodes.dart';
-import '../../../utils/constants/music_player_constants.dart';
-import '../../../utils/constants/music_player_route_constants.dart';
 import '../../../utils/constants/player_translation_constants.dart';
 
 class WelcomePreferencePage extends StatefulWidget {
@@ -43,7 +43,7 @@ class WelcomePreferencePageState extends State<WelcomePreferencePage> {
                     child: TextButton(
                       onPressed: () {
                         Hive.box(AppHiveConstants.settings).put(AppHiveConstants.userId, userController.user.id,);
-                        Navigator.popAndPushNamed(context, MusicPlayerRouteConstants.root,);
+                        Navigator.popAndPushNamed(context, AudioPlayerRouteConstants.root,);
                       },
                       child: Text(
                         PlayerTranslationConstants.skip.tr,
@@ -162,15 +162,15 @@ class WelcomePreferencePageState extends State<WelcomePreferencePage> {
                                                       physics: const BouncingScrollPhysics(),
                                                       shrinkWrap: true,
                                                       padding: const EdgeInsets.fromLTRB(0, 10, 0, 10,),
-                                                      itemCount: MusicPlayerConstants.musicLanguages.length,
+                                                      itemCount: AudioPlayerConstants.musicLanguages.length,
                                                       itemBuilder: (context, idx) {
                                                         return CheckboxListTile(
                                                           activeColor: Theme.of(context,).colorScheme.secondary,
-                                                          value: checked.contains(MusicPlayerConstants.musicLanguages[idx],),
-                                                          title: Text(MusicPlayerConstants.musicLanguages[idx],),
+                                                          value: checked.contains(AudioPlayerConstants.musicLanguages[idx],),
+                                                          title: Text(AudioPlayerConstants.musicLanguages[idx],),
                                                           onChanged: (bool? value,) {
-                                                            value! ? checked.add(MusicPlayerConstants.musicLanguages[idx],)
-                                                                : checked.remove(MusicPlayerConstants.musicLanguages[idx],);
+                                                            value! ? checked.add(AudioPlayerConstants.musicLanguages[idx],)
+                                                                : checked.remove(AudioPlayerConstants.musicLanguages[idx],);
                                                             setStt(() {});
                                                           },
                                                         );
@@ -281,7 +281,7 @@ class WelcomePreferencePageState extends State<WelcomePreferencePage> {
                                 GestureDetector(
                                   onTap: () {
                                     Hive.box(AppHiveConstants.settings).put(AppHiveConstants.userId, userController.user.id,);
-                                    Navigator.popAndPushNamed(context, MusicPlayerRouteConstants.root,);
+                                    Navigator.popAndPushNamed(context, AudioPlayerRouteConstants.root,);
                                   },
                                   child: Container(
                                     margin: const EdgeInsets.symmetric(vertical: 10.0,),

@@ -1,5 +1,7 @@
+import 'dart:async';
 
 import 'package:audio_service/audio_service.dart';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:neom_commons/core/app_flavour.dart';
@@ -9,14 +11,15 @@ import 'package:neom_commons/core/utils/constants/app_constants.dart';
 import 'package:neom_commons/core/utils/constants/app_route_constants.dart';
 import 'package:neom_commons/core/utils/constants/app_translation_constants.dart';
 import 'package:neom_commons/core/utils/enums/app_in_use.dart';
+import 'package:neom_commons/core/utils/enums/app_media_source.dart';
 
-import '../../../utils/constants/music_player_constants.dart';
+import '../../../utils/audio_player_utilities.dart';
+import '../../../utils/constants/audio_player_constants.dart';
 import '../../../utils/helpers/media_item_mapper.dart';
 import '../miniplayer_controller.dart';
 import 'control_buttons.dart';
 
-class MiniPlayerTile extends StatelessWidget {
-
+class MiniPlayerTile extends StatefulWidget {
   final MediaItem? item;
   final List<String> preferredMiniButtons;
   final bool useDense;
@@ -24,7 +27,8 @@ class MiniPlayerTile extends StatelessWidget {
   final bool isTimeline;
   final MiniPlayerController miniPlayerController;
 
-  const MiniPlayerTile({super.key,
+  const MiniPlayerTile({
+    super.key,
     this.item,
     required this.preferredMiniButtons,
     required this.miniPlayerController,
@@ -34,83 +38,126 @@ class MiniPlayerTile extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  State<MiniPlayerTile> createState() => _MiniPlayerTileState();
+}
 
+class _MiniPlayerTileState extends State<MiniPlayerTile> {
+
+  String titleText = '';
+  String subtitleText = '';
+  Timer? timer;
+
+  @override
+  void initState() {
+    super.initState();
+
+
+    titleText = widget.item?.title ?? '';
+    subtitleText = widget.item?.artist ?? '';
+
+    if(titleText.contains(' - ')) {
+      titleText = AudioPlayerUtilities.getMediaName(titleText);
+      if(subtitleText.isEmpty) {
+        subtitleText = AudioPlayerUtilities.getArtistName(titleText);
+      }
+    }
+
+    if(!widget.miniPlayerController.isInternal) {
+      subtitleText = AppTranslationConstants.releasePreview.tr;
+      startSubtitleToggle();
+    }
+  }
+
+  @override
+  void dispose() {
+    if(timer != null)  timer?.cancel();
+    super.dispose();
+  }
+
+  void startSubtitleToggle() {
+    timer = Timer.periodic(Duration(seconds: 2), (timer) {
+      setState(() {
+        // Toggle between item?.artist and "Vista Previa"
+        subtitleText = subtitleText == (widget.item?.artist ?? '')
+            ? AppTranslationConstants.releasePreview.tr
+            : widget.item?.artist ?? '';
+      });
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return ListTile(
       tileColor: AppColor.main75,
       contentPadding: const EdgeInsets.symmetric(horizontal: 10),
       onTap: () {
-        if(item != null) {
-          Get.toNamed(AppRouteConstants.musicPlayerMedia, arguments: [MediaItemMapper.fromMediaItem(item!)]);
+        if(widget.item != null && widget.miniPlayerController.isInternal) {
+          Get.toNamed(AppRouteConstants.audioPlayerMedia, arguments: [MediaItemMapper.fromMediaItem(widget.item!)]);
         }
-        ///DEPRECATED
-        ///Navigator.push(context, MaterialPageRoute(builder: (context) => MediaPlayerPage(appMediaItem: MediaItemMapper.fromMediaItem(item)),),
       },
       leading: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if(!isTimeline)
+          if(!widget.isTimeline)
             IconButton(
               padding: EdgeInsets.zero,
               icon: const Icon(Icons.arrow_back_ios),
-              onPressed: () => miniPlayerController.goToTimeline(context), ),
-          if(item != null || isTimeline)
+              onPressed: () => widget.miniPlayerController.goToTimeline(context), ),
+          if(widget.item != null || widget.isTimeline)
             SizedBox(
-              height: item == null ? 74 : 72,
-              width: isTimeline && item == null ? (MediaQuery.of(context).size.width/6) : null,
+              height: widget.item == null ? 74 : 72,
+              width: widget.isTimeline && widget.item == null ? (MediaQuery.of(context).size.width/6) : null,
               child: Hero(tag: 'currentArtwork',
                 child: NeomImageCard(
                   elevation: 10,
-                  boxDimension: useDense ? 40.0 : 50.0,
-                  localImage: item?.artUri?.toString().startsWith('file:') ?? false,
-                  imageUrl: (item?.artUri?.toString().startsWith('file:') ?? false
-                      ? item?.artUri?.toFilePath() : item?.artUri?.toString()) ?? AppFlavour.getAppLogoUrl(),
+                  boxDimension: widget.useDense ? 40.0 : 50.0,
+                  localImage: widget.item?.artUri?.toString().startsWith('file:') ?? false,
+                  imageUrl: (widget.item?.artUri?.toString().startsWith('file:') ?? false
+                      ? widget.item?.artUri?.toFilePath() : widget.item?.artUri?.toString()) ?? AppFlavour.getAppLogoUrl(),
                 ),
               ),
             ),
         ],
       ),
       title: SizedBox(
-        ///DEPRECATED width: AppTheme.fullWidth(context)*0.6,
-       child: Text(
-         item?.title ?? (isTimeline ? AppTranslationConstants.lookingForNewMusic.tr : AppTranslationConstants.lookingForInspiration.tr),
+       child: Text(titleText.isNotEmpty ? titleText : (widget.isTimeline ? AppTranslationConstants.lookingForNewMusic.tr : AppTranslationConstants.lookingForInspiration.tr),
          maxLines: 1,
          overflow: TextOverflow.ellipsis,
-         textAlign: isTimeline || item != null ? TextAlign.left : TextAlign.right,
+         textAlign: widget.isTimeline || widget.item != null ? TextAlign.left : TextAlign.right,
          style: const TextStyle(letterSpacing: -0.5, fontWeight: FontWeight.bold),
        ),
       ),
       subtitle: SizedBox(
-        ///DEPRECATED width: AppTheme.fullWidth(context)*0.6,
         child: Text(
-          item?.artist ?? (isTimeline ? ((AppFlavour.appInUse == AppInUse.e) ? AppTranslationConstants.comingSoon.tr :
-          AppTranslationConstants.tryOurPlatform.tr) : AppTranslationConstants.goBackHome.tr),
+          subtitleText,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          textAlign: isTimeline || item != null ? TextAlign.left : TextAlign.right,
+          textAlign: widget.isTimeline || widget.item != null ? TextAlign.left : TextAlign.right,
           style: const TextStyle(letterSpacing: -0.5),
         ),
       ),
       trailing: SizedBox(
-        width: MediaQuery.of(context).size.width/(item == null ?(isTimeline ? 12 : 6) : 3.6),
+        width: MediaQuery.of(context).size.width/(widget.item == null ?(widget.isTimeline ? 12 : 6) : 3.6),
         // width: item == null && isTimeline ? (MediaQuery.of(context).size.width/12) : (MediaQuery.of(context).size.width/(item == null ? 6 : 3)),
-        child: item == null
-            ? (isTimeline ? IconButton(onPressed: () =>
-        AppFlavour.appInUse == AppInUse.e ? miniPlayerController.setShowInTimeline(value: false)
-            : miniPlayerController.goToMusicPlayerHome(),
+        child: widget.item == null
+            ? (widget.isTimeline ? IconButton(onPressed: () =>
+        AppFlavour.appInUse == AppInUse.e ? widget.miniPlayerController.setShowInTimeline(value: false)
+            : widget.miniPlayerController.goToMusicPlayerHome(),
             icon: const Icon(Icons.arrow_forward_ios)
         ) : Hero(tag: AppConstants.currentArtwork,
           child: NeomImageCard(
             elevation: 10,
-            boxDimension: useDense ? 40.0 : 50.0,
-            localImage: item?.artUri?.toString().startsWith('file:') ?? false,
-            imageUrl: (item?.artUri?.toString().startsWith('file:') ?? false
-                ? item?.artUri?.toFilePath() : item?.artUri?.toString()) ?? AppFlavour.getAppLogoUrl(),
+            boxDimension: widget.useDense ? 40.0 : 50.0,
+            localImage: widget.item?.artUri?.toString().startsWith('file:') ?? false,
+            imageUrl: (widget.item?.artUri?.toString().startsWith('file:') ?? false
+                ? widget.item?.artUri?.toFilePath() : widget.item?.artUri?.toString()) ?? AppFlavour.getAppLogoUrl(),
           ),
         )
-        ) : ControlButtons(miniPlayerController.audioHandler, miniplayer: true,
-          buttons: isLocalImage ? MusicPlayerConstants.defaultControlButtons : preferredMiniButtons,
-          mediaItem: item,
+        ) : ControlButtons(widget.miniPlayerController.audioHandler, miniplayer: true,
+          buttons: widget.miniPlayerController.source != AppMediaSource.spotify ?
+            (widget.isLocalImage ? AudioPlayerConstants.defaultControlButtons : widget.preferredMiniButtons)
+              : AudioPlayerConstants.defaultSpotifyButtons,
+          mediaItem: widget.item,
         ),
       ),
     );

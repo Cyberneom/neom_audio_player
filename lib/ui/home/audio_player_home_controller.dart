@@ -13,7 +13,7 @@ import 'package:neom_commons/core/utils/constants/app_page_id_constants.dart';
 import 'package:neom_commons/core/utils/enums/itemlist_type.dart';
 import '../../utils/constants/app_hive_constants.dart';
 
-class MusicPlayerHomeController extends GetxController {
+class AudioPlayerHomeController extends GetxController {
 
   final userController = Get.find<UserController>();
   final ScrollController scrollController = ScrollController();
@@ -80,7 +80,7 @@ class MusicPlayerHomeController extends GetxController {
 
     userController.defaultItemlistType = ItemlistType.playlist;
     isLoading.value = false;
-    update([AppPageIdConstants.musicPlayerHome]);
+    update([AppPageIdConstants.audioPlayerHome]);
   }
 
   @override
@@ -115,7 +115,7 @@ class MusicPlayerHomeController extends GetxController {
       publicItemlists[sortedItem.id] = sortedItem;
     }
 
-    update([AppPageIdConstants.musicPlayerHome]);
+    update([AppPageIdConstants.audioPlayerHome]);
   }
 
   void clear() {
@@ -129,7 +129,7 @@ class MusicPlayerHomeController extends GetxController {
     } else {
       showSearchBarLeading.value = false;
     }
-    update([AppPageIdConstants.musicPlayerHome]);
+    update([AppPageIdConstants.audioPlayerHome]);
   }
 
 }

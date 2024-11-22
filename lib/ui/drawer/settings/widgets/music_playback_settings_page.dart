@@ -9,7 +9,7 @@ import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/enums/app_in_use.dart';
 
 import '../../../../utils/constants/app_hive_constants.dart';
-import '../../../../utils/constants/music_player_constants.dart';
+import '../../../../utils/constants/audio_player_constants.dart';
 import '../../../../utils/constants/player_translation_constants.dart';
 import 'hive_box_switch_tile.dart';
 
@@ -70,19 +70,19 @@ class _MusicPlaybackSettingsPageState extends State<MusicPlaybackSettingsPage> {
                                   physics: const BouncingScrollPhysics(),
                                   shrinkWrap: true,
                                   padding: const EdgeInsets.symmetric(vertical:10),
-                                  itemCount: MusicPlayerConstants.musicLanguages.length,
+                                  itemCount: AudioPlayerConstants.musicLanguages.length,
                                   itemBuilder: (context, idx) {
                                     return CheckboxListTile(
                                       activeColor: Theme.of(context).colorScheme.secondary,
                                       checkColor: Theme.of(context).colorScheme.secondary == Colors.white
                                           ? Colors.black : null,
-                                      value: checked.contains(MusicPlayerConstants.musicLanguages[idx],),
-                                      title: Text(MusicPlayerConstants.musicLanguages[idx],),
+                                      value: checked.contains(AudioPlayerConstants.musicLanguages[idx],),
+                                      title: Text(AudioPlayerConstants.musicLanguages[idx],),
                                       onChanged: (bool? value) {
                                         value!
-                                            ? checked.add(MusicPlayerConstants.musicLanguages[idx])
+                                            ? checked.add(AudioPlayerConstants.musicLanguages[idx])
                                             : checked.remove(
-                                          MusicPlayerConstants.musicLanguages[idx],
+                                          AudioPlayerConstants.musicLanguages[idx],
                                         );
                                         setState(() {});
                                       },

@@ -11,20 +11,20 @@ import 'package:neom_commons/core/utils/constants/app_route_constants.dart';
 
 import '../../../neom_player_invoker.dart';
 import '../../../utils/constants/app_hive_constants.dart';
-import '../../../utils/constants/music_player_route_constants.dart';
+import '../../../utils/constants/audio_player_route_constants.dart';
 import '../../../utils/constants/player_translation_constants.dart';
 import '../../library/playlist_player_page.dart';
 import '../../widgets/empty_screen.dart';
 import '../../widgets/song_tile_trailing_menu.dart';
-import '../music_player_home_controller.dart';
+import '../audio_player_home_controller.dart';
 import 'collage.dart';
 import 'horizontal_albumlist_separated.dart';
 import 'hover_box.dart';
 import 'search_page.dart';
 
-class MusicPlayerHomeContent extends StatelessWidget {
+class AudioPlayerHomeContent extends StatelessWidget {
 
-  const MusicPlayerHomeContent({super.key});
+  const AudioPlayerHomeContent({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -32,8 +32,8 @@ class MusicPlayerHomeContent extends StatelessWidget {
         ? MediaQuery.of(context).size.width / 2 : MediaQuery.of(context).size.height / 2.5;
     if (boxSize > 250) boxSize = 250;
 
-    return GetBuilder<MusicPlayerHomeController>(
-      id: AppPageIdConstants.musicPlayerHome,
+    return GetBuilder<AudioPlayerHomeController>(
+      id: AppPageIdConstants.audioPlayerHome,
       builder: (_) => _.isLoading.value ? const Center(child: CircularProgressIndicator(),)
         : (_.myItemLists.isEmpty && _.recentList.isEmpty && _.publicItemlists.isEmpty)
         ? TextButton(
@@ -108,7 +108,7 @@ class MusicPlayerHomeContent extends StatelessWidget {
                                 .length > index ? publicList.getImgUrls()
                                 .elementAt(index) : publicList
                                 .getImgUrls().last,
-                            placeholderImage: const AssetImage(AppAssets.musicPlayerAlbum),
+                            placeholderImage: const AssetImage(AppAssets.audioPlayerAlbum),
                           ),
                           builder: ({
                             required BuildContext context,
@@ -216,7 +216,7 @@ class MusicPlayerHomeContent extends StatelessWidget {
     );
   }
 
-  Widget buildLastSessionContainer(BuildContext context, MusicPlayerHomeController _) {
+  Widget buildLastSessionContainer(BuildContext context, AudioPlayerHomeController _) {
     return ValueListenableBuilder(
       valueListenable: Hive.box(AppHiveConstants.settings).listenable(),
       child: Column(
@@ -237,7 +237,7 @@ class MusicPlayerHomeContent extends StatelessWidget {
                 ),
               ],
             ),
-            onTap: () => Navigator.pushNamed(context, MusicPlayerRouteConstants.recent),
+            onTap: () => Navigator.pushNamed(context, AudioPlayerRouteConstants.recent),
           ),
           HorizontalAlbumsListSeparated(
             songsList: _.recentList.values.toList(),
@@ -258,7 +258,7 @@ class MusicPlayerHomeContent extends StatelessWidget {
     );
   }
 
-  Widget buildMyPlaylistsContainer(MusicPlayerHomeController _, BuildContext context, double boxSize) {
+  Widget buildMyPlaylistsContainer(AudioPlayerHomeController _, BuildContext context, double boxSize) {
     return Column(
         children: [
           GestureDetector(
@@ -304,13 +304,13 @@ class MusicPlayerHomeContent extends StatelessWidget {
                         ),
                         clipBehavior: Clip.antiAlias,
                         child: name == AppHiveConstants.favoriteSongs
-                            ? const Image(image: AssetImage(AppAssets.musicPlayerCover,),)
-                            : const Image(image: AssetImage(AppAssets.musicPlayerAlbum,),),
+                            ? const Image(image: AssetImage(AppAssets.audioPlayerCover,),)
+                            : const Image(image: AssetImage(AppAssets.audioPlayerAlbum,),),
                       ) : Collage(
                         borderRadius: 10.0,
                         imageList: itemlist.getImgUrls(),
                         showGrid: true,
-                        placeholderImage: AppAssets.musicPlayerCover,
+                        placeholderImage: AppAssets.audioPlayerCover,
                       ),
                       builder: ({required BuildContext context, required bool isHover,
                         Widget? child,}) {
@@ -376,7 +376,7 @@ class MusicPlayerHomeContent extends StatelessWidget {
     );
   }
 
-  Widget buildFavoriteItemsContainer(MusicPlayerHomeController _, BuildContext context, double boxSize) {
+  Widget buildFavoriteItemsContainer(AudioPlayerHomeController _, BuildContext context, double boxSize) {
     return Column(
       children: [
         GestureDetector(
@@ -395,7 +395,9 @@ class MusicPlayerHomeContent extends StatelessWidget {
               ),
             ],
           ),
-          onTap: () => MaterialPageRoute(builder: (context) => const PlaylistPlayerPage(),),
+          onTap: () {
+            MaterialPageRoute(builder: (context) => const PlaylistPlayerPage(),);
+          }
         ),
         SizedBox(
           height: boxSize + 15,
@@ -419,12 +421,12 @@ class MusicPlayerHomeContent extends StatelessWidget {
                         borderRadius: BorderRadius.circular(10.0,),
                       ),
                       clipBehavior: Clip.antiAlias,
-                      child: const Image(image: AssetImage(AppAssets.musicPlayerCover,),),
+                      child: const Image(image: AssetImage(AppAssets.audioPlayerCover,),),
                     ) : Collage(
                       borderRadius: 10.0,
                       imageList: favoriteItem.imgUrl.isNotEmpty ? [favoriteItem.imgUrl] : favoriteItem.allImgs!,
                       showGrid: true,
-                      placeholderImage: AppAssets.musicPlayerCover,
+                      placeholderImage: AppAssets.audioPlayerCover,
                     ),
                     builder: ({
                       required BuildContext context,
@@ -477,10 +479,7 @@ class MusicPlayerHomeContent extends StatelessWidget {
                   ),
                 ),
                 onTap: () async {
-                  ///DEPRECATED
-                  /// await Hive.openBox(name);
-                  /// Get.to(() => MediaPlayerPage(appMediaItem: favoriteItem),transition: Transition.leftToRight);
-                  Get.toNamed(AppRouteConstants.musicPlayerMedia, arguments: [favoriteItem]);
+                  Get.toNamed(AppRouteConstants.audioPlayerMedia, arguments: [favoriteItem]);
                 },
               );
             },
@@ -511,21 +510,6 @@ class MusicPlayerHomeContent extends StatelessWidget {
             ),
           ],
         ),
-        // HorizontalAlbumsList(
-        //   itemlist: likedArtistsList,
-        //   onTap: (int idx) {
-        //     Navigator.push(
-        //       context,
-        //       PageRouteBuilder(
-        //         opaque: false,
-        //         pageBuilder: (_, __, ___) =>
-        //             ArtistSearchPage(
-        //               data: likedArtistsList as Map,
-        //             ),
-        //       ),
-        //     );
-        //   },
-        // ),
       ],
     );
   }

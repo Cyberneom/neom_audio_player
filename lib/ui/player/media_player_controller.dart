@@ -9,11 +9,19 @@ import 'package:flutter_lyric/lyrics_reader_model.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/adapters.dart';
+import 'package:neom_commons/core/data/firestore/profile_firestore.dart';
+import 'package:neom_commons/core/data/firestore/user_firestore.dart';
 import 'package:neom_commons/core/data/implementations/user_controller.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
+import 'package:neom_commons/core/domain/model/app_profile.dart';
+import 'package:neom_commons/core/domain/model/app_release_item.dart';
+import 'package:neom_commons/core/domain/model/app_user.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/constants/app_page_id_constants.dart';
+import 'package:neom_commons/core/utils/constants/app_route_constants.dart';
+import 'package:neom_commons/core/utils/constants/app_translation_constants.dart';
 import 'package:neom_commons/core/utils/core_utilities.dart';
+import 'package:neom_commons/core/utils/validator.dart';
 import 'package:rxdart/rxdart.dart' as rx;
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
@@ -30,19 +38,24 @@ class MediaPlayerController extends GetxController {
   final userController = Get.find<UserController>();
   final NeomAudioHandler audioHandler = GetIt.I<NeomAudioHandler>();
 
-  final Rxn<MediaItem> mediaItem = Rxn<MediaItem>();
-  final Rx<AppMediaItem> appMediaItem = AppMediaItem().obs;
-  final RxBool isLoading = true.obs;
-  final RxBool isButtonDisabled = false.obs;
-  final RxBool isSharePopupShown = false.obs;
-  final RxBool reproduceItem = true.obs;
-  final bool offline = false;
+  AppUser user = AppUser();
+  AppProfile profile = AppProfile();
+
+  Rxn<MediaItem> mediaItem = Rxn<MediaItem>();
+  Rx<AppMediaItem> appMediaItem = AppMediaItem().obs;
+  RxBool isLoading = true.obs;
+  RxBool isButtonDisabled = false.obs;
+  RxBool isSharePopupShown = false.obs;
+  RxBool reproduceItem = true.obs;
+
+  bool offline = false;
 
   final bool getLyricsOnline = Hive.box(AppHiveConstants.settings).get('getLyricsOnline', defaultValue: true) as bool;
   final PanelController panelController = PanelController();
 
   GlobalKey<FlipCardState> onlineCardKey = GlobalKey<FlipCardState>();
   final Duration time = Duration.zero;
+  int mediaItemDuration = 10;
 
 
   @override
@@ -51,13 +64,19 @@ class MediaPlayerController extends GetxController {
     AppUtilities.logger.t('onInit MediaPlayer Controller');
 
     try {
+      user = userController.user;
+      profile = userController.profile;
 
       if(Get.arguments != null && Get.arguments.isNotEmpty) {
-        if (Get.arguments[0] is AppMediaItem) {
+        if (Get.arguments[0] is AppReleaseItem) {
+          appMediaItem.value = AppMediaItem.fromAppReleaseItem(Get.arguments[0]);
+        } else if (Get.arguments[0] is AppMediaItem) {
           appMediaItem.value =  Get.arguments.elementAt(0);
         } else if (Get.arguments[0] is String) {
           ///VERIFY IF USEFUL
           ///appMediaItemId = arguments[0];???
+        } else {
+
         }
 
         if(Get.arguments.length > 1) {
@@ -77,6 +96,8 @@ class MediaPlayerController extends GetxController {
           // audioHandler.play();
         });
       }
+
+
     } catch (e) {
       AppUtilities.logger.e(e.toString());
     }
@@ -109,51 +130,6 @@ class MediaPlayerController extends GetxController {
     update();
   }
 
-  ///DEPRECATED
-  // StreamBuilder<Duration> positionSlider(double? maxDuration) {
-  //   return StreamBuilder<Duration>(
-  //     stream: AudioService.position,
-  //     builder: (context, snapshot) {
-  //       final position = snapshot.data;
-  //       return position == null
-  //           ? const SizedBox.shrink()
-  //           : (position.inSeconds.toDouble() < 0.0 ||
-  //           (position.inSeconds.toDouble() > (maxDuration ?? 180.0)))
-  //           ? const SizedBox.shrink()
-  //           : SliderTheme(
-  //         data: SliderTheme.of(context).copyWith(
-  //           activeTrackColor: Theme.of(context).colorScheme.secondary,
-  //           inactiveTrackColor: Colors.transparent,
-  //           trackHeight: 0.5,
-  //           thumbColor: Theme.of(context).colorScheme.secondary,
-  //           thumbShape: const RoundSliderThumbShape(
-  //             enabledThumbRadius: 1.0,
-  //           ),
-  //           overlayColor: Colors.transparent,
-  //           overlayShape: const RoundSliderOverlayShape(
-  //             overlayRadius: 2.0,
-  //           ),
-  //         ),
-  //         child: Center(
-  //           child: Slider(
-  //             inactiveColor: Colors.transparent,
-  //             // activeColor: Colors.white,
-  //             value: position.inSeconds.toDouble(),
-  //             max: maxDuration ?? 180.0,
-  //             onChanged: (newPosition) {
-  //               audioHandler.seek(
-  //                 Duration(
-  //                   seconds: newPosition.round(),
-  //                 ),
-  //               );
-  //             },
-  //           ),
-  //         ),
-  //       );
-  //     },
-  //   );
-  // }
-
   void toggleLyricsCard() {
     onlineCardKey.currentState!.toggleCard();
     setFlipped(!flipped);
@@ -167,6 +143,7 @@ class MediaPlayerController extends GetxController {
     }
     update([AppPageIdConstants.mediaPlayer]);
   }
+
   Future<void> sharePopUp() async {
     if (!isSharePopupShown.value) {
       isSharePopupShown.value = true;
@@ -203,15 +180,14 @@ class MediaPlayerController extends GetxController {
     lyricsSource.value = '';
     String appMediaItemLyric = appMediaItem.value.lyrics.isNotEmpty || (appMediaItem.value.description?.isNotEmpty ?? false)  ? (appMediaItem.value.lyrics.isNotEmpty ? appMediaItem.value.lyrics : appMediaItem.value.description ?? '') : '';
     if (appMediaItemLyric.isNotEmpty || offline) {
-      mediaLyrics.lyrics = appMediaItemLyric;
+      mediaLyrics.lyrics = appMediaItemLyric.replaceAll('&nbsp;', '');
       mediaLyrics.mediaId = appMediaItem.value.id;
-      lyricsReaderModel = LyricsModelBuilder.create().bindLyricToMain(mediaLyrics.lyrics).getModel();
     } else {
       mediaLyrics = await Lyrics.getLyrics(id: appMediaItem.value.id,
         title: appMediaItem.value.name, artist: appMediaItem.value.artist.toString(),);
     }
 
-    lyricsSource.value = mediaLyrics.source.name.capitalizeFirst;
+    lyricsSource.value = mediaLyrics.source.name;
     lyricsReaderModel = LyricsModelBuilder.create().bindLyricToMain(mediaLyrics.lyrics).getModel();
     done.value = true;
     // update([AppPageIdConstants.mediaPlayer]);
@@ -227,87 +203,116 @@ class MediaPlayerController extends GetxController {
         (position, bufferedPosition, duration) => PositionData(position, bufferedPosition, duration ?? Duration.zero),
       );
 
+  void goToOwnerProfile() async {
+    AppUtilities.logger.i('goToOwnerProfile for ${appMediaItem.value.artistId}');
 
-  ///NOT IN USE
-  // Widget createPopMenuOption(BuildContext context, AppMediaItem appMediaItem, {bool offline = false}) {
-  //   return PopupMenuButton(
-  //     icon: const Icon(Icons.more_vert_rounded,color: AppColor.white),
-  //     color: AppColor.getMain(),
-  //     shape: const RoundedRectangleBorder(
-  //       borderRadius: BorderRadius.all(
-  //         Radius.circular(15.0),
-  //       ),
-  //     ),
-  //     onSelected: (int? value) {
-  //       if(value != null) {
-  //         MusicPlayerUtilities.onSelectedPopUpMenu(context, value, appMediaItem, _time);
-  //       }
-  //     },
-  //     itemBuilder: (context) => offline ? [
-  //       PopupMenuItem(
-  //         value: 1,
-  //         child: Row(
-  //           children: [
-  //             Icon(CupertinoIcons.timer,
-  //               color: Theme.of(context).iconTheme.color,
-  //             ),
-  //             const SizedBox(width: 10.0),
-  //             Text(PlayerTranslationConstants.sleepTimer.tr,),
-  //           ],
-  //         ),
-  //       ),
-  //       PopupMenuItem(
-  //         value: 10,
-  //         child: Row(
-  //           children: [
-  //             Icon(Icons.info_rounded,
-  //               color: Theme.of(context).iconTheme.color,
-  //             ),
-  //             AppTheme.widthSpace10,
-  //             Text(PlayerTranslationConstants.songInfo.tr,),
-  //           ],
-  //         ),
-  //       ),
-  //     ] : [
-  //       PopupMenuItem(
-  //         value: 0,
-  //         child: Row(
-  //           children: [
-  //             Icon(Icons.playlist_add_rounded,
-  //               color: Theme.of(context).iconTheme.color,
-  //             ),
-  //             AppTheme.widthSpace10,
-  //             Text(PlayerTranslationConstants.addToPlaylist.tr,),],),
-  //       ),
-  //       PopupMenuItem(
-  //         value: 1,
-  //         child: Row(
-  //           children: [
-  //             Icon(
-  //               CupertinoIcons.timer,
-  //               color: Theme.of(context).iconTheme.color,
-  //             ),
-  //             AppTheme.widthSpace10,
-  //             Text(
-  //               PlayerTranslationConstants.sleepTimer.tr,
-  //             ),
-  //           ],
-  //         ),
-  //       ),
-  //       PopupMenuItem(
-  //         value: 10,
-  //         child: Row(
-  //           children: [
-  //             Icon(Icons.info_rounded,
-  //               color: Theme.of(context).iconTheme.color,
-  //             ),
-  //             const SizedBox(width: 10.0),
-  //             Text(PlayerTranslationConstants.songInfo.tr,),
-  //           ],
-  //         ),
-  //       ),
-  //     ],
-  //   );
-  // }
+    String ownerId = appMediaItem.value.artistId ?? '';
+
+    try {
+      if(profile.id == ownerId || user.email == ownerId) {
+        Get.toNamed(AppRouteConstants.profile);
+      } else {
+
+        bool isEmail = Validator.isEmail(ownerId);
+
+        if(isEmail) {
+          AppUser? bookUser = await UserFirestore().getByEmail(ownerId);
+          List<AppProfile> bookUserProfiles = await ProfileFirestore().retrieveProfiles(bookUser?.id ?? '');
+          ownerId = bookUserProfiles.isNotEmpty ? bookUserProfiles.first.id : '';
+        }
+
+        if(ownerId.isNotEmpty && ownerId.length > 5) {
+          Get.toNamed(AppRouteConstants.mateDetails, arguments: ownerId);
+        } else {
+          AppUtilities.showSnackBar(message: AppTranslationConstants.noItemOwnerFound.tr);
+        }
+
+      }
+    } catch (e) {
+      AppUtilities.logger.e(e.toString());
+    }
+  }
+
+///NOT IN USE
+// Widget createPopMenuOption(BuildContext context, AppMediaItem appMediaItem, {bool offline = false}) {
+//   return PopupMenuButton(
+//     icon: const Icon(Icons.more_vert_rounded,color: AppColor.white),
+//     color: AppColor.getMain(),
+//     shape: const RoundedRectangleBorder(
+//       borderRadius: BorderRadius.all(
+//         Radius.circular(15.0),
+//       ),
+//     ),
+//     onSelected: (int? value) {
+//       if(value != null) {
+//         MusicPlayerUtilities.onSelectedPopUpMenu(context, value, appMediaItem, _time);
+//       }
+//     },
+//     itemBuilder: (context) => offline ? [
+//       PopupMenuItem(
+//         value: 1,
+//         child: Row(
+//           children: [
+//             Icon(CupertinoIcons.timer,
+//               color: Theme.of(context).iconTheme.color,
+//             ),
+//             const SizedBox(width: 10.0),
+//             Text(PlayerTranslationConstants.sleepTimer.tr,),
+//           ],
+//         ),
+//       ),
+//       PopupMenuItem(
+//         value: 10,
+//         child: Row(
+//           children: [
+//             Icon(Icons.info_rounded,
+//               color: Theme.of(context).iconTheme.color,
+//             ),
+//             AppTheme.widthSpace10,
+//             Text(PlayerTranslationConstants.songInfo.tr,),
+//           ],
+//         ),
+//       ),
+//     ] : [
+//       PopupMenuItem(
+//         value: 0,
+//         child: Row(
+//           children: [
+//             Icon(Icons.playlist_add_rounded,
+//               color: Theme.of(context).iconTheme.color,
+//             ),
+//             AppTheme.widthSpace10,
+//             Text(PlayerTranslationConstants.addToPlaylist.tr,),],),
+//       ),
+//       PopupMenuItem(
+//         value: 1,
+//         child: Row(
+//           children: [
+//             Icon(
+//               CupertinoIcons.timer,
+//               color: Theme.of(context).iconTheme.color,
+//             ),
+//             AppTheme.widthSpace10,
+//             Text(
+//               PlayerTranslationConstants.sleepTimer.tr,
+//             ),
+//           ],
+//         ),
+//       ),
+//       PopupMenuItem(
+//         value: 10,
+//         child: Row(
+//           children: [
+//             Icon(Icons.info_rounded,
+//               color: Theme.of(context).iconTheme.color,
+//             ),
+//             const SizedBox(width: 10.0),
+//             Text(PlayerTranslationConstants.songInfo.tr,),
+//           ],
+//         ),
+//       ),
+//     ],
+//   );
+// }
 
 }

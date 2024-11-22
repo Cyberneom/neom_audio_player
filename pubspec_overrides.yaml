@@ -3,5 +3,5 @@ dependency_overrides:
     path: ../neom_commons
   neom_itemlists:
     path: ../neom_itemlists
-  uuid: 4.4.0
-  rxdart: 0.28.0
+#  uuid: 4.4.0
+#  rxdart: 0.28.0

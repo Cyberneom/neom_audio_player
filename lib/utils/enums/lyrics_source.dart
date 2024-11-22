@@ -1,5 +1,5 @@
 enum LyricsSource {
-  inernal,
+  internal,
   spotify,
   google,
   musicMatch,

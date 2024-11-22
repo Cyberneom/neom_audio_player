@@ -9,7 +9,7 @@ import 'neom_audio_handler.dart';
 SendPort? isolateSendPort;
 
 Future<void> startBackgroundProcessing() async {
-  AppUtilities.logger.d('Starting Backgroung Proccessing for NeomAudioHandler');
+  AppUtilities.logger.d('Starting Background Proccessing for NeomAudioHandler');
 
   try {
     final NeomAudioHandler audioHandler = GetIt.I<NeomAudioHandler>();
@@ -19,7 +19,7 @@ Future<void> startBackgroundProcessing() async {
     receivePort.listen((message) async {
       if (isolateSendPort == null) {
         AppUtilities.logger.d('IsolateSendPort is Null');
-        final appDocumentDirectoryPath = (await getApplicationDocumentsDirectory()).path;
+        String appDocumentDirectoryPath = (await getApplicationDocumentsDirectory()).path;
         AppUtilities.logger.i('Setting isolateSendPort with path $appDocumentDirectoryPath');
         isolateSendPort = message as SendPort;
         isolateSendPort?.send(appDocumentDirectoryPath);

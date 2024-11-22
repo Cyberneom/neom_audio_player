@@ -81,12 +81,12 @@
 //                       imageUrl: appMediaItem.imgUrl,
 //                       boxDimension: MediaQuery.of(context).size.width * 0.8,
 //                       imageQuality: ImageQuality.high,
-//                       placeholderImage: const AssetImage(AppAssets.musicPlayerAlbum,),
+//                       placeholderImage: const AssetImage(AppAssets.audioPlayerAlbum,),
 //                       // (appMediaItem['type'] == 'playlist' || appMediaItem['type'] == 'album')
-//                       //     ? const AssetImage(AppAssets.musicPlayerAlbum,)
+//                       //     ? const AssetImage(AppAssets.audioPlayerAlbum,)
 //                       //     : appMediaItem['type'] == 'artist'
-//                       //     ? const AssetImage(AppAssets.musicPlayerArtist,)
-//                       //     : const AssetImage(AppAssets.musicPlayerCover,),
+//                       //     ? const AssetImage(AppAssets.audioPlayerArtist,)
+//                       //     : const AssetImage(AppAssets.audioPlayerCover,),
 //                     ),
 //                   );
 //                 },
@@ -105,11 +105,11 @@
 //                   imageUrl: appMediaItem.imgUrl,
 //                   boxDimension: double.infinity,
 //                   imageQuality: ImageQuality.medium,
-//                   placeholderImage: const AssetImage(AppAssets.musicPlayerAlbum,),
+//                   placeholderImage: const AssetImage(AppAssets.audioPlayerAlbum,),
 //                       // (appMediaItem['type'] == 'playlist' || appMediaItem['type'] == 'album')
-//                       //     ? const AssetImage(AppAssets.musicPlayerAlbum,)
-//                       //     : appMediaItem['type'] == 'artist' ? const AssetImage(AppAssets.musicPlayerArtist,
-//                       // ) : const AssetImage(AppAssets.musicPlayerCover,),
+//                       //     ? const AssetImage(AppAssets.audioPlayerAlbum,)
+//                       //     : appMediaItem['type'] == 'artist' ? const AssetImage(AppAssets.audioPlayerArtist,
+//                       // ) : const AssetImage(AppAssets.audioPlayerCover,),
 //                 ),
 //                 builder: ({
 //                   required BuildContext context,

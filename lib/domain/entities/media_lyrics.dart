@@ -12,7 +12,7 @@ class MediaLyrics {
   MediaLyrics({
     this.mediaId = '',
     this.lyrics = '',
-    this.source = LyricsSource.inernal,
+    this.source = LyricsSource.internal,
     this.type = LyricsType.text,
   });
 

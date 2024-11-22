@@ -1,4 +1,4 @@
-enum MusicPlayerDrawerMenu {
+enum AudioPlayerDrawerMenu {
   nowPlaying('nowPlaying'),
   lastSession('lastSession'),
   favorites('favorites'),
@@ -11,6 +11,6 @@ enum MusicPlayerDrawerMenu {
   audiobookUpload('audiobookUpload');
 
   final String value;
-  const MusicPlayerDrawerMenu(this.value);
+  const AudioPlayerDrawerMenu(this.value);
 
 }

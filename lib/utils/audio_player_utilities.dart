@@ -9,21 +9,21 @@ import 'package:neom_commons/neom_commons.dart';
 import '../domain/use_cases/neom_audio_handler.dart';
 import '../ui/player/widgets/add_to_playlist.dart';
 import '../ui/widgets/textinput_dialog.dart';
-import 'constants/music_player_route_constants.dart';
+import 'constants/audio_player_route_constants.dart';
 import 'constants/player_translation_constants.dart';
 
-class MusicPlayerUtilities {
+class AudioPlayerUtilities {
 
   static final NeomAudioHandler audioHandler = GetIt.I<NeomAudioHandler>();
 
-  static List<Widget> getMusicPlayerPages() {
+  static List<Widget> getAudioPlayerPages() {
     switch (AppFlavour.appInUse) {
       case AppInUse.c:
-        return MusicPlayerRouteConstants.cMusicPlayerPages;
+        return AudioPlayerRouteConstants.cAudioPlayerPages;
       case AppInUse.g:
-        return MusicPlayerRouteConstants.gMusicPlayerPages;
+        return AudioPlayerRouteConstants.gAudioPlayerPages;
       case AppInUse.e:
-        return MusicPlayerRouteConstants.eMusicPlayerPages;
+        return AudioPlayerRouteConstants.eAudioPlayerPages;
     }
   }
 
@@ -371,5 +371,31 @@ class MusicPlayerUtilities {
     );
   }
 
+  static String getArtistName(String artistMediaTitle) {
+
+    String artistName = '';
+    List<String> mediaNameSplitted = artistMediaTitle.split("-");
+
+    if(mediaNameSplitted.isNotEmpty) {
+      artistName = mediaNameSplitted.first.trim();
+    }
+
+    return artistName;
+  }
+
+  static String getMediaName(String artistMediaTitle) {
+
+    String mediaName = '';
+    List<String> mediaNameSplitted = artistMediaTitle.split("-");
+
+    if(mediaNameSplitted.isNotEmpty && mediaNameSplitted.length == 1) {
+      mediaName = mediaNameSplitted.last.trim();
+    } else {
+      List<String> partsAfterFirst = mediaNameSplitted.sublist(1).map((part) => part.trim()).toList();
+      mediaName = partsAfterFirst.join(' - ');
+    }
+
+    return mediaName;
+  }
 
 }

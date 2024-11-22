@@ -2,16 +2,20 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:neom_commons/core/utils/constants/app_translation_constants.dart';
+
 import '../../../domain/use_cases/neom_audio_handler.dart';
+import '../../../utils/audio_player_utilities.dart';
 import '../../../utils/constants/player_translation_constants.dart';
-import '../../../utils/music_player_utilities.dart';
 
 class SeekBar extends StatefulWidget {
+
   final NeomAudioHandler audioHandler;
   final Duration duration;
   final Duration position;
   ///DEPRECATED final Duration bufferedPosition;
   final bool offline;
+  final bool isAdmin;
   ///DEPRECATED final double width;
   ///DEPRECATED final double height;
   final ValueChanged<Duration>? onChanged;
@@ -25,6 +29,7 @@ class SeekBar extends StatefulWidget {
     ///DEPRECATED required this.width,
     ///DEPRECATED required this.height,
     ///DEPRECATED this.bufferedPosition = Duration.zero,
+    this.isAdmin = false,
     this.onChanged,
     this.onChangeEnd,
   });
@@ -66,18 +71,16 @@ class SeekBarState extends State<SeekBar> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 //TODO Verify
-                // if (widget.offline)
-                //   Text(
-                //     'Offline',
-                //     style: TextStyle(
-                //       fontWeight: FontWeight.w500,
-                //       color: Theme.of(context).disabledColor,
-                //       fontSize: 14.0,
-                //     ),
-                //   )
-                // else
-                const SizedBox.shrink(),
-                StreamBuilder<double>(
+                widget.offline ?
+                Text(
+                  AppTranslationConstants.inDownloads.tr.capitalizeFirst,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w500,
+                    color: Theme.of(context).disabledColor,
+                    fontSize: 14.0,
+                  ),
+                ) : const SizedBox.shrink(),
+                widget.isAdmin ? StreamBuilder<double>(
                   stream: widget.audioHandler.speed,
                   builder: (context, snapshot) {
                     final String speedValue =
@@ -93,7 +96,7 @@ class SeekBarState extends State<SeekBar> {
                         ),
                       ),
                       onTap: () {
-                        MusicPlayerUtilities.showSpeedSliderDialog(
+                        AudioPlayerUtilities.showSpeedSliderDialog(
                           context: context,
                           title: PlayerTranslationConstants.adjustSpeed.tr,
                           divisions: 25,
@@ -104,7 +107,7 @@ class SeekBarState extends State<SeekBar> {
                       },
                     );
                   },
-                ),
+                ) : SizedBox.shrink(),
               ],
             ),
           ),

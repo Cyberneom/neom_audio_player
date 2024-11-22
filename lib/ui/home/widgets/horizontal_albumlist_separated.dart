@@ -92,9 +92,9 @@ class HorizontalAlbumsListSeparated extends StatelessWidget {
                       imageUrl: item.imgUrl,
                       placeholderImage: (itemlist?.type == ItemlistType.playlist ||
                               itemlist?.type == ItemlistType.album)
-                          ? const AssetImage(AppAssets.musicPlayerAlbum,)
-                          : item.artist.isNotEmpty ? const AssetImage(AppAssets.musicPlayerArtist,)
-                              : const AssetImage(AppAssets.musicPlayerCover,),
+                          ? const AssetImage(AppAssets.audioPlayerAlbum,)
+                          : item.artist.isNotEmpty ? const AssetImage(AppAssets.audioPlayerArtist,)
+                              : const AssetImage(AppAssets.audioPlayerCover,),
                     ),
                     trailing: SongTileTrailingMenu(
                       appMediaItem: item,//.getTotalItems() > 0 ? AppMediaItem.mapItemsFromItemlist(item).first : AppMediaItem(),
@@ -105,9 +105,9 @@ class HorizontalAlbumsListSeparated extends StatelessWidget {
                     onLongPress: () {
                       if (Get.isRegistered<MediaPlayerController>()) {
                         Get.delete<MediaPlayerController>();
-                        Get.toNamed(AppRouteConstants.musicPlayerMedia, arguments: [item]);
+                        Get.toNamed(AppRouteConstants.audioPlayerMedia, arguments: [item]);
                       } else {
-                        Get.toNamed(AppRouteConstants.musicPlayerMedia, arguments: [item]);
+                        Get.toNamed(AppRouteConstants.audioPlayerMedia, arguments: [item]);
                       }
                     },
                   );

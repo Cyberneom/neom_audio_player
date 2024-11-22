@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart';
-import 'package:metadata_god/metadata_god.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/core_utilities.dart';
@@ -302,7 +301,7 @@ class Download with ChangeNotifier {
     }
     final String kUrl = mediaItem.url;
 
-    //VERIFY HOW TO IMPLEMENT ONCE YOUTUBE SPOTIFY JIOSAAVN ARE USED
+    ///VERIFY HOW TO IMPLEMENT ONCE YOUTUBE SPOTIFY JIOSAAVN ARE USED
     // if (mediaItem.url.toString().contains('google')) {
     //   AppUtilities.logger.i('Fetching youtube download url with preferred quality');
     //   // filename = filename.replaceAll('.m4a', '.opus');
@@ -355,25 +354,27 @@ class Download with ChangeNotifier {
             AppUtilities.logger.e('Error editing tags: $e');
           }
         } else {
+          ///This would be needed when adding offline mode downloading audio.
           // Set metadata to file
-          await MetadataGod.writeMetadata(
-            file: mediaPath!,
-            metadata: Metadata(
-              title: mediaItem.name,
-              artist: mediaItem.artist,
-              albumArtist: mediaItem.artist,
-              album: mediaItem.album,
-              genre: mediaItem.language,
-              year: mediaItem.publishedYear,
-              durationMs: mediaItem.duration * 1000,
-              fileSize: file.lengthSync(),
-              picture: Picture(
-                data: File(imgPath).readAsBytesSync(),
-                mimeType: 'image/jpeg',
-              ),
-            ),
-          );
+          // await MetadataGod.writeMetadata(
+          //   file: mediaPath!,
+          //   metadata: Metadata(
+          //     title: mediaItem.name,
+          //     artist: mediaItem.artist,
+          //     albumArtist: mediaItem.artist,
+          //     album: mediaItem.album,
+          //     genre: mediaItem.language,
+          //     year: mediaItem.publishedYear,
+          //     durationMs: mediaItem.duration * 1000,
+          //     fileSize: BigInt.from(file.lengthSync()),
+          //     picture: Picture(
+          //       data: File(imgPath).readAsBytesSync(),
+          //       mimeType: 'image/jpeg',
+          //     ),
+          //   ),
+          // );
         }
+
         AppUtilities.logger.i('Closing connection & notifying listeners');
         client.close();
         lastDownloadId = mediaItem.id;

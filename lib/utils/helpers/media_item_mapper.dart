@@ -1,7 +1,7 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/enums/app_media_source.dart';
-import '../music_player_utilities.dart';
+import '../audio_player_utilities.dart';
 
 
 // ignore: avoid_classes_with_only_static_members
@@ -186,7 +186,7 @@ class MediaItemMapper  {
       lyrics: mediaItem.extras?['lyrics'].toString() ?? '',
       artistId: mediaItem.extras?['artistId'].toString() ?? '',
       permaUrl: mediaItem.extras?['perma_url'].toString() ?? '',
-      mediaSource: MusicPlayerUtilities.isInternal(mediaItem.extras?['url'].toString() ?? '') ? AppMediaSource.internal : AppMediaSource.spotify,
+      mediaSource: AudioPlayerUtilities.isInternal(mediaItem.extras?['url'].toString() ?? '') ? AppMediaSource.internal : AppMediaSource.spotify,
     );
   }
 

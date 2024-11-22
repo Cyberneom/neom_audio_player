@@ -6,7 +6,7 @@ import 'package:neom_commons/core/ui/widgets/appbar_child.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 
 import '../../../domain/use_cases/neom_audio_handler.dart';
-import '../../../utils/constants/music_player_route_constants.dart';
+import '../../../utils/constants/audio_player_route_constants.dart';
 import '../../../utils/constants/player_translation_constants.dart';
 import '../player/widgets/now_playing_stream.dart';
 import '../widgets/empty_screen.dart';
@@ -42,7 +42,7 @@ class NowPlayingPageState extends State<NowPlayingPage> {
                 ? null
                 : AppBarChild(title: PlayerTranslationConstants.nowPlaying.tr,),
             body: processingState == AudioProcessingState.idle
-                ? TextButton(onPressed: () => Navigator.pushNamed(context, MusicPlayerRouteConstants.home),
+                ? TextButton(onPressed: () => Navigator.pushNamed(context, AudioPlayerRouteConstants.home),
               child: emptyScreen(
                 context, 3,
                 PlayerTranslationConstants.nothingIs.tr, 14.0,

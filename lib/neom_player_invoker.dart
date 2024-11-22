@@ -12,7 +12,6 @@ import 'package:path_provider/path_provider.dart';
 
 import 'data/implementations/app_hive_controller.dart';
 import 'domain/use_cases/neom_audio_handler.dart';
-import 'ui/player/miniplayer_controller.dart';
 import 'utils/helpers/media_item_mapper.dart';
 
 // ignore: avoid_classes_with_only_static_members
@@ -25,44 +24,53 @@ class NeomPlayerInvoker {
     bool fromMiniPlayer = false, bool isOffline = false, bool recommend = true,
     bool fromDownloads = false, bool shuffle = false, String? playlistBox, bool playItem = true,}) async {
 
-    if (GetIt.I.isRegistered<NeomAudioHandler>()) {
-      audioHandler = await GetIt.I.getAsync<NeomAudioHandler>();
-    }
 
-
-
-    final int globalIndex = index < 0 ? 0 : index;
-    final List<AppMediaItem> finalList = appMediaItems;
-    if (shuffle) finalList.shuffle();
-
-    if (!fromMiniPlayer) {
-      if (Platform.isIOS) {
-        audioHandler.stop(); /// Don't know why but it fixes the playback issue with iOS Side
+    try {
+      if (GetIt.I.isRegistered<NeomAudioHandler>()) {
+        audioHandler = await GetIt.I.getAsync<NeomAudioHandler>();
       }
-      if (isOffline) {
-        fromDownloads ? setDownValues(finalList, globalIndex) : setOffValues(finalList, globalIndex);
-      } else {
-        setValues(finalList, globalIndex, recommend: recommend, playItem: playItem);
+
+      final int globalIndex = index < 0 ? 0 : index;
+      final List<AppMediaItem> finalList = appMediaItems;
+      if (shuffle) finalList.shuffle();
+
+      if (!fromMiniPlayer) {
+        if (Platform.isIOS) {
+          audioHandler.stop(); /// Don't know why but it fixes the playback issue with iOS Side
+        }
+        if (isOffline) {
+          fromDownloads ? setDownValues(finalList, globalIndex) : setOffValues(finalList, globalIndex);
+        } else {
+          setValues(finalList, globalIndex, recommend: recommend, playItem: playItem);
+        }
       }
+
+      ///This would be needed when adding offline mode downloading audio.
+      // await MetadataGod.initialize();
+    } catch(e) {
+      AppUtilities.logger.e(e.toString());
     }
   }
 
-  static Future<void> setValues(List<AppMediaItem> response, int index, {bool recommend = true, bool playItem = false}) async {
+  static Future<void> setValues(List<AppMediaItem> appMediaItems, int index, {bool recommend = true, bool playItem = false}) async {
     AppUtilities.logger.t('Settings Values for index $index');
 
     try {
       final List<MediaItem> queue = [];
-      AppMediaItem appMediaItem = response[index];
+      AppMediaItem appMediaItem = appMediaItems[index];
       AppUtilities.logger.t('Loading media ${appMediaItem.name} for music player with index $index');
 
       queue.addAll(
-        response.map(
+        appMediaItems.map(
               (song) => MediaItemMapper.appMediaItemToMediaItem(appMediaItem: song,
             autoplay: recommend,
             // playlistBox: playlistBox,
           ),
         ),
       );
+      if(queue.isNotEmpty) {
+        audioHandler.currentMediaItem = queue.first;
+      }
       await updateNowPlaying(queue, index, playItem: playItem);
     } catch(e) {
       AppUtilities.logger.e(e.toString());
@@ -73,7 +81,7 @@ class NeomPlayerInvoker {
     getTemporaryDirectory().then((tempDir) async {
       final File file = File('${tempDir.path}/cover.jpg');
       if (!await file.exists()) {
-        final byteData = await rootBundle.load(AppAssets.musicPlayerCover);
+        final byteData = await rootBundle.load(AppAssets.audioPlayerCover);
         await file.writeAsBytes(
           byteData.buffer
               .asUint8List(byteData.offsetInBytes, byteData.lengthInBytes),
@@ -154,7 +162,8 @@ class NeomPlayerInvoker {
           await audioHandler.play();
         }
 
-        getx.Get.find<MiniPlayerController>().setMediaItem(queue.elementAt(index));
+        // getx.Get.find<MiniPlayerController>().setMediaItem(queue.elementAt(index));
+        // getx.Get.find<MediaPlayerController>().setMediaItem(queue.elementAt(index));
         ///DEPRECATED await audioHandler.playFromUri(Uri.parse(queue[index].extras!['url'].toString()));
         enforceRepeat();
       } else {

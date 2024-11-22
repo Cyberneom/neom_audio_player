@@ -8,17 +8,17 @@ class NeomAudioPlayerRoutes {
 
   static final List<GetPage<dynamic>> routes = [
     GetPage(
-        name: AppRouteConstants.musicPlayerHome,
+        name: AppRouteConstants.audioPlayerHome,
         page: () => const NeomAudioPlayerApp(),
         transition: Transition.rightToLeftWithFade,
     ),
     GetPage(
-      name: AppRouteConstants.musicPlayerMedia,
+      name: AppRouteConstants.audioPlayerMedia,
       page: () => const MediaPlayerPage(),
       transition: Transition.leftToRight,
     ),
     GetPage(
-      name: AppRouteConstants.musicPlayerMini,
+      name: AppRouteConstants.audioPlayerMini,
       page: () => const MiniPlayer(),
       transition: Transition.leftToRight,
     ),

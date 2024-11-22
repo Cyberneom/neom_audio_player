@@ -9,6 +9,7 @@ import '../../utils/helpers/media_item_mapper.dart';
 import 'miniplayer_controller.dart';
 import 'widgets/miniplayer_tile.dart';
 
+
 class MiniPlayer extends StatelessWidget {
   const MiniPlayer({super.key});
 
@@ -42,7 +43,7 @@ class MiniPlayer extends StatelessWidget {
                   if (direction == DismissDirection.down || direction == DismissDirection.horizontal) {
                     _.audioHandler.stop();
                   } else {
-                    Get.toNamed(AppRouteConstants.musicPlayerMedia, arguments: [MediaItemMapper.fromMediaItem(_.mediaItem!), false]);
+                    Get.toNamed(AppRouteConstants.audioPlayerMedia, arguments: [MediaItemMapper.fromMediaItem(_.mediaItem!), false]);
                     // Navigator.push(context, MaterialPageRoute(builder: (context) => MediaPlayerPage(appMediaItem: MediaItemMapper.fromMediaItem(_.mediaItem!), reproduceItem: false),),);
                   }
                 }
@@ -67,13 +68,8 @@ class MiniPlayer extends StatelessWidget {
                 },
                 child: Card(
                   margin: EdgeInsets.zero,
-                  ///VERIFY IF DEPRECATED
-                  // color: AppColor.getMain(),
                   elevation: 1,
                   child: SizedBox(
-                    ///DEPRECATED
-                    // height: _.mediaItem == null ? 80 : 78,
-                    // width: AppTheme.fullWidth(context),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -83,7 +79,7 @@ class MiniPlayer extends StatelessWidget {
                           item: _.mediaItem,
                           isTimeline: _.isTimeline,
                         ),
-                        _.positionSlider(_.mediaItem?.duration?.inSeconds.toDouble(),),
+                        _.positionSlider(isPreview: !_.isInternal),
                       ],
                     ),
                   ),

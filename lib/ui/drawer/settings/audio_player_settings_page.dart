@@ -11,15 +11,15 @@ import 'widgets/music_playback_settings_page.dart';
 import 'widgets/music_player_interface_page.dart';
 import 'widgets/others.dart';
 
-class MusicPlayerSettingsPage extends StatefulWidget {
+class AudioPlayerSettingsPage extends StatefulWidget {
   final Function? callback;
-  const MusicPlayerSettingsPage({super.key, this.callback});
+  const AudioPlayerSettingsPage({super.key, this.callback});
 
   @override
-  State<MusicPlayerSettingsPage> createState() => _MusicPlayerSettingsPageState();
+  State<AudioPlayerSettingsPage> createState() => _AudioPlayerSettingsPageState();
 }
 
-class _MusicPlayerSettingsPageState extends State<MusicPlayerSettingsPage> {
+class _AudioPlayerSettingsPageState extends State<AudioPlayerSettingsPage> {
   final TextEditingController controller = TextEditingController();
   final ValueNotifier<String> searchQuery = ValueNotifier<String>('');
 

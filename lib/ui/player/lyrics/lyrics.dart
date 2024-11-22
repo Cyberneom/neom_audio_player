@@ -53,7 +53,7 @@ class Lyrics {
           }
         }
       } else {
-        AppUtilities.logger.e('getSpotifyLyricsFromId returned ${res.statusCode}');
+        AppUtilities.logger.w('getSpotifyLyricsFromId returned ${res.statusCode}');
       }
       return mediaLyrics;
     } catch (e) {

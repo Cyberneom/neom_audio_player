@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class MusicPlayerBottomAppBar extends StatefulWidget {
+class AudioPlayerBottomAppBar extends StatefulWidget {
 
   final List<MusicPlayerBottomAppBarItem> items;
   final String centerItemText;
@@ -13,7 +13,7 @@ class MusicPlayerBottomAppBar extends StatefulWidget {
   final NotchedShape notchedShape;
   final ValueChanged<int> onTabSelected;
 
-  MusicPlayerBottomAppBar({super.key,
+  AudioPlayerBottomAppBar({super.key,
     required this.items,
     this.centerItemText = "",
     this.height = 60.0,
@@ -29,10 +29,10 @@ class MusicPlayerBottomAppBar extends StatefulWidget {
   }
 
   @override
-  State<StatefulWidget> createState() => MusicPlayerBottomAppBarState();
+  State<StatefulWidget> createState() => AudioPlayerBottomAppBarState();
 }
 
-class MusicPlayerBottomAppBarState extends State<MusicPlayerBottomAppBar> {
+class AudioPlayerBottomAppBarState extends State<AudioPlayerBottomAppBar> {
   int _selectedIndex = 0;
 
   void _updateIndex(int index) {

@@ -111,7 +111,7 @@ class DownloadButtonState extends State<DownloadButton> {
             Future.delayed(const Duration(seconds: 2), () async {
               showStopButton.value = false;
             });
-            },
+          },
         ),
       ),
     );

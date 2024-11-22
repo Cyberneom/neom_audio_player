@@ -7,20 +7,20 @@ import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_theme.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 
+import '../utils/audio_player_utilities.dart';
 import '../utils/constants/player_translation_constants.dart';
-import '../utils/music_player_utilities.dart';
-import 'drawer/music_player_drawer.dart';
+import 'drawer/audio_player_drawer.dart';
 import 'player/miniplayer.dart';
-import 'widgets/music_player_bottom_app_bar.dart';
+import 'widgets/audio_player_bottom_app_bar.dart';
 
-class MusicPlayerRootPage extends StatefulWidget {
-  const MusicPlayerRootPage({super.key});
+class AudioPlayerRootPage extends StatefulWidget {
+  const AudioPlayerRootPage({super.key});
 
   @override
-  MusicPlayerRootPageState createState() => MusicPlayerRootPageState();
+  AudioPlayerRootPageState createState() => AudioPlayerRootPageState();
 }
 
-class MusicPlayerRootPageState extends State<MusicPlayerRootPage> {
+class AudioPlayerRootPageState extends State<AudioPlayerRootPage> {
 
   final PageController pageController = PageController();
   bool hasItems = false;
@@ -42,14 +42,14 @@ class MusicPlayerRootPageState extends State<MusicPlayerRootPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: AppColor.main50,
-        drawer: const MusicPlayerDrawer(),
+        drawer: const AudioPlayerDrawer(),
         body: isLoading ? const AppCircularProgressIndicator() :
         Stack(
           children: [
             PageView(
                 physics: const NeverScrollableScrollPhysics(),
                 controller: pageController,
-                children: MusicPlayerUtilities.getMusicPlayerPages()
+                children: AudioPlayerUtilities.getAudioPlayerPages()
             ),
             Positioned(
               left: 0, right: 0,
@@ -63,14 +63,14 @@ class MusicPlayerRootPageState extends State<MusicPlayerRootPage> {
         ),
         bottomNavigationBar: Theme(
           data: Theme.of(context).copyWith(canvasColor: Colors.grey[900]),
-          child: MusicPlayerBottomAppBar(
+          child: AudioPlayerBottomAppBar(
             backgroundColor: AppColor.bottomNavigationBar,
             color: Colors.white54,
             selectedColor: Colors.white.withOpacity(0.9),
             notchedShape: const CircularNotchedRectangle(),
             onTabSelected:(int index) => selectPageView(index, context: context),
             items: [
-              MusicPlayerBottomAppBarItem(iconData: Icons.play_circle_fill, text: AppFlavour.getMusicPlayerHomeTitle(),),
+              MusicPlayerBottomAppBarItem(iconData: Icons.play_circle_fill, text: AppFlavour.getAudioPlayerHomeTitle(),),
               MusicPlayerBottomAppBarItem(iconData: Icons.library_music, text: PlayerTranslationConstants.playlists.tr,),
             ],
           ),

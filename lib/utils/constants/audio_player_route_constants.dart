@@ -1,13 +1,13 @@
 
 import 'package:neom_itemlists/itemlists/ui/itemlist_page.dart';
 
-import '../../ui/home/music_player_home_page.dart';
+import '../../ui/home/audio_player_home_page.dart';
 
-class MusicPlayerRouteConstants {
+class AudioPlayerRouteConstants {
 
-  static final eMusicPlayerPages = [const MusicPlayerHomePage(), const ItemlistPage()];
-  static final gMusicPlayerPages = [const MusicPlayerHomePage(), const ItemlistPage()];
-  static final cMusicPlayerPages = [const MusicPlayerHomePage(), const ItemlistPage()];
+  static final eAudioPlayerPages = [const AudioPlayerHomePage(), const ItemlistPage()];
+  static final gAudioPlayerPages = [const AudioPlayerHomePage(), const ItemlistPage()];
+  static final cAudioPlayerPages = [const AudioPlayerHomePage(), const ItemlistPage()];
 
   static const String root = '/';
   static const String home = '/home';

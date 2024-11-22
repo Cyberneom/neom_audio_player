@@ -55,7 +55,7 @@ class MediaPlayerPage extends StatelessWidget {
                     iconSize: 35,
                     onPressed: () async {
                       AddToPlaylist().addToPlaylist(context, _.appMediaItem.value);
-                      },
+                    },
                   ),
                 IconButton(
                   icon: const Icon(Icons.lyrics_rounded),

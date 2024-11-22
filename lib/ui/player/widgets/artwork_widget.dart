@@ -17,6 +17,8 @@ import 'package:neom_commons/core/utils/core_utilities.dart';
 import '../../../domain/entities/queue_state.dart';
 import '../../../utils/constants/app_hive_constants.dart';
 import '../../../utils/constants/player_translation_constants.dart';
+import '../../../utils/enums/lyrics_source.dart';
+import '../../../utils/enums/lyrics_type.dart';
 import '../../widgets/empty_screen.dart';
 import '../media_player_controller.dart';
 
@@ -94,7 +96,7 @@ class ArtWorkWidget extends StatelessWidget {
                             PlayerTranslationConstants.lyrics.tr, 40.0,
                             PlayerTranslationConstants.notAvailable.tr, 20.0,
                             useWhite: true,
-                          ) : _.mediaLyrics.type.name == 'text'
+                          ) : _.mediaLyrics.type == LyricsType.text
                               ? SelectableText(_.mediaLyrics.lyrics,
                             textAlign: TextAlign.center,
                             style: const TextStyle(
@@ -124,23 +126,23 @@ class ArtWorkWidget extends StatelessWidget {
                     ),
                   ),
                 ),
-                ValueListenableBuilder(
+                if(_.mediaLyrics.lyrics.isNotEmpty) ValueListenableBuilder(
                   valueListenable: _.lyricsSource,
                   child: const CircularProgressIndicator(),
                   builder: (BuildContext context, String value, Widget? child,) {
-                    if (value == '' || value == AppFlavour.getAppName()) {
+                    if (value == '' || value == AppFlavour.getAppName() || value == LyricsSource.internal.name) {
                       return const SizedBox.shrink();
                     }
                     return Align(
                       alignment: Alignment.bottomRight,
-                      child: Text('${AppTranslationConstants.poweredBy.tr} $value',
+                      child: Text('${AppTranslationConstants.poweredBy.tr} ${value.capitalizeFirst}',
                         style: Theme.of(context).textTheme.bodySmall!
                             .copyWith(fontSize: 10.0, color: Colors.white70),
                       ),
                     );
                   },
                 ),
-                Align(
+                if(_.mediaLyrics.lyrics.isNotEmpty) Align(
                   alignment: Alignment.bottomRight,
                   child: Card(
                     elevation: 10.0,
@@ -257,7 +259,7 @@ class ArtWorkWidget extends StatelessWidget {
                         gaplessPlayback: true,
                         errorBuilder: (BuildContext context, Object exception, StackTrace? stackTrace,) {
                           return const Image(fit: BoxFit.cover,
-                            image: AssetImage(AppAssets.musicPlayerCover),
+                            image: AssetImage(AppAssets.audioPlayerCover),
                           );
                         },
                         image: FileImage(File(_.appMediaItem.value.imgUrl,),),
@@ -265,11 +267,11 @@ class ArtWorkWidget extends StatelessWidget {
                         fit: BoxFit.contain,
                         errorWidget: (BuildContext context, _, __) =>
                         const Image(fit: BoxFit.cover,
-                          image: AssetImage(AppAssets.musicPlayerCover),
+                          image: AssetImage(AppAssets.audioPlayerCover),
                         ),
                         placeholder: (BuildContext context, _) =>
                         const Image(fit: BoxFit.cover,
-                          image: AssetImage(AppAssets.musicPlayerCover),
+                          image: AssetImage(AppAssets.audioPlayerCover),
                         ),
                         imageUrl: _.appMediaItem.value.imgUrl,
                         width: flipCardWidth,

@@ -9,13 +9,15 @@ import 'package:url_launcher/url_launcher.dart';
 class GoSpotifyButton extends StatelessWidget {
   final AppMediaItem? appMediaItem;
   final double? size;
-  final bool showSnack;  
+  final bool showSnack;
+  final EdgeInsets? padding;
 
   const GoSpotifyButton({
     super.key,
     required this.appMediaItem,
     this.size,
     this.showSnack = false,
+    this.padding
   });
 
   @override
@@ -26,6 +28,7 @@ class GoSpotifyButton extends StatelessWidget {
       AppUtilities.logger.e('Error in likeButton: $e');
     }
     return IconButton(
+        padding: padding,
         icon: const Row(
           children: [Icon(FontAwesomeIcons.spotify, color: Colors.green),],
         ),

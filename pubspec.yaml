@@ -23,17 +23,18 @@ dependencies:
       url: git@github.com:Cyberneom/neom_itemlists.git
 
   audio_service: ^0.18.15
-  just_audio: ^0.9.40
-
-  metadata_god: ^0.5.2+1
+  just_audio: ^0.9.42
 
   flip_card: ^0.7.0
   sliding_up_panel: ^2.0.0+1
   flutter_lyric: ^2.0.4+6
 
+  #This would be needed when adding offline mode downloading audio.
+  #metadata_god: ^1.0.
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^4.0.0
+  flutter_lints: ^5.0.0
 
 flutter:

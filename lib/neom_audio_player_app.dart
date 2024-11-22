@@ -7,7 +7,7 @@ import 'package:get/get.dart' as getx;
 import 'package:neom_commons/core/app_flavour.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_theme.dart';
-import 'ui/music_player_routes.dart';
+import 'ui/audio_player_routes.dart';
 import 'ui/player/media_player_page.dart';
 import 'ui/player/miniplayer_controller.dart';
 import 'utils/helpers/route_handler.dart';
@@ -162,7 +162,7 @@ class NeomAudioPlayerAppState extends State<NeomAudioPlayerApp> {
           Locale('fr'), // French, France
           Locale('de'), // German, Germany
         ],
-        routes: MusicPlayerAppRoutes.routes,
+        routes: AudioPlayerRoutes.routes,
         onGenerateRoute: (RouteSettings settings) {
           if (settings.name == '/player') {
             return PageRouteBuilder(

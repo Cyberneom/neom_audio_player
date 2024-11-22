@@ -1,18 +1,16 @@
 import 'package:audio_service/audio_service.dart';
+import 'package:enum_to_string/enum_to_string.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
-import 'package:hive_flutter/hive_flutter.dart';
-import 'package:metadata_god/metadata_god.dart';
 import 'package:neom_commons/core/data/implementations/user_controller.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/constants/app_page_id_constants.dart';
 import 'package:neom_commons/core/utils/constants/app_route_constants.dart';
+import 'package:neom_commons/core/utils/enums/app_media_source.dart';
 
-import '../../data/implementations/app_hive_controller.dart';
 import '../../domain/use_cases/neom_audio_handler.dart';
-import '../../utils/constants/app_hive_constants.dart';
 
 class MiniPlayerController extends GetxController {
 
@@ -25,6 +23,9 @@ class MiniPlayerController extends GetxController {
   bool isButtonDisabled = false;
   bool showInTimeline = true;
   late NeomAudioHandler audioHandler;
+  AppMediaSource source = AppMediaSource.internal;
+  bool isInternal = true;
+  Duration? itemDuration;
 
   @override
   void onInit() async {
@@ -61,6 +62,16 @@ class MiniPlayerController extends GetxController {
   void setMediaItem(MediaItem item) {
     AppUtilities.logger.d('Setting new mediaitem ${item.title}');
     mediaItem = item;
+    source = EnumToString.fromString(AppMediaSource.values, mediaItem?.extras?["source"] ?? AppMediaSource.internal.name) ?? AppMediaSource.internal;
+    isInternal = source == AppMediaSource.internal || source == AppMediaSource.offline;
+
+    ///DEPRECATED
+    // if(mediaItem?.duration == null || mediaItem?.duration?.inSeconds == 0) {
+    //   itemDuration = audioHandler.player.duration;
+    // } else {
+    //   itemDuration = mediaItem?.duration;
+    // }
+
     update([AppPageIdConstants.miniPlayer]);
   }
 
@@ -73,24 +84,25 @@ class MiniPlayerController extends GetxController {
   void setShowInTimeline({bool value = true}) {
     AppUtilities.logger.i('Setting showInTimeline to $value');
     showInTimeline =  value;
-    update([AppPageIdConstants.home, AppPageIdConstants.musicPlayerHome, AppPageIdConstants.miniPlayer]);
+    update([AppPageIdConstants.home, AppPageIdConstants.audioPlayerHome, AppPageIdConstants.miniPlayer]);
   }
 
-  StreamBuilder<Duration> positionSlider(double? maxDuration) {
+  StreamBuilder<Duration> positionSlider({bool isPreview = false}) {
     return StreamBuilder<Duration>(
       stream: AudioService.position,
       builder: (context, snapshot) {
         final position = snapshot.data;
-        return position == null
+        double? maxDuration = audioHandler.player.duration?.inSeconds.toDouble();
+        return position == null || maxDuration == null
             ? const SizedBox.shrink()
             : (position.inSeconds.toDouble() < 0.0 ||
-            (position.inSeconds.toDouble() > (maxDuration ?? 180.0)))
+            (position.inSeconds.toDouble() > (maxDuration)))
             ? const SizedBox.shrink()
             : SliderTheme(
           data: SliderTheme.of(context).copyWith(
             activeTrackColor: Theme.of(context).colorScheme.secondary,
             inactiveTrackColor: Colors.transparent,
-            trackHeight: 0.5,
+            trackHeight: 5,
             thumbColor: Theme.of(context).colorScheme.secondary,
             thumbShape: const RoundSliderThumbShape(
               enabledThumbRadius: 1.0,
@@ -103,9 +115,8 @@ class MiniPlayerController extends GetxController {
           child: Center(
             child: Slider(
               inactiveColor: Colors.transparent,
-              // activeColor: Colors.white,
               value: position.inSeconds.toDouble(),
-              max: maxDuration ?? 180.0,
+              max: isPreview ? 30 : maxDuration,
               onChanged: (newPosition) {
                 audioHandler.seek(
                   Duration(
@@ -122,8 +133,8 @@ class MiniPlayerController extends GetxController {
 
   void goToMusicPlayerHome() {
     isTimeline = false;
-    Get.toNamed(AppRouteConstants.musicPlayerHome);
-    update([AppPageIdConstants.home, AppPageIdConstants.musicPlayerHome, AppPageIdConstants.miniPlayer]);
+    Get.toNamed(AppRouteConstants.audioPlayerHome);
+    update([AppPageIdConstants.home, AppPageIdConstants.audioPlayerHome, AppPageIdConstants.miniPlayer]);
   }
 
   void goToTimeline(BuildContext context) {
@@ -131,22 +142,23 @@ class MiniPlayerController extends GetxController {
     showInTimeline = mediaItem != null;
 
     Get.back();
-    update([AppPageIdConstants.home, AppPageIdConstants.musicPlayerHome, AppPageIdConstants.miniPlayer]);
+    update([AppPageIdConstants.home, AppPageIdConstants.audioPlayerHome, AppPageIdConstants.miniPlayer]);
   }
 
-  Future<void> initHiveMeta() async {
-    AppUtilities.logger.d('initHiveMeta');
-
-    await Hive.initFlutter();
-    for (final box in AppHiveConstants.hiveBoxes) {
-      await AppHiveController.openHiveBox(
-        box[AppHiveConstants.name].toString(),
-        limit: box[AppHiveConstants.limit] as bool? ?? false,
-      );
-    }
-    await AppHiveController().onInit();
-    MetadataGod.initialize();
-  }
+  ///DUPLICATED CODE
+  // Future<void> initHiveMeta() async {
+  //   AppUtilities.logger.d('initHiveMeta');
+  //
+  //   await Hive.initFlutter();
+  //   for (final box in AppHiveConstants.hiveBoxes) {
+  //     await AppHiveController.openHiveBox(
+  //       box[AppHiveConstants.name].toString(),
+  //       limit: box[AppHiveConstants.limit] as bool? ?? false,
+  //     );
+  //   }
+  //   await AppHiveController().onInit();
+  //   MetadataGod.initialize();
+  // }
 
   ///NOT NEEDED
   // Future<void> initAudioPlayerModule() async {

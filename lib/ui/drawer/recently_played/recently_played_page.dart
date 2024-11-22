@@ -8,7 +8,7 @@ import 'package:neom_commons/core/utils/app_color.dart';
 
 import '../../../neom_player_invoker.dart';
 import '../../../utils/constants/app_hive_constants.dart';
-import '../../../utils/constants/music_player_route_constants.dart';
+import '../../../utils/constants/audio_player_route_constants.dart';
 import '../../../utils/constants/player_translation_constants.dart';
 import '../../widgets/empty_screen.dart';
 import '../../widgets/like_button.dart';
@@ -66,7 +66,7 @@ class RecentlyPlayedPageState extends State<RecentlyPlayedPage> {
             PlayerTranslationConstants.showHere.tr, 45.0,
             PlayerTranslationConstants.playSomething.tr, 26.0,
           ),
-          onPressed: ()=> Navigator.pushNamed(context, MusicPlayerRouteConstants.home),
+          onPressed: ()=> Navigator.pushNamed(context, AudioPlayerRouteConstants.home),
         ) : ListView.builder(
           physics: const BouncingScrollPhysics(),
           padding: const EdgeInsets.only(top: 10, bottom: 10),

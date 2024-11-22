@@ -176,7 +176,7 @@ class NowPlayingStream extends StatelessWidget {
                         child: (item.artUri == null)
                             ? const SizedBox.square(
                           dimension: 50,
-                          child: Image(image: AssetImage(AppAssets.musicPlayerCover),),
+                          child: Image(image: AssetImage(AppAssets.audioPlayerCover),),
                         ) : SizedBox.square(
                           dimension: 50,
                           child: queue[index].artUri.toString().startsWith('file:')
@@ -188,12 +188,12 @@ class NowPlayingStream extends StatelessWidget {
                             errorWidget: (BuildContext context, _, __) =>
                             const Image(
                               fit: BoxFit.cover,
-                              image: AssetImage(AppAssets.musicPlayerCover,),
+                              image: AssetImage(AppAssets.audioPlayerCover,),
                             ),
                             placeholder: (BuildContext context, _) =>
                             const Image(
                               fit: BoxFit.cover,
-                              image: AssetImage(AppAssets.musicPlayerCover,),
+                              image: AssetImage(AppAssets.audioPlayerCover,),
                             ),
                             imageUrl: item.artUri.toString(),
                           ),

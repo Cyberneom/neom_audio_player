@@ -26,7 +26,7 @@ class SongsPageTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {    
-    return (appMediaItems.isEmpty)
+    return Container(child: appMediaItems.isEmpty
       ? TextButton(
       onPressed: ()=> Navigator.push(context, MaterialPageRoute(
           builder: (context) => const SearchPage(fromHome: true, autofocus: true,),
@@ -59,6 +59,7 @@ class SongsPageTab extends StatelessWidget {
           ),
         ),
       ],
+    ),
     );
   }
 }

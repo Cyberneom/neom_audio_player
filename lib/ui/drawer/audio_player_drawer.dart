@@ -12,15 +12,15 @@ import 'package:neom_commons/core/utils/constants/app_route_constants.dart';
 import 'package:neom_commons/core/utils/constants/app_translation_constants.dart';
 import 'package:neom_commons/core/utils/enums/app_in_use.dart';
 import 'package:neom_commons/core/utils/enums/verification_level.dart';
-import '../../../utils/constants/music_player_route_constants.dart';
-import '../../../utils/enums/music_player_drawer_menu.dart';
+import '../../../utils/constants/audio_player_route_constants.dart';
+import '../../../utils/enums/audio_player_drawer_menu.dart';
 import '../library/playlist_player_page.dart';
 import '../player/miniplayer_controller.dart';
 
 
-class MusicPlayerDrawer extends StatelessWidget {
+class AudioPlayerDrawer extends StatelessWidget {
 
-  const MusicPlayerDrawer({super.key});
+  const AudioPlayerDrawer({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -39,16 +39,16 @@ class MusicPlayerDrawer extends StatelessWidget {
                   child: ListView(
                     physics: const BouncingScrollPhysics(),
                     children: <Widget>[
-                      Obx(()=>_menuHeader(context, _)),
+                      _menuHeader(context, _),
                       const Divider(),
-                      drawerRowOption(MusicPlayerDrawerMenu.nowPlaying,  const Icon(Icons.queue_music_rounded,), context),
-                      drawerRowOption(MusicPlayerDrawerMenu.lastSession, const Icon(Icons.history_rounded), context),
-                      drawerRowOption(MusicPlayerDrawerMenu.favorites, const Icon(Icons.favorite_rounded), context),
-                      drawerRowOption(MusicPlayerDrawerMenu.stats, const Icon(Icons.download_done_rounded,), context),
+                      drawerRowOption(AudioPlayerDrawerMenu.nowPlaying,  const Icon(Icons.queue_music_rounded,), context),
+                      drawerRowOption(AudioPlayerDrawerMenu.lastSession, const Icon(Icons.history_rounded), context),
+                      drawerRowOption(AudioPlayerDrawerMenu.favorites, const Icon(Icons.favorite_rounded), context),
+                      drawerRowOption(AudioPlayerDrawerMenu.stats, const Icon(Icons.download_done_rounded,), context),
                       // drawerRowOption(MusicPlayerDrawerMenu.myMusic, const Icon(MdiIcons.folderMusic,), context),
                       // drawerRowOption(MusicPlayerDrawerMenu.downloads, const Icon(Icons.download_done_rounded,), context),
-                      drawerRowOption(MusicPlayerDrawerMenu.settings, const Icon(Icons.playlist_play_rounded,), context),
-                      if(_.appProfile.verificationLevel != VerificationLevel.none)
+                      drawerRowOption(AudioPlayerDrawerMenu.settings, const Icon(Icons.playlist_play_rounded,), context),
+                      if(AppFlavour.appInUse == AppInUse.e && _.appProfile.verificationLevel != VerificationLevel.none)
                       Column(
                         children: [
                           const Divider(),
@@ -60,9 +60,9 @@ class MusicPlayerDrawer extends StatelessWidget {
                               fontWeight: FontWeight.bold
                             ), ),
                           const Divider(),
-                          drawerRowOption(MusicPlayerDrawerMenu.podcastUpload, const Icon(Icons.podcasts), context),
+                          drawerRowOption(AudioPlayerDrawerMenu.podcastUpload, const Icon(Icons.podcasts), context),
                           if(AppFlavour.appInUse == AppInUse.e)
-                            drawerRowOption(MusicPlayerDrawerMenu.audiobookUpload, const Icon(Icons.multitrack_audio), context),
+                            drawerRowOption(AudioPlayerDrawerMenu.audiobookUpload, const Icon(Icons.multitrack_audio), context),
                         ],
                       ),
                     ],
@@ -129,30 +129,30 @@ class MusicPlayerDrawer extends StatelessWidget {
       );
   }
 
-  ListTile drawerRowOption(MusicPlayerDrawerMenu selectedMenu, Icon icon, BuildContext context, {bool isEnabled = true}) {
+  ListTile drawerRowOption(AudioPlayerDrawerMenu selectedMenu, Icon icon, BuildContext context, {bool isEnabled = true}) {
     return ListTile(
       onTap: () {
         if(isEnabled) {
           switch(selectedMenu) {
-            case MusicPlayerDrawerMenu.nowPlaying:
-              Navigator.pushNamed(context, MusicPlayerRouteConstants.nowPlaying);
-            case MusicPlayerDrawerMenu.lastSession:
-              Navigator.pushNamed(context, MusicPlayerRouteConstants.recent);
-            case MusicPlayerDrawerMenu.favorites:
+            case AudioPlayerDrawerMenu.nowPlaying:
+              Navigator.pushNamed(context, AudioPlayerRouteConstants.nowPlaying);
+            case AudioPlayerDrawerMenu.lastSession:
+              Navigator.pushNamed(context, AudioPlayerRouteConstants.recent);
+            case AudioPlayerDrawerMenu.favorites:
               Navigator.push(context, MaterialPageRoute(
                   builder: (context) => PlaylistPlayerPage(
                     alternativeName: AppTranslationConstants.favoriteItems.tr,
                   ),
                 ),
               );
-            case MusicPlayerDrawerMenu.downloads:
-              Navigator.pushNamed(context, MusicPlayerRouteConstants.downloads);
-            case MusicPlayerDrawerMenu.playlists:
+            case AudioPlayerDrawerMenu.downloads:
+              Navigator.pushNamed(context, AudioPlayerRouteConstants.downloads);
+            case AudioPlayerDrawerMenu.playlists:
               Get.toNamed(AppRouteConstants.lists);
-            case MusicPlayerDrawerMenu.stats:
-              Navigator.pushNamed(context, MusicPlayerRouteConstants.stats);
-            case MusicPlayerDrawerMenu.settings:
-              Navigator.pushNamed(context, MusicPlayerRouteConstants.setting);
+            case AudioPlayerDrawerMenu.stats:
+              Navigator.pushNamed(context, AudioPlayerRouteConstants.stats);
+            case AudioPlayerDrawerMenu.settings:
+              Navigator.pushNamed(context, AudioPlayerRouteConstants.setting);
             default:
               break;
           }

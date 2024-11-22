@@ -5,10 +5,11 @@ import 'package:neom_commons/core/utils/constants/app_translation_constants.dart
 
 import '../../../domain/entities/queue_state.dart';
 import '../../../domain/use_cases/neom_audio_handler.dart';
-import '../../../utils/constants/music_player_constants.dart';
+import '../../../utils/constants/audio_player_constants.dart';
 import '../../../utils/constants/player_translation_constants.dart';
 import '../../../utils/helpers/media_item_mapper.dart';
 import '../../widgets/download_button.dart';
+import '../../widgets/go_spotify_button.dart';
 import '../../widgets/like_button.dart';
 
 // ignore: must_be_immutable
@@ -50,7 +51,7 @@ class ControlButtons extends StatelessWidget {
       showPlay = false;
     }
 
-    final bool isOnline = url.startsWith('http') || url.startsWith('https');
+    final bool isOnline = url.startsWith(RegExp(r'https?://'));
 
     return SizedBox(
       height: 80,
@@ -63,8 +64,8 @@ class ControlButtons extends StatelessWidget {
               return !isOnline
                   ? const SizedBox.shrink()
                   : SizedBox(
-                height: miniplayer ? MusicPlayerConstants.miniPlayerHeight : MusicPlayerConstants.musicPlayerHeight,
-                width: miniplayer ? MusicPlayerConstants.miniPlayerWidth : MusicPlayerConstants.musicPlayerWidth,
+                height: miniplayer ? AudioPlayerConstants.miniPlayerHeight : AudioPlayerConstants.audioPlayerHeight,
+                width: miniplayer ? AudioPlayerConstants.miniPlayerWidth : AudioPlayerConstants.audioPlayerWidth,
                 child: LikeButton(
                   padding: EdgeInsets.zero,
                   size: 22.0,
@@ -73,8 +74,8 @@ class ControlButtons extends StatelessWidget {
               );
             case 'Previous':
               return SizedBox(
-                height: miniplayer ? MusicPlayerConstants.miniPlayerHeight : MusicPlayerConstants.musicPlayerHeight,
-                width: miniplayer ? MusicPlayerConstants.miniPlayerWidth : MusicPlayerConstants.musicPlayerWidth,
+                height: miniplayer ? AudioPlayerConstants.miniPlayerHeight : AudioPlayerConstants.audioPlayerHeight,
+                width: miniplayer ? AudioPlayerConstants.miniPlayerWidth : AudioPlayerConstants.audioPlayerWidth,
                 child: StreamBuilder<QueueState>(
                 stream: audioHandler.queueState,
                 builder: (context, snapshot) {
@@ -91,8 +92,8 @@ class ControlButtons extends StatelessWidget {
               );
             case 'Play/Pause':
               return SizedBox(
-                height: miniplayer ? MusicPlayerConstants.miniPlayerHeight : MusicPlayerConstants.musicPlayerHeight,
-                width: miniplayer ? MusicPlayerConstants.miniPlayerWidth : MusicPlayerConstants.musicPlayerWidth,
+                height: miniplayer ? AudioPlayerConstants.miniPlayerHeight : AudioPlayerConstants.audioPlayerHeight,
+                width: miniplayer ? AudioPlayerConstants.miniPlayerWidth : AudioPlayerConstants.audioPlayerWidth,
                 child: StreamBuilder<PlaybackState>(
                   stream: audioHandler.playbackState,
                   builder: (context, snapshot) {
@@ -161,8 +162,8 @@ class ControlButtons extends StatelessWidget {
               );
             case 'Next':
               return SizedBox(
-                height: miniplayer ? MusicPlayerConstants.miniPlayerHeight : MusicPlayerConstants.musicPlayerHeight,
-                width: miniplayer ? MusicPlayerConstants.miniPlayerWidth : MusicPlayerConstants.musicPlayerWidth,
+                height: miniplayer ? AudioPlayerConstants.miniPlayerHeight : AudioPlayerConstants.audioPlayerHeight,
+                width: miniplayer ? AudioPlayerConstants.miniPlayerWidth : AudioPlayerConstants.audioPlayerWidth,
                 child: StreamBuilder<QueueState>(
                   stream: audioHandler.queueState,
                   builder: (context, snapshot) {
@@ -181,11 +182,23 @@ class ControlButtons extends StatelessWidget {
               );
             case 'Download':
               return !isOnline ? const SizedBox.shrink() : SizedBox(
-                  height: miniplayer ? MusicPlayerConstants.miniPlayerHeight : MusicPlayerConstants.musicPlayerHeight,
-                  width: miniplayer ? MusicPlayerConstants.miniPlayerWidth : MusicPlayerConstants.musicPlayerWidth,
+                  height: miniplayer ? AudioPlayerConstants.miniPlayerHeight : AudioPlayerConstants.audioPlayerHeight,
+                  width: miniplayer ? AudioPlayerConstants.miniPlayerWidth : AudioPlayerConstants.audioPlayerWidth,
                   child: DownloadButton(size: 20.0,
                     mediaItem: MediaItemMapper.fromMediaItem(mediaItem!),
                   ),
+              );
+            case 'Spotify':
+              return !isOnline
+                  ? const SizedBox.shrink()
+                  : SizedBox(
+                height: miniplayer ? AudioPlayerConstants.miniPlayerHeight : AudioPlayerConstants.audioPlayerHeight,
+                width: miniplayer ? AudioPlayerConstants.miniPlayerWidth : AudioPlayerConstants.audioPlayerWidth,
+                child: GoSpotifyButton(
+                  size: 20.0,
+                  padding: EdgeInsets.zero,
+                  appMediaItem: MediaItemMapper.fromMediaItem(mediaItem!)
+                ),
               );
             default:
               break;

@@ -89,6 +89,17 @@ class AppHiveController extends GetxController {
     lastPos = await Hive.box(AppHiveConstants.cache).get(AppHiveConstants.lastPos, defaultValue: 0) as int;
   }
 
+  Future<int> fetchLastPos(String itemId) async {
+
+    lastPos =  await Hive.box(AppHiveConstants.cache).get('${AppHiveConstants.lastPos}_$itemId', defaultValue: 0) as int;
+
+    return lastPos;
+  }
+
+  Future<void> updateItemLastPos(String itemId, int position) async {
+    await Hive.box(AppHiveConstants.cache).put('${AppHiveConstants.lastPos}_$itemId', position);
+  }
+
   Future<void> fetchSettingsData() async {
     preferredMobileQuality = await Hive.box(AppHiveConstants.settings).get(AppHiveConstants.streamingQuality, defaultValue: '96 kbps') as String;
     preferredWifiQuality = await Hive.box(AppHiveConstants.settings).get(AppHiveConstants.streamingWifiQuality, defaultValue: '320 kbps') as String;
@@ -113,7 +124,7 @@ class AppHiveController extends GetxController {
   }
 
   Future<void> setSearchQueries(List searchQueries) async {
-    Hive.box(AppHiveConstants.settings).put(AppHiveConstants.searchQueries, searchQueries);
+    await Hive.box(AppHiveConstants.settings).put(AppHiveConstants.searchQueries, searchQueries);
   }
 
   Future<void> addQuery(String query) async {

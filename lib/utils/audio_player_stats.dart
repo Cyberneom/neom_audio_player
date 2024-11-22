@@ -5,7 +5,7 @@ import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'constants/app_hive_constants.dart';
 
-class MusicPlayerStats {
+class AudioPlayerStats {
 
   static Future<void> addRecentlyPlayed(AppMediaItem appMediaItem) async {
     AppUtilities.logger.d('Adding ${appMediaItem.id} to recently played');
