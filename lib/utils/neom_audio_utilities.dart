@@ -1,8 +1,48 @@
 import 'package:audio_service/audio_service.dart';
+import 'package:get_it/get_it.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
+import 'package:neom_commons/core/utils/app_utilities.dart';
+
+import '../data/providers/neom_audio_provider.dart';
+import '../domain/use_cases/neom_audio_handler.dart';
 
 class NeomAudioUtilities {
+
+  static Future<NeomAudioHandler?> getAudioHandler() async {
+    NeomAudioHandler? audioHandler;
+
+    try {
+      if (!GetIt.I.isRegistered<NeomAudioHandler>()) {
+        if(await registerAudioHandler()) {
+          audioHandler = GetIt.I.get<NeomAudioHandler>();
+        } else {
+          AppUtilities.logger.w("AudioHandler not registered");
+        }
+      } else {
+        audioHandler = GetIt.I.get<NeomAudioHandler>();
+      }
+    } catch (e) {
+      AppUtilities.logger.e(e.toString());
+    }
+
+    return audioHandler;
+  }
+
+
+  static Future<bool> registerAudioHandler() async {
+    AppUtilities.logger.d("registerAudioHandler");
+
+    try {
+      final neomAudioProvider = NeomAudioProvider();
+      final NeomAudioHandler audioHandler = await neomAudioProvider.getAudioHandler();
+      GetIt.I.registerSingleton<NeomAudioHandler>(audioHandler);
+    } catch (e) {
+      AppUtilities.logger.e(e.toString());
+      return false;
+    }
+    return true;
+  }
 
   static int? getQueueIndex(AudioPlayer player, int? currentIndex) {
     final effectiveIndices = player.effectiveIndices ?? [];

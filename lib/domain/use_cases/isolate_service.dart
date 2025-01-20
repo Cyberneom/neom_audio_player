@@ -4,6 +4,7 @@ import 'package:get_it/get_it.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:path_provider/path_provider.dart';
 
+import '../../utils/neom_audio_utilities.dart';
 import 'neom_audio_handler.dart';
 
 SendPort? isolateSendPort;
@@ -12,7 +13,8 @@ Future<void> startBackgroundProcessing() async {
   AppUtilities.logger.d('Starting Background Proccessing for NeomAudioHandler');
 
   try {
-    final NeomAudioHandler audioHandler = GetIt.I<NeomAudioHandler>();
+    final NeomAudioHandler? audioHandler = await NeomAudioUtilities.getAudioHandler();
+
     final receivePort = ReceivePort();
     await Isolate.spawn(_backgroundProcess, receivePort.sendPort);
 
@@ -25,7 +27,7 @@ Future<void> startBackgroundProcessing() async {
         isolateSendPort?.send(appDocumentDirectoryPath);
       } else {
         AppUtilities.logger.d('IsolateSendPort is not null. Sending refreshLink action with newData: $message');
-        await audioHandler.customAction('refreshLink', {'newData': message});
+        await audioHandler?.customAction('refreshLink', {'newData': message});
       }
     });
   } catch (e) {

@@ -10,7 +10,7 @@ import '../../../utils/constants/player_translation_constants.dart';
 
 class SeekBar extends StatefulWidget {
 
-  final NeomAudioHandler audioHandler;
+  final NeomAudioHandler? audioHandler;
   final Duration duration;
   final Duration position;
   ///DEPRECATED final Duration bufferedPosition;
@@ -81,7 +81,7 @@ class SeekBarState extends State<SeekBar> {
                   ),
                 ) : const SizedBox.shrink(),
                 widget.isAdmin ? StreamBuilder<double>(
-                  stream: widget.audioHandler.speed,
+                  stream: widget.audioHandler?.speed,
                   builder: (context, snapshot) {
                     final String speedValue =
                         '${snapshot.data?.toStringAsFixed(1) ?? 1.0}x';

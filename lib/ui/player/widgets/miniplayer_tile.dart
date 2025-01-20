@@ -153,12 +153,13 @@ class _MiniPlayerTileState extends State<MiniPlayerTile> {
                 ? widget.item?.artUri?.toFilePath() : widget.item?.artUri?.toString()) ?? AppFlavour.getAppLogoUrl(),
           ),
         )
-        ) : ControlButtons(widget.miniPlayerController.audioHandler, miniplayer: true,
+        ) : widget.miniPlayerController.audioHandler != null
+            ? ControlButtons(widget.miniPlayerController.audioHandler!, miniplayer: true,
           buttons: widget.miniPlayerController.source != AppMediaSource.spotify ?
             (widget.isLocalImage ? AudioPlayerConstants.defaultControlButtons : widget.preferredMiniButtons)
               : AudioPlayerConstants.defaultSpotifyButtons,
           mediaItem: widget.item,
-        ),
+        ) : SizedBox.shrink(),
       ),
     );
   }

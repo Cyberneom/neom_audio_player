@@ -25,7 +25,7 @@ class AddToPlaylist {
   Future<void> addToPlaylist(BuildContext context, AppMediaItem appMediaItem, {bool fromSearch = false}) async {
 
     List<Itemlist> itemlists = []; ///GET INFO FROM CONTROLLER
-    ProfileType type = ProfileType.commonTarget; ///GET INFO FROM CONTROLLER
+    ProfileType type = ProfileType.general; ///GET INFO FROM CONTROLLER
     AppMediaItemSearchController searchController;
 
     try {

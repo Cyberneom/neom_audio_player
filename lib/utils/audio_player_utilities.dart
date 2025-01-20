@@ -251,7 +251,7 @@ class AudioPlayerUtilities {
     required int divisions,
     required double min,
     required double max,
-    required NeomAudioHandler audioHandler,
+    required NeomAudioHandler? audioHandler,
     String valueSuffix = '',
   }) {
     showDialog<void>(
@@ -263,9 +263,9 @@ class AudioPlayerUtilities {
         ),
         title: Text(title, textAlign: TextAlign.center),
         content: StreamBuilder<double>(
-          stream: audioHandler.speed,
+          stream: audioHandler?.speed,
           builder: (context, snapshot) {
-            double value = snapshot.data ?? audioHandler.speed.value;
+            double value = snapshot.data ?? audioHandler?.speed.value ?? 0;
             if (value > max) value = max;
             if (value < min) value = min;
 
@@ -278,12 +278,9 @@ class AudioPlayerUtilities {
                     children: [
                       IconButton(
                         icon: const Icon(CupertinoIcons.minus),
-                        onPressed: audioHandler.speed.value > min
-                            ? () {
-                          audioHandler
-                              .setSpeed(audioHandler.speed.value - 0.1);
-                        }
-                            : null,
+                        onPressed: (audioHandler?.speed.value ?? 0) > min ? () {
+                          audioHandler?.setSpeed(audioHandler.speed.value - 0.1);
+                        } : null,
                       ),
                       Text(
                         '${snapshot.data?.toStringAsFixed(1)}$valueSuffix',
@@ -295,9 +292,8 @@ class AudioPlayerUtilities {
                       ),
                       IconButton(
                         icon: const Icon(CupertinoIcons.plus),
-                        onPressed: audioHandler.speed.value < max
-                            ? () {
-                          audioHandler.setSpeed(audioHandler.speed.value + 0.1);
+                        onPressed: (audioHandler?.speed.value ?? 0) < max ? () {
+                          audioHandler?.setSpeed(audioHandler.speed.value + 0.1);
                         } : null,
                       ),
                     ],
@@ -309,7 +305,7 @@ class AudioPlayerUtilities {
                     min: min,
                     max: max,
                     value: value,
-                    onChanged: audioHandler.setSpeed,
+                    onChanged: audioHandler?.setSpeed,
                   ),
                 ],
               ),

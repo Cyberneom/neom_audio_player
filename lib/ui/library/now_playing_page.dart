@@ -8,6 +8,7 @@ import 'package:neom_commons/core/utils/app_color.dart';
 import '../../../domain/use_cases/neom_audio_handler.dart';
 import '../../../utils/constants/audio_player_route_constants.dart';
 import '../../../utils/constants/player_translation_constants.dart';
+import '../../utils/neom_audio_utilities.dart';
 import '../player/widgets/now_playing_stream.dart';
 import '../widgets/empty_screen.dart';
 import 'widgets/bouncy_sliver_scroll_view.dart';
@@ -20,9 +21,14 @@ class NowPlayingPage extends StatefulWidget {
 }
 
 class NowPlayingPageState extends State<NowPlayingPage> {
-  final NeomAudioHandler audioHandler = GetIt.I<NeomAudioHandler>();
+  NeomAudioHandler? audioHandler;
   final ScrollController _scrollController = ScrollController();
 
+  @override
+  void initState() async {
+    audioHandler = await NeomAudioUtilities.getAudioHandler();
+    super.initState();
+  }
   @override
   void dispose() {
     _scrollController.dispose();
@@ -32,7 +38,7 @@ class NowPlayingPageState extends State<NowPlayingPage> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<PlaybackState>(
-        stream: audioHandler.playbackState,
+        stream: audioHandler?.playbackState,
         builder: (context, snapshot) {
           final playbackState = snapshot.data;
           final processingState = playbackState?.processingState;
@@ -50,7 +56,7 @@ class NowPlayingPageState extends State<NowPlayingPage> {
                 PlayerTranslationConstants.playSomething.tr, 28.0,
               ),
             ) : StreamBuilder<MediaItem?>(
-              stream: audioHandler.mediaItem,
+              stream: audioHandler?.mediaItem,
               builder: (context, snapshot) {
                 final mediaItem = snapshot.data;
                 return mediaItem == null

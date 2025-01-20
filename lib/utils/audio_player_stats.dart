@@ -26,7 +26,7 @@ class AudioPlayerStats {
       if ((songStats[AppHiveConstants.playCount] as int) > (mostPlayed[AppHiveConstants.playCount] as int? ?? 0)) {
         Hive.box(AppHiveConstants.stats).put(AppHiveConstants.mostPlayed, songStats);
       }
-      AppUtilities.logger.i('Adding ${appMediaItem.id} ${appMediaItem.name} data to stats');
+      AppUtilities.logger.i('Adding mediaItemId: ${appMediaItem.id} Name: ${appMediaItem.name} data to stats');
 
       recentList.insert(0, appMediaItem.toJSON());
 

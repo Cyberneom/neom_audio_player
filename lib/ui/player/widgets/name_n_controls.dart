@@ -20,6 +20,7 @@ import '../../../utils/constants/app_hive_constants.dart';
 import '../../../utils/constants/audio_player_constants.dart';
 import '../../../utils/constants/player_translation_constants.dart';
 import '../../../utils/helpers/media_item_mapper.dart';
+import '../../widgets/add_to_playlist_button.dart';
 import '../../widgets/download_button.dart';
 import '../../widgets/go_spotify_button.dart';
 import '../../widgets/like_button.dart';
@@ -35,6 +36,7 @@ class NameNControls extends StatelessWidget {
   final double height;
   final PanelController panelController;
   final bool downloadAllowed;
+  final bool isLoading;
 
   const NameNControls({super.key,
     required this.mediaPlayerController,
@@ -42,6 +44,7 @@ class NameNControls extends StatelessWidget {
     required this.height,
     required this.panelController,
     this.downloadAllowed = false,
+    this.isLoading = false,
   });
 
   @override
@@ -58,6 +61,7 @@ class NameNControls extends StatelessWidget {
     MediaItem mediaItem = MediaItemMapper.appMediaItemToMediaItem(appMediaItem: _.appMediaItem.value);
     String mediaItemTitle = mediaItem.title;
     String mediaItemArtist = mediaItem.artist ?? '';
+    String mediaItemAlbum = mediaItem.album ?? '';
 
     if(mediaItemTitle.contains(' - ')) {
       mediaItemTitle = AudioPlayerUtilities.getMediaName(mediaItem.title);
@@ -94,10 +98,21 @@ class NameNControls extends StatelessWidget {
                           AppTheme.heightSpace5,
                           GestureDetector(
                             child: Text(
-                              '${mediaItemArtist.isNotEmpty ? mediaItemArtist : AppTranslationConstants.unknown.tr.capitalizeFirst}'
-                                  '${(mediaItem.album ?? '').isNotEmpty && (mediaItem.album ?? '') != (mediaItem.artist ?? '') ? ' • ${mediaItem.album}' : ''}',
+                              mediaItemArtist.isNotEmpty ? mediaItemArtist : AppTranslationConstants.unknown.tr.capitalizeFirst,
                               style: TextStyle(
-                                fontSize: titleBoxHeight / 6.75,
+                                fontSize: titleBoxHeight / 6,
+                                fontWeight: FontWeight.w600,
+                              ),
+                              textAlign: TextAlign.center,
+                              maxLines: 2,
+                            ),
+                            onTap: () => (_.appMediaItem.value.artistId?.isEmpty ?? true) ? {}
+                                : _.goToOwnerProfile(),
+                          ),
+                          if(mediaItemAlbum.isNotEmpty) GestureDetector(
+                            child: Text(mediaItemAlbum,
+                              style: TextStyle(
+                                fontSize: titleBoxHeight / 7,
                                 fontWeight: FontWeight.w600,
                               ),
                               textAlign: TextAlign.center,
@@ -140,7 +155,7 @@ class NameNControls extends StatelessWidget {
                       if(!AudioPlayerUtilities.isOwnMediaItem(_.appMediaItem.value) && AppFlavour.appInUse == AppInUse.g) {
                         duration = const Duration(seconds: AudioPlayerConstants.externalDuration);
                       } else {
-                        duration = Duration(seconds: _.audioHandler.player.duration?.inSeconds ?? 0);
+                        duration = Duration(seconds: _.audioHandler?.player.duration?.inSeconds ?? 0);
                       }
 
                       if(snapshot.data != null) {
@@ -152,7 +167,7 @@ class NameNControls extends StatelessWidget {
                         position: position,
                         duration: duration,
                         offline: _.offline,
-                        onChangeEnd: (newPosition) => _.audioHandler.seek(newPosition),
+                        onChangeEnd: (newPosition) => _.audioHandler?.seek(newPosition),
                         audioHandler: _.audioHandler,
                         isAdmin: _.user.userRole != UserRole.subscriber,
                       );
@@ -160,7 +175,7 @@ class NameNControls extends StatelessWidget {
                   ),
                 ),
                 /// Final row starts from here
-                SizedBox(
+                isLoading ? CircularProgressIndicator() : SizedBox(
                   height: controlBoxHeight,
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 5.0),
@@ -174,7 +189,7 @@ class NameNControls extends StatelessWidget {
                             children: [
                               AppTheme.heightSpace5,
                               StreamBuilder<bool>(
-                                stream: _.audioHandler.playbackState
+                                stream: _.audioHandler?.playbackState
                                     .map((state) => state.shuffleMode == AudioServiceShuffleMode.all,).distinct(),
                                 builder: (context, snapshot) {
                                   final shuffleModeEnabled = snapshot.data ?? false;
@@ -184,7 +199,7 @@ class NameNControls extends StatelessWidget {
                                     tooltip: PlayerTranslationConstants.shuffle.tr,
                                     onPressed: () async {
                                       final enable = !shuffleModeEnabled;
-                                      await _.audioHandler.setShuffleMode(enable
+                                      await _.audioHandler?.setShuffleMode(enable
                                           ? AudioServiceShuffleMode.all : AudioServiceShuffleMode.none,
                                       );
                                     },
@@ -225,7 +240,7 @@ class NameNControls extends StatelessWidget {
                             children: [
                               AppTheme.heightSpace5,
                               StreamBuilder<AudioServiceRepeatMode>(
-                                stream: _.audioHandler.playbackState.map((state) => state.repeatMode).distinct(),
+                                stream: _.audioHandler?.playbackState.map((state) => state.repeatMode).distinct(),
                                 builder: (context, snapshot) {
                                   final repeatMode = snapshot.data ?? AudioServiceRepeatMode.none;
                                   const texts = ['None', 'All', 'One'];
@@ -245,7 +260,7 @@ class NameNControls extends StatelessWidget {
                                     tooltip: 'Repeat ${texts[(index + 1) % texts.length]}',
                                     onPressed: () async {
                                       await Hive.box(AppHiveConstants.settings).put(AppHiveConstants.repeatMode, texts[(index + 1) % texts.length],);
-                                      await _.audioHandler.setRepeatMode(cycleModes[(cycleModes.indexOf(repeatMode) + 1) % cycleModes.length],
+                                      await _.audioHandler?.setRepeatMode(cycleModes[(cycleModes.indexOf(repeatMode) + 1) % cycleModes.length],
                                       );
                                     },
                                   );
@@ -253,6 +268,7 @@ class NameNControls extends StatelessWidget {
                               ),
                               (!AudioPlayerUtilities.isOwnMediaItem(_.appMediaItem.value) && AppFlavour.appInUse == AppInUse.g)
                                   ? GoSpotifyButton(appMediaItem: _.appMediaItem.value) : (downloadAllowed ? DownloadButton(mediaItem: MediaItemMapper.fromMediaItem(mediaItem),): const SizedBox.shrink()),
+                              AddToPlaylistButton(appMediaItem: _.appMediaItem.value),
                             ],
                           ),
                         ],

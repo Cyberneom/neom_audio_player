@@ -7,6 +7,7 @@ import 'package:flutter_lyric/lyric_ui/ui_netease.dart';
 import 'package:flutter_lyric/lyrics_model_builder.dart';
 import 'package:flutter_lyric/lyrics_reader_model.dart';
 import 'package:get/get.dart';
+// ignore: unused_import
 import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:neom_commons/core/data/firestore/profile_firestore.dart';
@@ -25,18 +26,22 @@ import 'package:neom_commons/core/utils/validator.dart';
 import 'package:rxdart/rxdart.dart' as rx;
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
+// ignore: unused_import
+import '../../data/providers/neom_audio_provider.dart';
 import '../../domain/entities/media_lyrics.dart';
 import '../../domain/entities/position_data.dart';
 import '../../domain/use_cases/neom_audio_handler.dart';
 import '../../neom_player_invoker.dart';
+import '../../utils/audio_player_utilities.dart';
 import '../../utils/constants/app_hive_constants.dart';
 import '../../utils/helpers/media_item_mapper.dart';
+import '../../utils/neom_audio_utilities.dart';
 import 'lyrics/lyrics.dart';
 
 class MediaPlayerController extends GetxController {
 
   final userController = Get.find<UserController>();
-  final NeomAudioHandler audioHandler = GetIt.I<NeomAudioHandler>();
+  NeomAudioHandler? audioHandler;
 
   AppUser user = AppUser();
   AppProfile profile = AppProfile();
@@ -44,6 +49,7 @@ class MediaPlayerController extends GetxController {
   Rxn<MediaItem> mediaItem = Rxn<MediaItem>();
   Rx<AppMediaItem> appMediaItem = AppMediaItem().obs;
   RxBool isLoading = true.obs;
+  RxBool isLoadingAudio = true.obs;
   RxBool isButtonDisabled = false.obs;
   RxBool isSharePopupShown = false.obs;
   RxBool reproduceItem = true.obs;
@@ -70,33 +76,21 @@ class MediaPlayerController extends GetxController {
       if(Get.arguments != null && Get.arguments.isNotEmpty) {
         if (Get.arguments[0] is AppReleaseItem) {
           appMediaItem.value = AppMediaItem.fromAppReleaseItem(Get.arguments[0]);
+          if(appMediaItem.value.artist.contains(' - ')) {
+            appMediaItem.value.album = AudioPlayerUtilities.getMediaName(appMediaItem.value.artist);
+            appMediaItem.value.artist = AudioPlayerUtilities.getArtistName(appMediaItem.value.artist);
+          }
         } else if (Get.arguments[0] is AppMediaItem) {
           appMediaItem.value =  Get.arguments.elementAt(0);
         } else if (Get.arguments[0] is String) {
           ///VERIFY IF USEFUL
           ///appMediaItemId = arguments[0];???
-        } else {
-
         }
 
         if(Get.arguments.length > 1) {
           reproduceItem.value = Get.arguments[1] as bool;
         }
       }
-
-      bool alreadyPlaying = audioHandler.currentMediaItem != null
-          && audioHandler.currentMediaItem!.id == appMediaItem.value.id;
-
-      if(reproduceItem.value && !alreadyPlaying) {
-        Future.delayed(const Duration(milliseconds: 500)).then((value) {
-          NeomPlayerInvoker.init(
-            appMediaItems: [appMediaItem.value],
-            index: 0,
-          );
-          // audioHandler.play();
-        });
-      }
-
 
     } catch (e) {
       AppUtilities.logger.e(e.toString());
@@ -107,15 +101,26 @@ class MediaPlayerController extends GetxController {
   @override
   void onReady() async {
     super.onReady();
-
-    try {
-
-    } catch (e) {
-      AppUtilities.logger.e(e.toString());
-    }
-
     isLoading.value = false;
-    update();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      try {
+        NeomAudioUtilities.getAudioHandler().then((handler) async {
+          audioHandler = handler;
+          bool alreadyPlaying = audioHandler?.currentMediaItem?.id == appMediaItem.value.id;
+          if(reproduceItem.value && !alreadyPlaying) {
+            await NeomPlayerInvoker.init(
+              appMediaItems: [appMediaItem.value],
+              index: 0,
+            );
+          } else {
+            isLoadingAudio.value = false;
+          }
+        });
+      } catch (e) {
+        AppUtilities.logger.e(e.toString());
+      }
+    });
+
   }
 
 
@@ -193,15 +198,12 @@ class MediaPlayerController extends GetxController {
     // update([AppPageIdConstants.mediaPlayer]);
   }
 
-  Stream<Duration> get bufferedPositionStream => audioHandler.playbackState.map((state) => state.bufferedPosition).distinct();
-
-  Stream<Duration?> get durationStream => audioHandler.mediaItem.map((item) => item?.duration).distinct();
-
-  Stream<PositionData> get positionDataStream =>
-      rx.Rx.combineLatest3<Duration, Duration, Duration?, PositionData>(
+  Stream<Duration> get bufferedPositionStream => audioHandler?.playbackState.map((state) => state.bufferedPosition).distinct() ?? Stream.value(Duration.zero);
+  Stream<Duration?> get durationStream => audioHandler?.mediaItem.map((item) => item?.duration).distinct() ?? Stream.value(Duration.zero);
+  Stream<PositionData> get positionDataStream => rx.Rx.combineLatest3<Duration, Duration, Duration?, PositionData>(
         AudioService.position, bufferedPositionStream, durationStream,
         (position, bufferedPosition, duration) => PositionData(position, bufferedPosition, duration ?? Duration.zero),
-      );
+  );
 
   void goToOwnerProfile() async {
     AppUtilities.logger.i('goToOwnerProfile for ${appMediaItem.value.artistId}');
@@ -232,6 +234,16 @@ class MediaPlayerController extends GetxController {
       AppUtilities.logger.e(e.toString());
     }
   }
+
+  bool isOffline() {
+    // mediaItem = MediaItemMapper.appMediaItemToMediaItem(appMediaItem: _.appMediaItem.value);
+    return !(mediaItem.value?.extras!['url'].toString() ?? '').startsWith('http');
+  }
+
+  void setIsLoadingAudio(bool loading) {
+    isLoadingAudio.value = loading;
+  }
+
 
 ///NOT IN USE
 // Widget createPopMenuOption(BuildContext context, AppMediaItem appMediaItem, {bool offline = false}) {

@@ -13,11 +13,6 @@ import 'widgets/miniplayer_tile.dart';
 class MiniPlayer extends StatelessWidget {
   const MiniPlayer({super.key});
 
-  ///DEPRECATED
-  // static MiniPlayer _instance = MiniPlayer._internal();
-  // factory MiniPlayer() => _instance;
-  // MiniPlayer._internal();
-
   @override
   Widget build(BuildContext context) {
     return GetBuilder<MiniPlayerController>(
@@ -41,7 +36,7 @@ class MiniPlayer extends StatelessWidget {
               confirmDismiss: (DismissDirection direction) {
                 if (_.mediaItem != null) {
                   if (direction == DismissDirection.down || direction == DismissDirection.horizontal) {
-                    _.audioHandler.stop();
+                    _.audioHandler?.stop();
                   } else {
                     Get.toNamed(AppRouteConstants.audioPlayerMedia, arguments: [MediaItemMapper.fromMediaItem(_.mediaItem!), false]);
                     // Navigator.push(context, MaterialPageRoute(builder: (context) => MediaPlayerPage(appMediaItem: MediaItemMapper.fromMediaItem(_.mediaItem!), reproduceItem: false),),);
@@ -57,9 +52,9 @@ class MiniPlayer extends StatelessWidget {
                   } else {
                     if (_.mediaItem != null) {
                       if (direction == DismissDirection.startToEnd) {
-                        _.audioHandler.skipToPrevious();
+                        _.audioHandler?.skipToPrevious();
                       } else {
-                        _.audioHandler.skipToNext();
+                        _.audioHandler?.skipToNext();
                       }
                     }
                   }
@@ -79,7 +74,7 @@ class MiniPlayer extends StatelessWidget {
                           item: _.mediaItem,
                           isTimeline: _.isTimeline,
                         ),
-                        _.positionSlider(isPreview: !_.isInternal),
+                        if(_.audioHandlerRegistered) _.positionSlider(isPreview: !_.isInternal),
                       ],
                     ),
                   ),

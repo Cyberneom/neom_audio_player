@@ -15,7 +15,7 @@ import '../../widgets/like_button.dart';
 // ignore: must_be_immutable
 class ControlButtons extends StatelessWidget {
 
-  final NeomAudioHandler audioHandler;
+  final NeomAudioHandler? audioHandler;
   final bool shuffle;
   final bool miniplayer;
   final List<String> buttons;
@@ -35,8 +35,8 @@ class ControlButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if(mediaItem == null && audioHandler.mediaItem.value != null) {
-       mediaItem = audioHandler.mediaItem.value;
+    if(mediaItem == null && audioHandler?.mediaItem.value != null) {
+       mediaItem = audioHandler?.mediaItem.value;
     } else {
       ///DEPRECATED
       // NeomPlayerInvoker.init(
@@ -77,7 +77,7 @@ class ControlButtons extends StatelessWidget {
                 height: miniplayer ? AudioPlayerConstants.miniPlayerHeight : AudioPlayerConstants.audioPlayerHeight,
                 width: miniplayer ? AudioPlayerConstants.miniPlayerWidth : AudioPlayerConstants.audioPlayerWidth,
                 child: StreamBuilder<QueueState>(
-                stream: audioHandler.queueState,
+                stream: audioHandler?.queueState,
                 builder: (context, snapshot) {
                   ///DEPRECATED final queueState = snapshot.data;
                   return IconButton(
@@ -86,7 +86,7 @@ class ControlButtons extends StatelessWidget {
                     iconSize: miniplayer ? 24.0 : 45.0,
                     tooltip: PlayerTranslationConstants.skipPrevious.tr,
                     color: dominantColor ?? Theme.of(context).iconTheme.color,
-                    onPressed: audioHandler.skipToPrevious,
+                    onPressed: audioHandler?.skipToPrevious,
                   );
                 },),
               );
@@ -95,7 +95,7 @@ class ControlButtons extends StatelessWidget {
                 height: miniplayer ? AudioPlayerConstants.miniPlayerHeight : AudioPlayerConstants.audioPlayerHeight,
                 width: miniplayer ? AudioPlayerConstants.miniPlayerWidth : AudioPlayerConstants.audioPlayerWidth,
                 child: StreamBuilder<PlaybackState>(
-                  stream: audioHandler.playbackState,
+                  stream: audioHandler?.playbackState,
                   builder: (context, snapshot) {
                     final playbackState = snapshot.data;
                     final processingState = playbackState?.processingState;
@@ -117,8 +117,8 @@ class ControlButtons extends StatelessWidget {
                                 padding: EdgeInsets.zero,
                                 tooltip: playing ? PlayerTranslationConstants.pause.tr
                                     : PlayerTranslationConstants.play.tr,
-                                onPressed: playing ? audioHandler.pause
-                                    : audioHandler.play,
+                                onPressed: playing ? audioHandler?.pause
+                                    : audioHandler?.play,
                                 icon: Icon(playing ? Icons.pause_rounded
                                     : Icons.play_arrow_rounded,),
                                 color: Theme.of(context).iconTheme.color,
@@ -134,7 +134,7 @@ class ControlButtons extends StatelessWidget {
                                     elevation: 10,
                                     tooltip: PlayerTranslationConstants.pause.tr,
                                     backgroundColor: Colors.white,
-                                    onPressed: audioHandler.pause,
+                                    onPressed: audioHandler?.pause,
                                     child: const Icon(
                                       Icons.pause_rounded,
                                       size: 40.0,
@@ -145,7 +145,7 @@ class ControlButtons extends StatelessWidget {
                                     tooltip:
                                     PlayerTranslationConstants.play.tr,
                                     backgroundColor: Colors.white,
-                                    onPressed: audioHandler.play,
+                                    onPressed: audioHandler?.play,
                                     child: const Icon(
                                       Icons.play_arrow_rounded,
                                       size: 40.0,
@@ -165,7 +165,7 @@ class ControlButtons extends StatelessWidget {
                 height: miniplayer ? AudioPlayerConstants.miniPlayerHeight : AudioPlayerConstants.audioPlayerHeight,
                 width: miniplayer ? AudioPlayerConstants.miniPlayerWidth : AudioPlayerConstants.audioPlayerWidth,
                 child: StreamBuilder<QueueState>(
-                  stream: audioHandler.queueState,
+                  stream: audioHandler?.queueState,
                   builder: (context, snapshot) {
                     final queueState = snapshot.data;
                     return IconButton(
@@ -175,7 +175,7 @@ class ControlButtons extends StatelessWidget {
                       tooltip: PlayerTranslationConstants.skipNext.tr,
                       color: dominantColor ?? Theme.of(context).iconTheme.color,
                       onPressed: queueState?.hasNext ?? true
-                          ? audioHandler.skipToNext : null,
+                          ? audioHandler?.skipToNext : null,
                     );
                   },
                 ),

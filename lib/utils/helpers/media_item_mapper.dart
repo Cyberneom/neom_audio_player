@@ -176,9 +176,9 @@ class MediaItemMapper  {
     return AppMediaItem(
       id: mediaItem.id,
       album: mediaItem.album ?? '',
-      artist: mediaItem.artist ?? '',
+      artist: mediaItem.artist ?? AudioPlayerUtilities.getArtistName(mediaItem.title),
       duration: mediaItem.duration?.inSeconds ?? 0,
-      name: mediaItem.title,
+      name: AudioPlayerUtilities.getMediaName(mediaItem.title),
       imgUrl: mediaItem.artUri?.toString() ?? '',
       genre: mediaItem.genre ?? '',
       url: mediaItem.extras?['url'].toString() ?? '',

@@ -26,30 +26,31 @@ class HorizontalAlbumsListSeparated extends StatelessWidget {
         .replaceAll('&quot;', '"').trim();
   }
 
-  String getSubTitle(Map item) {
-    final type = item['type'];
-    if (type == 'charts') {
-      return '';
-    } else if (type == 'playlist' || type == 'radio_station') {
-      return formatString(item['subtitle']?.toString());
-    } else if (type == 'song') {
-      return formatString(item['artist']?.toString());
-    } else {
-      if (item['subtitle'] != null) {
-        return formatString(item['subtitle']?.toString());
-      }
-      final artists = item['more_info']?['artistMap']?['artists']
-          .map((artist) => artist['name'])
-          .toList();
-      if (artists != null) {
-        return formatString(artists?.join(', ')?.toString());
-      }
-      if (item['artist'] != null) {
-        return formatString(item['artist']?.toString());
-      }
-      return '';
-    }
-  }
+  ///DEPRECATED
+  // String getSubTitle(Map item) {
+  //   final type = item['type'];
+  //   if (type == 'charts') {
+  //     return '';
+  //   } else if (type == 'playlist' || type == 'radio_station') {
+  //     return formatString(item['subtitle']?.toString());
+  //   } else if (type == 'song') {
+  //     return formatString(item['artist']?.toString());
+  //   } else {
+  //     if (item['subtitle'] != null) {
+  //       return formatString(item['subtitle']?.toString());
+  //     }
+  //     final artists = item['more_info']?['artistMap']?['artists']
+  //         .map((artist) => artist['name'])
+  //         .toList();
+  //     if (artists != null) {
+  //       return formatString(artists?.join(', ')?.toString());
+  //     }
+  //     if (item['artist'] != null) {
+  //       return formatString(item['artist']?.toString());
+  //     }
+  //     return '';
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -85,7 +86,7 @@ class HorizontalAlbumsListSeparated extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                     subtitle: Text(
-                      subTitle,
+                      item.artist,
                       overflow: TextOverflow.ellipsis,
                     ),
                     leading: NeomImageCard(

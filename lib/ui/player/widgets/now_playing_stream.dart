@@ -17,7 +17,7 @@ import '../../widgets/download_button.dart';
 import '../../widgets/like_button.dart';
 
 class NowPlayingStream extends StatelessWidget {
-  final NeomAudioHandler audioHandler;
+  final NeomAudioHandler? audioHandler;
   final ScrollController? scrollController;
   final PanelController? panelController;
   final bool head;
@@ -63,7 +63,7 @@ class NowPlayingStream extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QueueState>(
-      stream: audioHandler.queueState,
+      stream: audioHandler?.queueState,
       builder: (context, snapshot) {
         final queueState = snapshot.data ?? QueueState.empty;
         final queue = queueState.queue;
@@ -82,7 +82,7 @@ class NowPlayingStream extends StatelessWidget {
           header: SizedBox(height: head ? headHeight : 0,),
           onReorder: (int oldIndex, int newIndex) {
             if (oldIndex < newIndex) newIndex--;
-            audioHandler.moveQueueItem(oldIndex, newIndex);
+            audioHandler?.moveQueueItem(oldIndex, newIndex);
           },
           scrollController: scrollController,
           physics: const BouncingScrollPhysics(),
@@ -96,7 +96,7 @@ class NowPlayingStream extends StatelessWidget {
               direction: index == queueState.queueIndex
                   ? DismissDirection.none
                   : DismissDirection.horizontal,
-              onDismissed: (dir) => audioHandler.removeQueueItemAt(index),
+              onDismissed: (dir) => audioHandler?.removeQueueItemAt(index),
               child: ListTileTheme(
                 selectedColor: Theme.of(context).colorScheme.secondary,
                 child: ListTile(
@@ -213,7 +213,7 @@ class NowPlayingStream extends StatelessWidget {
                     item.artist!,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  onTap: () => audioHandler.skipToQueueItem(index),
+                  onTap: () => audioHandler?.skipToQueueItem(index),
                 ),
               ),
             );

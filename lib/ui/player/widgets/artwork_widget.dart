@@ -168,7 +168,7 @@ class ArtWorkWidget extends StatelessWidget {
             ),
           ),
           front: StreamBuilder<QueueState>(
-            stream: _.audioHandler.queueState,
+            stream: _.audioHandler?.queueState,
             builder: (context, snapshot) {
               final queueState = snapshot.data ?? QueueState.empty;
               final bool enabled = Hive.box(AppHiveConstants.settings).get('enableGesture', defaultValue: true) as bool;
@@ -183,7 +183,7 @@ class ArtWorkWidget extends StatelessWidget {
                 },
                 onDoubleTapDown: (details) {
                   if (details.globalPosition.dx <= width * 2 / 5) {
-                    _.audioHandler.customAction('rewind');
+                    _.audioHandler?.customAction('rewind');
                     _.doubleTapped.value = -1;
                     Future.delayed(const Duration(milliseconds: 500), () async {
                       _.doubleTapped.value = 0;
@@ -194,7 +194,7 @@ class ArtWorkWidget extends StatelessWidget {
                     cardKey?.currentState!.toggleCard();
                   }
                   if (details.globalPosition.dx >= width * 3 / 5) {
-                    _.audioHandler.customAction('fastForward');
+                    _.audioHandler?.customAction('fastForward');
                     _.doubleTapped.value = 1;
                     Future.delayed(const Duration(milliseconds: 500), () async {
                       _.doubleTapped.value = 0;
@@ -207,13 +207,13 @@ class ArtWorkWidget extends StatelessWidget {
                 onHorizontalDragEnd: !enabled ? null : (DragEndDetails details) {
                   if ((details.primaryVelocity ?? 0) > 100) {
                     if (queueState.hasPrevious) {
-                      _.audioHandler.skipToPrevious();
+                      _.audioHandler?.skipToPrevious();
                     }
                   }
 
                   if ((details.primaryVelocity ?? 0) < -100) {
                     if (queueState.hasNext) {
-                      _.audioHandler.skipToNext();
+                      _.audioHandler?.skipToNext();
                     }
                   }
                 },
@@ -232,7 +232,7 @@ class ArtWorkWidget extends StatelessWidget {
                 onVerticalDragUpdate: !enabled ? null
                     : (DragUpdateDetails details) {
                   if (details.delta.dy != 0.0) {
-                    double volume = _.audioHandler.volume.value;
+                    double volume = _.audioHandler?.volume.value ?? 0;
                     volume -= details.delta.dy / 150;
                     if (volume < 0) {
                       volume = 0;
@@ -240,7 +240,7 @@ class ArtWorkWidget extends StatelessWidget {
                     if (volume > 1.0) {
                       volume = 1.0;
                     }
-                    _.audioHandler.setVolume(volume);
+                    _.audioHandler?.setVolume(volume);
                   }
                 },
                 child: Stack(
@@ -340,7 +340,7 @@ class ArtWorkWidget extends StatelessWidget {
                     ValueListenableBuilder(
                       valueListenable: _.dragging,
                       child: StreamBuilder<double>(
-                        stream: _.audioHandler.volume,
+                        stream: _.audioHandler?.volume,
                         builder: (context, snapshot) {
                           final double volumeValue = snapshot.data ?? 1.0;
                           return Center(
@@ -368,7 +368,7 @@ class ArtWorkWidget extends StatelessWidget {
                                           trackShape: const RoundedRectSliderTrackShape(),
                                         ),
                                         child: Slider(
-                                          value: _.audioHandler.volume.value,
+                                          value: _.audioHandler?.volume.value ?? 0,
                                           onChanged: (_) {},
                                         ),
                                       ),
