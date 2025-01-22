@@ -268,7 +268,8 @@ class NameNControls extends StatelessWidget {
                               ),
                               (!AudioPlayerUtilities.isOwnMediaItem(_.appMediaItem.value) && AppFlavour.appInUse == AppInUse.g)
                                   ? GoSpotifyButton(appMediaItem: _.appMediaItem.value) : (downloadAllowed ? DownloadButton(mediaItem: MediaItemMapper.fromMediaItem(mediaItem),): const SizedBox.shrink()),
-                              AddToPlaylistButton(appMediaItem: _.appMediaItem.value),
+                              AddToPlaylistButton(appMediaItem: _.appMediaItem.value, inPlaylist: _.inItemlist,),
+                              // _.createPopMenuOption(context, _.appMediaItem.value),
                             ],
                           ),
                         ],

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:flip_card/flip_card.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_lyric/lyric_ui/ui_netease.dart';
 import 'package:flutter_lyric/lyrics_model_builder.dart';
@@ -10,19 +11,9 @@ import 'package:get/get.dart';
 // ignore: unused_import
 import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/adapters.dart';
-import 'package:neom_commons/core/data/firestore/profile_firestore.dart';
-import 'package:neom_commons/core/data/firestore/user_firestore.dart';
-import 'package:neom_commons/core/data/implementations/user_controller.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
-import 'package:neom_commons/core/domain/model/app_profile.dart';
 import 'package:neom_commons/core/domain/model/app_release_item.dart';
-import 'package:neom_commons/core/domain/model/app_user.dart';
-import 'package:neom_commons/core/utils/app_utilities.dart';
-import 'package:neom_commons/core/utils/constants/app_page_id_constants.dart';
-import 'package:neom_commons/core/utils/constants/app_route_constants.dart';
-import 'package:neom_commons/core/utils/constants/app_translation_constants.dart';
-import 'package:neom_commons/core/utils/core_utilities.dart';
-import 'package:neom_commons/core/utils/validator.dart';
+import 'package:neom_commons/neom_commons.dart';
 import 'package:rxdart/rxdart.dart' as rx;
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
@@ -55,6 +46,8 @@ class MediaPlayerController extends GetxController {
   RxBool reproduceItem = true.obs;
 
   bool offline = false;
+  bool inItemlist = false;
+  String? itemlistId;
 
   final bool getLyricsOnline = Hive.box(AppHiveConstants.settings).get('getLyricsOnline', defaultValue: true) as bool;
   final PanelController panelController = PanelController();
@@ -91,6 +84,14 @@ class MediaPlayerController extends GetxController {
           reproduceItem.value = Get.arguments[1] as bool;
         }
       }
+
+      for(Itemlist list in profile.itemlists?.values ?? {}) {
+        if(list.appReleaseItems?.firstWhereOrNull((item) => item.id == appMediaItem.value.id) != null){
+          inItemlist = true;
+          itemlistId = list.id;
+        }
+      }
+
 
     } catch (e) {
       AppUtilities.logger.e(e.toString());
@@ -245,7 +246,7 @@ class MediaPlayerController extends GetxController {
   }
 
 
-///NOT IN USE
+///DEPRECATED
 // Widget createPopMenuOption(BuildContext context, AppMediaItem appMediaItem, {bool offline = false}) {
 //   return PopupMenuButton(
 //     icon: const Icon(Icons.more_vert_rounded,color: AppColor.white),
@@ -257,7 +258,7 @@ class MediaPlayerController extends GetxController {
 //     ),
 //     onSelected: (int? value) {
 //       if(value != null) {
-//         MusicPlayerUtilities.onSelectedPopUpMenu(context, value, appMediaItem, _time);
+//         AudioPlayerUtilities.onSelectedPopUpMenu(context, value, appMediaItem, Duration.zero);
 //       }
 //     },
 //     itemBuilder: (context) => offline ? [
@@ -281,7 +282,7 @@ class MediaPlayerController extends GetxController {
 //               color: Theme.of(context).iconTheme.color,
 //             ),
 //             AppTheme.widthSpace10,
-//             Text(PlayerTranslationConstants.songInfo.tr,),
+//             Text("PlayerTranslationConstants.songInfo.tr"),
 //           ],
 //         ),
 //       ),
@@ -319,7 +320,7 @@ class MediaPlayerController extends GetxController {
 //               color: Theme.of(context).iconTheme.color,
 //             ),
 //             const SizedBox(width: 10.0),
-//             Text(PlayerTranslationConstants.songInfo.tr,),
+//             Text("PlayerTranslationConstants.songInfo.tr,"),
 //           ],
 //         ),
 //       ),

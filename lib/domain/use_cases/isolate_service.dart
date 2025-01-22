@@ -1,6 +1,5 @@
 import 'dart:isolate';
 
-import 'package:get_it/get_it.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:path_provider/path_provider.dart';
 

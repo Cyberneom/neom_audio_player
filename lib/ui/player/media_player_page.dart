@@ -1,5 +1,4 @@
 
-import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:neom_commons/core/ui/widgets/app_circular_progress_indicator.dart';
@@ -7,7 +6,6 @@ import 'package:neom_commons/core/utils/enums/app_media_source.dart';
 import 'package:neom_commons/neom_commons.dart';
 
 import '../../utils/constants/player_translation_constants.dart';
-import '../../utils/helpers/media_item_mapper.dart';
 import 'media_player_controller.dart';
 import 'widgets/add_to_playlist.dart';
 import 'widgets/artwork_widget.dart';

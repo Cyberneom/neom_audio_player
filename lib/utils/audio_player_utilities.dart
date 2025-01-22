@@ -7,7 +7,6 @@ import 'package:neom_commons/core/utils/enums/app_media_source.dart';
 import 'package:neom_commons/neom_commons.dart';
 
 import '../domain/use_cases/neom_audio_handler.dart';
-import '../ui/player/widgets/add_to_playlist.dart';
 import '../ui/widgets/textinput_dialog.dart';
 import 'constants/audio_player_route_constants.dart';
 import 'constants/player_translation_constants.dart';
@@ -131,105 +130,106 @@ class AudioPlayerUtilities {
     );
   }
 
-  static void onSelectedPopUpMenu(BuildContext context, int value, AppMediaItem appMediaItem, Duration time, {BuildContext? scaffoldContext}) {
-    switch(value) {
-      case 0:
-        AddToPlaylist().addToPlaylist(context, appMediaItem);
-      case 1:
-        showDialog(
-          context: context,
-          builder: (context) {
-            return SimpleDialog(
-              backgroundColor: AppColor.main75,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15.0),
-              ),
-              title: Text(
-                PlayerTranslationConstants.sleepTimer.tr,
-                style: TextStyle(
-                  color:
-                  Theme.of(context).colorScheme.secondary,
-                ),
-              ),
-              contentPadding: const EdgeInsets.all(10.0),
-              children: [
-                ListTile(
-                  title: Text(
-                    PlayerTranslationConstants.sleepDur.tr,
-                  ),
-                  subtitle: Text(
-                    PlayerTranslationConstants.sleepDurSub.tr,
-                  ),
-                  dense: true,
-                  onTap: () {
-                    Navigator.pop(context);
-                    setTimer(context, scaffoldContext, time,);
-                  },
-                ),
-                ListTile(
-                  title: Text(PlayerTranslationConstants.sleepAfter.tr,),
-                  subtitle: Text(PlayerTranslationConstants.sleepAfterSub.tr,),
-                  dense: true,
-                  isThreeLine: true,
-                  onTap: () {
-                    Navigator.pop(context);
-                    setCounter(context);
-                  },
-                ),
-              ],
-            );
-          },
-        );
-      case 10:
-        final Map details = appMediaItem.toJSON();
-        details['duration'] = '${(int.parse(details["duration"].toString()) ~/ 60).toString().padLeft(2, "0")}'
-            ':${(int.parse(details["duration"].toString()) % 60).toString().padLeft(2, "0")}';
-        // style: Theme.of(context).textTheme.caption,
-        showPopup(
-          context: context,
-          child: Container(
-            color: AppColor.getMain(),
-            child: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              padding: const EdgeInsets.all(25.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: details.keys.map((e) {
-                  final String msg = '$e\n';
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 10),
-                    child: SelectableText.rich(
-                      TextSpan(
-                        children: <TextSpan>[
-                          TextSpan(text: '${msg[0].toUpperCase()}${msg.substring(1)}'.replaceAll('_', ' '),
-                            style: TextStyle(
-                              fontWeight: FontWeight.normal,
-                              fontSize: 15,
-                              color: Theme.of(context).textTheme.bodySmall!.color,
-                            ),
-                          ),
-                          TextSpan(text: '${details[e]}',
-                            style: const TextStyle(
-                              fontWeight: FontWeight.normal,
-                            ),
-                          ),
-                        ],
-                      ),
-                      showCursor: true,
-                      cursorColor: Colors.black,
-                      cursorRadius: const Radius.circular(5),
-                    ),
-                  );
-                }).toList(),
-              ),
-            ),
-          ),
-        );
-      default:
-        break;
-    }
-
-  }
+  ///DEPRECATED
+  // static void onSelectedPopUpMenu(BuildContext context, int value, AppMediaItem appMediaItem, Duration time, {BuildContext? scaffoldContext}) {
+  //   switch(value) {
+  //     case 0:
+  //       AddToPlaylist().addToPlaylist(context, appMediaItem);
+  //     case 1:
+  //       showDialog(
+  //         context: context,
+  //         builder: (context) {
+  //           return SimpleDialog(
+  //             backgroundColor: AppColor.main75,
+  //             shape: RoundedRectangleBorder(
+  //               borderRadius: BorderRadius.circular(15.0),
+  //             ),
+  //             title: Text(
+  //               PlayerTranslationConstants.sleepTimer.tr,
+  //               style: TextStyle(
+  //                 color:
+  //                 Theme.of(context).colorScheme.secondary,
+  //               ),
+  //             ),
+  //             contentPadding: const EdgeInsets.all(10.0),
+  //             children: [
+  //               ListTile(
+  //                 title: Text(
+  //                   PlayerTranslationConstants.sleepDur.tr,
+  //                 ),
+  //                 subtitle: Text(
+  //                   PlayerTranslationConstants.sleepDurSub.tr,
+  //                 ),
+  //                 dense: true,
+  //                 onTap: () {
+  //                   Navigator.pop(context);
+  //                   setTimer(context, scaffoldContext, time,);
+  //                 },
+  //               ),
+  //               ListTile(
+  //                 title: Text(PlayerTranslationConstants.sleepAfter.tr,),
+  //                 subtitle: Text(PlayerTranslationConstants.sleepAfterSub.tr,),
+  //                 dense: true,
+  //                 isThreeLine: true,
+  //                 onTap: () {
+  //                   Navigator.pop(context);
+  //                   setCounter(context);
+  //                 },
+  //               ),
+  //             ],
+  //           );
+  //         },
+  //       );
+  //     case 10:
+  //       final Map details = appMediaItem.toJSON();
+  //       details['duration'] = '${(int.parse(details["duration"].toString()) ~/ 60).toString().padLeft(2, "0")}'
+  //           ':${(int.parse(details["duration"].toString()) % 60).toString().padLeft(2, "0")}';
+  //       // style: Theme.of(context).textTheme.caption,
+  //       showPopup(
+  //         context: context,
+  //         child: Container(
+  //           color: AppColor.getMain(),
+  //           child: SingleChildScrollView(
+  //             physics: const BouncingScrollPhysics(),
+  //             padding: const EdgeInsets.all(25.0),
+  //             child: Column(
+  //               crossAxisAlignment: CrossAxisAlignment.start,
+  //               children: details.keys.map((e) {
+  //                 final String msg = '$e\n';
+  //                 return Padding(
+  //                   padding: const EdgeInsets.only(bottom: 10),
+  //                   child: SelectableText.rich(
+  //                     TextSpan(
+  //                       children: <TextSpan>[
+  //                         TextSpan(text: '${msg[0].toUpperCase()}${msg.substring(1)}'.replaceAll('_', ' '),
+  //                           style: TextStyle(
+  //                             fontWeight: FontWeight.normal,
+  //                             fontSize: 15,
+  //                             color: Theme.of(context).textTheme.bodySmall!.color,
+  //                           ),
+  //                         ),
+  //                         TextSpan(text: '${details[e]}',
+  //                           style: const TextStyle(
+  //                             fontWeight: FontWeight.normal,
+  //                           ),
+  //                         ),
+  //                       ],
+  //                     ),
+  //                     showCursor: true,
+  //                     cursorColor: Colors.black,
+  //                     cursorRadius: const Radius.circular(5),
+  //                   ),
+  //                 );
+  //               }).toList(),
+  //             ),
+  //           ),
+  //         ),
+  //       );
+  //     default:
+  //       break;
+  //   }
+  //
+  // }
 
   static bool isOwnMediaItem(AppMediaItem appMediaItem) {
     final bool isOwnMediaItem = appMediaItem.url.contains(AppFlavour.getHubName())

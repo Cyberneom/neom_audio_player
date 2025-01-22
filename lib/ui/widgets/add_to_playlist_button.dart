@@ -1,22 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:neom_commons/core/data/firestore/app_media_item_firestore.dart';
-import 'package:neom_commons/core/data/firestore/profile_firestore.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/domain/model/app_profile.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 
 import '../../data/implementations/playlist_hive_controller.dart';
 import '../../utils/constants/player_translation_constants.dart';
+import '../player/widgets/add_to_playlist.dart';
 
 class AddToPlaylistButton extends StatefulWidget {
 
   final double size;
   final EdgeInsets? padding;
   final AppMediaItem? appMediaItem;
+  final bool inPlaylist;
 
   const AddToPlaylistButton({
     super.key,
+    this.inPlaylist = false,
     this.size = 25,
     this.padding,
     this.appMediaItem,
@@ -66,9 +68,7 @@ class AddToPlaylistButtonState extends State<AddToPlaylistButton>
 
   @override
   Widget build(BuildContext context) {
-    AppProfile profile = playlistHiveController.userController.profile;
     try {
-      inPlaylist = profile.favoriteItems?.contains(widget.appMediaItem?.id) ?? false;
     } catch (e) {
       AppUtilities.logger.e('Error in likeButton: $e');
     }
@@ -77,11 +77,10 @@ class AddToPlaylistButtonState extends State<AddToPlaylistButton>
       child: IconButton(
         padding: widget.padding,
         icon: Icon(
-          inPlaylist ? Icons.playlist_add : Icons.playlist_add_check_outlined,
-          color: inPlaylist ? Colors.redAccent : Theme.of(context).iconTheme.color,
+          inPlaylist ? Icons.playlist_add_check_outlined : Icons.playlist_add,
+          color: Theme.of(context).iconTheme.color,
         ),
         iconSize: widget.size,
-        tooltip: inPlaylist ? PlayerTranslationConstants.unlike.tr : PlayerTranslationConstants.like.tr,
         onPressed: () async {
           String itemId = widget.appMediaItem?.id ?? '';
 
@@ -89,11 +88,11 @@ class AddToPlaylistButtonState extends State<AddToPlaylistButton>
 
           try {
             if(inPlaylist) {
-              profile.favoriteItems?.remove(itemId);
-              ProfileFirestore().removeFavoriteItem(profile.id, itemId);
+              //TODO remove from itemlist in database
+              //TODO Remove from profile.itemlists list item
             } else {
-              profile.favoriteItems?.add(itemId);
-              ProfileFirestore().addFavoriteItem(profile.id, itemId);
+              AddToPlaylist().addToPlaylist(context, widget.appMediaItem!);
+              //TODO Add to profile.itemlists list item
             }
 
             AppMediaItemFirestore().existsOrInsert(widget.appMediaItem!);
