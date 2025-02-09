@@ -9,9 +9,12 @@ import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/domain/model/app_profile.dart';
 import 'package:neom_commons/core/domain/model/item_list.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
+import 'package:neom_commons/core/utils/constants/app_hive_constants.dart';
 import 'package:neom_commons/core/utils/constants/app_page_id_constants.dart';
+import 'package:neom_commons/core/utils/enums/app_hive_box.dart';
 import 'package:neom_commons/core/utils/enums/itemlist_type.dart';
-import '../../utils/constants/app_hive_constants.dart';
+import 'package:neom_commons/core/utils/constants/app_hive_constants.dart';
+import 'package:neom_commons/core/utils/enums/media_item_type.dart';
 
 class AudioPlayerHomeController extends GetxController {
 
@@ -23,16 +26,19 @@ class AudioPlayerHomeController extends GetxController {
   final RxBool isButtonDisabled = false.obs;
   final RxBool showSearchBarLeading = false.obs;
 
-  List preferredLanguage = Hive.box(AppHiveConstants.settings).get(AppHiveConstants.preferredLanguage, defaultValue: ['Español']) as List;
+  List preferredLanguage = Hive.box(AppHiveBox.settings.name).get(AppHiveConstants.preferredLanguage, defaultValue: ['Español']) as List;
   Map<String, Itemlist> itemLists = {};
 
-  List recentSongs = Hive.box(AppHiveConstants.cache).get(AppHiveConstants.recentSongs, defaultValue: []) as List;
+  List recentSongs = Hive.box(AppHiveBox.player.name).get(AppHiveConstants.recentSongs, defaultValue: []) as List;
   Map<String, AppMediaItem> recentList = {};
   Map<String, Itemlist> myItemLists = {};
   Map<String, Itemlist> publicItemlists = {};
+  Map<String, Itemlist> releaseItemlists = {};
+
   int recentIndex = 0;
   int myPlaylistsIndex = 1;
   int favoriteItemsIndex = 2;
+  int lastReleasesIndex = 3;
 
   AppProfile profile = AppProfile();
   Map<String, AppMediaItem> globalMediaItems = {};
@@ -43,12 +49,10 @@ class AudioPlayerHomeController extends GetxController {
     super.onInit();
     AppUtilities.logger.t('Music Player Home Controller Init');
     try {
-      final userController = Get.find<UserController>();
       profile = userController.profile;
-      await getHomePageData();
-
+      releaseItemlists =  userController.releaseItemlists;
       scrollController.addListener(_scrollListener);
-
+      await getHomePageData();
     } catch (e) {
       AppUtilities.logger.e(e.toString());
     }
@@ -66,7 +70,9 @@ class AudioPlayerHomeController extends GetxController {
         }
       }
 
-      globalMediaItems = await AppMediaItemFirestore().fetchAll();
+      globalMediaItems = await AppMediaItemFirestore().fetchAll(
+        excludeTypes: [MediaItemType.pdf, MediaItemType.neomPreset]
+      );
 
       profile.favoriteItems?.forEach((favItem) {
         if(globalMediaItems.containsKey(favItem)) {
@@ -93,16 +99,19 @@ class AudioPlayerHomeController extends GetxController {
   Future<void> getHomePageData() async {
     AppUtilities.logger.d('Get ItemLists Home Data');
     try {
-      myItemLists = await ItemlistFirestore().fetchAll(ownerId: profile.id);
-      publicItemlists = await ItemlistFirestore().fetchAll(excludeMyFavorites: true, excludeFromProfileId: profile.id, minItems: 0);
-      ///DEPRECATED
-      // for (final myItemlist in myItemLists.values) {
-      //   publicItemlists.removeWhere((key, publicList) => myItemlist.id == publicList.id);
-      // }
-      myItemLists.addAll(publicItemlists);
+      myItemLists = profile.itemlists ?? {};
+      publicItemlists = await ItemlistFirestore().fetchAll(
+          excludeMyFavorites: true, ///This variable is not needed - Verify
+          excludeFromProfileId: profile.id,
+          itemlistType: ItemlistType.playlist
+      );
+      // myItemLists.addAll(publicItemlists);
 
       ///IMPROVE WAY TO SPLIT PLAYLISTS AND GIGLISTS FROM READLISTS
       myItemLists.removeWhere((key, publicList) => publicList.type == ItemlistType.readlist);
+      myItemLists.removeWhere((key, publicList) => publicList.type == ItemlistType.giglist);
+      publicItemlists.removeWhere((key, publicList) => publicList.type == ItemlistType.readlist);
+      publicItemlists.removeWhere((key, publicList) => publicList.type == ItemlistType.giglist);
     } catch(e) {
       AppUtilities.logger.e(e.toString());
     }

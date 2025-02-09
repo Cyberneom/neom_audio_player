@@ -7,12 +7,13 @@ import 'package:http/http.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/core_utilities.dart';
+import 'package:neom_commons/core/utils/enums/app_hive_box.dart';
 import 'package:neom_commons/core/utils/enums/app_media_source.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 
-import '../../utils/constants/app_hive_constants.dart';
+import 'package:neom_commons/core/utils/constants/app_hive_constants.dart';
 import '../../utils/constants/player_translation_constants.dart';
 import 'ext_storage_provider.dart';
 
@@ -34,9 +35,9 @@ class Download with ChangeNotifier {
 
   int? rememberOption;
   final ValueNotifier<bool> remember = ValueNotifier<bool>(false);
-  String preferredDownloadQuality = Hive.box(AppHiveConstants.settings).get('downloadQuality', defaultValue: '320 kbps') as String;
-  String downloadFormat = Hive.box(AppHiveConstants.settings).get('downloadFormat', defaultValue: 'm4a').toString();
-  bool createDownloadFolder = Hive.box(AppHiveConstants.settings).get('createDownloadFolder', defaultValue: false) as bool;
+  String preferredDownloadQuality = Hive.box(AppHiveBox.settings.name).get('downloadQuality', defaultValue: '320 kbps') as String;
+  String downloadFormat = Hive.box(AppHiveBox.settings.name).get('downloadFormat', defaultValue: 'm4a').toString();
+  bool createDownloadFolder = Hive.box(AppHiveBox.settings.name).get('createDownloadFolder', defaultValue: false) as bool;
 
   double? progress = 0.0;
   String lastDownloadId = '';
@@ -71,7 +72,7 @@ class Download with ChangeNotifier {
     mediaItem.name = mediaItem.name.split('(From')[0].trim();
 
     String filename = '';
-    final int downFilename = Hive.box(AppHiveConstants.settings).get('downFilename', defaultValue: 0) as int;
+    final int downFilename = Hive.box(AppHiveBox.settings.name).get('downFilename', defaultValue: 0) as int;
     if (downFilename == 0) {
       filename = '${mediaItem.name} - ${mediaItem.artist}';
     } else if (downFilename == 1) {
@@ -80,7 +81,7 @@ class Download with ChangeNotifier {
       filename = mediaItem.name;
     }
     // String filename = '${data["title"]} - ${data["artist"]}';
-    String dlPath = Hive.box(AppHiveConstants.settings).get('downloadPath', defaultValue: '') as String;
+    String dlPath = Hive.box(AppHiveBox.settings.name).get('downloadPath', defaultValue: '') as String;
     AppUtilities.logger.i('Cached Download path: $dlPath');
     if (filename.length > 200) {
       final String temp = filename.substring(0, 200);
@@ -207,7 +208,7 @@ class Download with ChangeNotifier {
                             ),
                             onPressed: () async {
                               Navigator.pop(context);
-                              Hive.box(AppHiveConstants.downloads).delete(mediaItem.id);
+                              Hive.box(AppHiveBox.downloads.name).delete(mediaItem.id);
                               downloadMediaItem(context, dlPath, filename, mediaItem);
                               rememberOption = 1;
                             },
@@ -262,7 +263,7 @@ class Download with ChangeNotifier {
     final artName = fileName.replaceAll('.m4a', '.jpg');
     if (!Platform.isWindows) {
       AppUtilities.logger.i('Getting App Path for storing image');
-      appPath = Hive.box(AppHiveConstants.settings).get('tempDirPath')?.toString();
+      appPath = Hive.box(AppHiveBox.settings.name).get('tempDirPath')?.toString();
       appPath ??= (await getTemporaryDirectory()).path;
     } else {
       final Directory? temp = await getDownloadsDirectory();
@@ -388,7 +389,7 @@ class Download with ChangeNotifier {
         downloadedMediaItem.imgUrl = imgPath;
         downloadedMediaItem.mediaSource = AppMediaSource.offline;
 
-        Hive.box(AppHiveConstants.downloads).put(downloadedMediaItem.id, downloadedMediaItem.toJSON());
+        Hive.box(AppHiveBox.downloads.name).put(downloadedMediaItem.id, downloadedMediaItem.toJSON());
 
         AppUtilities.logger.i('Everything done, showing snackbar');
         AppUtilities.showSnackBar(

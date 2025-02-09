@@ -3,13 +3,14 @@ import 'dart:io';
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:get/get.dart' as getx;
+import 'package:neom_commons/core/data/firestore/app_media_item_firestore.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
 import 'package:neom_commons/core/utils/constants/message_translation_constants.dart';
 import 'package:path_provider/path_provider.dart';
 
-import 'data/implementations/app_hive_controller.dart';
+import 'data/implementations/player_hive_controller.dart';
 import 'domain/use_cases/neom_audio_handler.dart';
 import 'utils/helpers/media_item_mapper.dart';
 import 'utils/neom_audio_utilities.dart';
@@ -69,6 +70,7 @@ class NeomPlayerInvoker {
       if(queue.isNotEmpty) audioHandler?.currentMediaItem = queue.first;
 
       updateNowPlaying(queue, index, playItem: playItem);
+      AppMediaItemFirestore().existsOrInsert(appMediaItem);
     } catch(e) {
       AppUtilities.logger.e(e.toString());
     }
@@ -102,32 +104,32 @@ class NeomPlayerInvoker {
     await updateNowPlaying(queue, index);
   }
 
-  static Future<MediaItem> setTags(AppMediaItem response, Directory tempDir,) async {
-    String playTitle = response.name;
-    if(playTitle.isEmpty && response.album.isNotEmpty) {
-      playTitle = response.album;
+  static Future<MediaItem> setTags(AppMediaItem appMediaItem, Directory tempDir,) async {
+    String playTitle = appMediaItem.name;
+    if(playTitle.isEmpty && appMediaItem.album.isNotEmpty) {
+      playTitle = appMediaItem.album;
     }
-    String playArtist = response.artist;
-    playArtist == '<unknown>' ? playArtist = 'Unknown' : playArtist = response.artist;
+    String playArtist = appMediaItem.artist;
+    playArtist == '<unknown>' ? playArtist = 'Unknown' : playArtist = appMediaItem.artist;
 
-    final String playAlbum = response.album;
-    final int playDuration = response.duration;
-    final String imagePath = '${tempDir.path}/${response.name.removeAllWhitespace}.png';
+    final String playAlbum = appMediaItem.album;
+    final int playDuration = appMediaItem.duration;
+    final String imagePath = '${tempDir.path}/${appMediaItem.name.removeAllWhitespace}.png';
 
     final MediaItem tempDict = MediaItem(
-      id: response.id.toString(),
+      id: appMediaItem.id.toString(),
       album: playAlbum,
       duration: Duration(milliseconds: playDuration),
       title: playTitle.split('(')[0],
       artist: playArtist,
-      genre: response.genre,
+      genre: appMediaItem.genres?.isNotEmpty ?? false ? appMediaItem.genres?.first : null,
       artUri: Uri.file(imagePath),
       extras: {
-        'url': response.url,
-        'date_added': response.publishedYear,
-        'date_modified': response.releaseDate,
+        'url': appMediaItem.url,
+        'date_added': appMediaItem.publishedYear,
+        'date_modified': appMediaItem.releaseDate,
         // 'size': response.size,
-        'year': response.publishedYear,
+        'year': appMediaItem.publishedYear,
       },
     );
     return tempDict;
@@ -173,9 +175,9 @@ class NeomPlayerInvoker {
   }
 
   static void enforceRepeat() {
-    final bool enforceRepeat = AppHiveController().enforceRepeat;
+    final bool enforceRepeat = PlayerHiveController().enforceRepeat;
     if (enforceRepeat) {
-      final AudioServiceRepeatMode repeatMode = AppHiveController().repeatMode;
+      final AudioServiceRepeatMode repeatMode = PlayerHiveController().repeatMode;
       switch (repeatMode) {
         case AudioServiceRepeatMode.none:
           audioHandler?.setRepeatMode(AudioServiceRepeatMode.none);
@@ -188,7 +190,7 @@ class NeomPlayerInvoker {
       }
     } else {
       audioHandler?.setRepeatMode(AudioServiceRepeatMode.none);
-      AppHiveController().updateRepeatMode(AudioServiceRepeatMode.none);
+      PlayerHiveController().updateRepeatMode(AudioServiceRepeatMode.none);
     }
   }
 }

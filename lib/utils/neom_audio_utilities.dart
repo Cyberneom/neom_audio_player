@@ -34,8 +34,7 @@ class NeomAudioUtilities {
     AppUtilities.logger.d("registerAudioHandler");
 
     try {
-      final neomAudioProvider = NeomAudioProvider();
-      final NeomAudioHandler audioHandler = await neomAudioProvider.getAudioHandler();
+      final NeomAudioHandler audioHandler = await NeomAudioProvider().getAudioHandler();
       GetIt.I.registerSingleton<NeomAudioHandler>(audioHandler);
     } catch (e) {
       AppUtilities.logger.e(e.toString());

@@ -1,17 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
-import '../constants/app_hive_constants.dart';
-
+import 'package:neom_commons/core/utils/enums/app_hive_box.dart';
 class MusicPlayerTheme with ChangeNotifier {
 
-  final bool _useSystemTheme = Hive.box(AppHiveConstants.settings).get('useSystemTheme', defaultValue: false) as bool;
-  String accentColor = Hive.box(AppHiveConstants.settings).get('themeColor', defaultValue: 'Teal') as String;
-  String canvasColor = Hive.box(AppHiveConstants.settings).get('canvasColor', defaultValue: 'Grey') as String;
-  String cardColor = Hive.box(AppHiveConstants.settings).get('cardColor', defaultValue: 'Grey900') as String;
-  int backGrad = Hive.box(AppHiveConstants.settings).get('backGrad', defaultValue: 2) as int;
-  int cardGrad = Hive.box(AppHiveConstants.settings).get('cardGrad', defaultValue: 4) as int;
-  int bottomGrad = Hive.box(AppHiveConstants.settings).get('bottomGrad', defaultValue: 3) as int;
-  int colorHue = Hive.box(AppHiveConstants.settings).get('colorHue', defaultValue: 400) as int;
+  final bool _useSystemTheme = Hive.box(AppHiveBox.settings.name).get('useSystemTheme', defaultValue: false) as bool;
+  String accentColor = Hive.box(AppHiveBox.settings.name).get('themeColor', defaultValue: 'Teal') as String;
+  String canvasColor = Hive.box(AppHiveBox.settings.name).get('canvasColor', defaultValue: 'Grey') as String;
+  String cardColor = Hive.box(AppHiveBox.settings.name).get('cardColor', defaultValue: 'Grey900') as String;
+  int backGrad = Hive.box(AppHiveBox.settings.name).get('backGrad', defaultValue: 2) as int;
+  int cardGrad = Hive.box(AppHiveBox.settings.name).get('cardGrad', defaultValue: 4) as int;
+  int bottomGrad = Hive.box(AppHiveBox.settings.name).get('bottomGrad', defaultValue: 3) as int;
+  int colorHue = Hive.box(AppHiveBox.settings.name).get('colorHue', defaultValue: 400) as int;
 
   ThemeMode currentTheme() {
     if (_useSystemTheme == true) {

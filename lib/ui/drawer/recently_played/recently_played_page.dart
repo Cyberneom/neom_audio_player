@@ -5,10 +5,10 @@ import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/ui/widgets/appbar_child.dart';
 import 'package:neom_commons/core/ui/widgets/neom_image_card.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
+import 'package:neom_commons/core/utils/enums/app_hive_box.dart';
 
 import '../../../neom_player_invoker.dart';
-import '../../../utils/constants/app_hive_constants.dart';
-import '../../../utils/constants/audio_player_route_constants.dart';
+import 'package:neom_commons/core/utils/constants/app_hive_constants.dart';import '../../../utils/constants/audio_player_route_constants.dart';
 import '../../../utils/constants/player_translation_constants.dart';
 import '../../widgets/empty_screen.dart';
 import '../../widgets/like_button.dart';
@@ -25,7 +25,7 @@ class RecentlyPlayedPageState extends State<RecentlyPlayedPage> {
   bool added = false;
 
   Future<void> getSongs() async {
-    List recentSongs = await Hive.box(AppHiveConstants.cache).get('recentSongs', defaultValue: []) as List;
+    List recentSongs = await Hive.box(AppHiveBox.player.name).get('recentSongs', defaultValue: []) as List;
     if(recentSongs.isNotEmpty) {
       for (final element in recentSongs) {
         AppMediaItem recentMediaItem = AppMediaItem.fromJSON(element);
@@ -49,7 +49,7 @@ class RecentlyPlayedPageState extends State<RecentlyPlayedPage> {
           actionWidgets: [
             IconButton(
               onPressed: () {
-                Hive.box(AppHiveConstants.cache).put('recentSongs', []);
+                Hive.box(AppHiveBox.player.name).put('recentSongs', []);
                 setState(() {
                   _songs = {};
                 });
@@ -95,7 +95,7 @@ class RecentlyPlayedPageState extends State<RecentlyPlayedPage> {
               onDismissed: (direction) {
                 _songs.remove(item.id);
                 setState(() {});
-                Hive.box(AppHiveConstants.cache).put(AppHiveConstants.recentSongs, _songs);
+                Hive.box(AppHiveBox.player.name).put(AppHiveConstants.recentSongs, _songs);
                 },
               child: ListTile(
                 leading: NeomImageCard(imageUrl: item.imgUrl,),

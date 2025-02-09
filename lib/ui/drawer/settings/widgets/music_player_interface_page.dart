@@ -5,8 +5,8 @@ import 'package:neom_commons/core/ui/widgets/appbar_child.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_theme.dart';
 
-import '../../../../utils/constants/app_hive_constants.dart';
-import '../../../../utils/constants/audio_player_constants.dart';
+import 'package:neom_commons/core/utils/constants/app_hive_constants.dart';
+import 'package:neom_commons/core/utils/enums/app_hive_box.dart';import '../../../../utils/constants/audio_player_constants.dart';
 import '../../../../utils/constants/player_translation_constants.dart';
 import 'hive_box_switch_tile.dart';
 
@@ -20,15 +20,15 @@ class MusicPlayerInterfacePage extends StatefulWidget {
 
 class _MusicPlayerInterfacePageState extends State<MusicPlayerInterfacePage> {
 
-  final Box settingsBox = Hive.box(AppHiveConstants.settings);
+  final Box settingsBox = Hive.box(AppHiveBox.settings.name);
 
-  List miniButtonsOrder = Hive.box(AppHiveConstants.settings).get(AppHiveConstants.miniButtonsOrder,
+  List miniButtonsOrder = Hive.box(AppHiveBox.settings.name).get(AppHiveConstants.miniButtonsOrder,
     defaultValue: AudioPlayerConstants.defaultMiniButtonsOrder,) as List;
 
-  List preferredMiniButtons = Hive.box(AppHiveConstants.settings).get(AppHiveConstants.preferredMiniButtons,
+  List preferredMiniButtons = Hive.box(AppHiveBox.settings.name).get(AppHiveConstants.preferredMiniButtons,
     defaultValue: AudioPlayerConstants.defaultControlButtons)?.toList() as List;
 
-  List<int> preferredCompactNotificationButtons = Hive.box(AppHiveConstants.settings)
+  List<int> preferredCompactNotificationButtons = Hive.box(AppHiveBox.settings.name)
       .get(AppHiveConstants.preferredCompactNotificationButtons,
       defaultValue: AudioPlayerConstants.preferredCompactNotificationButtons) as List<int>;
 
@@ -142,11 +142,11 @@ class _MusicPlayerInterfacePageState extends State<MusicPlayerInterfacePage> {
                                       preferredMiniButtons = temp;
                                       miniButtonsOrder = order;
                                       Navigator.pop(context);
-                                      Hive.box(AppHiveConstants.settings).put(
+                                      Hive.box(AppHiveBox.settings.name).put(
                                         'preferredMiniButtons',
                                         preferredMiniButtons,
                                       );
-                                      Hive.box(AppHiveConstants.settings).put(
+                                      Hive.box(AppHiveBox.settings.name).put(
                                         'miniButtonsOrder',
                                         order,
                                       );
@@ -279,7 +279,7 @@ class _MusicPlayerInterfacePageState extends State<MusicPlayerInterfacePage> {
                                       }
                                       preferredCompactNotificationButtons = checked.toList()..sort();
                                       Navigator.pop(context);
-                                      Hive.box(AppHiveConstants.settings).put('preferredCompactNotificationButtons', preferredCompactNotificationButtons,
+                                      Hive.box(AppHiveBox.settings.name).put('preferredCompactNotificationButtons', preferredCompactNotificationButtons,
                                       );
                                     },
                                   );

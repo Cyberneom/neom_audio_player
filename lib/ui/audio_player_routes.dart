@@ -14,7 +14,7 @@ class AudioPlayerRoutes {
   ///In the meantime we get more catalog and items "welcomePrefs" would be skipped"
   static Widget initialFunction() {
     return const AudioPlayerRootPage();
-    // if(Hive.box(AppHiveConstants.settings).get(AppHiveConstants.userId) != null || AppFlavour.appInUse == AppInUse.e) {
+    // if(Hive.box(AppHiveBox.settings.name).get(AppHiveConstants.userId) != null || AppFlavour.appInUse == AppInUse.e) {
     //   return const AudioPlayerRootPage();
     // } else {
     //   return const WelcomePreferencePage();

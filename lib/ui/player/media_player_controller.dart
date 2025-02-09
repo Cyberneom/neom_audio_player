@@ -13,6 +13,7 @@ import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/domain/model/app_release_item.dart';
+import 'package:neom_commons/core/utils/enums/app_hive_box.dart';
 import 'package:neom_commons/neom_commons.dart';
 import 'package:rxdart/rxdart.dart' as rx;
 import 'package:sliding_up_panel/sliding_up_panel.dart';
@@ -23,10 +24,10 @@ import '../../domain/entities/media_lyrics.dart';
 import '../../domain/entities/position_data.dart';
 import '../../domain/use_cases/neom_audio_handler.dart';
 import '../../neom_player_invoker.dart';
-import '../../utils/audio_player_utilities.dart';
-import '../../utils/constants/app_hive_constants.dart';
+import 'package:neom_commons/core/utils/constants/app_hive_constants.dart';
 import '../../utils/helpers/media_item_mapper.dart';
 import '../../utils/neom_audio_utilities.dart';
+import '../library/playlist_player_page.dart';
 import 'lyrics/lyrics.dart';
 
 class MediaPlayerController extends GetxController {
@@ -39,17 +40,22 @@ class MediaPlayerController extends GetxController {
 
   Rxn<MediaItem> mediaItem = Rxn<MediaItem>();
   Rx<AppMediaItem> appMediaItem = AppMediaItem().obs;
+
+  RxString mediaItemTitle = ''.obs;
+  RxString mediaItemArtist = ''.obs;
+  RxString mediaItemAlbum = ''.obs;
+
   RxBool isLoading = true.obs;
   RxBool isLoadingAudio = true.obs;
   RxBool isButtonDisabled = false.obs;
   RxBool isSharePopupShown = false.obs;
-  RxBool reproduceItem = true.obs;
+  bool reproduceItem = true;
 
   bool offline = false;
-  bool inItemlist = false;
-  String? itemlistId;
+  Itemlist? personalPlaylist;
+  Itemlist? releaseItemlist;
 
-  final bool getLyricsOnline = Hive.box(AppHiveConstants.settings).get('getLyricsOnline', defaultValue: true) as bool;
+  final bool getLyricsOnline = Hive.box(AppHiveBox.settings.name).get('getLyricsOnline', defaultValue: true) as bool;
   final PanelController panelController = PanelController();
 
   GlobalKey<FlipCardState> onlineCardKey = GlobalKey<FlipCardState>();
@@ -70,8 +76,8 @@ class MediaPlayerController extends GetxController {
         if (Get.arguments[0] is AppReleaseItem) {
           appMediaItem.value = AppMediaItem.fromAppReleaseItem(Get.arguments[0]);
           if(appMediaItem.value.artist.contains(' - ')) {
-            appMediaItem.value.album = AudioPlayerUtilities.getMediaName(appMediaItem.value.artist);
-            appMediaItem.value.artist = AudioPlayerUtilities.getArtistName(appMediaItem.value.artist);
+            appMediaItem.value.album = AppUtilities.getMediaName(appMediaItem.value.artist);
+            appMediaItem.value.artist = AppUtilities.getArtistName(appMediaItem.value.artist);
           }
         } else if (Get.arguments[0] is AppMediaItem) {
           appMediaItem.value =  Get.arguments.elementAt(0);
@@ -81,18 +87,11 @@ class MediaPlayerController extends GetxController {
         }
 
         if(Get.arguments.length > 1) {
-          reproduceItem.value = Get.arguments[1] as bool;
+          reproduceItem = Get.arguments[1] as bool;
         }
       }
-
-      for(Itemlist list in profile.itemlists?.values ?? {}) {
-        if(list.appReleaseItems?.firstWhereOrNull((item) => item.id == appMediaItem.value.id) != null){
-          inItemlist = true;
-          itemlistId = list.id;
-        }
-      }
-
-
+      updateMediaItemValues();
+      getItemPlaylist();
     } catch (e) {
       AppUtilities.logger.e(e.toString());
     }
@@ -108,7 +107,7 @@ class MediaPlayerController extends GetxController {
         NeomAudioUtilities.getAudioHandler().then((handler) async {
           audioHandler = handler;
           bool alreadyPlaying = audioHandler?.currentMediaItem?.id == appMediaItem.value.id;
-          if(reproduceItem.value && !alreadyPlaying) {
+          if(reproduceItem && !alreadyPlaying) {
             await NeomPlayerInvoker.init(
               appMediaItems: [appMediaItem.value],
               index: 0,
@@ -121,7 +120,6 @@ class MediaPlayerController extends GetxController {
         AppUtilities.logger.e(e.toString());
       }
     });
-
   }
 
 
@@ -129,11 +127,53 @@ class MediaPlayerController extends GetxController {
 
   }
 
+  void getItemPlaylist() {
+    for(Itemlist list in profile.itemlists?.values ?? {}) {
+      if(list.appReleaseItems?.firstWhereOrNull((item) => item.id == appMediaItem.value.id) != null){
+        personalPlaylist= list;
+        break;
+      }
+      if(list.appMediaItems?.firstWhereOrNull((item) => item.id == appMediaItem.value.id) != null){
+        personalPlaylist= list;
+        break;
+      }
+    }
+
+    for(Itemlist list in userController.releaseItemlists.values) {
+      if(list.appReleaseItems?.firstWhereOrNull((item) => item.id == appMediaItem.value.id) != null){
+        releaseItemlist = list;
+        break;
+      }
+      if(list.appMediaItems?.firstWhereOrNull((item) => item.id == appMediaItem.value.id) != null){
+        releaseItemlist= list;
+        break;
+      }
+    }
+  }
+
+  void gotoPlaylistPlayer() {
+    getItemPlaylist();
+    Get.to(() => PlaylistPlayerPage(itemlist: releaseItemlist));
+  }
+
   void setMediaItem(MediaItem item) {
     AppUtilities.logger.i('Setting new mediaitem ${item.title}');
     mediaItem.value = item;
     appMediaItem.value = MediaItemMapper.fromMediaItem(item);
+    updateMediaItemValues();
     update();
+  }
+
+  void updateMediaItemValues() {
+    mediaItemTitle.value = appMediaItem.value?.name ?? '';
+    mediaItemArtist.value = appMediaItem.value.artist ?? '';
+    mediaItemAlbum.value = appMediaItem.value?.album ?? '';
+    if(mediaItemTitle.contains(' - ')) {
+      mediaItemTitle.value = AppUtilities.getMediaName(appMediaItem.value!.name);
+      if(appMediaItem.value?.artist?.isEmpty ?? true) {
+        mediaItemArtist.value = AppUtilities.getArtistName(appMediaItem.value!.name);
+      }
+    }
   }
 
   void toggleLyricsCard() {

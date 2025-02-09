@@ -18,11 +18,11 @@ import 'package:neom_itemlists/itemlists/ui/search/app_media_item_search_control
 import 'package:rflutter_alert/rflutter_alert.dart';
 
 class AddToPlaylist {
-  // Box settingsBox = Hive.box(AppHiveConstants.settings);
-  // List playlistNames = Hive.box(AppHiveConstants.settings).get('playlistNames', defaultValue: [AppHiveConstants.favoriteSongs]) as List;
-  // Map playlistDetails = Hive.box(AppHiveConstants.settings).get('playlistDetails', defaultValue: {}) as Map;
+  // Box settingsBox = Hive.box(AppHiveBox.settings.name);
+  // List playlistNames = Hive.box(AppHiveBox.settings.name).get('playlistNames', defaultValue: [AppHiveBox.favoriteItems.name]) as List;
+  // Map playlistDetails = Hive.box(AppHiveBox.settings.name).get('playlistDetails', defaultValue: {}) as Map;
 
-  Future<void> addToPlaylist(BuildContext context, AppMediaItem appMediaItem, {bool fromSearch = false}) async {
+  Future<void> addToPlaylist(BuildContext context, AppMediaItem appMediaItem, {bool fromSearch = false, bool goHome = true}) async {
 
     List<Itemlist> itemlists = []; ///GET INFO FROM CONTROLLER
     ProfileType type = ProfileType.general; ///GET INFO FROM CONTROLLER
@@ -149,17 +149,17 @@ class AddToPlaylist {
             onPressed: () async => {
               if(type == ProfileType.artist)
                 searchController.appItemState > 0
-                    ? await searchController.addItemlistItem(context, fanItemState: searchController.appItemState.value)
+                    ? await searchController.addItemlistItem(context, fanItemState: searchController.appItemState.value, goHome: goHome)
                     : AppUtilities.showSnackBar(
                       title: AppTranslationConstants.appItemPrefs.tr,
                       message: MessageTranslationConstants.selectItemStateMsg.tr
                     )
               else
-                await searchController.addItemlistItem(context, fanItemState: AppItemState.heardIt.value),
+                await searchController.addItemlistItem(context, fanItemState: AppItemState.heardIt.value, goHome: goHome),
             },
           ),
         ],
-      ).show() : await searchController.addItemlistItem(context, fanItemState: AppItemState.heardIt.value,);
+      ).show() : await searchController.addItemlistItem(context, fanItemState: AppItemState.heardIt.value, goHome: goHome);
     } catch(e) {
       AppUtilities.logger.e(e.toString());
     }

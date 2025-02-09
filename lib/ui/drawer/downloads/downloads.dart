@@ -14,8 +14,7 @@
 // import 'package:permission_handler/permission_handler.dart';
 //
 // import '../../../neom_player_invoker.dart';
-// import '../../../utils/constants/app_hive_constants.dart';
-// import '../../../utils/constants/music_player_route_constants.dart';
+// import 'package:neom_commons/core/utils/constants/app_hive_constants.dart';// import '../../../utils/constants/music_player_route_constants.dart';
 // import '../../../utils/constants/player_translation_constants.dart';
 // import '../../../utils/helpers/picker.dart';
 // import '../../widgets/empty_screen.dart';
@@ -43,11 +42,11 @@
 //   final List _sortedArtistKeysList = [];
 //   final List _sortedGenreKeysList = [];
 //
-//   // String? tempPath = Hive.box(AppHiveConstants.settings).get('tempDirPath')?.toString();
-//   int sortValue = Hive.box(AppHiveConstants.settings).get('sortValue', defaultValue: 1) as int;
+//   // String? tempPath = Hive.box(AppHiveBox.settings.name).get('tempDirPath')?.toString();
+//   int sortValue = Hive.box(AppHiveBox.settings.name).get('sortValue', defaultValue: 1) as int;
 //   int orderValue =
-//   Hive.box(AppHiveConstants.settings).get('orderValue', defaultValue: 1) as int;
-//   int albumSortValue =   Hive.box(AppHiveConstants.settings).get('albumSortValue', defaultValue: 2) as int;
+//   Hive.box(AppHiveBox.settings.name).get('orderValue', defaultValue: 1) as int;
+//   int albumSortValue =   Hive.box(AppHiveBox.settings.name).get('albumSortValue', defaultValue: 2) as int;
 //   final ScrollController _scrollController = ScrollController();
 //   final ValueNotifier<bool> _showShuffle = ValueNotifier<bool>(true);
 //
@@ -200,17 +199,17 @@
 //                       (int value) {
 //                     if (value < 5) {
 //                       sortValue = value;
-//                       Hive.box(AppHiveConstants.settings).put('sortValue', value);
+//                       Hive.box(AppHiveBox.settings.name).put('sortValue', value);
 //                     } else {
 //                       orderValue = value - 5;
-//                       Hive.box(AppHiveConstants.settings).put('orderValue', orderValue);
+//                       Hive.box(AppHiveBox.settings.name).put('orderValue', orderValue);
 //                     }
 //                     sortSongs(sortVal: sortValue, order: orderValue);
 //                     setState(() {});
 //                     //   }
 //                     // : (int value) {
 //                     //     albumSortValue = value;
-//                     //     Hive.box(AppHiveConstants.settings)
+//                     //     Hive.box(AppHiveBox.settings.name)
 //                     //         .put('albumSortValue', value);
 //                     //     sortAlbums();
 //                     //     setState(() {});
@@ -736,7 +735,7 @@
 //                                   item,
 //                                   context,
 //                                 );
-//                                 Hive.box(AppHiveConstants.downloads).put(
+//                                 Hive.box(AppHiveBox.downloads.name).put(
 //                                   item.id,
 //                                   item,
 //                                 );

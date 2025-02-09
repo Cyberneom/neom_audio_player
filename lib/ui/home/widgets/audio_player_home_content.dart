@@ -8,9 +8,14 @@ import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
 import 'package:neom_commons/core/utils/constants/app_page_id_constants.dart';
 import 'package:neom_commons/core/utils/constants/app_route_constants.dart';
+import 'package:neom_commons/core/utils/constants/app_translation_constants.dart';
+import 'package:neom_commons/core/utils/enums/app_hive_box.dart';
+import 'package:neom_commons/core/utils/enums/app_media_source.dart';
+import 'package:neom_commons/core/utils/enums/itemlist_type.dart';
 
 import '../../../neom_player_invoker.dart';
-import '../../../utils/constants/app_hive_constants.dart';
+import '../../../utils/audio_player_utilities.dart';
+import 'package:neom_commons/core/utils/constants/app_hive_constants.dart';
 import '../../../utils/constants/audio_player_route_constants.dart';
 import '../../../utils/constants/player_translation_constants.dart';
 import '../../library/playlist_player_page.dart';
@@ -50,22 +55,49 @@ class AudioPlayerHomeContent extends StatelessWidget {
       ) : ListView.builder(physics: const BouncingScrollPhysics(),
         shrinkWrap: true,
         padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
-        itemCount: _.publicItemlists.isEmpty ? 3 : (_.publicItemlists.length + 3),
+        itemCount: _.publicItemlists.isEmpty ? 4 : (_.publicItemlists.length + 4),
         itemBuilder: (context, idx) {
           AppUtilities.logger.t('Building Music Home Index $idx');
 
           if (idx == _.recentIndex) return buildLastSessionContainer(context, _);
 
           if (idx == _.myPlaylistsIndex) {
-            return _.myItemLists.isNotEmpty ? buildMyPlaylistsContainer(_, context, boxSize) : const SizedBox.shrink();
+            return _.myItemLists.isNotEmpty ? buildPlaylistsContainer(_.myItemLists.values.toList(), context,
+                PlayerTranslationConstants.yourPlaylists.tr, boxSize) : const SizedBox.shrink();
           }
 
           if (idx == _.favoriteItemsIndex) {
             return _.favoriteItems.isNotEmpty ? buildFavoriteItemsContainer(_, context, boxSize) : const SizedBox.shrink();
           }
 
-          final Itemlist publicList = _.publicItemlists.values.elementAt(idx - 3);
-          if (publicList.getTotalItems() == 0) {
+          if (idx == _.lastReleasesIndex) {
+            Map<String, List<Itemlist>> categorized = AudioPlayerUtilities.categorizePLaylistByTags(_.releaseItemlists.values.toList());
+
+            Set<Itemlist> shownPlaylists = {};
+            if(categorized.isNotEmpty) {
+              return ListView.builder(
+                shrinkWrap: true,
+                physics: ClampingScrollPhysics(),
+                itemCount: categorized.length,
+                itemBuilder: (context, index) {
+                  String tag = categorized.keys.elementAt(index);
+                  List<Itemlist> items = categorized.values.elementAt(index);
+                  // items.where((item) => !shownPlaylists.contains(item)).toList();
+
+                  shownPlaylists.addAll(items);
+                  return buildPlaylistsContainer(items, context, tag.tr.capitalize, boxSize);
+                },
+              );
+            } else {
+              return _.releaseItemlists.isNotEmpty ? buildPlaylistsContainer(_.releaseItemlists.values.toList(), context,
+                  AppTranslationConstants.recentReleases.tr, boxSize) : const SizedBox.shrink();
+            }
+          }
+
+          final Itemlist publicList = _.publicItemlists.values.elementAt(idx - 4);
+          bool containsExternalItems = publicList.appMediaItems?.where(
+                  (item) => item.mediaSource != AppMediaSource.internal || item.mediaSource != AppMediaSource.offline).isNotEmpty ?? true;
+          if (publicList.getTotalItems() == 0 || publicList.type != ItemlistType.playlist || containsExternalItems) {
             return const SizedBox.shrink();
           } else if (publicList.name == 'likedArtists') {
             return buildLikedArtistContainer(publicList, context);
@@ -218,7 +250,7 @@ class AudioPlayerHomeContent extends StatelessWidget {
 
   Widget buildLastSessionContainer(BuildContext context, AudioPlayerHomeController _) {
     return ValueListenableBuilder(
-      valueListenable: Hive.box(AppHiveConstants.settings).listenable(),
+      valueListenable: Hive.box(AppHiveBox.settings.name).listenable(),
       child: Column(
         children: [
           GestureDetector(
@@ -240,11 +272,11 @@ class AudioPlayerHomeContent extends StatelessWidget {
             onTap: () => Navigator.pushNamed(context, AudioPlayerRouteConstants.recent),
           ),
           HorizontalAlbumsListSeparated(
-            songsList: _.recentList.values.toList(),
+            songsList: _.recentList.values.where((item)=> item.mediaSource == AppMediaSource.internal).toList(),
             onTap: (int idx) {
               NeomPlayerInvoker.init(
-                appMediaItems: [_.recentList.values.elementAt(idx)],
-                index: 0,
+                appMediaItems: _.recentList.values.toList(),
+                index: idx,
               );
             },
           ),
@@ -258,7 +290,7 @@ class AudioPlayerHomeContent extends StatelessWidget {
     );
   }
 
-  Widget buildMyPlaylistsContainer(AudioPlayerHomeController _, BuildContext context, double boxSize) {
+  Widget buildPlaylistsContainer(List<Itemlist> playlists, BuildContext context, String title, double boxSize) {
     return Column(
         children: [
           GestureDetector(
@@ -266,8 +298,7 @@ class AudioPlayerHomeContent extends StatelessWidget {
               children: [
                 Padding(
                   padding: const EdgeInsets.fromLTRB(15, 10, 15, 5),
-                  child: Text(
-                    PlayerTranslationConstants.yourPlaylists.tr,
+                  child: Text(title,
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.secondary,
                       fontSize: 18,
@@ -285,9 +316,9 @@ class AudioPlayerHomeContent extends StatelessWidget {
               physics: const BouncingScrollPhysics(),
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 10),
-              itemCount: _.myItemLists.length,
+              itemCount: playlists.length,
               itemBuilder: (context, index) {
-                Itemlist itemlist = _.myItemLists.values.elementAt(index);
+                Itemlist itemlist = playlists.elementAt(index);
                 final String name = itemlist.name;
                 final String? subtitle = itemlist.getTotalItems() == 0 ? null :
                 '${itemlist.getTotalItems()} ${PlayerTranslationConstants.mediaItems.tr}';
@@ -303,7 +334,7 @@ class AudioPlayerHomeContent extends StatelessWidget {
                           borderRadius: BorderRadius.circular(10.0,),
                         ),
                         clipBehavior: Clip.antiAlias,
-                        child: name == AppHiveConstants.favoriteSongs
+                        child: name == AppHiveBox.favoriteItems.name
                             ? const Image(image: AssetImage(AppAssets.audioPlayerCover,),)
                             : const Image(image: AssetImage(AppAssets.audioPlayerAlbum,),),
                       ) : Collage(
@@ -409,7 +440,7 @@ class AudioPlayerHomeContent extends StatelessWidget {
             itemBuilder: (context, index) {
               AppMediaItem favoriteItem = _.favoriteItems.elementAt(index);
               final String subtitle = favoriteItem.artist;
-              return GestureDetector(
+              return favoriteItem.mediaSource == AppMediaSource.internal ? GestureDetector(
                 child: SizedBox(
                   width: boxSize - 20,
                   child: HoverBox(
@@ -424,7 +455,7 @@ class AudioPlayerHomeContent extends StatelessWidget {
                       child: const Image(image: AssetImage(AppAssets.audioPlayerCover,),),
                     ) : Collage(
                       borderRadius: 10.0,
-                      imageList: favoriteItem.imgUrl.isNotEmpty ? [favoriteItem.imgUrl] : favoriteItem.allImgs!,
+                      imageList: favoriteItem.imgUrl.isNotEmpty ? [favoriteItem.imgUrl] : favoriteItem.allImgs ?? [],
                       showGrid: true,
                       placeholderImage: AppAssets.audioPlayerCover,
                     ),
@@ -481,7 +512,7 @@ class AudioPlayerHomeContent extends StatelessWidget {
                 onTap: () async {
                   Get.toNamed(AppRouteConstants.audioPlayerMedia, arguments: [favoriteItem]);
                 },
-              );
+              ) : SizedBox.shrink();
             },
           ),
         ),

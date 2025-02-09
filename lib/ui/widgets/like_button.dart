@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:neom_commons/core/data/firestore/app_media_item_firestore.dart';
 import 'package:neom_commons/core/data/firestore/profile_firestore.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/domain/model/app_profile.dart';
@@ -95,8 +94,6 @@ class LikeButtonState extends State<LikeButton>
               profile.favoriteItems?.add(itemId);
               ProfileFirestore().addFavoriteItem(profile.id, itemId);
             }
-
-            AppMediaItemFirestore().existsOrInsert(widget.appMediaItem!);
           } catch(e) {
             AppUtilities.logger.e(e.toString());
           }

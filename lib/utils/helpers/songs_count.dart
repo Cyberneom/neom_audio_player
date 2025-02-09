@@ -1,9 +1,9 @@
 import 'package:hive/hive.dart';
-import '../constants/app_hive_constants.dart';
-
+import 'package:neom_commons/core/utils/constants/app_hive_constants.dart';
+import 'package:neom_commons/core/utils/enums/app_hive_box.dart';
 void addSongsCount(String playlistName, int len, List images) {
   final Map playlistDetails =
-      Hive.box(AppHiveConstants.settings).get('playlistDetails', defaultValue: {}) as Map;
+      Hive.box(AppHiveBox.settings.name).get('playlistDetails', defaultValue: {}) as Map;
   if (playlistDetails.containsKey(playlistName)) {
     playlistDetails[playlistName].addAll({'count': len, 'imagesList': images});
   } else {
@@ -11,5 +11,5 @@ void addSongsCount(String playlistName, int len, List images) {
       MapEntry(playlistName, {'count': len, 'imagesList': images}),
     ]);
   }
-  Hive.box(AppHiveConstants.settings).put('playlistDetails', playlistDetails);
+  Hive.box(AppHiveBox.settings.name).put('playlistDetails', playlistDetails);
 }

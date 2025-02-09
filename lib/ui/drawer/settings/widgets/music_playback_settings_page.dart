@@ -6,10 +6,10 @@ import 'package:neom_commons/core/ui/widgets/appbar_child.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_theme.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
+import 'package:neom_commons/core/utils/enums/app_hive_box.dart';
 import 'package:neom_commons/core/utils/enums/app_in_use.dart';
 
-import '../../../../utils/constants/app_hive_constants.dart';
-import '../../../../utils/constants/audio_player_constants.dart';
+import 'package:neom_commons/core/utils/constants/app_hive_constants.dart';import '../../../../utils/constants/audio_player_constants.dart';
 import '../../../../utils/constants/player_translation_constants.dart';
 import 'hive_box_switch_tile.dart';
 
@@ -22,11 +22,11 @@ class MusicPlaybackSettingsPage extends StatefulWidget {
 }
 
 class _MusicPlaybackSettingsPageState extends State<MusicPlaybackSettingsPage> {
-  String streamingMobileQuality = Hive.box(AppHiveConstants.settings).get('streamingQuality', defaultValue: '96 kbps') as String;
-  String streamingWifiQuality = Hive.box(AppHiveConstants.settings).get('streamingWifiQuality', defaultValue: '320 kbps') as String;
-  String region = Hive.box(AppHiveConstants.settings).get('region', defaultValue: 'México') as String;
+  String streamingMobileQuality = Hive.box(AppHiveBox.settings.name).get('streamingQuality', defaultValue: '96 kbps') as String;
+  String streamingWifiQuality = Hive.box(AppHiveBox.settings.name).get('streamingWifiQuality', defaultValue: '320 kbps') as String;
+  String region = Hive.box(AppHiveBox.settings.name).get('region', defaultValue: 'México') as String;
 
-  List preferredLanguage = Hive.box(AppHiveConstants.settings).get('preferredLanguage', defaultValue: ['Español'])?.toList() as List;
+  List preferredLanguage = Hive.box(AppHiveBox.settings.name).get('preferredLanguage', defaultValue: ['Español'])?.toList() as List;
 
   @override
   Widget build(BuildContext context) {
@@ -104,7 +104,7 @@ class _MusicPlaybackSettingsPageState extends State<MusicPlaybackSettingsPage> {
                                       setState(() {
                                         preferredLanguage = checked;
                                         Navigator.pop(context);
-                                        Hive.box(AppHiveConstants.settings).put('preferredLanguage', checked,);
+                                        Hive.box(AppHiveBox.settings.name).put('preferredLanguage', checked,);
                                         //TODO VERIFY FUNCTIONALITY
                                         // widget.fetched = false;
                                         // widget.preferredLanguage = preferredLanguage;
@@ -147,7 +147,7 @@ class _MusicPlaybackSettingsPageState extends State<MusicPlaybackSettingsPage> {
                     if (newValue != null) {
                       setState(() {
                           streamingMobileQuality = newValue;
-                          Hive.box(AppHiveConstants.settings).put('streamingQuality', newValue);
+                          Hive.box(AppHiveBox.settings.name).put('streamingQuality', newValue);
                         },
                       );
                     }
@@ -183,7 +183,7 @@ class _MusicPlaybackSettingsPageState extends State<MusicPlaybackSettingsPage> {
                       setState(
                         () {
                           streamingWifiQuality = newValue;
-                          Hive.box(AppHiveConstants.settings)
+                          Hive.box(AppHiveBox.settings.name)
                               .put('streamingWifiQuality', newValue);
                         },
                       );

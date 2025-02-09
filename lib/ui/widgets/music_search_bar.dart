@@ -4,9 +4,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:hive/hive.dart';
+import 'package:neom_commons/core/data/implementations/app_hive_controller.dart';
 import 'package:neom_commons/core/utils/app_theme.dart';
-import '../../data/implementations/app_hive_controller.dart';
-import '../../utils/constants/app_hive_constants.dart';
+import 'package:neom_commons/core/utils/enums/app_hive_box.dart';
+import '../../data/implementations/player_hive_controller.dart';
 
 class MusicSearchBar extends StatefulWidget {
 
@@ -168,7 +169,7 @@ class _MusicSearchBarState extends State<MusicSearchBar> {
                         if (searchQueries.length > 10) {
                           searchQueries = searchQueries.sublist(0, 10);
                         }
-                        await AppHiveController().setSearchQueries(searchQueries);
+                        await PlayerHiveController().setSearchQueries(searchQueries);
                       }
                     },
                   ),
@@ -230,7 +231,7 @@ class _MusicSearchBarState extends State<MusicSearchBar> {
                                           suggestedList[index].toString(),
                                         );
                                         hide.value = true;
-                                        List searchQueries = Hive.box(AppHiveConstants.settings).get('searchQueries', defaultValue: [],) as List;
+                                        List searchQueries = Hive.box(AppHiveBox.settings.name).get('searchQueries', defaultValue: [],) as List;
                                         if (searchQueries.contains(
                                           suggestedList[index].toString().trim(),
                                         )) {
@@ -241,7 +242,7 @@ class _MusicSearchBarState extends State<MusicSearchBar> {
                                         if (searchQueries.length > 10) {
                                           searchQueries = searchQueries.sublist(0, 10);
                                         }
-                                        AppHiveController().setSearchQueries(searchQueries);
+                                        PlayerHiveController().setSearchQueries(searchQueries);
                                       },
                                     );
                                   },

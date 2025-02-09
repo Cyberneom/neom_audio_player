@@ -8,18 +8,19 @@ import 'package:hive/hive.dart';
 import 'package:neom_commons/core/app_flavour.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_theme.dart';
+import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/constants/app_translation_constants.dart';
+import 'package:neom_commons/core/utils/enums/app_hive_box.dart';
 import 'package:neom_commons/core/utils/enums/app_in_use.dart';
 import 'package:neom_commons/core/utils/enums/user_role.dart';
-import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../domain/entities/position_data.dart';
 import '../../../utils/audio_player_utilities.dart';
-import '../../../utils/constants/app_hive_constants.dart';
-import '../../../utils/constants/audio_player_constants.dart';
+import 'package:neom_commons/core/utils/constants/app_hive_constants.dart';import '../../../utils/constants/audio_player_constants.dart';
 import '../../../utils/constants/player_translation_constants.dart';
 import '../../../utils/helpers/media_item_mapper.dart';
+import '../../library/playlist_player_page.dart';
 import '../../widgets/add_to_playlist_button.dart';
 import '../../widgets/download_button.dart';
 import '../../widgets/go_spotify_button.dart';
@@ -34,7 +35,6 @@ class NameNControls extends StatelessWidget {
   final MediaPlayerController mediaPlayerController;
   final double width;
   final double height;
-  final PanelController panelController;
   final bool downloadAllowed;
   final bool isLoading;
 
@@ -42,9 +42,8 @@ class NameNControls extends StatelessWidget {
     required this.mediaPlayerController,
     required this.width,
     required this.height,
-    required this.panelController,
     this.downloadAllowed = false,
-    this.isLoading = false,
+    this.isLoading = true
   });
 
   @override
@@ -58,24 +57,10 @@ class NameNControls extends StatelessWidget {
 
     final double nowPlayingBoxHeight = min(70, height * 0.15);
 
-    MediaItem mediaItem = MediaItemMapper.appMediaItemToMediaItem(appMediaItem: _.appMediaItem.value);
-    String mediaItemTitle = mediaItem.title;
-    String mediaItemArtist = mediaItem.artist ?? '';
-    String mediaItemAlbum = mediaItem.album ?? '';
-
-    if(mediaItemTitle.contains(' - ')) {
-      mediaItemTitle = AudioPlayerUtilities.getMediaName(mediaItem.title);
-      if(mediaItem.artist?.isEmpty ?? true) {
-        mediaItemArtist = AudioPlayerUtilities.getArtistName(mediaItem.title);
-      }
-    }
-
-    ///DEPRECATED final List<String> artists = mediaItem.artist.toString().split(', ');
-
     return SizedBox(
       width: width,
       height: height,
-      child: Stack(
+      child: Obx(()=>Stack(
         children: [
           SingleChildScrollView(
             child: Column(
@@ -87,7 +72,7 @@ class NameNControls extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 10),
                       child: Column(
                         children: [
-                          Text(mediaItemTitle,
+                          Text(_.mediaItemTitle.value,
                             style: TextStyle(
                               fontSize: titleBoxHeight/3,
                               fontWeight: FontWeight.bold,
@@ -98,7 +83,7 @@ class NameNControls extends StatelessWidget {
                           AppTheme.heightSpace5,
                           GestureDetector(
                             child: Text(
-                              mediaItemArtist.isNotEmpty ? mediaItemArtist : AppTranslationConstants.unknown.tr.capitalizeFirst,
+                              _.mediaItemArtist.isNotEmpty ? _.mediaItemArtist.value : AppTranslationConstants.unknown.tr.capitalizeFirst,
                               style: TextStyle(
                                 fontSize: titleBoxHeight / 6,
                                 fontWeight: FontWeight.w600,
@@ -109,8 +94,8 @@ class NameNControls extends StatelessWidget {
                             onTap: () => (_.appMediaItem.value.artistId?.isEmpty ?? true) ? {}
                                 : _.goToOwnerProfile(),
                           ),
-                          if(mediaItemAlbum.isNotEmpty) GestureDetector(
-                            child: Text(mediaItemAlbum,
+                          if(_.mediaItemAlbum.isNotEmpty) GestureDetector(
+                            child: Text(_.mediaItemAlbum.value,
                               style: TextStyle(
                                 fontSize: titleBoxHeight / 7,
                                 fontWeight: FontWeight.w600,
@@ -118,8 +103,9 @@ class NameNControls extends StatelessWidget {
                               textAlign: TextAlign.center,
                               maxLines: 2,
                             ),
-                            onTap: () => (_.appMediaItem.value.artistId?.isEmpty ?? true) ? {}
-                                : _.goToOwnerProfile(),
+                            onTap: () {
+                              _.gotoPlaylistPlayer();
+                            }
                           ),
                           if(!AudioPlayerUtilities.isOwnMediaItem(_.appMediaItem.value) && AppFlavour.appInUse == AppInUse.g)
                             Padding(
@@ -213,7 +199,7 @@ class NameNControls extends StatelessWidget {
                             mainAxisSize: MainAxisSize.min,
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              ControlButtons(_.audioHandler, mediaItem: mediaItem,),
+                              ControlButtons(_.audioHandler, mediaItem: _.mediaItem.value,),
                               if(!AudioPlayerUtilities.isOwnMediaItem(_.appMediaItem.value) && AppFlavour.appInUse == AppInUse.g)
                                 ElevatedButton(
                                   onPressed: () async {
@@ -259,7 +245,7 @@ class NameNControls extends StatelessWidget {
                                     icon: icons[index],
                                     tooltip: 'Repeat ${texts[(index + 1) % texts.length]}',
                                     onPressed: () async {
-                                      await Hive.box(AppHiveConstants.settings).put(AppHiveConstants.repeatMode, texts[(index + 1) % texts.length],);
+                                      await Hive.box(AppHiveBox.settings.name).put(AppHiveConstants.repeatMode, texts[(index + 1) % texts.length],);
                                       await _.audioHandler?.setRepeatMode(cycleModes[(cycleModes.indexOf(repeatMode) + 1) % cycleModes.length],
                                       );
                                     },
@@ -267,8 +253,8 @@ class NameNControls extends StatelessWidget {
                                 },
                               ),
                               (!AudioPlayerUtilities.isOwnMediaItem(_.appMediaItem.value) && AppFlavour.appInUse == AppInUse.g)
-                                  ? GoSpotifyButton(appMediaItem: _.appMediaItem.value) : (downloadAllowed ? DownloadButton(mediaItem: MediaItemMapper.fromMediaItem(mediaItem),): const SizedBox.shrink()),
-                              AddToPlaylistButton(appMediaItem: _.appMediaItem.value, inPlaylist: _.inItemlist,),
+                                  ? GoSpotifyButton(appMediaItem: _.appMediaItem.value) : (downloadAllowed && _.mediaItem.value != null ? DownloadButton(mediaItem: MediaItemMapper.fromMediaItem(_.mediaItem.value!),): const SizedBox.shrink()),
+                              AddToPlaylistButton(appMediaItem: _.appMediaItem.value, playlist: _.personalPlaylist,),
                               // _.createPopMenuOption(context, _.appMediaItem.value),
                             ],
                           ),
@@ -287,7 +273,7 @@ class NameNControls extends StatelessWidget {
             minHeight: nowPlayingBoxHeight,
           ),
         ],
-      ),
+      ),),
     );
   }
 }

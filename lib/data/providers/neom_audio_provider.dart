@@ -16,6 +16,11 @@ class NeomAudioProvider {
   static bool _isInitialized = false;
   static NeomAudioHandler? audioHandler;
 
+  Future<NeomAudioHandler> getAudioHandler() async {
+    if (!_isInitialized) await _initialize();
+    return audioHandler!;
+  }
+
   Future<void> _initialize() async {
     audioHandler = await AudioService.init(
       builder: () => NeomAudioHandler(),
@@ -30,11 +35,6 @@ class NeomAudioProvider {
     );
 
     _isInitialized = true;
-  }
-
-  Future<NeomAudioHandler> getAudioHandler() async {
-    if (!_isInitialized) await _initialize();
-    return audioHandler!;
   }
 
 }

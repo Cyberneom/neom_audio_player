@@ -7,8 +7,8 @@ import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_theme.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 
-import '../../../utils/constants/app_hive_constants.dart';
-import '../../../utils/constants/audio_player_constants.dart';
+import 'package:neom_commons/core/utils/constants/app_hive_constants.dart';
+import 'package:neom_commons/core/utils/enums/app_hive_box.dart';import '../../../utils/constants/audio_player_constants.dart';
 import '../../../utils/constants/audio_player_route_constants.dart';
 import '../../../utils/constants/countrycodes.dart';
 import '../../../utils/constants/player_translation_constants.dart';
@@ -23,8 +23,8 @@ class WelcomePreferencePage extends StatefulWidget {
 class WelcomePreferencePageState extends State<WelcomePreferencePage> {
 
   UserController userController = Get.find<UserController>();
-  List preferredLanguage = Hive.box(AppHiveConstants.settings).get(AppHiveConstants.preferredLanguage, defaultValue: ['Español'])?.toList() as List;
-  String region = Hive.box(AppHiveConstants.settings).get(AppHiveConstants.region, defaultValue: 'México') as String;
+  List preferredLanguage = Hive.box(AppHiveBox.settings.name).get(AppHiveConstants.preferredLanguage, defaultValue: ['Español'])?.toList() as List;
+  String region = Hive.box(AppHiveBox.settings.name).get(AppHiveConstants.region, defaultValue: 'México') as String;
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +42,7 @@ class WelcomePreferencePageState extends State<WelcomePreferencePage> {
                     padding: const EdgeInsets.only(right: 15),
                     child: TextButton(
                       onPressed: () {
-                        Hive.box(AppHiveConstants.settings).put(AppHiveConstants.userId, userController.user.id,);
+                        Hive.box(AppHiveBox.settings.name).put(AppHiveConstants.userId, userController.user.id,);
                         Navigator.popAndPushNamed(context, AudioPlayerRouteConstants.root,);
                       },
                       child: Text(
@@ -194,7 +194,7 @@ class WelcomePreferencePageState extends State<WelcomePreferencePage> {
                                                         onPressed: () {
                                                           setState(() {
                                                             preferredLanguage = checked;
-                                                            Hive.box(AppHiveConstants.settings,).put(AppHiveConstants.preferredLanguage, checked,);
+                                                            Hive.box(AppHiveBox.settings.name,).put(AppHiveConstants.preferredLanguage, checked,);
                                                             Navigator.pop(context,);
                                                           });
                                                           if (preferredLanguage.isEmpty) {
@@ -264,7 +264,7 @@ class WelcomePreferencePageState extends State<WelcomePreferencePage> {
                                                   selected: region == countries[idx],
                                                   onTap: () {
                                                     region = countries[idx];
-                                                    Hive.box(AppHiveConstants.settings).put(AppHiveConstants.region, region,);
+                                                    Hive.box(AppHiveBox.settings.name).put(AppHiveConstants.region, region,);
                                                     Navigator.pop(context,);
                                                     setState(() {});
                                                   },
@@ -280,7 +280,7 @@ class WelcomePreferencePageState extends State<WelcomePreferencePage> {
                                 const SizedBox(height: 20.0,),
                                 GestureDetector(
                                   onTap: () {
-                                    Hive.box(AppHiveConstants.settings).put(AppHiveConstants.userId, userController.user.id,);
+                                    Hive.box(AppHiveBox.settings.name).put(AppHiveConstants.userId, userController.user.id,);
                                     Navigator.popAndPushNamed(context, AudioPlayerRouteConstants.root,);
                                   },
                                   child: Container(

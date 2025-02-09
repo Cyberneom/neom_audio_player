@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 import 'package:neom_commons/core/app_flavour.dart';
 import 'package:neom_commons/core/ui/widgets/neom_image_card.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
+import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/constants/app_constants.dart';
 import 'package:neom_commons/core/utils/constants/app_route_constants.dart';
 import 'package:neom_commons/core/utils/constants/app_translation_constants.dart';
@@ -56,9 +57,9 @@ class _MiniPlayerTileState extends State<MiniPlayerTile> {
     subtitleText = widget.item?.artist ?? '';
 
     if(titleText.contains(' - ')) {
-      titleText = AudioPlayerUtilities.getMediaName(titleText);
+      titleText = AppUtilities.getMediaName(titleText);
       if(subtitleText.isEmpty) {
-        subtitleText = AudioPlayerUtilities.getArtistName(titleText);
+        subtitleText = AppUtilities.getArtistName(titleText);
       }
     }
 
@@ -140,9 +141,7 @@ class _MiniPlayerTileState extends State<MiniPlayerTile> {
         width: MediaQuery.of(context).size.width/(widget.item == null ?(widget.isTimeline ? 12 : 6) : 3.6),
         // width: item == null && isTimeline ? (MediaQuery.of(context).size.width/12) : (MediaQuery.of(context).size.width/(item == null ? 6 : 3)),
         child: widget.item == null
-            ? (widget.isTimeline ? IconButton(onPressed: () =>
-        AppFlavour.appInUse == AppInUse.e ? widget.miniPlayerController.setShowInTimeline(value: false)
-            : widget.miniPlayerController.goToMusicPlayerHome(),
+            ? (widget.isTimeline ? IconButton(onPressed: () => widget.miniPlayerController.goToMusicPlayerHome(),
             icon: const Icon(Icons.arrow_forward_ios)
         ) : Hero(tag: AppConstants.currentArtwork,
           child: NeomImageCard(

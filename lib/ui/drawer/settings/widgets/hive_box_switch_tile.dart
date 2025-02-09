@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:neom_commons/core/utils/app_theme.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
-import '../../../../utils/constants/app_hive_constants.dart';
-
+import 'package:neom_commons/core/utils/constants/app_hive_constants.dart';
+import 'package:neom_commons/core/utils/enums/app_hive_box.dart';
 class HiveBoxSwitchTile extends StatelessWidget {
   const HiveBoxSwitchTile({
     super.key,
@@ -27,7 +27,7 @@ class HiveBoxSwitchTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder(
-      valueListenable: Hive.box(AppHiveConstants.settings).listenable(),
+      valueListenable: Hive.box(AppHiveBox.settings.name).listenable(),
       builder: (BuildContext context, Box box, Widget? widget) {
         return SwitchListTile(
           activeColor: Theme.of(context).colorScheme.secondary,

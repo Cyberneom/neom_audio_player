@@ -1,10 +1,10 @@
 // import 'package:hive_flutter/hive_flutter.dart';
-// import '../../utils/constants/app_hive_constants.dart';
+// import 'package:neom_commons/core/utils/constants/app_hive_constants.dart';
 // import '../../utils/enums/image_quality.dart';
 //
 // class UrlImageGetter {
 //   final List<String?> _imageUrls;
-//   final _enableImageOptimization = Hive.box(AppHiveConstants.settings)
+//   final _enableImageOptimization = Hive.box(AppHiveBox.settings.name)
 //       .get(AppHiveConstants.enableImageOptimization,
 //     defaultValue: false,) as bool;
 //

@@ -5,10 +5,10 @@ import 'package:neom_commons/core/ui/widgets/appbar_child.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_theme.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
+import 'package:neom_commons/core/utils/enums/app_hive_box.dart';
 
 import '../../../../domain/use_cases/ext_storage_provider.dart';
-import '../../../../utils/constants/app_hive_constants.dart';
-import '../../../../utils/constants/player_translation_constants.dart';
+import 'package:neom_commons/core/utils/constants/app_hive_constants.dart';import '../../../../utils/constants/player_translation_constants.dart';
 import '../../../../utils/helpers/picker.dart';
 import 'hive_box_switch_tile.dart';
 
@@ -21,10 +21,10 @@ class DownloadSettingsPage extends StatefulWidget {
 }
 
 class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
-  final Box settingsBox = Hive.box(AppHiveConstants.settings);
-  String downloadPath = Hive.box(AppHiveConstants.settings).get('downloadPath', defaultValue: '/storage/emulated/0/Music') as String;
-  String downloadQuality = Hive.box(AppHiveConstants.settings).get('downloadQuality', defaultValue: '320 kbps') as String;
-  int downFilename = Hive.box(AppHiveConstants.settings).get('downFilename', defaultValue: 0) as int;
+  final Box settingsBox = Hive.box(AppHiveBox.settings.name);
+  String downloadPath = Hive.box(AppHiveBox.settings.name).get('downloadPath', defaultValue: '/storage/emulated/0/Music') as String;
+  String downloadQuality = Hive.box(AppHiveBox.settings.name).get('downloadQuality', defaultValue: '320 kbps') as String;
+  int downFilename = Hive.box(AppHiveBox.settings.name).get('downFilename', defaultValue: 0) as int;
 
   @override
   Widget build(BuildContext context) {
@@ -53,7 +53,7 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
                       setState(
                         () {
                           downloadQuality = newValue;
-                          Hive.box(AppHiveConstants.settings).put('downloadQuality', newValue);
+                          Hive.box(AppHiveBox.settings.name).put('downloadQuality', newValue);
                         },
                       );
                     }
@@ -82,7 +82,7 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
                           dirName: 'Music',
                           writeAccess: true,
                         ) ?? '/storage/emulated/0/Music';
-                    Hive.box(AppHiveConstants.settings).put('downloadPath', downloadPath);
+                    Hive.box(AppHiveBox.settings.name).put('downloadPath', downloadPath);
                     setState(
                       () {},
                     );
@@ -98,7 +98,7 @@ class _DownloadSettingsPageState extends State<DownloadSettingsPage> {
                   );
                   if (temp.trim() != '') {
                     downloadPath = temp;
-                    Hive.box(AppHiveConstants.settings).put('downloadPath', temp);
+                    Hive.box(AppHiveBox.settings.name).put('downloadPath', temp);
                     setState(
                       () {},
                     );

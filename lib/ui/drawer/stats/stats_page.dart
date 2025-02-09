@@ -5,14 +5,14 @@ import 'package:neom_commons/core/ui/widgets/appbar_child.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_theme.dart';
 
-import '../../../utils/constants/app_hive_constants.dart';
-import '../../../utils/constants/player_translation_constants.dart';
+import 'package:neom_commons/core/utils/constants/app_hive_constants.dart';
+import 'package:neom_commons/core/utils/enums/app_hive_box.dart';import '../../../utils/constants/player_translation_constants.dart';
 
 class StatsPage extends StatelessWidget {
   const StatsPage({super.key});
 
-  int get songsPlayed => Hive.box(AppHiveConstants.stats).length;
-  Map get mostPlayed => Hive.box(AppHiveConstants.stats).get('mostPlayed', defaultValue: {}) as Map;
+  int get songsPlayed => Hive.box(AppHiveBox.stats.name).length;
+  Map get mostPlayed => Hive.box(AppHiveBox.stats.name).get('mostPlayed', defaultValue: {}) as Map;
 
   @override
   Widget build(BuildContext context) {

@@ -62,6 +62,7 @@ class MiniPlayerController extends GetxController {
   Future<void> setMediaItem(MediaItem item) async {
     AppUtilities.logger.d('Setting new mediaitem ${item.title}');
     audioHandler ??= await NeomAudioUtilities.getAudioHandler();
+    audioHandlerRegistered = true;
     mediaItem = item;
     source = EnumToString.fromString(AppMediaSource.values, mediaItem?.extras?["source"] ?? AppMediaSource.internal.name) ?? AppMediaSource.internal;
     isInternal = source == AppMediaSource.internal || source == AppMediaSource.offline;

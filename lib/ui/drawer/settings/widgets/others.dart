@@ -7,9 +7,9 @@ import 'package:neom_commons/core/app_flavour.dart';
 import 'package:neom_commons/core/ui/widgets/appbar_child.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_theme.dart';
+import 'package:neom_commons/core/utils/enums/app_hive_box.dart';
 import 'package:neom_commons/core/utils/enums/app_in_use.dart';
 
-import '../../../../utils/constants/app_hive_constants.dart';
 import '../../../../utils/constants/player_translation_constants.dart';
 import 'hive_box_switch_tile.dart';
 
@@ -22,12 +22,12 @@ class OthersPage extends StatefulWidget {
 
 class _OthersPageState extends State<OthersPage> {
 
-  final Box settingsBox = Hive.box(AppHiveConstants.settings);
+  final Box settingsBox = Hive.box(AppHiveBox.settings.name);
   final ValueNotifier<bool> includeOrExclude = ValueNotifier<bool>(
-    Hive.box(AppHiveConstants.settings).get('includeOrExclude', defaultValue: false) as bool,
+    Hive.box(AppHiveBox.settings.name).get('includeOrExclude', defaultValue: false) as bool,
   );
 
-  List includedExcludedPaths = Hive.box(AppHiveConstants.settings).get('includedExcludedPaths', defaultValue: []) as List;
+  List includedExcludedPaths = Hive.box(AppHiveBox.settings.name).get('includedExcludedPaths', defaultValue: []) as List;
 
   @override
   Widget build(BuildContext context) {
@@ -172,7 +172,7 @@ class _OthersPageState extends State<OthersPage> {
             //                     if (temp.trim() != '' &&
             //                         !includedExcludedPaths.contains(temp)) {
             //                       includedExcludedPaths.add(temp);
-            //                       Hive.box(AppHiveConstants.settings).put('includedExcludedPaths', includedExcludedPaths,);
+            //                       Hive.box(AppHiveBox.settings.name).put('includedExcludedPaths', includedExcludedPaths,);
             //                       listKey.currentState!.insertItem(includedExcludedPaths.length,);
             //                     } else {
             //                       if (temp.trim() == '') {
@@ -202,7 +202,7 @@ class _OthersPageState extends State<OthersPage> {
             //                     tooltip: 'Remove',
             //                     onPressed: () {
             //                       includedExcludedPaths.removeAt(idx - 2);
-            //                       Hive.box(AppHiveConstants.settings).put('includedExcludedPaths', includedExcludedPaths,);
+            //                       Hive.box(AppHiveBox.settings.name).put('includedExcludedPaths', includedExcludedPaths,);
             //                       listKey.currentState!.removeItem(idx, (context, animation) => SizedBox.shrink(),);
             //                     },
             //                   ),
@@ -223,7 +223,7 @@ class _OthersPageState extends State<OthersPage> {
                 width: 70.0,
                 child: Center(
                   child: FutureBuilder(
-                    future: File(Hive.box(AppHiveConstants.cache).path!).length(),
+                    future: File(Hive.box(AppHiveBox.player.name).path!).length(),
                     builder: (
                       BuildContext context,
                       AsyncSnapshot<int> snapshot,
@@ -241,7 +241,7 @@ class _OthersPageState extends State<OthersPage> {
               dense: true,
               isThreeLine: true,
               onTap: () async {
-                Hive.box(AppHiveConstants.cache).clear();
+                Hive.box(AppHiveBox.player.name).clear();
                 setState(
                   () {},
                 );

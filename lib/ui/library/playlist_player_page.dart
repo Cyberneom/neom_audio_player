@@ -3,6 +3,7 @@ import 'package:flutter/rendering.dart';
 // import 'package:path_provider/path_provider.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
+import 'package:neom_commons/core/app_flavour.dart';
 import 'package:neom_commons/core/data/firestore/app_media_item_firestore.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/domain/model/app_profile.dart';
@@ -11,14 +12,17 @@ import 'package:neom_commons/core/ui/widgets/app_circular_progress_indicator.dar
 import 'package:neom_commons/core/ui/widgets/appbar_child.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_theme.dart';
+import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/constants/app_constants.dart';
+import 'package:neom_commons/core/utils/enums/app_hive_box.dart';
+import 'package:neom_commons/core/utils/enums/app_in_use.dart';
 
 import '../../../data/implementations/playlist_hive_controller.dart';
 import '../../../neom_player_invoker.dart';
-import '../../../utils/constants/app_hive_constants.dart';
-import '../../../utils/constants/player_translation_constants.dart';
+import 'package:neom_commons/core/utils/constants/app_hive_constants.dart';import '../../../utils/constants/player_translation_constants.dart';
 import '../../../utils/helpers/songs_count.dart' as songs_count;
 import '../../../utils/neom_audio_utilities.dart';
+import '../player/miniplayer.dart';
 import 'widgets/songs_page_tab.dart';
 
 final ValueNotifier<bool> selectMode = ValueNotifier<bool>(false);
@@ -44,9 +48,9 @@ class PlaylistPlayerPageState extends State<PlaylistPlayerPage>
 
   Box? likedBox;
   List<AppMediaItem> _appMediaItems = [];
-  int sortValue = Hive.box(AppHiveConstants.settings).get(AppHiveConstants.sortValue, defaultValue: 1) as int;
-  int orderValue = Hive.box(AppHiveConstants.settings).get(AppHiveConstants.orderValue, defaultValue: 1) as int;
-  int albumSortValue =   Hive.box(AppHiveConstants.settings).get(AppHiveConstants.albumSortValue, defaultValue: 2) as int;
+  int sortValue = Hive.box(AppHiveBox.settings.name).get(AppHiveConstants.sortValue, defaultValue: 1) as int;
+  int orderValue = Hive.box(AppHiveBox.settings.name).get(AppHiveConstants.orderValue, defaultValue: 1) as int;
+  int albumSortValue =   Hive.box(AppHiveBox.settings.name).get(AppHiveConstants.albumSortValue, defaultValue: 2) as int;
   final ScrollController _scrollController = ScrollController();
   final ValueNotifier<bool> _showShuffle = ValueNotifier<bool>(true);
   PlaylistHiveController playlistHiveController = PlaylistHiveController();
@@ -105,11 +109,14 @@ class PlaylistPlayerPageState extends State<PlaylistPlayerPage>
 
   @override
   Widget build(BuildContext context) {
+    String releaseName = AppUtilities.getMediaName(widget.itemlist?.name ?? '');
     return Scaffold(
       backgroundColor: AppColor.main50,
       appBar: AppBarChild(
-        title: widget.itemlist != null ? (widget.itemlist!.name.length > AppConstants.maxAppBarTitleLength ?
-        '${widget.itemlist!.name.capitalizeFirst.substring(0,AppConstants.maxAppBarTitleLength)}...' : widget.itemlist!.name.capitalizeFirst)
+
+        title: widget.itemlist != null ? (releaseName.length > AppConstants.maxAppBarTitleLength ?
+        '${releaseName.capitalizeFirst.substring(0,AppConstants.maxAppBarTitleLength)}...'
+            : releaseName.capitalizeFirst)
             : widget.alternativeName.isNotEmpty ? (widget.alternativeName.length > AppConstants.maxAppBarTitleLength ?
         '${widget.alternativeName.capitalizeFirst.substring(0,AppConstants.maxAppBarTitleLength)}...' : widget.alternativeName.capitalizeFirst) : '',
         actionWidgets: [
@@ -125,10 +132,10 @@ class PlaylistPlayerPageState extends State<PlaylistPlayerPage>
               onSelected: (int value) {
                 if (value < 5) {
                   sortValue = value;
-                  Hive.box(AppHiveConstants.settings).put(AppHiveConstants.sortValue, value);
+                  Hive.box(AppHiveBox.settings.name).put(AppHiveConstants.sortValue, value);
                 } else {
                   orderValue = value - 5;
-                  Hive.box(AppHiveConstants.settings).put(AppHiveConstants.orderValue, orderValue);
+                  Hive.box(AppHiveBox.settings.name).put(AppHiveConstants.orderValue, orderValue);
                 }
                 _appMediaItems = NeomAudioUtilities.sortSongs(_appMediaItems,
                   sortVal: sortValue,
@@ -197,46 +204,56 @@ class PlaylistPlayerPageState extends State<PlaylistPlayerPage>
       ),
       body: Container(
         decoration: AppTheme.appBoxDecoration,
-        child: isLoading ? const AppCircularProgressIndicator() : SongsPageTab(
-        appMediaItems: _appMediaItems,
-          onDelete: (AppMediaItem item) => removeFromFavorites(item),
-          playlistName: widget.itemlist?.name ?? '',
-          scrollController: _scrollController,
-        ),
-      ),
-      floatingActionButton: ValueListenableBuilder(
-        valueListenable: _showShuffle,
-        child: FloatingActionButton(
-          backgroundColor: AppColor.bondiBlue,
-          elevation: 20,
-          child: const Icon(
-            Icons.shuffle_rounded,
-            color: Colors.white,
-            size: 24.0,
-          ),
-          onPressed: () {
-            if (_appMediaItems.isNotEmpty) {
-              NeomPlayerInvoker.init(
-                appMediaItems: _appMediaItems,
-                index: 0,
-                recommend: false,
-                shuffle: true,
-              );
-            }
-          },
-        ),
-        builder: (BuildContext context, bool showShuffle, Widget? child,) {
-          return AnimatedSlide(
-            duration: const Duration(milliseconds: 300),
-            offset: showShuffle ? Offset.zero : const Offset(0, 2),
-            child: AnimatedOpacity(
-              duration: const Duration(milliseconds: 300),
-              opacity: showShuffle ? 1 : 0,
-              child: child,
+        child: isLoading ? const AppCircularProgressIndicator() : Stack(
+          children: [
+            SongsPageTab(
+              appMediaItems: _appMediaItems,
+              onDelete: (AppMediaItem item) => removeFromFavorites(item),
+              playlistName: widget.itemlist?.name ?? '',
+              scrollController: _scrollController,
             ),
-          );
-          },
+            if(AppFlavour.appInUse == AppInUse.g) const Positioned(
+              left: 0, right: 0,
+              bottom: 0,
+              child: MiniPlayer(),
+            ),
+          ],
+        )
       ),
+      ///DEPRECATED
+      // floatingActionButton: ValueListenableBuilder(
+      //   valueListenable: _showShuffle,
+      //   child: FloatingActionButton(
+      //     backgroundColor: AppColor.bondiBlue,
+      //     elevation: 20,
+      //     child: const Icon(
+      //       Icons.shuffle_rounded,
+      //       color: Colors.white,
+      //       size: 24.0,
+      //     ),
+      //     onPressed: () {
+      //       if (_appMediaItems.isNotEmpty) {
+      //         NeomPlayerInvoker.init(
+      //           appMediaItems: _appMediaItems,
+      //           index: 0,
+      //           recommend: false,
+      //           shuffle: true,
+      //         );
+      //       }
+      //     },
+      //   ),
+      //   builder: (BuildContext context, bool showShuffle, Widget? child,) {
+      //     return AnimatedSlide(
+      //       duration: const Duration(milliseconds: 300),
+      //       offset: showShuffle ? Offset.zero : const Offset(0, 2),
+      //       child: AnimatedOpacity(
+      //         duration: const Duration(milliseconds: 300),
+      //         opacity: showShuffle ? 1 : 0,
+      //         child: child,
+      //       ),
+      //     );
+      //     },
+      // ),
     );
   }
 

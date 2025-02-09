@@ -367,31 +367,19 @@ class AudioPlayerUtilities {
     );
   }
 
-  static String getArtistName(String artistMediaTitle) {
+  static Map<String, List<Itemlist>> categorizePLaylistByTags(List<Itemlist> itemLists) {
+    Map<String, List<Itemlist>> categorizedItems = {};
 
-    String artistName = '';
-    List<String> mediaNameSplitted = artistMediaTitle.split("-");
-
-    if(mediaNameSplitted.isNotEmpty) {
-      artistName = mediaNameSplitted.first.trim();
+    for (var item in itemLists) {
+      for (var tag in item.tags ?? []) {
+        if (!categorizedItems.containsKey(tag)) {
+          categorizedItems[tag] = [];
+        }
+        categorizedItems[tag]!.add(item);
+      }
     }
 
-    return artistName;
-  }
-
-  static String getMediaName(String artistMediaTitle) {
-
-    String mediaName = '';
-    List<String> mediaNameSplitted = artistMediaTitle.split("-");
-
-    if(mediaNameSplitted.isNotEmpty && mediaNameSplitted.length == 1) {
-      mediaName = mediaNameSplitted.last.trim();
-    } else {
-      List<String> partsAfterFirst = mediaNameSplitted.sublist(1).map((part) => part.trim()).toList();
-      mediaName = partsAfterFirst.join(' - ');
-    }
-
-    return mediaName;
+    return categorizedItems;
   }
 
 }

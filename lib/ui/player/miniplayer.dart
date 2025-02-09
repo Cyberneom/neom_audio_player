@@ -1,10 +1,13 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:neom_commons/core/utils/constants/app_hive_constants.dart';
 import 'package:neom_commons/core/utils/constants/app_page_id_constants.dart';
 import 'package:neom_commons/core/utils/constants/app_route_constants.dart';
-import '../../utils/constants/app_hive_constants.dart';
+import 'package:neom_commons/core/utils/enums/app_hive_box.dart';
+
 import '../../utils/helpers/media_item_mapper.dart';
 import 'miniplayer_controller.dart';
 import 'widgets/miniplayer_tile.dart';
@@ -21,7 +24,7 @@ class MiniPlayer extends StatelessWidget {
       builder: (_) {
         if(_.isLoading || (_.isTimeline && !_.showInTimeline)) return const SizedBox.shrink();
 
-        List preferredButtons = Hive.box(AppHiveConstants.settings)
+        List preferredButtons = Hive.box(AppHiveBox.settings.name)
             .get(AppHiveConstants.preferredMiniButtons,
           defaultValue: ['Like', 'Play/Pause', 'Next'],)?.toList() as List<dynamic>;
 

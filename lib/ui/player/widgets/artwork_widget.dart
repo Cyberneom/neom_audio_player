@@ -13,10 +13,10 @@ import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
 import 'package:neom_commons/core/utils/constants/app_translation_constants.dart';
 import 'package:neom_commons/core/utils/core_utilities.dart';
+import 'package:neom_commons/core/utils/enums/app_hive_box.dart';
 
 import '../../../domain/entities/queue_state.dart';
-import '../../../utils/constants/app_hive_constants.dart';
-import '../../../utils/constants/player_translation_constants.dart';
+import 'package:neom_commons/core/utils/constants/app_hive_constants.dart';import '../../../utils/constants/player_translation_constants.dart';
 import '../../../utils/enums/lyrics_source.dart';
 import '../../../utils/enums/lyrics_type.dart';
 import '../../widgets/empty_screen.dart';
@@ -171,7 +171,7 @@ class ArtWorkWidget extends StatelessWidget {
             stream: _.audioHandler?.queueState,
             builder: (context, snapshot) {
               final queueState = snapshot.data ?? QueueState.empty;
-              final bool enabled = Hive.box(AppHiveConstants.settings).get('enableGesture', defaultValue: true) as bool;
+              final bool enabled = Hive.box(AppHiveBox.settings.name).get('enableGesture', defaultValue: true) as bool;
               return GestureDetector(
                 onTap: !enabled ? null : () {
                   // AddToPlaylist().addToPlaylist(context, _.appMediaItem.value,);
