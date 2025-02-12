@@ -12,6 +12,7 @@ import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/constants/app_translation_constants.dart';
 import 'package:neom_commons/core/utils/enums/app_hive_box.dart';
 import 'package:neom_commons/core/utils/enums/app_in_use.dart';
+import 'package:neom_commons/core/utils/enums/itemlist_type.dart';
 import 'package:neom_commons/core/utils/enums/user_role.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -20,7 +21,6 @@ import '../../../utils/audio_player_utilities.dart';
 import 'package:neom_commons/core/utils/constants/app_hive_constants.dart';import '../../../utils/constants/audio_player_constants.dart';
 import '../../../utils/constants/player_translation_constants.dart';
 import '../../../utils/helpers/media_item_mapper.dart';
-import '../../library/playlist_player_page.dart';
 import '../../widgets/add_to_playlist_button.dart';
 import '../../widgets/download_button.dart';
 import '../../widgets/go_spotify_button.dart';
@@ -74,7 +74,7 @@ class NameNControls extends StatelessWidget {
                         children: [
                           Text(_.mediaItemTitle.value,
                             style: TextStyle(
-                              fontSize: titleBoxHeight/3,
+                              fontSize: titleBoxHeight/3.2,
                               fontWeight: FontWeight.bold,
                             ),
                             textAlign: TextAlign.center,
@@ -94,18 +94,28 @@ class NameNControls extends StatelessWidget {
                             onTap: () => (_.appMediaItem.value.artistId?.isEmpty ?? true) ? {}
                                 : _.goToOwnerProfile(),
                           ),
-                          if(_.mediaItemAlbum.isNotEmpty) GestureDetector(
-                            child: Text(_.mediaItemAlbum.value,
-                              style: TextStyle(
+                          if(_.mediaItemAlbum.isNotEmpty) TextButton(
+                            onPressed: () {
+                              _.gotoPlaylistPlayer();
+                            },
+                            style: TextButton.styleFrom(
+                              padding: EdgeInsets.zero,
+                              textStyle: TextStyle(
                                 fontSize: titleBoxHeight / 7,
                                 fontWeight: FontWeight.w600,
+                                color: Colors.yellow
                               ),
+                            ),
+                            child: Text(_.mediaItemAlbum.value.capitalizeFirst,
                               textAlign: TextAlign.center,
                               maxLines: 2,
+                              style: TextStyle(
+                                  fontSize: titleBoxHeight / 7,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.white70
+                              ),
                             ),
-                            onTap: () {
-                              _.gotoPlaylistPlayer();
-                            }
+
                           ),
                           if(!AudioPlayerUtilities.isOwnMediaItem(_.appMediaItem.value) && AppFlavour.appInUse == AppInUse.g)
                             Padding(
@@ -254,7 +264,8 @@ class NameNControls extends StatelessWidget {
                               ),
                               (!AudioPlayerUtilities.isOwnMediaItem(_.appMediaItem.value) && AppFlavour.appInUse == AppInUse.g)
                                   ? GoSpotifyButton(appMediaItem: _.appMediaItem.value) : (downloadAllowed && _.mediaItem.value != null ? DownloadButton(mediaItem: MediaItemMapper.fromMediaItem(_.mediaItem.value!),): const SizedBox.shrink()),
-                              AddToPlaylistButton(appMediaItem: _.appMediaItem.value, playlist: _.personalPlaylist,),
+                              AddToPlaylistButton(appMediaItem: _.appMediaItem.value, playlists: AppUtilities.filterItemlists(_.profile.itemlists?.values.toList() ?? [], ItemlistType.playlist,),
+                                currentPlaylist: _.personalPlaylist,)
                               // _.createPopMenuOption(context, _.appMediaItem.value),
                             ],
                           ),

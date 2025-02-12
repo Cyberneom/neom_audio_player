@@ -13,6 +13,7 @@ import 'package:neom_commons/core/utils/constants/app_translation_constants.dart
 import 'package:neom_commons/core/utils/constants/message_translation_constants.dart';
 import 'package:neom_commons/core/utils/core_utilities.dart';
 import 'package:neom_commons/core/utils/enums/app_item_state.dart';
+import 'package:neom_commons/core/utils/enums/itemlist_type.dart';
 import 'package:neom_commons/core/utils/enums/profile_type.dart';
 import 'package:neom_itemlists/itemlists/ui/search/app_media_item_search_controller.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
@@ -22,7 +23,7 @@ class AddToPlaylist {
   // List playlistNames = Hive.box(AppHiveBox.settings.name).get('playlistNames', defaultValue: [AppHiveBox.favoriteItems.name]) as List;
   // Map playlistDetails = Hive.box(AppHiveBox.settings.name).get('playlistDetails', defaultValue: {}) as Map;
 
-  Future<void> addToPlaylist(BuildContext context, AppMediaItem appMediaItem, {bool fromSearch = false, bool goHome = true}) async {
+  Future<bool> addToPlaylist(BuildContext context, AppMediaItem appMediaItem, {List<Itemlist>? playlists, bool fromSearch = false, bool goHome = true}) async {
 
     List<Itemlist> itemlists = []; ///GET INFO FROM CONTROLLER
     ProfileType type = ProfileType.general; ///GET INFO FROM CONTROLLER
@@ -35,10 +36,13 @@ class AddToPlaylist {
       } else {
         searchController = Get.put(AppMediaItemSearchController());
       }
-      itemlists = searchController.itemlists.values.toList();
+      itemlists = AppUtilities.filterItemlists(searchController.itemlists.values.toList(), ItemlistType.playlist);
       itemlists.removeWhere((element) => !element.isModifiable);
 
-      if(itemlists.isEmpty) return;
+      if(itemlists.isEmpty) {
+        itemlists.add(await searchController.createBasicItemlist());
+      }
+
       searchController.setSelectedItemlist(itemlists.first.id);
       type = searchController.profile.type;
       searchController.appMediaItem = appMediaItem;
@@ -49,11 +53,11 @@ class AddToPlaylist {
           backgroundColor: AppColor.main75,
           titleStyle: const TextStyle(color: Colors.white),
         ),
-        title: type == ProfileType.artist ? AppTranslationConstants.appItemPrefs.tr
+        title: type == ProfileType.appArtist ? AppTranslationConstants.appItemPrefs.tr
             : AppTranslationConstants.playlistToChoose.tr,
         content: Column(
           children: <Widget>[
-            if(type == ProfileType.artist) Obx(()=>
+            if(type == ProfileType.appArtist) Obx(()=>
                 DropdownButton<String>(
                   items: AppItemState.values.map((AppItemState itemState) {
                     return DropdownMenuItem<String>(
@@ -147,7 +151,7 @@ class AddToPlaylist {
                 : Text(AppTranslationConstants.add.tr,
             ),),
             onPressed: () async => {
-              if(type == ProfileType.artist)
+              if(type == ProfileType.appArtist)
                 searchController.appItemState > 0
                     ? await searchController.addItemlistItem(context, fanItemState: searchController.appItemState.value, goHome: goHome)
                     : AppUtilities.showSnackBar(
@@ -160,10 +164,12 @@ class AddToPlaylist {
           ),
         ],
       ).show() : await searchController.addItemlistItem(context, fanItemState: AppItemState.heardIt.value, goHome: goHome);
+
     } catch(e) {
       AppUtilities.logger.e(e.toString());
+      return false;
     }
-
+    return true;
   }
 
 }

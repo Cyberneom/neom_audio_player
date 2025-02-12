@@ -11,10 +11,8 @@ import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/constants/app_constants.dart';
 import 'package:neom_commons/core/utils/constants/app_route_constants.dart';
 import 'package:neom_commons/core/utils/constants/app_translation_constants.dart';
-import 'package:neom_commons/core/utils/enums/app_in_use.dart';
 import 'package:neom_commons/core/utils/enums/app_media_source.dart';
 
-import '../../../utils/audio_player_utilities.dart';
 import '../../../utils/constants/audio_player_constants.dart';
 import '../../../utils/helpers/media_item_mapper.dart';
 import '../miniplayer_controller.dart';

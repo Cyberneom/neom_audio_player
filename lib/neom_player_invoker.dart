@@ -42,6 +42,8 @@ class NeomPlayerInvoker {
         } else {
           setValues(finalList, globalIndex, recommend: recommend, playItem: playItem);
         }
+      } else {
+        AppUtilities.logger.d('Item is free - Nupale Session is not active.');
       }
 
       ///This would be needed when adding offline mode downloading audio.
@@ -193,4 +195,5 @@ class NeomPlayerInvoker {
       PlayerHiveController().updateRepeatMode(AudioServiceRepeatMode.none);
     }
   }
+
 }

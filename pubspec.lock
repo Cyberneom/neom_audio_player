@@ -1359,13 +1359,11 @@ packages:
     source: git
     version: "1.1.0"
   neom_commerce:
-    dependency: transitive
+    dependency: "direct main"
     description:
-      path: "."
-      ref: HEAD
-      resolved-ref: "3d9003e75ab019a32a2ef9a7ec755bca48f6d1e8"
-      url: "git@github.com:emmanuel-montoya/neom_commerce.git"
-    source: git
+      path: "../neom_commerce"
+      relative: true
+    source: path
     version: "1.2.0"
   neom_commons:
     dependency: "direct main"

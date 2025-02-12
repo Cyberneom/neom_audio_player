@@ -83,9 +83,11 @@ class PlayerHiveController extends GetxController {
   }
 
   Future<void> fetchCachedData() async {
-    lastQueueList = await Hive.box(AppHiveBox.player.name).get(AppHiveConstants.lastQueue, defaultValue: [])?.toList() as List;
-    lastIndex = await Hive.box(AppHiveBox.player.name).get(AppHiveConstants.lastIndex, defaultValue: 0) as int;
-    lastPos = await Hive.box(AppHiveBox.player.name).get(AppHiveConstants.lastPos, defaultValue: 0) as int;
+    Box playerBox = await Hive.box(AppHiveBox.player.name);
+
+    lastQueueList = playerBox.get(AppHiveConstants.lastQueue, defaultValue: [])?.toList() as List;
+    lastIndex = playerBox.get(AppHiveConstants.lastIndex, defaultValue: 0) as int;
+    lastPos = playerBox.get(AppHiveConstants.lastPos, defaultValue: 0) as int;
   }
 
   Future<int> fetchLastPos(String itemId) async {
@@ -98,21 +100,23 @@ class PlayerHiveController extends GetxController {
   }
 
   Future<void> fetchSettingsData() async {
-    preferredMobileQuality = await Hive.box(AppHiveBox.settings.name).get(AppHiveConstants.streamingQuality, defaultValue: '96 kbps') as String;
-    preferredWifiQuality = await Hive.box(AppHiveBox.settings.name).get(AppHiveConstants.streamingWifiQuality, defaultValue: '320 kbps') as String;
-    resetOnSkip = await Hive.box(AppHiveBox.settings.name).get(AppHiveConstants.resetOnSkip, defaultValue: true) as bool;
-    cacheSong = await Hive.box(AppHiveBox.settings.name).get(AppHiveConstants.cacheSong, defaultValue: true) as bool;
-    recommend =  await Hive.box(AppHiveBox.settings.name).get(AppHiveConstants.autoplay, defaultValue: true) as bool;
-    loadStart = await Hive.box(AppHiveBox.settings.name).get(AppHiveConstants.loadStart, defaultValue: true) as bool;
-    useDownload = await Hive.box(AppHiveBox.settings.name).get(AppHiveConstants.useDown, defaultValue: true) as bool;
-    preferredCompactNotificationButtons = Hive.box(AppHiveBox.settings.name).get(AppHiveConstants.preferredCompactNotificationButtons, defaultValue: [1, 2, 3],) as List<int>;
-    stopForegroundService = Hive.box(AppHiveBox.settings.name).get(AppHiveConstants.stopForegroundService, defaultValue: true) as bool;
-    repeatMode = EnumToString.fromString(AudioServiceRepeatMode.values, Hive.box(AppHiveBox.settings.name)
+    Box settingsBox = await Hive.box(AppHiveBox.settings.name);
+
+    preferredMobileQuality = settingsBox.get(AppHiveConstants.streamingQuality, defaultValue: '96 kbps') as String;
+    preferredWifiQuality = settingsBox.get(AppHiveConstants.streamingWifiQuality, defaultValue: '320 kbps') as String;
+    resetOnSkip = settingsBox.get(AppHiveConstants.resetOnSkip, defaultValue: true) as bool;
+    cacheSong = settingsBox.get(AppHiveConstants.cacheSong, defaultValue: true) as bool;
+    recommend =  settingsBox.get(AppHiveConstants.autoplay, defaultValue: true) as bool;
+    loadStart = settingsBox.get(AppHiveConstants.loadStart, defaultValue: true) as bool;
+    useDownload = settingsBox.get(AppHiveConstants.useDown, defaultValue: true) as bool;
+    preferredCompactNotificationButtons = settingsBox.get(AppHiveConstants.preferredCompactNotificationButtons, defaultValue: [1, 2, 3],) as List<int>;
+    stopForegroundService = settingsBox.get(AppHiveConstants.stopForegroundService, defaultValue: true) as bool;
+    repeatMode = EnumToString.fromString(AudioServiceRepeatMode.values, settingsBox
         .get(AppHiveConstants.repeatMode, defaultValue: AudioServiceRepeatMode.none.name,).toString(),) ?? AudioServiceRepeatMode.none;
-    enforceRepeat = Hive.box(AppHiveBox.settings.name).get(AppHiveConstants.enforceRepeat, defaultValue: false) as bool;
-    liveSearch = Hive.box(AppHiveBox.settings.name).get(AppHiveConstants.liveSearch, defaultValue: true) as bool;
-    showHistory = Hive.box(AppHiveBox.settings.name).get(AppHiveConstants.showHistory, defaultValue: true) as bool;
-    searchHistory = Hive.box(AppHiveBox.settings.name).get(AppHiveConstants.searchHistory, defaultValue: []) as List;
+    enforceRepeat = settingsBox.get(AppHiveConstants.enforceRepeat, defaultValue: false) as bool;
+    liveSearch = settingsBox.get(AppHiveConstants.liveSearch, defaultValue: true) as bool;
+    showHistory = settingsBox.get(AppHiveConstants.showHistory, defaultValue: true) as bool;
+    searchHistory = settingsBox.get(AppHiveConstants.searchHistory, defaultValue: []) as List;
   }
 
   Future<void> updateRepeatMode(AudioServiceRepeatMode mode) async {

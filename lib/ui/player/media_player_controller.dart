@@ -156,10 +156,17 @@ class MediaPlayerController extends GetxController {
     Get.to(() => PlaylistPlayerPage(itemlist: releaseItemlist));
   }
 
-  void setMediaItem(MediaItem item) {
-    AppUtilities.logger.i('Setting new mediaitem ${item.title}');
-    mediaItem.value = item;
-    appMediaItem.value = MediaItemMapper.fromMediaItem(item);
+  ///DEPRECATED
+  void setMediaItem({MediaItem? item, AppMediaItem? appItem}) {
+    AppUtilities.logger.i('Setting new mediaitem ${item?.title}');
+    if(item != null) {
+      mediaItem.value = item;
+      appMediaItem.value = appItem ?? MediaItemMapper.fromMediaItem(item);
+    } else if(appItem != null) {
+      mediaItem.value= MediaItemMapper.appMediaItemToMediaItem(appMediaItem:appItem);
+      appMediaItem.value = appItem;
+    }
+
     updateMediaItemValues();
     update();
   }

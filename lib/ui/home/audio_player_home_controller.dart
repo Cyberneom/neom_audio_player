@@ -13,7 +13,6 @@ import 'package:neom_commons/core/utils/constants/app_hive_constants.dart';
 import 'package:neom_commons/core/utils/constants/app_page_id_constants.dart';
 import 'package:neom_commons/core/utils/enums/app_hive_box.dart';
 import 'package:neom_commons/core/utils/enums/itemlist_type.dart';
-import 'package:neom_commons/core/utils/constants/app_hive_constants.dart';
 import 'package:neom_commons/core/utils/enums/media_item_type.dart';
 
 class AudioPlayerHomeController extends GetxController {
@@ -39,6 +38,7 @@ class AudioPlayerHomeController extends GetxController {
   int myPlaylistsIndex = 1;
   int favoriteItemsIndex = 2;
   int lastReleasesIndex = 3;
+  int previousIndex = 4;
 
   AppProfile profile = AppProfile();
   Map<String, AppMediaItem> globalMediaItems = {};
@@ -100,16 +100,13 @@ class AudioPlayerHomeController extends GetxController {
     AppUtilities.logger.d('Get ItemLists Home Data');
     try {
       myItemLists = profile.itemlists ?? {};
+      myItemLists.removeWhere((key, publicList) => publicList.type == ItemlistType.readlist);
+      myItemLists.removeWhere((key, publicList) => publicList.type == ItemlistType.giglist);
+
       publicItemlists = await ItemlistFirestore().fetchAll(
-          excludeMyFavorites: true, ///This variable is not needed - Verify
           excludeFromProfileId: profile.id,
           itemlistType: ItemlistType.playlist
       );
-      // myItemLists.addAll(publicItemlists);
-
-      ///IMPROVE WAY TO SPLIT PLAYLISTS AND GIGLISTS FROM READLISTS
-      myItemLists.removeWhere((key, publicList) => publicList.type == ItemlistType.readlist);
-      myItemLists.removeWhere((key, publicList) => publicList.type == ItemlistType.giglist);
       publicItemlists.removeWhere((key, publicList) => publicList.type == ItemlistType.readlist);
       publicItemlists.removeWhere((key, publicList) => publicList.type == ItemlistType.giglist);
     } catch(e) {
@@ -124,7 +121,6 @@ class AudioPlayerHomeController extends GetxController {
       publicItemlists[sortedItem.id] = sortedItem;
     }
 
-    update([AppPageIdConstants.audioPlayerHome]);
   }
 
   void clear() {

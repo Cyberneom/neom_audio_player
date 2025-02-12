@@ -6,13 +6,19 @@ import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:neom_commerce/woo/data/api_services/woo_orders_api.dart';
 import 'package:neom_commons/core/data/implementations/app_hive_controller.dart';
+import 'package:neom_commons/core/data/implementations/user_controller.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/constants/app_constants.dart';
+import 'package:neom_commons/core/utils/constants/app_page_id_constants.dart';
 import 'package:neom_commons/core/utils/enums/app_hive_box.dart';
 import 'package:neom_commons/core/utils/enums/app_hive_box.dart';
+import 'package:neom_commons/core/utils/neom_stopwatch.dart';
 import 'package:rxdart/rxdart.dart' as rx;
 
+import '../../data/firestore/casete_session_firestore.dart';
+import '../../data/firestore/casete_trial_usage_manager.dart';
 import '../../data/implementations/player_hive_controller.dart';
 import '../../data/implementations/playlist_hive_controller.dart';
 import '../../ui/player/media_player_controller.dart';
@@ -23,6 +29,7 @@ import 'package:neom_commons/core/utils/constants/app_hive_constants.dart';
 import '../../utils/constants/audio_player_constants.dart';
 import '../../utils/helpers/media_item_mapper.dart';
 import '../../utils/neom_audio_utilities.dart';
+import '../entities/casete_session.dart';
 import '../entities/queue_state.dart';
 import 'isolate_service.dart';
 import 'neom_audio_service.dart';
@@ -43,18 +50,25 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
   final List<String> refreshLinks = [];
   bool jobRunning = false;
 
-// Box? downloadsBox = PlayerHiveController().getBox(AppHiveBox.downloads.name);
-  // String preferredQuality = '';
-  // String preferredWifiQuality = '';
-  // String preferredMobileQuality = '';
-  // List<int> preferredCompactNotificationButtons = [1, 2, 3];
-
   PlayerHiveController playerHiveController =  Get.find<PlayerHiveController>();
 
   bool stopForegroundService = true;
 
   final rx.BehaviorSubject<List<MediaItem>> _recentSubject = rx.BehaviorSubject
       .seeded(<MediaItem>[]);
+
+  final userController = Get.find<UserController>();
+  final neomStopwatch =  Get.find<NeomStopwatch>();
+
+  int caseteSessionDuration = 0; //Seconds per session
+  int casetePerSession = 0; //Pages per session
+  int averageCasete = 0;
+  bool isCaseteElegible = true;
+  bool isAuthor = false;
+  bool isLastPage = false;
+  bool isFree = false;
+  bool allowFullAccess = false;
+  bool allowFreeTrial = true;
 
   @override
   final rx.BehaviorSubject<double> volume = rx.BehaviorSubject.seeded(1.0);
@@ -104,18 +118,18 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
     AppUtilities.logger.t('Starting NeomAudioHandler');
 
     try {
-      ///DEPRECATED
-      // PlayerHiveController hiveController = PlayerHiveController();
-      // preferredCompactNotificationButtons = hiveController.preferredCompactNotificationButtons;
-      // preferredMobileQuality = hiveController.preferredMobileQuality;
-      // preferredWifiQuality = hiveController.preferredWifiQuality;
-      // cacheSong = hiveController.cacheSong;
-      // useDownload = hiveController.useDownload;
-      // final session = await AudioSession.instance;
-      // await session.configure(const AudioSessionConfiguration.music());
-
       startService();
       // startBackgroundProcessing();
+
+      if(!isFree) {
+        if(allowFullAccess) {
+          if(isCaseteElegible) {
+            NeomStopwatch.start(mediaItem.value?.title ?? '',);
+          }
+        } else {
+          startFreeTrialTimer();
+        }
+      }
     } catch (e) {
       AppUtilities.logger.e('Error while loading last queue $e');
     }
@@ -124,19 +138,21 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
     ///DEPRECATED if (!jobRunning) refreshJob();
   }
 
-  void setListeners() {
-    mediaItem.whereType<MediaItem>().listen((item) {
+  Future<void> setListeners() async {
+    mediaItem.whereType<MediaItem>().listen((item) async {
       if (count != null) {
         count = count! - 1;
         if (count! <= 0) {
           count = null;
-          stop();
+          await stop();
         }
       }
 
+      currentMediaItem = item;
+      setItemInMediaPlayers();
+
       if (item.artUri.toString().startsWith(AppConstants.http)) {
-        AudioPlayerStats.addRecentlyPlayed(
-            MediaItemMapper.fromMediaItem(item));
+        NeomStopwatch.start(mediaItem.value?.id ?? '');
         _recentSubject.add([item]);
       }
     });
@@ -153,18 +169,22 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
     player.playbackEventStream.listen(_broadcastState);
     player.shuffleModeEnabledStream.listen((enabled) => _broadcastState(player.playbackEvent));
     player.loopModeStream.listen((event) => _broadcastState(player.playbackEvent));
-    player.processingStateStream.listen((state) {
+    player.processingStateStream.listen((state) async {
       AppUtilities.logger.d('Audio Player - Processing Stream: ${state.name}');
       switch (state) {
         case ProcessingState.loading:
           break;
         case ProcessingState.ready:
+          if(NeomStopwatch.currentReference != (mediaItem.value?.id ?? '')) {
+            NeomStopwatch.start(mediaItem.value?.id ?? '');
+          }
           break;
         case ProcessingState.buffering:
           break;
         case ProcessingState.completed:
-          stop();
+          await stop();
           player.seek(Duration.zero, index: 0);
+          NeomStopwatch.stop();
         case ProcessingState.idle:
           break;
       }
@@ -174,6 +194,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
     _effectiveSequence.map((sequence) =>
         sequence.map((source) => _mediaItemExpando[source]!)
             .toList(),).pipe(queue);
+
   }
 
   Future<void> loadLastQueue() async {
@@ -243,13 +264,13 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
     }
   }
 
-  void refreshJob() {
-    jobRunning = true;
-    while (refreshLinks.isNotEmpty) {
-      // isolateSendPort?.send(refreshLinks.removeAt(0));
-    }
-    jobRunning = false;
-  }
+  // void refreshJob() {
+  //   jobRunning = true;
+  //   while (refreshLinks.isNotEmpty) {
+  //     // isolateSendPort?.send(refreshLinks.removeAt(0));
+  //   }
+  //   jobRunning = false;
+  // }
 
   Future<void> refreshLink(Map newData) async {
     AppUtilities.logger.i(
@@ -363,7 +384,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
     speed.debounceTime(const Duration(milliseconds: 250)).listen((speed) {
       playbackState.add(playbackState.value.copyWith(speed: speed));
     });
-    setListeners();
+    await setListeners();
   }
 
   Future<void> addLastQueue(List<MediaItem> queue) async {
@@ -390,6 +411,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
       index: player.shuffleModeEnabled && index != 0 ? player
           .shuffleIndices![index] : index,
     );
+
   }
 
   @override
@@ -459,15 +481,16 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
   @override
   Future<void> skipToNext() async {
     AppUtilities.logger.d('skipToNext');
+    //TODO Agregar stopwatch CASETE
 
     final index = queue.value.indexWhere((item) =>
     item.id == currentMediaItem!.id);
     if (queue.value.length >= index + 1) {
       MediaItem nextMedia = queue.value.elementAt(index + 1);
       currentMediaItem = nextMedia;
-      await setItemInMediaPlayers();
+      setItemInMediaPlayers();
     }
-
+    //TODO Agregar stopwatch CASETE
     player.seekToNext();
   }
 
@@ -491,9 +514,13 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
     }
   }
 
+  int currentDuration = 0;
   @override
   Future<void> skipToPrevious() async {
     AppUtilities.logger.d('skipToPrevious');
+    //TODO Agregar stopwatch CASETE
+    NeomStopwatch.start(mediaItem.value?.title ?? '');
+
 
     if (playerHiveController.resetOnSkip) {
       if ((player.position.inSeconds) <= 2) {
@@ -504,9 +531,9 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
         if (queue.value.isNotEmpty && (index - 1 >= 0)) {
           MediaItem previousMedia = queue.value.elementAt(index - 1);
           currentMediaItem = previousMedia;
-          await setItemInMediaPlayers();
+          setItemInMediaPlayers();
         }
-
+        //TODO Agregar stopwatch CASETE
         player.seekToPrevious();
       } else {
         AppUtilities.logger.d('Reset currentitem');
@@ -536,14 +563,11 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
           if (audioSource != null) await player.setAudioSource(audioSource);
         }
 
-        if (Get.isRegistered<MediaPlayerController>()) {
-          Get.find<MediaPlayerController>().setIsLoadingAudio(false);
-        } else {
-          Get.put(MediaPlayerController()).setIsLoadingAudio(false);
-        }
 
-        await setItemInMediaPlayers();
+        setItemInMediaPlayers();
+        Get.find<MediaPlayerController>().setIsLoadingAudio(false);
         await player.play();
+        NeomStopwatch.start(mediaItem.value?.id ?? '');
       }
     } catch (e) {
       AppUtilities.logger.e(e.toString());
@@ -553,7 +577,10 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
 
   @override
   Future<void> pause() async {
+    AppUtilities.logger.d('Pause');
+
     await player.pause();
+    NeomStopwatch.stop();
     addLastQueue(queue.value);
     Hive.box(AppHiveBox.player.name).put(
         AppHiveConstants.lastIndex, player.currentIndex);
@@ -567,6 +594,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
   @override
   Future<void> stop() async {
     AppUtilities.logger.d('Stopping player');
+    NeomStopwatch.stop();
     await player.stop();
     await playbackState.firstWhere((state) =>
     state.processingState == AudioProcessingState.idle,);
@@ -619,8 +647,8 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
         _sleepTimer?.cancel();
         if (extras?['time'] != null && extras!['time'].runtimeType == int &&
             extras['time'] > 0 as bool) {
-          _sleepTimer = Timer(Duration(minutes: extras['time'] as int), () {
-            stop();
+          _sleepTimer = Timer(Duration(minutes: extras['time'] as int), () async {
+            await stop();
           });
         }
       case 'sleepCounter':
@@ -679,7 +707,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
   late rx.BehaviorSubject<int> _tappedMediaActionNumber;
   Timer? _timer;
 
-  void _handleMediaActionPressed() {
+  void _handleMediaActionPressed() async {
     if (_timer == null) {
       _tappedMediaActionNumber = rx.BehaviorSubject.seeded(1);
       _timer = Timer(const Duration(milliseconds: 800), () {
@@ -708,7 +736,10 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
     }
   }
 
-  Future<void> setItemInMediaPlayers() async {
+  void setItemInMediaPlayers() {
+    //TODO Agregar stopwatch CASETE
+    AppUtilities.logger.w('StopWatch LOG');
+
     if (currentMediaItem != null) {
       if (Get.isRegistered<MiniPlayerController>()) {
         Get.find<MiniPlayerController>().setMediaItem(currentMediaItem!);
@@ -717,11 +748,59 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
       }
 
       if (Get.isRegistered<MediaPlayerController>()) {
-        Get.find<MediaPlayerController>().setMediaItem(currentMediaItem!);
+        Get.find<MediaPlayerController>().setMediaItem(item: currentMediaItem!);
       } else {
-        Get.put(MediaPlayerController()).setMediaItem(currentMediaItem!);
+        Get.put(MediaPlayerController()).setMediaItem(item: currentMediaItem!);
       }
     }
+  }
+
+  Future<void> trackCaseteSession() async {
+    if(!isCaseteElegible || currentDuration < AudioPlayerConstants.minDuration) {
+      NeomStopwatch.stop();
+      AppUtilities.logger.w("The audio was opened less than ${AudioPlayerConstants.minDuration}s to track casete.");
+      return;
+    }
+
+    String itemName =  mediaItem.value?.title ?? '';
+    String orderId = '';
+
+    if(isAuthor) {
+    orderId = await WooOrdersApi.createSessionOrder(userController.user, itemName, currentDuration);
+    }
+
+    CaseteSession caseteSession = CaseteSession(
+    id: orderId,
+    createdTime: DateTime.now().millisecondsSinceEpoch,
+    ownerId: currentMediaItem?.artist ?? '',
+    itemId: currentMediaItem?.id ??'',
+    itemName: itemName,
+    readerId: userController.user.email,
+    totalDuration: caseteSessionDuration,
+    totalPages: casetePerSession,
+    casete: averageCasete,
+    );
+
+
+    await CaseteSessionFirestore().insert(caseteSession, isAuthor: isAuthor);
+
+    AppUtilities.logger.i("Number of pages read in session: $averageCasete for $itemName");
+
+
+  }
+
+  void startFreeTrialTimer() {
+    _timer = Timer.periodic(const Duration(seconds: 10), (Timer timer) {
+
+      int dailyTrialUsage = CaseteTrialUsageManager().getDailyTrialUsage();
+
+      if(dailyTrialUsage >= AudioPlayerConstants.maxDurationTrial) {
+        allowFreeTrial = false;
+      } else {
+        CaseteTrialUsageManager().increaseDailyTrialUsage(10);
+      }
+    });
+    AppUtilities.logger.d('Time is active: ${_timer?.isActive}');
   }
 
 }

@@ -21,6 +21,9 @@ dependencies:
   neom_itemlists:
     git:
       url: git@github.com:Cyberneom/neom_itemlists.git
+  neom_commerce:
+    git:
+      url: git@github.com:emmanuel-montoya/neom_commerce.git
 
   audio_service: ^0.18.16
   just_audio: ^0.9.43

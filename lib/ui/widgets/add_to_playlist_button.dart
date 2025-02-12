@@ -15,14 +15,16 @@ class AddToPlaylistButton extends StatefulWidget {
   final double size;
   final EdgeInsets? padding;
   final AppMediaItem? appMediaItem;
-  final Itemlist? playlist;
+  final List<Itemlist>? playlists;
+  final Itemlist? currentPlaylist;
 
   const AddToPlaylistButton({
     super.key,
     this.size = 25,
     this.padding,
     this.appMediaItem,
-    this.playlist,
+    this.playlists,
+    this.currentPlaylist,
   });
 
   @override
@@ -36,7 +38,7 @@ class AddToPlaylistButtonState extends State<AddToPlaylistButton> {
   @override
   void initState() {
     super.initState();
-    inPlaylist = widget.playlist != null;
+    inPlaylist = widget.currentPlaylist != null;
   }
 
   @override
@@ -58,12 +60,12 @@ class AddToPlaylistButtonState extends State<AddToPlaylistButton> {
           if(itemId.isEmpty) return;
 
           try {
-            if(inPlaylist) {
+            if(inPlaylist && widget.currentPlaylist != null) {
               //TODO remove from itemlist in database
               //TODO Remove from profile.itemlists list item
-              if(await ItemlistFirestore().deleteItem(itemlistId: widget.playlist!.id, appMediaItem: widget.appMediaItem!)){
-                widget.playlist?.appMediaItems?.removeWhere((item) => item.id == widget.appMediaItem?.id);
-                Get.find<UserController>().user.profiles.first.itemlists?[widget.playlist!.id] = widget.playlist!;
+              if(await ItemlistFirestore().deleteItem(itemlistId: widget.currentPlaylist!.id, appMediaItem: widget.appMediaItem!)){
+                widget.currentPlaylist?.appMediaItems?.removeWhere((item) => item.id == widget.appMediaItem?.id);
+                Get.find<UserController>().user.profiles.first.itemlists?[widget.currentPlaylist!.id] = widget.currentPlaylist!;
               }
 
               setState(() {
@@ -72,17 +74,15 @@ class AddToPlaylistButtonState extends State<AddToPlaylistButton> {
 
               AppUtilities.showSnackBar(
                   title: '${widget.appMediaItem?.name}',
-                  message: "${inPlaylist ? PlayerTranslationConstants.addedTo.tr : PlayerTranslationConstants.removedFrom.tr} ${widget.playlist?.name}"
+                  message: "${inPlaylist ? PlayerTranslationConstants.addedTo.tr : PlayerTranslationConstants.removedFrom.tr} ${widget.currentPlaylist?.name}"
               );
-            } else {
-              await AddToPlaylist().addToPlaylist(context, widget.appMediaItem!, goHome: false);
-              //TODO Add to profile.itemlists list item
-              setState(() {
-                inPlaylist = true;
-              });
+            } else if(widget.appMediaItem != null) {
+              if(await AddToPlaylist().addToPlaylist(context, widget.appMediaItem!, playlists: widget.playlists, goHome: false)) {                //TODO Add to profile.itemlists list item
+                setState(() {
+                  inPlaylist = true;
+                });
+              }
             }
-
-            // AppMediaItemFirestore().existsOrInsert(widget.appMediaItem!);
           } catch(e) {
             AppUtilities.logger.e(e.toString());
           }

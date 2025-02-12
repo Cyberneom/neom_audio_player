@@ -40,7 +40,8 @@ class AudioPlayerHomeContent extends StatelessWidget {
     return GetBuilder<AudioPlayerHomeController>(
       id: AppPageIdConstants.audioPlayerHome,
       builder: (_) => _.isLoading.value ? const Center(child: CircularProgressIndicator(),)
-        : (_.myItemLists.isEmpty && _.recentList.isEmpty && _.publicItemlists.isEmpty)
+        : (_.myItemLists.isEmpty && _.favoriteItems.isEmpty && _.recentList.isEmpty
+          && _.publicItemlists.isEmpty && _.releaseItemlists.isEmpty)
         ? TextButton(
           onPressed: ()=> Navigator.push(context, MaterialPageRoute(
             builder: (context) => const SearchPage(
@@ -55,54 +56,35 @@ class AudioPlayerHomeContent extends StatelessWidget {
       ) : ListView.builder(physics: const BouncingScrollPhysics(),
         shrinkWrap: true,
         padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
-        itemCount: _.publicItemlists.isEmpty ? 4 : (_.publicItemlists.length + 4),
+        itemCount: _.publicItemlists.isEmpty ? _.previousIndex : (_.publicItemlists.length + _.previousIndex),
         itemBuilder: (context, idx) {
-          AppUtilities.logger.t('Building Music Home Index $idx');
+          AppUtilities.logger.t('Building AudioPlayerHome Index $idx');
 
-          if (idx == _.recentIndex) return buildLastSessionContainer(context, _);
+          if (idx == _.recentIndex && _.recentList.isNotEmpty) return buildLastSessionContainer(context, _);
 
-          if (idx == _.myPlaylistsIndex) {
-            return _.myItemLists.isNotEmpty ? buildPlaylistsContainer(_.myItemLists.values.toList(), context,
-                PlayerTranslationConstants.yourPlaylists.tr, boxSize) : const SizedBox.shrink();
-          }
+          // if (idx == _.myPlaylistsIndex && _.myItemLists.isNotEmpty) {
+          //   return buildPlaylistsContainer(_.myItemLists.values.toList(), context,
+          //       PlayerTranslationConstants.yourPlaylists.tr, boxSize);
+          // }
 
-          if (idx == _.favoriteItemsIndex) {
-            return _.favoriteItems.isNotEmpty ? buildFavoriteItemsContainer(_, context, boxSize) : const SizedBox.shrink();
-          }
+          if (idx == _.favoriteItemsIndex && _.favoriteItems.isNotEmpty) return buildFavoriteItemsContainer(_, context, boxSize);
 
-          if (idx == _.lastReleasesIndex) {
-            Map<String, List<Itemlist>> categorized = AudioPlayerUtilities.categorizePLaylistByTags(_.releaseItemlists.values.toList());
+          if (idx == _.lastReleasesIndex && _.releaseItemlists.isNotEmpty) return buildCategorizedPlaylists(_, boxSize, context);
 
-            Set<Itemlist> shownPlaylists = {};
-            if(categorized.isNotEmpty) {
-              return ListView.builder(
-                shrinkWrap: true,
-                physics: ClampingScrollPhysics(),
-                itemCount: categorized.length,
-                itemBuilder: (context, index) {
-                  String tag = categorized.keys.elementAt(index);
-                  List<Itemlist> items = categorized.values.elementAt(index);
-                  // items.where((item) => !shownPlaylists.contains(item)).toList();
-
-                  shownPlaylists.addAll(items);
-                  return buildPlaylistsContainer(items, context, tag.tr.capitalize, boxSize);
-                },
-              );
-            } else {
-              return _.releaseItemlists.isNotEmpty ? buildPlaylistsContainer(_.releaseItemlists.values.toList(), context,
-                  AppTranslationConstants.recentReleases.tr, boxSize) : const SizedBox.shrink();
+          Itemlist publicList = Itemlist();
+          if(_.publicItemlists.isNotEmpty) {
+            int publicIndex = idx-_.previousIndex < 0 ? 0 : idx-_.previousIndex;
+            publicList = _.publicItemlists.values.elementAt(publicIndex);
+            bool containsExternalItems = publicList.appMediaItems?.where(
+                    (item) => item.mediaSource != AppMediaSource.internal || item.mediaSource != AppMediaSource.offline).isNotEmpty ?? true;
+            if (publicList.getTotalItems() == 0 || containsExternalItems) {
+              return const SizedBox.shrink();
+            } else if (publicList.name == 'likedArtists') {
+              return buildLikedArtistContainer(publicList, context);
             }
           }
 
-          final Itemlist publicList = _.publicItemlists.values.elementAt(idx - 4);
-          bool containsExternalItems = publicList.appMediaItems?.where(
-                  (item) => item.mediaSource != AppMediaSource.internal || item.mediaSource != AppMediaSource.offline).isNotEmpty ?? true;
-          if (publicList.getTotalItems() == 0 || publicList.type != ItemlistType.playlist || containsExternalItems) {
-            return const SizedBox.shrink();
-          } else if (publicList.name == 'likedArtists') {
-            return buildLikedArtistContainer(publicList, context);
-          }
-
+          if(publicList.id.isEmpty) return SizedBox.shrink();
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -246,6 +228,29 @@ class AudioPlayerHomeContent extends StatelessWidget {
           );
         },),
     );
+  }
+
+  Widget buildCategorizedPlaylists(AudioPlayerHomeController _, double boxSize, BuildContext context) {
+    Map<String, List<Itemlist>> categorized = AudioPlayerUtilities.categorizePlaylistsByTags(_.releaseItemlists.values.toList());
+
+    Set<Itemlist> shownPlaylists = {};
+    if(categorized.isNotEmpty) {
+      return ListView.builder(
+        shrinkWrap: true,
+        physics: ClampingScrollPhysics(),
+        itemCount: categorized.length,
+        itemBuilder: (context, index) {
+          String tag = categorized.keys.elementAt(index);
+          List<Itemlist> items = categorized.values.elementAt(index);
+          /// items.where((item) => !shownPlaylists.contains(item)).toList();
+          shownPlaylists.addAll(items);
+          return buildPlaylistsContainer(items, context, tag.tr.toUpperCase(), boxSize);
+        },
+      );
+    } else {
+      return _.releaseItemlists.isNotEmpty ? buildPlaylistsContainer(_.releaseItemlists.values.toList(), context,
+          AppTranslationConstants.recentReleases.tr, boxSize) : const SizedBox.shrink();
+    }
   }
 
   Widget buildLastSessionContainer(BuildContext context, AudioPlayerHomeController _) {
@@ -416,7 +421,7 @@ class AudioPlayerHomeContent extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.fromLTRB(15, 10, 15, 5),
                 child: Text(
-                  PlayerTranslationConstants.favorites.tr,
+                  PlayerTranslationConstants.favorites.tr.toUpperCase(),
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.secondary,
                     fontSize: 18,

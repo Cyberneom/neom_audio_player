@@ -33,7 +33,7 @@ class AudioPlayerHomePage extends StatelessWidget {
               drawer: const AudioPlayerDrawer(),
               backgroundColor: AppColor.main50,
               body: Container(
-                decoration: AppTheme.appBoxDecoration,
+                decoration: AppTheme.appBoxDecoration75,
                 child: _.isLoading.value ? const AppCircularProgressIndicator() : Stack(
                   children: [
                     NestedScrollView(

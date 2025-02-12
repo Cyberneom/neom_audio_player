@@ -11,6 +11,7 @@ import 'package:neom_commons/core/utils/constants/app_page_id_constants.dart';
 import 'package:neom_commons/core/utils/constants/app_route_constants.dart';
 import 'package:neom_commons/core/utils/constants/app_translation_constants.dart';
 import 'package:neom_commons/core/utils/enums/app_in_use.dart';
+import 'package:neom_commons/core/utils/enums/user_role.dart';
 import 'package:neom_commons/core/utils/enums/verification_level.dart';
 import '../../../utils/constants/audio_player_route_constants.dart';
 import '../../../utils/enums/audio_player_drawer_menu.dart';
@@ -41,14 +42,14 @@ class AudioPlayerDrawer extends StatelessWidget {
                     children: <Widget>[
                       _menuHeader(context, _),
                       const Divider(),
-                      drawerRowOption(AudioPlayerDrawerMenu.nowPlaying,  const Icon(Icons.queue_music_rounded,), context),
+                      // drawerRowOption(AudioPlayerDrawerMenu.nowPlaying,  const Icon(Icons.queue_music_rounded,), context),
                       drawerRowOption(AudioPlayerDrawerMenu.lastSession, const Icon(Icons.history_rounded), context),
                       drawerRowOption(AudioPlayerDrawerMenu.favorites, const Icon(Icons.favorite_rounded), context),
                       drawerRowOption(AudioPlayerDrawerMenu.stats, const Icon(Icons.download_done_rounded,), context),
                       // drawerRowOption(MusicPlayerDrawerMenu.myMusic, const Icon(MdiIcons.folderMusic,), context),
                       // drawerRowOption(MusicPlayerDrawerMenu.downloads, const Icon(Icons.download_done_rounded,), context),
                       drawerRowOption(AudioPlayerDrawerMenu.settings, const Icon(Icons.playlist_play_rounded,), context),
-                      if(AppFlavour.appInUse == AppInUse.e && _.appProfile.verificationLevel != VerificationLevel.none)
+                      if(AppFlavour.appInUse == AppInUse.e && _.user.userRole != UserRole.subscriber)
                       Column(
                         children: [
                           const Divider(),
@@ -134,8 +135,8 @@ class AudioPlayerDrawer extends StatelessWidget {
       onTap: () {
         if(isEnabled) {
           switch(selectedMenu) {
-            case AudioPlayerDrawerMenu.nowPlaying:
-              Navigator.pushNamed(context, AudioPlayerRouteConstants.nowPlaying);
+            // case AudioPlayerDrawerMenu.nowPlaying:
+            //   Navigator.pushNamed(context, AudioPlayerRouteConstants.nowPlaying);
             case AudioPlayerDrawerMenu.lastSession:
               Navigator.pushNamed(context, AudioPlayerRouteConstants.recent);
             case AudioPlayerDrawerMenu.favorites:
