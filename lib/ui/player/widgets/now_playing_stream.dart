@@ -4,6 +4,7 @@ import 'package:audio_service/audio_service.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_theme.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
@@ -114,8 +115,8 @@ class NowPlayingStream extends StatelessWidget {
                       ),
                     ] : [
                       if(item.extras!['url'].toString().startsWith('http')) ...[
-                        if(showLikeButton) LikeButton(appMediaItem: MediaItemMapper.fromMediaItem(queue[index]),),
-                        if(downloadAllowed) DownloadButton(mediaItem: MediaItemMapper.fromMediaItem(queue[index]),),
+                        if(showLikeButton) LikeButton(appMediaItem: AppMediaItem.fromMediaItem(queue[index]),),
+                        if(downloadAllowed) DownloadButton(mediaItem: AppMediaItem.fromMediaItem(queue[index]),),
                       ],
                       ReorderableDragStartListener(
                         key: Key(item.id),

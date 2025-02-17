@@ -161,7 +161,7 @@ class MediaPlayerController extends GetxController {
     AppUtilities.logger.i('Setting new mediaitem ${item?.title}');
     if(item != null) {
       mediaItem.value = item;
-      appMediaItem.value = appItem ?? MediaItemMapper.fromMediaItem(item);
+      appMediaItem.value = appItem ?? AppMediaItem.fromMediaItem(item);
     } else if(appItem != null) {
       mediaItem.value= MediaItemMapper.appMediaItemToMediaItem(appMediaItem:appItem);
       appMediaItem.value = appItem;
@@ -200,7 +200,7 @@ class MediaPlayerController extends GetxController {
   Future<void> sharePopUp() async {
     if (!isSharePopupShown.value) {
       isSharePopupShown.value = true;
-      final AppMediaItem item = MediaItemMapper.fromMediaItem(mediaItem.value!);
+      final AppMediaItem item = AppMediaItem.fromMediaItem(mediaItem.value!);
       await CoreUtilities().shareAppWithMediaItem(item).whenComplete(() {
         Timer(const Duration(milliseconds: 600), () {
           isSharePopupShown.value = false;

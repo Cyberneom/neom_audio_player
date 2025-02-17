@@ -240,12 +240,6 @@ class AudioPlayerUtilities {
     return isOwnMediaItem;
   }
 
-  static bool isInternal(String url) {
-    final bool isInternal = url.contains(AppFlavour.getHubName())
-        || url.contains(AppFlavour.getStorageServerName());
-    return isInternal;
-  }
-
   static void showSpeedSliderDialog({
     required BuildContext context,
     required String title,

@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:neom_commons/core/app_flavour.dart';
+import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_theme.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
@@ -263,7 +264,7 @@ class NameNControls extends StatelessWidget {
                                 },
                               ),
                               (!AudioPlayerUtilities.isOwnMediaItem(_.appMediaItem.value) && AppFlavour.appInUse == AppInUse.g)
-                                  ? GoSpotifyButton(appMediaItem: _.appMediaItem.value) : (downloadAllowed && _.mediaItem.value != null ? DownloadButton(mediaItem: MediaItemMapper.fromMediaItem(_.mediaItem.value!),): const SizedBox.shrink()),
+                                  ? GoSpotifyButton(appMediaItem: _.appMediaItem.value) : (downloadAllowed && _.mediaItem.value != null ? DownloadButton(mediaItem: AppMediaItem.fromMediaItem(_.mediaItem.value!),): const SizedBox.shrink()),
                               AddToPlaylistButton(appMediaItem: _.appMediaItem.value, playlists: AppUtilities.filterItemlists(_.profile.itemlists?.values.toList() ?? [], ItemlistType.playlist,),
                                 currentPlaylist: _.personalPlaylist,)
                               // _.createPopMenuOption(context, _.appMediaItem.value),

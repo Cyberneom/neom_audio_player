@@ -1,6 +1,7 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/constants/app_translation_constants.dart';
 
 import '../../../domain/entities/queue_state.dart';
@@ -40,7 +41,7 @@ class ControlButtons extends StatelessWidget {
     } else {
       ///DEPRECATED
       // NeomPlayerInvoker.init(
-      //   appMediaItems: [MediaItemMapper.fromMediaItem(mediaItem!)],
+      //   appMediaItems: [AppMediaItem.fromMediaItem(mediaItem!)],
       //   index: 0,
       // );
     }
@@ -69,7 +70,7 @@ class ControlButtons extends StatelessWidget {
                 child: LikeButton(
                   padding: EdgeInsets.zero,
                   size: 22.0,
-                  appMediaItem: MediaItemMapper.fromMediaItem(mediaItem!),
+                  appMediaItem: AppMediaItem.fromMediaItem(mediaItem!),
                 ),
               );
             case 'Previous':
@@ -185,7 +186,7 @@ class ControlButtons extends StatelessWidget {
                   height: miniplayer ? AudioPlayerConstants.miniPlayerHeight : AudioPlayerConstants.audioPlayerHeight,
                   width: miniplayer ? AudioPlayerConstants.miniPlayerWidth : AudioPlayerConstants.audioPlayerWidth,
                   child: DownloadButton(size: 20.0,
-                    mediaItem: MediaItemMapper.fromMediaItem(mediaItem!),
+                    mediaItem: AppMediaItem.fromMediaItem(mediaItem!),
                   ),
               );
             case 'Spotify':
@@ -197,7 +198,7 @@ class ControlButtons extends StatelessWidget {
                 child: GoSpotifyButton(
                   size: 20.0,
                   padding: EdgeInsets.zero,
-                  appMediaItem: MediaItemMapper.fromMediaItem(mediaItem!)
+                  appMediaItem: AppMediaItem.fromMediaItem(mediaItem!)
                 ),
               );
             default:

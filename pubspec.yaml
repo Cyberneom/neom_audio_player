@@ -25,7 +25,6 @@ dependencies:
     git:
       url: git@github.com:emmanuel-montoya/neom_commerce.git
 
-  audio_service: ^0.18.16
   just_audio: ^0.9.43
 
   flip_card: ^0.7.0

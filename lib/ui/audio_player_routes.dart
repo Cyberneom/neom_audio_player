@@ -27,7 +27,7 @@ class AudioPlayerRoutes {
     AudioPlayerRouteConstants.pref: (context) => const WelcomePreferencePage(),
     AudioPlayerRouteConstants.setting: (context) => const AudioPlayerSettingsPage(),
     /// MusicPlayerRouteConstants.player: (context) => MediaPlayerPage(),
-    AudioPlayerRouteConstants.nowPlaying: (context) => const NowPlayingPage(),
+    ///DEPRECATED AudioPlayerRouteConstants.nowPlaying: (context) => const NowPlayingPage(),
     AudioPlayerRouteConstants.recent: (context) => const RecentlyPlayedPage(),
     /// MusicPlayerRouteConstants.downloads: (context) => const Downloads(),
     AudioPlayerRouteConstants.stats: (context) => const StatsPage(),

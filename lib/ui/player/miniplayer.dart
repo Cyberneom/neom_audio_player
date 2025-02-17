@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/constants/app_hive_constants.dart';
 import 'package:neom_commons/core/utils/constants/app_page_id_constants.dart';
 import 'package:neom_commons/core/utils/constants/app_route_constants.dart';
@@ -41,8 +42,8 @@ class MiniPlayer extends StatelessWidget {
                   if (direction == DismissDirection.down || direction == DismissDirection.horizontal) {
                     _.audioHandler?.stop();
                   } else {
-                    Get.toNamed(AppRouteConstants.audioPlayerMedia, arguments: [MediaItemMapper.fromMediaItem(_.mediaItem!), false]);
-                    // Navigator.push(context, MaterialPageRoute(builder: (context) => MediaPlayerPage(appMediaItem: MediaItemMapper.fromMediaItem(_.mediaItem!), reproduceItem: false),),);
+                    Get.toNamed(AppRouteConstants.audioPlayerMedia, arguments: [AppMediaItem.fromMediaItem(_.mediaItem!), false]);
+                    // Navigator.push(context, MaterialPageRoute(builder: (context) => MediaPlayerPage(appMediaItem: AppMediaItem.fromMediaItem(_.mediaItem!), reproduceItem: false),),);
                   }
                 }
                 return Future.value(false);

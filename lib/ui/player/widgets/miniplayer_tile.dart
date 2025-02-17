@@ -5,6 +5,7 @@ import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:neom_commons/core/app_flavour.dart';
+import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/ui/widgets/neom_image_card.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
@@ -91,7 +92,7 @@ class _MiniPlayerTileState extends State<MiniPlayerTile> {
       contentPadding: const EdgeInsets.symmetric(horizontal: 10),
       onTap: () {
         if(widget.item != null && widget.miniPlayerController.isInternal) {
-          Get.toNamed(AppRouteConstants.audioPlayerMedia, arguments: [MediaItemMapper.fromMediaItem(widget.item!)]);
+          Get.toNamed(AppRouteConstants.audioPlayerMedia, arguments: [AppMediaItem.fromMediaItem(widget.item!)]);
         }
       },
       leading: Row(

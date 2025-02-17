@@ -172,23 +172,5 @@ class MediaItemMapper  {
     );
   }
 
-  static AppMediaItem fromMediaItem(MediaItem mediaItem) {
-    return AppMediaItem(
-      id: mediaItem.id,
-      album: mediaItem.album ?? '',
-      artist: mediaItem.artist ?? AppUtilities.getArtistName(mediaItem.title),
-      duration: mediaItem.duration?.inSeconds ?? 0,
-      name: AppUtilities.getMediaName(mediaItem.title),
-      imgUrl: mediaItem.artUri?.toString() ?? '',
-      genres: mediaItem.genre != null ? [mediaItem.genre!] : [],
-      url: mediaItem.extras?['url'].toString() ?? '',
-      description: mediaItem.extras?['description'].toString() ?? '',
-      lyrics: mediaItem.extras?['lyrics'].toString() ?? '',
-      artistId: mediaItem.extras?['artistId'].toString() ?? '',
-      permaUrl: mediaItem.extras?['perma_url'].toString() ?? '',
-      mediaSource: AudioPlayerUtilities.isInternal(mediaItem.extras?['url'].toString() ?? '') ? AppMediaSource.internal : AppMediaSource.spotify,
-    );
-  }
-
 
 }

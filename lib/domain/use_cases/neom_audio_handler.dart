@@ -9,6 +9,7 @@ import 'package:just_audio/just_audio.dart';
 import 'package:neom_commerce/woo/data/api_services/woo_orders_api.dart';
 import 'package:neom_commons/core/data/implementations/app_hive_controller.dart';
 import 'package:neom_commons/core/data/implementations/user_controller.dart';
+import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/constants/app_constants.dart';
 import 'package:neom_commons/core/utils/constants/app_page_id_constants.dart';
@@ -124,7 +125,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
       if(!isFree) {
         if(allowFullAccess) {
           if(isCaseteElegible) {
-            NeomStopwatch.start(mediaItem.value?.title ?? '',);
+            neomStopwatch.start(mediaItem.value?.title ?? '',);
           }
         } else {
           startFreeTrialTimer();
@@ -152,7 +153,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
       setItemInMediaPlayers();
 
       if (item.artUri.toString().startsWith(AppConstants.http)) {
-        NeomStopwatch.start(mediaItem.value?.id ?? '');
+        neomStopwatch.start(mediaItem.value?.id ?? '');
         _recentSubject.add([item]);
       }
     });
@@ -175,8 +176,8 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
         case ProcessingState.loading:
           break;
         case ProcessingState.ready:
-          if(NeomStopwatch.currentReference != (mediaItem.value?.id ?? '')) {
-            NeomStopwatch.start(mediaItem.value?.id ?? '');
+          if(neomStopwatch.currentReference != (mediaItem.value?.id ?? '')) {
+            neomStopwatch.start(mediaItem.value?.id ?? '');
           }
           break;
         case ProcessingState.buffering:
@@ -184,7 +185,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
         case ProcessingState.completed:
           await stop();
           player.seek(Duration.zero, index: 0);
-          NeomStopwatch.stop();
+          neomStopwatch.stop();
         case ProcessingState.idle:
           break;
       }
@@ -309,7 +310,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
             }
           }
 
-          if (playerHiveController.cacheSong && AudioPlayerUtilities.isInternal(audioUrl)) {
+          if (playerHiveController.cacheSong && AppUtilities.isInternal(audioUrl)) {
             audioSource = LockCachingAudioSource(Uri.parse(audioUrl));
           } else {
             audioSource = AudioSource.uri(Uri.parse(audioUrl));
@@ -519,7 +520,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
   Future<void> skipToPrevious() async {
     AppUtilities.logger.d('skipToPrevious');
     //TODO Agregar stopwatch CASETE
-    NeomStopwatch.start(mediaItem.value?.title ?? '');
+    neomStopwatch.start(mediaItem.value?.title ?? '');
 
 
     if (playerHiveController.resetOnSkip) {
@@ -567,7 +568,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
         setItemInMediaPlayers();
         Get.find<MediaPlayerController>().setIsLoadingAudio(false);
         await player.play();
-        NeomStopwatch.start(mediaItem.value?.id ?? '');
+        neomStopwatch.start(mediaItem.value?.id ?? '');
       }
     } catch (e) {
       AppUtilities.logger.e(e.toString());
@@ -580,7 +581,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
     AppUtilities.logger.d('Pause');
 
     await player.pause();
-    NeomStopwatch.stop();
+    neomStopwatch.stop();
     addLastQueue(queue.value);
     Hive.box(AppHiveBox.player.name).put(
         AppHiveConstants.lastIndex, player.currentIndex);
@@ -594,7 +595,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
   @override
   Future<void> stop() async {
     AppUtilities.logger.d('Stopping player');
-    NeomStopwatch.stop();
+    neomStopwatch.stop();
     await player.stop();
     await playbackState.firstWhere((state) =>
     state.processingState == AudioProcessingState.idle,);
@@ -753,11 +754,13 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
         Get.put(MediaPlayerController()).setMediaItem(item: currentMediaItem!);
       }
     }
+
+    AudioPlayerStats.addRecentlyPlayed(AppMediaItem.fromMediaItem(currentMediaItem!));
   }
 
   Future<void> trackCaseteSession() async {
     if(!isCaseteElegible || currentDuration < AudioPlayerConstants.minDuration) {
-      NeomStopwatch.stop();
+      neomStopwatch.stop();
       AppUtilities.logger.w("The audio was opened less than ${AudioPlayerConstants.minDuration}s to track casete.");
       return;
     }
@@ -797,7 +800,9 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
       if(dailyTrialUsage >= AudioPlayerConstants.maxDurationTrial) {
         allowFreeTrial = false;
       } else {
-        CaseteTrialUsageManager().increaseDailyTrialUsage(10);
+        if(player.playing) {
+          CaseteTrialUsageManager().increaseDailyTrialUsage(10);
+        }
       }
     });
     AppUtilities.logger.d('Time is active: ${_timer?.isActive}');
