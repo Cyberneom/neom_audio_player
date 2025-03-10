@@ -5,12 +5,15 @@ import 'package:get/get.dart';
 import 'package:neom_commons/core/data/implementations/user_controller.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
+import 'package:neom_commons/core/utils/constants/app_hive_constants.dart';
 import 'package:neom_commons/core/utils/constants/app_page_id_constants.dart';
 import 'package:neom_commons/core/utils/constants/app_route_constants.dart';
+import 'package:neom_commons/core/utils/enums/app_hive_box.dart';
 import 'package:neom_commons/core/utils/enums/app_media_source.dart';
 
 import '../../domain/use_cases/neom_audio_handler.dart';
 import '../../utils/neom_audio_utilities.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 class MiniPlayerController extends GetxController {
 
@@ -138,6 +141,14 @@ class MiniPlayerController extends GetxController {
 
     Get.back();
     update([AppPageIdConstants.home, AppPageIdConstants.audioPlayerHome, AppPageIdConstants.miniPlayer]);
+  }
+
+  List<String> getPreferredMiniButtons() {
+    List preferredButtons = Hive.box(AppHiveBox.settings.name)
+        .get(AppHiveConstants.preferredMiniButtons,
+      defaultValue: ['Like', 'Play/Pause', 'Next'],)?.toList() as List<dynamic>;
+
+    return preferredButtons.map((e) => e.toString()).toList();
   }
 
 }

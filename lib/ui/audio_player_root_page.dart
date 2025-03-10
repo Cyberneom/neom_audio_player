@@ -11,6 +11,7 @@ import '../utils/audio_player_utilities.dart';
 import '../utils/constants/player_translation_constants.dart';
 import 'drawer/audio_player_drawer.dart';
 import 'player/miniplayer.dart';
+import 'player/miniplayer_controller.dart';
 import 'widgets/audio_player_bottom_app_bar.dart';
 
 class AudioPlayerRootPage extends StatefulWidget {
@@ -30,6 +31,7 @@ class AudioPlayerRootPageState extends State<AudioPlayerRootPage> {
   @override
   void initState() {
     super.initState();
+    Get.find<MiniPlayerController>().setIsTimeline(false);
   }
 
   @override

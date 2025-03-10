@@ -25,15 +25,7 @@ class MiniPlayer extends StatelessWidget {
       builder: (_) {
         if(_.isLoading || (_.isTimeline && !_.showInTimeline)) return const SizedBox.shrink();
 
-        List preferredButtons = Hive.box(AppHiveBox.settings.name)
-            .get(AppHiveConstants.preferredMiniButtons,
-          defaultValue: ['Like', 'Play/Pause', 'Next'],)?.toList() as List<dynamic>;
-
-        final List<String> preferredMiniButtons = preferredButtons.map((e) => e.toString()).toList();
-
         return SizedBox(
-          ///DEPRECATED
-          // height: _.mediaItem == null ? 76 : 74,
           child: Dismissible(
               key: const Key(AppPageIdConstants.miniPlayer),
               direction: DismissDirection.vertical,
@@ -74,7 +66,7 @@ class MiniPlayer extends StatelessWidget {
                       children: [
                         MiniPlayerTile(
                           miniPlayerController: _,
-                          preferredMiniButtons: preferredMiniButtons,
+                          preferredMiniButtons: _.getPreferredMiniButtons(),
                           item: _.mediaItem,
                           isTimeline: _.isTimeline,
                         ),

@@ -23,7 +23,7 @@ class AudioPlayerRoutes {
 
   static final Map<String, Widget Function(BuildContext)> routes = {
     AudioPlayerRouteConstants.root: (context) => initialFunction(),
-    AudioPlayerRouteConstants.home: (context) => const NeomAudioPlayerApp(),
+    AudioPlayerRouteConstants.home: (context) => const AudioPlayerRootPage(),
     AudioPlayerRouteConstants.pref: (context) => const WelcomePreferencePage(),
     AudioPlayerRouteConstants.setting: (context) => const AudioPlayerSettingsPage(),
     /// MusicPlayerRouteConstants.player: (context) => MediaPlayerPage(),

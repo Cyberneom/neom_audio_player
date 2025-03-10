@@ -138,7 +138,6 @@ class _MiniPlayerTileState extends State<MiniPlayerTile> {
       ),
       trailing: SizedBox(
         width: MediaQuery.of(context).size.width/(widget.item == null ?(widget.isTimeline ? 12 : 6) : 3.6),
-        // width: item == null && isTimeline ? (MediaQuery.of(context).size.width/12) : (MediaQuery.of(context).size.width/(item == null ? 6 : 3)),
         child: widget.item == null
             ? (widget.isTimeline ? IconButton(onPressed: () => widget.miniPlayerController.goToMusicPlayerHome(),
             icon: const Icon(Icons.arrow_forward_ios)
