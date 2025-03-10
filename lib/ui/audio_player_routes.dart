@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-
-import '../neom_audio_player_app.dart';
 import '../utils/constants/audio_player_route_constants.dart';
-import 'audio_player_root_page.dart';
+import '../audio_player_root_page.dart';
 import 'drawer/recently_played/recently_played_page.dart';
 import 'drawer/settings/audio_player_settings_page.dart';
 import 'drawer/stats/stats_page.dart';
@@ -14,6 +12,8 @@ class AudioPlayerRoutes {
   ///In the meantime we get more catalog and items "welcomePrefs" would be skipped"
   static Widget initialFunction() {
     return const AudioPlayerRootPage();
+
+    ///FUNCTIONALITY TO SET GENRES FOR BETTER CONTENT
     // if(Hive.box(AppHiveBox.settings.name).get(AppHiveConstants.userId) != null || AppFlavour.appInUse == AppInUse.e) {
     //   return const AudioPlayerRootPage();
     // } else {
