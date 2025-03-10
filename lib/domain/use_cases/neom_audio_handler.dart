@@ -1,19 +1,15 @@
 import 'dart:async';
 
 import 'package:audio_service/audio_service.dart';
-import 'package:audio_session/audio_session.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:neom_commerce/woo/data/api_services/woo_orders_api.dart';
-import 'package:neom_commons/core/data/implementations/app_hive_controller.dart';
 import 'package:neom_commons/core/data/implementations/user_controller.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/constants/app_constants.dart';
-import 'package:neom_commons/core/utils/constants/app_page_id_constants.dart';
-import 'package:neom_commons/core/utils/enums/app_hive_box.dart';
 import 'package:neom_commons/core/utils/enums/app_hive_box.dart';
 import 'package:neom_commons/core/utils/neom_stopwatch.dart';
 import 'package:rxdart/rxdart.dart' as rx;
@@ -25,14 +21,12 @@ import '../../data/implementations/playlist_hive_controller.dart';
 import '../../ui/player/media_player_controller.dart';
 import '../../ui/player/miniplayer_controller.dart';
 import '../../utils/audio_player_stats.dart';
-import '../../utils/audio_player_utilities.dart';
 import 'package:neom_commons/core/utils/constants/app_hive_constants.dart';
 import '../../utils/constants/audio_player_constants.dart';
 import '../../utils/helpers/media_item_mapper.dart';
 import '../../utils/neom_audio_utilities.dart';
 import '../entities/casete_session.dart';
 import '../entities/queue_state.dart';
-import 'isolate_service.dart';
 import 'neom_audio_service.dart';
 
 class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler implements NeomAudioService {

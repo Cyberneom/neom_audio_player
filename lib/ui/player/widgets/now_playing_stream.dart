@@ -13,7 +13,6 @@ import 'package:sliding_up_panel/sliding_up_panel.dart';
 import '../../../domain/entities/queue_state.dart';
 import '../../../domain/use_cases/neom_audio_handler.dart';
 import '../../../utils/constants/player_translation_constants.dart';
-import '../../../utils/helpers/media_item_mapper.dart';
 import '../../widgets/download_button.dart';
 import '../../widgets/like_button.dart';
 

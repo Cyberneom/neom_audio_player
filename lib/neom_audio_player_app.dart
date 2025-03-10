@@ -1,6 +1,5 @@
 
 import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
 import 'package:get/get.dart' as getx;
 import 'package:neom_commons/core/app_flavour.dart';
@@ -48,11 +47,11 @@ class NeomAudioPlayerAppState extends State<NeomAudioPlayerApp> {
             backgroundColor: AppColor.getMain(),
         ),
       ),
-        localizationsDelegates: const [
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
+        // localizationsDelegates: const [
+        //   GlobalMaterialLocalizations.delegate,
+        //   GlobalWidgetsLocalizations.delegate,
+        //   GlobalCupertinoLocalizations.delegate,
+        // ],
         locale: Get.deviceLocale,
         supportedLocales: const [
           Locale('es'), // Spanish, Mexico
