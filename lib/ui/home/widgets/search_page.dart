@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
+import 'package:neom_commons/core/app_flavour.dart';
+import 'package:neom_commons/core/data/firestore/app_media_item_firestore.dart';
 import 'package:neom_commons/core/data/firestore/app_release_item_firestore.dart';
+import 'package:neom_commons/core/data/implementations/app_hive_controller.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/domain/model/app_release_item.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/constants/app_translation_constants.dart';
 import 'package:neom_commons/core/utils/enums/app_hive_box.dart';
+import 'package:neom_commons/core/utils/enums/app_in_use.dart';
 import 'package:neom_itemlists/itemlists/data/api_services/spotify/spotify_search.dart';
 import 'package:neom_itemlists/itemlists/ui/widgets/app_item_widgets.dart';
 
@@ -43,9 +47,10 @@ class SearchPageState extends State<SearchPage> {
   bool alertShown = false;
   bool albumFetched = false;
   bool? fromHome;
-  List search = Hive.box(AppHiveBox.settings.name).get(AppHiveConstants.search, defaultValue: [],) as List;
-  bool showHistory = Hive.box(AppHiveBox.settings.name).get(AppHiveConstants.showHistory, defaultValue: true) as bool;
-  bool liveSearch = Hive.box(AppHiveBox.settings.name).get(AppHiveConstants.liveSearch, defaultValue: true) as bool;
+  Box? settingsBox;
+  List search = [];
+  bool showHistory = true;
+  bool liveSearch = true;
 
   final controller = TextEditingController();
 
@@ -53,8 +58,12 @@ class SearchPageState extends State<SearchPage> {
   Map<String, AppReleaseItem> items = {};
 
   @override
-  void initState() {
+  void initState() async {
     controller.text = widget.query;
+    settingsBox = await AppHiveController().getBox(AppHiveBox.settings.name);
+    search = settingsBox?.get(AppHiveConstants.search, defaultValue: [],) as List;
+    showHistory = settingsBox?.get(AppHiveConstants.showHistory, defaultValue: true) as bool;
+    liveSearch = settingsBox?.get(AppHiveConstants.liveSearch, defaultValue: true) as bool;
     super.initState();
   }
 
@@ -67,7 +76,16 @@ class SearchPageState extends State<SearchPage> {
   Future<void> fetchResults() async {
 
     if(items.isEmpty) {
-      items = await AppReleaseItemFirestore().retrieveAll();
+      if(AppFlavour.appInUse != AppInUse.e) {
+        items = await AppReleaseItemFirestore().retrieveAll();
+      } else {
+        appMediaItems = await AppMediaItemFirestore().fetchAll();
+        appMediaItems.removeWhere((key, value) =>
+        !(value.name.toLowerCase().contains(searchParam.toLowerCase()) ||
+            value.artist.toLowerCase().contains(searchParam.toLowerCase()))
+        );
+
+      }
     }
 
     for (var item in items.values) {
@@ -76,19 +94,11 @@ class SearchPageState extends State<SearchPage> {
       }
     }
 
-    appMediaItems.addAll(await SpotifySearch.searchSongs(searchParam));
-    // final List songResults = result['songs'] as List;
-    // if (songResults.isNotEmpty) searchedData['Songs'] = songResults;
+    ///DEPRECATED appMediaItems.addAll(await SpotifySearch.searchSongs(searchParam));
+    
     fetched = true;
-    // this fetches albums, playlists, artists, etc
-    // final List<Map> value = await SaavnAPI().fetchSearchResults(searchParam == '' ? widget.query : searchParam);
-    // searchedData.addEntries(value[0].entries);
-    // position = value[1];
-    // sortedKeys = position.keys.toList()..sort();
-    // albumFetched = true;
-    setState(
-          () {},
-    );
+    
+    setState(() {},);
   }
 
   Future<void> getTrendingSearch() async {
@@ -167,7 +177,7 @@ class SearchPageState extends State<SearchPage> {
                                 onDeleted: () {
                                   setState(() {
                                     search.removeAt(index);
-                                    Hive.box(AppHiveBox.settings.name).put('search', search,);
+                                    settingsBox?.put('search', search,);
                                   });
                                 },
                               ),
@@ -177,7 +187,7 @@ class SearchPageState extends State<SearchPage> {
                                     fetched = false;
                                     searchParam = search.removeAt(index).toString().trim();
                                     search.insert(0, searchParam,);
-                                    Hive.box(AppHiveBox.settings.name).put('search', search,);
+                                    settingsBox?.put('search', search,);
                                     controller.text = searchParam;
                                     controller.selection =
                                         TextSelection.fromPosition(
@@ -279,10 +289,7 @@ class SearchPageState extends State<SearchPage> {
                                                 search =
                                                     search.sublist(0, 10);
                                               }
-                                              Hive.box(AppHiveBox.settings.name).put(
-                                                'search',
-                                                search,
-                                              );
+                                              settingsBox?.put('search', search,);
                                             },
                                           );
                                         }

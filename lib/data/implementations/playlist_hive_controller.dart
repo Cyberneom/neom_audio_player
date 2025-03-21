@@ -5,13 +5,13 @@ import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:neom_commons/core/data/firestore/app_media_item_firestore.dart';
+import 'package:neom_commons/core/data/implementations/app_hive_controller.dart';
 import 'package:neom_commons/core/data/implementations/user_controller.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/enums/app_hive_box.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:neom_commons/core/utils/constants/app_hive_constants.dart';
 import '../../utils/helpers/media_item_mapper.dart';
 import '../../utils/helpers/songs_count.dart' as songs_count;
 import 'player_hive_controller.dart';
@@ -19,7 +19,8 @@ import 'player_hive_controller.dart';
 class PlaylistHiveController extends GetxController  {
 
   final userController = Get.find<UserController>();
-  final appHiveController = Get.find<PlayerHiveController>();
+  final playerHiveController = Get.find<PlayerHiveController>();
+  final appHiveController = Get.find<AppHiveController>();
   Map<String, AppMediaItem> globalMediaItems = {};
   late SharedPreferences prefs;
 
@@ -35,23 +36,21 @@ class PlaylistHiveController extends GetxController  {
   }
 
   bool checkPlaylist(String name, String key) {
-    if (name != AppHiveBox.favoriteItems.name) {
-      Hive.openBox(name).then((value) {
-        return Hive.box(name).containsKey(key);
-      });
-    }
-    return Hive.box(name).containsKey(key);
+    appHiveController.getBox(name).then((value) {
+      return Hive.box(name).containsKey(key);
+    });
+
+    return false;
   }
 
   Future<void> removeLiked(String key) async {
-    final Box likedBox = Hive.box(AppHiveBox.favoriteItems.name);
+    final Box likedBox = await appHiveController.getBox(AppHiveBox.favoriteItems.name);
     likedBox.delete(key);
     // setState(() {});
   }
 
   Future<void> addMapToPlaylist(String name, Map info) async {
-    if (name != AppHiveBox.favoriteItems.name) await Hive.openBox(name);
-    final Box playlistBox = Hive.box(name);
+    final Box playlistBox = await appHiveController.getBox(name);
     final List songs = playlistBox.values.toList();
     info.addEntries([MapEntry('dateAdded', DateTime.now().toString())]);
     songs_count.addSongsCount(
@@ -91,8 +90,8 @@ class PlaylistHiveController extends GetxController  {
     final Map result = {for (final v in data) v['id'].toString(): v};
     playlistBox.putAll(result);
 
-    final List playlistNames =
-    Hive.box(AppHiveBox.settings.name).get('playlistNames', defaultValue: []) as List;
+    final settingsBox = await appHiveController.getBox(AppHiveBox.settings.name);
+    final List playlistNames = settingsBox.get('playlistNames', defaultValue: []) as List;
 
     if (name.trim() == '') {
       name = 'Playlist ${playlistNames.length}';
@@ -102,7 +101,7 @@ class PlaylistHiveController extends GetxController  {
       name += ' (1)';
     }
     playlistNames.add(name);
-    Hive.box(AppHiveBox.settings.name).put('playlistNames', playlistNames);
+    settingsBox.put('playlistNames', playlistNames);
   }
 
   Future<void> addQueryEntry(String inputName, List data) async {
@@ -120,8 +119,8 @@ class PlaylistHiveController extends GetxController  {
     final Map result = {for (final v in data) v['id'].toString(): v};
     playlistBox.putAll(result);
 
-    final List playlistNames =
-    Hive.box(AppHiveBox.settings.name).get('playlistNames', defaultValue: []) as List;
+    final settingsBox = await appHiveController.getBox(AppHiveBox.settings.name);
+    final List playlistNames = settingsBox.get('playlistNames', defaultValue: []) as List;
 
     if (name.trim() == '') {
       name = 'Playlist ${playlistNames.length}';
@@ -131,7 +130,7 @@ class PlaylistHiveController extends GetxController  {
       name += ' (1)';
     }
     playlistNames.add(name);
-    Hive.box(AppHiveBox.settings.name).put('playlistNames', playlistNames);
+    settingsBox.put('playlistNames', playlistNames);
   }
 
 }

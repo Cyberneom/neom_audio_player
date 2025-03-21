@@ -2,10 +2,9 @@ import 'dart:async';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:get/get.dart';
-import 'package:hive/hive.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:neom_commerce/woo/data/api_services/woo_orders_api.dart';
+import 'package:neom_commons/core/data/implementations/app_hive_controller.dart';
 import 'package:neom_commons/core/data/implementations/user_controller.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
@@ -203,7 +202,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
             final int lastIndex = playerHiveController.lastIndex;
             final int lastPos = playerHiveController.lastPos;
 
-            _playlist.addAll(_itemsToSources(lastQueue));
+            _playlist.addAll(await _itemsToSources(lastQueue));
             if (lastIndex != 0 || lastPos > 0) {
               await player.seek(Duration(seconds: lastPos), index: lastIndex);
             }
@@ -277,19 +276,21 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
     addQueueItem(newItem);
   }
 
-  AudioSource? _itemToSource(MediaItem mediaItem) {
+  Future<AudioSource?> _itemToSource(MediaItem mediaItem) async {
     AudioSource? audioSource;
     AppUtilities.logger.d(
         "Moving mediaItem ${mediaItem.title} to audioSource for Music Player ");
     try {
+      final downloadsBox = await AppHiveController().getBox(AppHiveBox.downloads.name);
+      
       if (mediaItem.artUri.toString().startsWith('file:')) {
         audioSource =
             AudioSource.uri(Uri.file(mediaItem.extras!['url'].toString()));
       } else {
-        if (Hive.box(AppHiveBox.downloads.name) != null && Hive.box(AppHiveBox.downloads.name).containsKey(mediaItem.id) &&
+        if (downloadsBox != null && downloadsBox.containsKey(mediaItem.id) &&
             playerHiveController.useDownload) {
           audioSource = AudioSource.uri(
-            Uri.file(Hive.box(AppHiveBox.downloads.name).get(mediaItem.id)['path'].toString(),),
+            Uri.file(downloadsBox.get(mediaItem.id)['path'].toString(),),
             tag: mediaItem.id,
           );
         } else {
@@ -319,12 +320,12 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
     return audioSource;
   }
 
-  List<AudioSource> _itemsToSources(List<MediaItem> mediaItems) {
+  Future<List<AudioSource>> _itemsToSources(List<MediaItem> mediaItems) async {
     final List<AudioSource> sources = [];
 
     try {
       for (final element in mediaItems) {
-        AudioSource? src = _itemToSource(element);
+        AudioSource? src = await _itemToSource(element);
         if (src != null) sources.add(src);
       }
     } catch (e) {
@@ -383,13 +384,13 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
   }
 
   Future<void> addLastQueue(List<MediaItem> queue) async {
+
     if (queue.isNotEmpty) {
       AppUtilities.logger.d('Saving last queue');
       final lastQueue = queue.map((item) {
         return MediaItemMapper.toJSON(item);
       }).toList();
-      Hive.box(AppHiveBox.player.name).put(
-          AppHiveConstants.lastQueue, lastQueue);
+      playerHiveController.setLastQueue(lastQueue);
     }
   }
 
@@ -412,7 +413,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
   @override
   Future<void> addQueueItem(MediaItem mediaItem) async {
     AppUtilities.logger.d('addQueueItem');
-    AudioSource? res = _itemToSource(mediaItem);
+    AudioSource? res = await _itemToSource(mediaItem);
     if (res != null) {
       await _playlist.add(res);
     }
@@ -427,7 +428,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
   @override
   Future<void> insertQueueItem(int index, MediaItem mediaItem) async {
     AppUtilities.logger.d('insertQueueItem');
-    AudioSource? res = _itemToSource(mediaItem);
+    AudioSource? res = await _itemToSource(mediaItem);
     if (res != null) {
       await _playlist.insert(index, res);
     }
@@ -554,7 +555,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
     try {
       if (currentMediaItem != null) {
         if (player.audioSource == null) {
-          AudioSource? audioSource = _itemToSource(currentMediaItem!);
+          AudioSource? audioSource = await _itemToSource(currentMediaItem!);
           if (audioSource != null) await player.setAudioSource(audioSource);
         }
 
@@ -577,10 +578,8 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
     await player.pause();
     neomStopwatch.stop();
     addLastQueue(queue.value);
-    Hive.box(AppHiveBox.player.name).put(
-        AppHiveConstants.lastIndex, player.currentIndex);
-    Hive.box(AppHiveBox.player.name).put(
-        AppHiveConstants.lastPos, player.position.inSeconds);
+
+    await playerHiveController.setLastIndexAndPos(player.currentIndex, player.position.inSeconds);
   }
 
   @override
@@ -597,11 +596,9 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
     AppUtilities.logger.t(
         'Caching last index ${player.currentIndex} and position ${player
             .position.inSeconds}');
-    await Hive.box(AppHiveBox.player.name).put(
-        AppHiveConstants.lastIndex, player.currentIndex);
-    await Hive.box(AppHiveBox.player.name).put(
-        AppHiveConstants.lastPos, player.position.inSeconds);
+
     await addLastQueue(queue.value);
+    AppHiveController().setLastIndexPos(lastIndex: player.currentIndex, lastPos: player.position.inSeconds);
   }
 
   @override
@@ -786,10 +783,10 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
 
   }
 
-  void startFreeTrialTimer() {
-    _timer = Timer.periodic(const Duration(seconds: 10), (Timer timer) {
+  Future<void> startFreeTrialTimer() async {
+    _timer = Timer.periodic(const Duration(seconds: 10), (Timer timer) async {
 
-      int dailyTrialUsage = CaseteTrialUsageManager().getDailyTrialUsage();
+      int dailyTrialUsage = await CaseteTrialUsageManager().getDailyTrialUsage();
 
       if(dailyTrialUsage >= AudioPlayerConstants.maxDurationTrial) {
         allowFreeTrial = false;

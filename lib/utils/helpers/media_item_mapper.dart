@@ -1,8 +1,5 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
-import 'package:neom_commons/core/utils/app_utilities.dart';
-import 'package:neom_commons/core/utils/enums/app_media_source.dart';
-import '../audio_player_utilities.dart';
 
 class MediaItemMapper  {
 

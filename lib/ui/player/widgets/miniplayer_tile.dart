@@ -14,14 +14,14 @@ import 'package:neom_commons/core/utils/constants/app_route_constants.dart';
 import 'package:neom_commons/core/utils/constants/app_translation_constants.dart';
 import 'package:neom_commons/core/utils/enums/app_media_source.dart';
 
+import '../../../data/implementations/player_hive_controller.dart';
 import '../../../utils/constants/audio_player_constants.dart';
-import '../../../utils/helpers/media_item_mapper.dart';
 import '../miniplayer_controller.dart';
 import 'control_buttons.dart';
 
 class MiniPlayerTile extends StatefulWidget {
   final MediaItem? item;
-  final List<String> preferredMiniButtons;
+  final List<String>? preferredMiniButtons;
   final bool useDense;
   final bool isLocalImage;
   final bool isTimeline;
@@ -30,7 +30,7 @@ class MiniPlayerTile extends StatefulWidget {
   const MiniPlayerTile({
     super.key,
     this.item,
-    required this.preferredMiniButtons,
+    this.preferredMiniButtons,
     required this.miniPlayerController,
     this.useDense = false,
     this.isLocalImage = false,
@@ -46,9 +46,10 @@ class _MiniPlayerTileState extends State<MiniPlayerTile> {
   String titleText = '';
   String subtitleText = '';
   Timer? timer;
+  List<String> preferredMiniButtons = [];
 
   @override
-  void initState() {
+  void initState() async {
     super.initState();
 
 
@@ -66,6 +67,14 @@ class _MiniPlayerTileState extends State<MiniPlayerTile> {
       subtitleText = AppTranslationConstants.releasePreview.tr;
       startSubtitleToggle();
     }
+
+    if(widget.preferredMiniButtons != null) {
+      preferredMiniButtons = widget.preferredMiniButtons!;
+    } else {
+      preferredMiniButtons = await PlayerHiveController().getPreferredMiniButtons();
+    }
+
+
   }
 
   @override
@@ -153,7 +162,7 @@ class _MiniPlayerTileState extends State<MiniPlayerTile> {
         ) : widget.miniPlayerController.audioHandler != null
             ? ControlButtons(widget.miniPlayerController.audioHandler!, miniplayer: true,
           buttons: widget.miniPlayerController.source != AppMediaSource.spotify ?
-            (widget.isLocalImage ? AudioPlayerConstants.defaultControlButtons : widget.preferredMiniButtons)
+            (widget.isLocalImage ? AudioPlayerConstants.defaultControlButtons : preferredMiniButtons)
               : AudioPlayerConstants.defaultSpotifyButtons,
           mediaItem: widget.item,
         ) : SizedBox.shrink(),

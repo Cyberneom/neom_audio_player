@@ -29,7 +29,6 @@ class NeomAudioUtilities {
     return audioHandler;
   }
 
-
   static Future<bool> registerAudioHandler() async {
     AppUtilities.logger.d("registerAudioHandler");
 

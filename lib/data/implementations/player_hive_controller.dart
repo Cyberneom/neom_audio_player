@@ -1,20 +1,26 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:enum_to_string/enum_to_string.dart';
-import 'package:get/get.dart';
-import 'package:hive_flutter/hive_flutter.dart';
+import 'package:neom_commons/core/data/implementations/app_hive_controller.dart';
 import 'package:neom_commons/core/domain/model/app_release_item.dart';
 import 'package:neom_commons/core/domain/model/item_list.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/constants/app_hive_constants.dart';
 import 'package:neom_commons/core/utils/enums/app_hive_box.dart';
-import 'package:path_provider/path_provider.dart';
 
-import '../../domain/entities/playlist_section.dart';
 
-class PlayerHiveController extends GetxController {
+class PlayerHiveController {
+
+  static final PlayerHiveController _instance = PlayerHiveController._internal();
+  factory PlayerHiveController() {
+    _instance._init();
+    return _instance;
+  }
+
+  PlayerHiveController._internal();
+
+  bool _isInitialized = false;
 
   //Music Player Cache
   List headList = [];
@@ -45,8 +51,7 @@ class PlayerHiveController extends GetxController {
   Map<String, Itemlist> releaseItemlists = {};
 
   @override
-  Future<void> onInit() async {
-    super.onInit();
+  Future<void> _init() async {
     AppUtilities.logger.t('AppHive Controller');
 
     try {
@@ -58,49 +63,32 @@ class PlayerHiveController extends GetxController {
 
   }
 
-  Box? getBox(String boxName) {
-    return Hive.isBoxOpen(boxName) ? Hive.box(boxName) : null;
-  }
-
-  static Future<void> openHiveBox(String boxName, {bool limit = false}) async {
-    final box = await Hive.openBox(boxName).onError((error, stackTrace) async {
-      AppUtilities.logger.e('Failed to open $boxName Box');
-      final Directory dir = await getApplicationDocumentsDirectory();
-      final String dirPath = dir.path;
-      final File dbFile = File('$dirPath/$boxName.hive');
-      final File lockFile = File('$dirPath/$boxName.lock');
-
-      await dbFile.delete();
-      await lockFile.delete();
-      await Hive.openBox(boxName);
-      throw 'Failed to open $boxName Box\nError: $error';
-    });
-
-    if (limit && box.length > 500) {
-      AppUtilities.logger.w("Box $boxName would be cleared as it exceeded the limit");
-      box.clear();
-    }
-  }
 
   Future<void> fetchCachedData() async {
-    Box playerBox = await Hive.box(AppHiveBox.player.name);
+    final playerBox = await AppHiveController().getBox(AppHiveBox.player.name);
 
     lastQueueList = playerBox.get(AppHiveConstants.lastQueue, defaultValue: [])?.toList() as List;
     lastIndex = playerBox.get(AppHiveConstants.lastIndex, defaultValue: 0) as int;
     lastPos = playerBox.get(AppHiveConstants.lastPos, defaultValue: 0) as int;
+    await playerBox.close();
   }
 
   Future<int> fetchLastPos(String itemId) async {
-    lastPos =  await Hive.box(AppHiveBox.player.name).get('${AppHiveConstants.lastPos}_$itemId', defaultValue: 0) as int;
+    final playerBox = await AppHiveController().getBox(AppHiveBox.player.name);
+    lastPos =  await playerBox.get('${AppHiveConstants.lastPos}_$itemId', defaultValue: 0) as int;
+    await playerBox.close();
+
     return lastPos;
   }
 
   Future<void> updateItemLastPos(String itemId, int position) async {
-    await Hive.box(AppHiveBox.player.name).put('${AppHiveConstants.lastPos}_$itemId', position);
+    final playerBox = await AppHiveController().getBox(AppHiveBox.player.name);
+    playerBox.put('${AppHiveConstants.lastPos}_$itemId', position);
+    await playerBox.close();
   }
 
   Future<void> fetchSettingsData() async {
-    Box settingsBox = await Hive.box(AppHiveBox.settings.name);
+    final settingsBox = await AppHiveController().getBox(AppHiveBox.settings.name);
 
     preferredMobileQuality = settingsBox.get(AppHiveConstants.streamingQuality, defaultValue: '96 kbps') as String;
     preferredWifiQuality = settingsBox.get(AppHiveConstants.streamingWifiQuality, defaultValue: '320 kbps') as String;
@@ -111,30 +99,64 @@ class PlayerHiveController extends GetxController {
     useDownload = settingsBox.get(AppHiveConstants.useDown, defaultValue: true) as bool;
     preferredCompactNotificationButtons = settingsBox.get(AppHiveConstants.preferredCompactNotificationButtons, defaultValue: [1, 2, 3],) as List<int>;
     stopForegroundService = settingsBox.get(AppHiveConstants.stopForegroundService, defaultValue: true) as bool;
-    repeatMode = EnumToString.fromString(AudioServiceRepeatMode.values, settingsBox
-        .get(AppHiveConstants.repeatMode, defaultValue: AudioServiceRepeatMode.none.name,).toString(),) ?? AudioServiceRepeatMode.none;
+    repeatMode = EnumToString.fromString(AudioServiceRepeatMode.values, settingsBox.get(AppHiveConstants.repeatMode, defaultValue: AudioServiceRepeatMode.none.name,).toString(),) ?? AudioServiceRepeatMode.none;
     enforceRepeat = settingsBox.get(AppHiveConstants.enforceRepeat, defaultValue: false) as bool;
     liveSearch = settingsBox.get(AppHiveConstants.liveSearch, defaultValue: true) as bool;
     showHistory = settingsBox.get(AppHiveConstants.showHistory, defaultValue: true) as bool;
     searchHistory = settingsBox.get(AppHiveConstants.searchHistory, defaultValue: []) as List;
+
+    await settingsBox.close();
   }
 
   Future<void> updateRepeatMode(AudioServiceRepeatMode mode) async {
-    await Hive.box(AppHiveBox.settings.name).put(AppHiveConstants.repeatMode, mode.name);
+    final settingsBox = await AppHiveController().getBox(AppHiveBox.settings.name);
+    settingsBox.put(AppHiveConstants.repeatMode, mode.name);
+    await settingsBox.close();
+
   }
 
   Future<void> setSearchQueries(List searchQueries) async {
-    await Hive.box(AppHiveBox.settings.name).put(AppHiveConstants.searchQueries, searchQueries);
+    final settingsBox = await AppHiveController().getBox(AppHiveBox.settings.name);
+    settingsBox.put(AppHiveConstants.searchQueries, searchQueries);
+    await settingsBox.close();
+
   }
 
   Future<void> addQuery(String query) async {
+    final settingsBox = await AppHiveController().getBox(AppHiveBox.settings.name);
+
     query = query.trim();
-    List searchQueries = Hive.box(AppHiveBox.settings.name).get(AppHiveConstants.search, defaultValue: [],) as List;
+    List searchQueries = settingsBox.get(AppHiveConstants.search, defaultValue: [],) as List;
     final idx = searchQueries.indexOf(query);
     if (idx != -1) searchQueries.removeAt(idx);
     searchQueries.insert(0, query);
     if (searchQueries.length > 10) searchQueries = searchQueries.sublist(0, 10);
-    Hive.box(AppHiveBox.settings.name).put(AppHiveConstants.search, searchQueries);
+    settingsBox.put(AppHiveConstants.search, searchQueries);
+    await settingsBox.close();
+
+  }
+
+  Future<List<String>> getPreferredMiniButtons() async {
+    final settingsBox = await AppHiveController().getBox(AppHiveBox.settings.name);
+
+    List preferredButtons = settingsBox.get(AppHiveConstants.preferredMiniButtons,
+      defaultValue: ['Like', 'Play/Pause', 'Next'],)?.toList() as List<dynamic>;
+    await settingsBox.close();
+
+    return preferredButtons.map((e) => e.toString()).toList();
+  }
+
+  Future<void> setLastQueue(List<Map<dynamic,dynamic>> lastQueue) async {
+    final playerBox = await AppHiveController().getBox(AppHiveBox.player.name);
+    playerBox.put(AppHiveConstants.lastQueue, lastQueue);
+    await playerBox.close();
+  }
+
+  Future<void> setLastIndexAndPos(int? lastIndex, int lastPos) async {
+    final playerBox = await AppHiveController().getBox(AppHiveBox.player.name);
+    playerBox.put(AppHiveConstants.lastIndex, lastIndex);
+    playerBox.put(AppHiveConstants.lastPos, lastPos);
+    await playerBox.close();
   }
 
 }

@@ -2,14 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
-import 'package:neom_commons/core/utils/constants/app_hive_constants.dart';
 import 'package:neom_commons/core/utils/constants/app_page_id_constants.dart';
 import 'package:neom_commons/core/utils/constants/app_route_constants.dart';
-import 'package:neom_commons/core/utils/enums/app_hive_box.dart';
 
-import '../../utils/helpers/media_item_mapper.dart';
 import 'miniplayer_controller.dart';
 import 'widgets/miniplayer_tile.dart';
 
@@ -66,7 +62,6 @@ class MiniPlayer extends StatelessWidget {
                       children: [
                         MiniPlayerTile(
                           miniPlayerController: _,
-                          preferredMiniButtons: _.getPreferredMiniButtons(),
                           item: _.mediaItem,
                           isTimeline: _.isTimeline,
                         ),
