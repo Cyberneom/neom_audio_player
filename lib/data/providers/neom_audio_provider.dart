@@ -6,18 +6,19 @@ import '../../domain/use_cases/neom_audio_handler.dart';
 class NeomAudioProvider {
 
   static final NeomAudioProvider _instance = NeomAudioProvider._internal();
-
-  factory NeomAudioProvider() {
-    return _instance;
-  }
-
+  factory NeomAudioProvider() => _instance;
   NeomAudioProvider._internal();
 
   static bool _isInitialized = false;
   static NeomAudioHandler? audioHandler;
 
   Future<NeomAudioHandler> getAudioHandler() async {
-    if (!_isInitialized) await _initialize();
+    if (!_isInitialized) {
+      await _initialize();
+      if(audioHandler == null) {
+        throw Exception("Failed to initialize NeomAudioHandler");
+      }
+    }
     return audioHandler!;
   }
 
@@ -29,7 +30,7 @@ class NeomAudioProvider {
         androidNotificationChannelName: AppFlavour.getNotificationChannelName(),
         androidNotificationIcon: AppFlavour.getNotificationIcon(),
         androidShowNotificationBadge: true,
-        androidStopForegroundOnPause: false,
+        androidStopForegroundOnPause: true,
         notificationColor: Colors.grey[900],
       ),
     );

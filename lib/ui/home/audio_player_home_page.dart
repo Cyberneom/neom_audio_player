@@ -34,7 +34,7 @@ class AudioPlayerHomePage extends StatelessWidget {
               backgroundColor: AppColor.main50,
               body: Container(
                 decoration: AppTheme.appBoxDecoration75,
-                child: _.isLoading.value ? const AppCircularProgressIndicator() : Stack(
+                child: Obx(()=> _.isLoading.value ? const AppCircularProgressIndicator() : Stack(
                   children: [
                     NestedScrollView(
                       physics: const BouncingScrollPhysics(),
@@ -119,9 +119,9 @@ class AudioPlayerHomePage extends StatelessWidget {
                           ),
                         ];
                       },
-                      body: Obx(()=> _.isLoading.value ? const SizedBox.shrink() : const AudioPlayerHomeContent()),
+                      body: const AudioPlayerHomeContent(),
                     ),
-                  ],),
+                  ],),),
               ),
             ),
           );

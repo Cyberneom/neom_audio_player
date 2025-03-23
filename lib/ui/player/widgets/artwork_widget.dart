@@ -15,6 +15,7 @@ import 'package:neom_commons/core/utils/constants/app_translation_constants.dart
 import 'package:neom_commons/core/utils/core_utilities.dart';
 import 'package:neom_commons/core/utils/enums/app_hive_box.dart';
 
+import '../../../data/implementations/player_hive_controller.dart';
 import '../../../domain/entities/queue_state.dart';
 import 'package:neom_commons/core/utils/constants/app_hive_constants.dart';import '../../../utils/constants/player_translation_constants.dart';
 import '../../../utils/enums/lyrics_source.dart';
@@ -45,7 +46,7 @@ class ArtWorkWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     MediaPlayerController _ = mediaPlayerController;
     double flipCardWidth = width * 0.75;
-
+    final bool enabled = PlayerHiveController().enableGesture;
     return SizedBox(
       height: height,
       width: flipCardWidth,
@@ -171,7 +172,6 @@ class ArtWorkWidget extends StatelessWidget {
             stream: _.audioHandler?.queueState,
             builder: (context, snapshot) {
               final queueState = snapshot.data ?? QueueState.empty;
-              final bool enabled = Hive.box(AppHiveBox.settings.name).get('enableGesture', defaultValue: true) as bool;
               return GestureDetector(
                 onTap: !enabled ? null : () {
                   // AddToPlaylist().addToPlaylist(context, _.appMediaItem.value,);

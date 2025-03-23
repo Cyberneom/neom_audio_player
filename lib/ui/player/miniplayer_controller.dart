@@ -29,7 +29,7 @@ class MiniPlayerController extends GetxController {
   bool audioHandlerRegistered = false;
 
   @override
-  void onInit() async {
+  void onInit() {
     super.onInit();
     AppUtilities.logger.d('onInit miniPlayer Controller');
 
@@ -42,7 +42,7 @@ class MiniPlayerController extends GetxController {
   }
 
   @override
-  void onReady() async {
+  void onReady() {
     super.onReady();
 
     try {

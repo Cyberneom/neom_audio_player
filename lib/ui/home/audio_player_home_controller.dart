@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:neom_commons/core/data/firestore/app_media_item_firestore.dart';
 import 'package:neom_commons/core/data/firestore/itemlist_firestore.dart';
+import 'package:neom_commons/core/data/implementations/app_hive_controller.dart';
 import 'package:neom_commons/core/data/implementations/user_controller.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/domain/model/app_profile.dart';
@@ -15,6 +16,8 @@ import 'package:neom_commons/core/utils/enums/app_hive_box.dart';
 import 'package:neom_commons/core/utils/enums/itemlist_type.dart';
 import 'package:neom_commons/core/utils/enums/media_item_type.dart';
 
+import '../../data/implementations/player_hive_controller.dart';
+
 class AudioPlayerHomeController extends GetxController {
 
   final userController = Get.find<UserController>();
@@ -25,7 +28,7 @@ class AudioPlayerHomeController extends GetxController {
   final RxBool isButtonDisabled = false.obs;
   final RxBool showSearchBarLeading = false.obs;
 
-  List preferredLanguage = Hive.box(AppHiveBox.settings.name).get(AppHiveConstants.preferredLanguage, defaultValue: ['Español']) as List;
+  List preferredLanguage = [];
   Map<String, Itemlist> itemLists = {};
 
   List recentSongs = Hive.box(AppHiveBox.player.name).get(AppHiveConstants.recentSongs, defaultValue: []) as List;
@@ -43,50 +46,58 @@ class AudioPlayerHomeController extends GetxController {
   AppProfile profile = AppProfile();
   Map<String, AppMediaItem> globalMediaItems = {};
   List<AppMediaItem> favoriteItems = [];
+  Box? settingsBox;
 
   @override
-  void onInit() async {
+  void onInit() {
     super.onInit();
     AppUtilities.logger.t('Music Player Home Controller Init');
     try {
       profile = userController.profile;
       releaseItemlists =  userController.releaseItemlists;
       scrollController.addListener(_scrollListener);
-      await getHomePageData();
+      getHomePageData();
     } catch (e) {
       AppUtilities.logger.e(e.toString());
     }
   }
 
   @override
-  void onReady() async {
+  void onReady() {
     super.onReady();
     try {
-      if(recentSongs.isNotEmpty) {
-        AppUtilities.logger.d('Retrieving recent songs from Hive.');
-        for (final element in recentSongs) {
-          AppMediaItem recentMediaItem = AppMediaItem.fromJSON(element);
-          recentList[recentMediaItem.id] = recentMediaItem;
-        }
-      }
-
-      globalMediaItems = await AppMediaItemFirestore().fetchAll(
-        excludeTypes: [MediaItemType.pdf, MediaItemType.neomPreset]
-      );
-
-      profile.favoriteItems?.forEach((favItem) {
-        if(globalMediaItems.containsKey(favItem)) {
-          AppMediaItem globalItem = globalMediaItems.values.firstWhere((item) => favItem == item.id);
-          favoriteItems.add(globalItem);
-        }
-      });
+      initializeAudioPlayerHome();
     } catch (e) {
       AppUtilities.logger.e(e.toString());
     }
 
     userController.defaultItemlistType = ItemlistType.playlist;
     isLoading.value = false;
-    update([AppPageIdConstants.audioPlayerHome]);
+    // update([AppPageIdConstants.audioPlayerHome]);
+  }
+
+  Future<void> initializeAudioPlayerHome() async {
+    if(recentSongs.isNotEmpty) {
+      AppUtilities.logger.d('Retrieving recent songs from Hive.');
+      for (final element in recentSongs) {
+        AppMediaItem recentMediaItem = AppMediaItem.fromJSON(element);
+        recentList[recentMediaItem.id] = recentMediaItem;
+      }
+    }
+
+    globalMediaItems = await AppMediaItemFirestore().fetchAll(
+      excludeTypes: [MediaItemType.pdf, MediaItemType.neomPreset]
+    );
+
+    profile.favoriteItems?.forEach((favItem) {
+      if(globalMediaItems.containsKey(favItem)) {
+        AppMediaItem globalItem = globalMediaItems.values.firstWhere((item) => favItem == item.id);
+        favoriteItems.add(globalItem);
+      }
+    });
+
+    preferredLanguage = PlayerHiveController().preferredLanguage;
+    settingsBox = await AppHiveController().getBox(AppHiveBox.settings.name);
   }
 
   @override

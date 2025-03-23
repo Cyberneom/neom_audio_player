@@ -18,6 +18,7 @@ class MediaPlayerPage extends StatelessWidget {
     return GetBuilder<MediaPlayerController>(
       id: AppPageIdConstants.mediaPlayer,
       init: MediaPlayerController(),
+      tag: AppPageIdConstants.mediaPlayer,
       builder: (_) => Obx(() => Scaffold(
         resizeToAvoidBottomInset: false,
         backgroundColor: AppColor.main50,

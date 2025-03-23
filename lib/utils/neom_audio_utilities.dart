@@ -14,11 +14,12 @@ class NeomAudioUtilities {
 
     try {
       if (!GetIt.I.isRegistered<NeomAudioHandler>()) {
-        if(await registerAudioHandler()) {
-          audioHandler = GetIt.I.get<NeomAudioHandler>();
+        audioHandler = await NeomAudioProvider().getAudioHandler();
+        if (audioHandler != null) {
+          GetIt.I.registerSingleton<NeomAudioHandler>(audioHandler);
         } else {
-          AppUtilities.logger.w("AudioHandler not registered");
-        }
+          AppUtilities.logger.w("AudioHandler returned null");
+        }        
       } else {
         audioHandler = GetIt.I.get<NeomAudioHandler>();
       }
@@ -27,19 +28,6 @@ class NeomAudioUtilities {
     }
 
     return audioHandler;
-  }
-
-  static Future<bool> registerAudioHandler() async {
-    AppUtilities.logger.d("registerAudioHandler");
-
-    try {
-      final NeomAudioHandler audioHandler = await NeomAudioProvider().getAudioHandler();
-      GetIt.I.registerSingleton<NeomAudioHandler>(audioHandler);
-    } catch (e) {
-      AppUtilities.logger.e(e.toString());
-      return false;
-    }
-    return true;
   }
 
   static int? getQueueIndex(AudioPlayer player, int? currentIndex) {

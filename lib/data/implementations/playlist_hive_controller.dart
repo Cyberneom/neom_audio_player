@@ -16,11 +16,22 @@ import '../../utils/helpers/media_item_mapper.dart';
 import '../../utils/helpers/songs_count.dart' as songs_count;
 import 'player_hive_controller.dart';
 
-class PlaylistHiveController extends GetxController  {
+class PlaylistHiveController {
+
+  static final PlaylistHiveController _instance = PlaylistHiveController._internal();
+  factory PlaylistHiveController() {
+    _instance._init();
+    return _instance;
+  }
+
+  PlaylistHiveController._internal();
+
+  bool _isInitialized = false;
+
 
   final userController = Get.find<UserController>();
-  final playerHiveController = Get.find<PlayerHiveController>();
-  final appHiveController = Get.find<AppHiveController>();
+  final playerHiveController = PlayerHiveController();
+  final appHiveController = AppHiveController();
   Map<String, AppMediaItem> globalMediaItems = {};
   late SharedPreferences prefs;
 
@@ -28,8 +39,10 @@ class PlaylistHiveController extends GetxController  {
   int lastNotificationCheckDate = 0;
 
   @override
-  Future<void> onInit() async {
-    super.onInit();
+  Future<void> _init() async {
+    if (_isInitialized) return;
+    _isInitialized = true;
+
     AppUtilities.logger.d('onInit PlaylistHive Controller');
     globalMediaItems = await AppMediaItemFirestore().fetchAll();
 

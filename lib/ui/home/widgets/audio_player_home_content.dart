@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:neom_commons/core/data/implementations/app_hive_controller.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/domain/model/item_list.dart';
 import 'package:neom_commons/core/ui/widgets/neom_image_card.dart';
@@ -255,8 +256,9 @@ class AudioPlayerHomeContent extends StatelessWidget {
   }
 
   Widget buildLastSessionContainer(BuildContext context, AudioPlayerHomeController _) {
-    return ValueListenableBuilder(
-      valueListenable: Hive.box(AppHiveBox.settings.name).listenable(),
+    return _.settingsBox != null ?
+    ValueListenableBuilder(
+      valueListenable: _.settingsBox!.listenable(),
       child: Column(
         children: [
           GestureDetector(
@@ -293,7 +295,7 @@ class AudioPlayerHomeContent extends StatelessWidget {
             !(box.get('showRecent', defaultValue: true) as bool))
             ? const SizedBox.shrink() : child!;
       },
-    );
+    ):SizedBox.shrink();
   }
 
   Widget buildPlaylistsContainer(List<Itemlist> playlists, BuildContext context, String title, double boxSize) {

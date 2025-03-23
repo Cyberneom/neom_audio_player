@@ -49,7 +49,7 @@ class _MiniPlayerTileState extends State<MiniPlayerTile> {
   List<String> preferredMiniButtons = [];
 
   @override
-  void initState() async {
+  void initState() {
     super.initState();
 
 
@@ -71,10 +71,10 @@ class _MiniPlayerTileState extends State<MiniPlayerTile> {
     if(widget.preferredMiniButtons != null) {
       preferredMiniButtons = widget.preferredMiniButtons!;
     } else {
-      preferredMiniButtons = await PlayerHiveController().getPreferredMiniButtons();
+      PlayerHiveController().getPreferredMiniButtons().then((miniButtons){
+        preferredMiniButtons = miniButtons;
+      });
     }
-
-
   }
 
   @override

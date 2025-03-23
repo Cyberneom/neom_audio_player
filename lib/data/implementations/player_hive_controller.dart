@@ -37,14 +37,18 @@ class PlayerHiveController {
   bool cacheSong = true;
   bool recommend = true;
   bool loadStart = true;
-  bool useDownload = true;
+  bool useDownload = false;
   bool stopForegroundService = true;
   AudioServiceRepeatMode repeatMode = AudioServiceRepeatMode.none;
   bool enforceRepeat = false;
 
   bool liveSearch = true;
   bool showHistory = true;
+  bool getLyricsOnline = false;
+  bool enableGesture = true;
+
   List searchHistory = [];
+  List preferredLanguage = [];
 
   //TIMELINE
   Map<String, AppReleaseItem> releaseItems = {};
@@ -52,9 +56,10 @@ class PlayerHiveController {
 
   @override
   Future<void> _init() async {
-    AppUtilities.logger.t('AppHive Controller');
-
+    if (_isInitialized) return;
+    _isInitialized = true;
     try {
+      AppUtilities.logger.t('PlayerHive Controller');
       await fetchCachedData();
       await fetchSettingsData();
     } catch (e) {
@@ -65,29 +70,48 @@ class PlayerHiveController {
 
 
   Future<void> fetchCachedData() async {
+    AppUtilities.logger.t('Fetch Cache Data');
     final playerBox = await AppHiveController().getBox(AppHiveBox.player.name);
 
     lastQueueList = playerBox.get(AppHiveConstants.lastQueue, defaultValue: [])?.toList() as List;
     lastIndex = playerBox.get(AppHiveConstants.lastIndex, defaultValue: 0) as int;
     lastPos = playerBox.get(AppHiveConstants.lastPos, defaultValue: 0) as int;
-    await playerBox.close();
+    // await playerBox.close();
   }
 
   Future<int> fetchLastPos(String itemId) async {
     final playerBox = await AppHiveController().getBox(AppHiveBox.player.name);
     lastPos =  await playerBox.get('${AppHiveConstants.lastPos}_$itemId', defaultValue: 0) as int;
-    await playerBox.close();
+    // await playerBox.close();
 
     return lastPos;
   }
 
+  // Future<bool> getLyricsOnline() async {
+  //   final settingsBox = await AppHiveController().getBox(AppHiveBox.settings.name);
+  //   bool getLyricsOnline =  await settingsBox.get(AppHiveConstants.getLyricsOnline, defaultValue: false) as bool;
+  //   await settingsBox.close();
+  //
+  //   return getLyricsOnline;
+  // }
+
+  // Future<bool> getEnableGesture() async {
+  //   final settingsBox = await AppHiveController().getBox(AppHiveBox.settings.name);
+  //   bool getLyricsOnline =  await settingsBox.get(AppHiveConstants.enableGesture, defaultValue: true) as bool;
+  //   await settingsBox.close();
+  //
+  //   return getLyricsOnline;
+  // }
+
   Future<void> updateItemLastPos(String itemId, int position) async {
     final playerBox = await AppHiveController().getBox(AppHiveBox.player.name);
-    playerBox.put('${AppHiveConstants.lastPos}_$itemId', position);
-    await playerBox.close();
+    await playerBox.put('${AppHiveConstants.lastPos}_$itemId', position);
+    // await playerBox.close();
   }
 
   Future<void> fetchSettingsData() async {
+    AppUtilities.logger.t('Fetch Settings Data');
+
     final settingsBox = await AppHiveController().getBox(AppHiveBox.settings.name);
 
     preferredMobileQuality = settingsBox.get(AppHiveConstants.streamingQuality, defaultValue: '96 kbps') as String;
@@ -96,7 +120,7 @@ class PlayerHiveController {
     cacheSong = settingsBox.get(AppHiveConstants.cacheSong, defaultValue: true) as bool;
     recommend =  settingsBox.get(AppHiveConstants.autoplay, defaultValue: true) as bool;
     loadStart = settingsBox.get(AppHiveConstants.loadStart, defaultValue: true) as bool;
-    useDownload = settingsBox.get(AppHiveConstants.useDown, defaultValue: true) as bool;
+    useDownload = settingsBox.get(AppHiveConstants.useDown, defaultValue: false) as bool;
     preferredCompactNotificationButtons = settingsBox.get(AppHiveConstants.preferredCompactNotificationButtons, defaultValue: [1, 2, 3],) as List<int>;
     stopForegroundService = settingsBox.get(AppHiveConstants.stopForegroundService, defaultValue: true) as bool;
     repeatMode = EnumToString.fromString(AudioServiceRepeatMode.values, settingsBox.get(AppHiveConstants.repeatMode, defaultValue: AudioServiceRepeatMode.none.name,).toString(),) ?? AudioServiceRepeatMode.none;
@@ -104,22 +128,23 @@ class PlayerHiveController {
     liveSearch = settingsBox.get(AppHiveConstants.liveSearch, defaultValue: true) as bool;
     showHistory = settingsBox.get(AppHiveConstants.showHistory, defaultValue: true) as bool;
     searchHistory = settingsBox.get(AppHiveConstants.searchHistory, defaultValue: []) as List;
-
-    await settingsBox.close();
+    getLyricsOnline = settingsBox.get(AppHiveConstants.getLyricsOnline, defaultValue: false) as bool;
+    enableGesture = settingsBox.get(AppHiveConstants.enableGesture, defaultValue: true) as bool;
+    preferredLanguage = settingsBox.get(AppHiveConstants.preferredLanguage, defaultValue: ['Español']) as List;
+    // await settingsBox.close();
   }
 
   Future<void> updateRepeatMode(AudioServiceRepeatMode mode) async {
     final settingsBox = await AppHiveController().getBox(AppHiveBox.settings.name);
-    settingsBox.put(AppHiveConstants.repeatMode, mode.name);
-    await settingsBox.close();
+    await settingsBox.put(AppHiveConstants.repeatMode, mode.name);
+    // await settingsBox.close();
 
   }
 
   Future<void> setSearchQueries(List searchQueries) async {
     final settingsBox = await AppHiveController().getBox(AppHiveBox.settings.name);
-    settingsBox.put(AppHiveConstants.searchQueries, searchQueries);
-    await settingsBox.close();
-
+    await settingsBox.put(AppHiveConstants.searchQueries, searchQueries);
+    // await settingsBox.close();
   }
 
   Future<void> addQuery(String query) async {
@@ -131,8 +156,8 @@ class PlayerHiveController {
     if (idx != -1) searchQueries.removeAt(idx);
     searchQueries.insert(0, query);
     if (searchQueries.length > 10) searchQueries = searchQueries.sublist(0, 10);
-    settingsBox.put(AppHiveConstants.search, searchQueries);
-    await settingsBox.close();
+    await settingsBox.put(AppHiveConstants.search, searchQueries);
+    // await settingsBox.close();
 
   }
 
@@ -141,22 +166,22 @@ class PlayerHiveController {
 
     List preferredButtons = settingsBox.get(AppHiveConstants.preferredMiniButtons,
       defaultValue: ['Like', 'Play/Pause', 'Next'],)?.toList() as List<dynamic>;
-    await settingsBox.close();
+    // await settingsBox.close();
 
     return preferredButtons.map((e) => e.toString()).toList();
   }
 
   Future<void> setLastQueue(List<Map<dynamic,dynamic>> lastQueue) async {
     final playerBox = await AppHiveController().getBox(AppHiveBox.player.name);
-    playerBox.put(AppHiveConstants.lastQueue, lastQueue);
-    await playerBox.close();
+    await playerBox.put(AppHiveConstants.lastQueue, lastQueue);
+    // await playerBox.close();
   }
 
   Future<void> setLastIndexAndPos(int? lastIndex, int lastPos) async {
     final playerBox = await AppHiveController().getBox(AppHiveBox.player.name);
-    playerBox.put(AppHiveConstants.lastIndex, lastIndex);
-    playerBox.put(AppHiveConstants.lastPos, lastPos);
-    await playerBox.close();
+    await playerBox.put(AppHiveConstants.lastIndex, lastIndex);
+    await playerBox.put(AppHiveConstants.lastPos, lastPos);
+    // await playerBox.close();
   }
 
 }

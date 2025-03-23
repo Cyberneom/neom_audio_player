@@ -17,7 +17,7 @@ class MiniPlayer extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetBuilder<MiniPlayerController>(
       id: AppPageIdConstants.miniPlayer,
-      init: MiniPlayerController(),
+      // init: MiniPlayerController(),
       builder: (_) {
         if(_.isLoading || (_.isTimeline && !_.showInTimeline)) return const SizedBox.shrink();
 

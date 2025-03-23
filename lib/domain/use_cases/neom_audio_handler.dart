@@ -44,7 +44,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
   final List<String> refreshLinks = [];
   bool jobRunning = false;
 
-  PlayerHiveController playerHiveController =  Get.find<PlayerHiveController>();
+  PlayerHiveController playerHiveController =  PlayerHiveController();
 
   bool stopForegroundService = true;
 
@@ -52,7 +52,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
       .seeded(<MediaItem>[]);
 
   final userController = Get.find<UserController>();
-  final neomStopwatch =  Get.find<NeomStopwatch>();
+  final neomStopwatch =  NeomStopwatch();
 
   int caseteSessionDuration = 0; //Seconds per session
   int casetePerSession = 0; //Pages per session
@@ -113,10 +113,10 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
 
     try {
       startService();
-      // startBackgroundProcessing();
 
       if(!isFree) {
         if(allowFullAccess) {
+          //TODO se agregaran comportamientos
           if(isCaseteElegible) {
             neomStopwatch.start(mediaItem.value?.title ?? '',);
           }
@@ -193,24 +193,29 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
 
   Future<void> loadLastQueue() async {
     if (playerHiveController.loadStart) {
+      await Future.delayed(const Duration(milliseconds: 500)); // Agrega un breve delay para dar tiempo a otros procesos
       final List lastQueueList = playerHiveController.lastQueueList;
       if (lastQueueList.isNotEmpty) {
         final List<MediaItem> lastQueue = lastQueueList.map((e) =>
             MediaItemMapper.fromJSON(e as Map)).toList();
+
         if (lastQueue.isNotEmpty) {
           try {
-            final int lastIndex = playerHiveController.lastIndex;
-            final int lastPos = playerHiveController.lastPos;
-
             _playlist.addAll(await _itemsToSources(lastQueue));
-            if (lastIndex != 0 || lastPos > 0) {
-              await player.seek(Duration(seconds: lastPos), index: lastIndex);
-            }
+            await gotoLastIndexAndPosition();
           } catch (e) {
             AppUtilities.logger.e('Error while setting last audiosource ${e.toString()}');
           }
         }
       }
+    }
+  }
+
+  Future<void> gotoLastIndexAndPosition() async {
+    final int lastIndex = playerHiveController.lastIndex;
+    final int lastPos = playerHiveController.lastPos;
+    if (lastIndex != 0 || lastPos > 0) {
+      await player.seek(Duration(seconds: lastPos), index: lastIndex);
     }
   }
 
@@ -277,27 +282,28 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
   }
 
   Future<AudioSource?> _itemToSource(MediaItem mediaItem) async {
+
     AudioSource? audioSource;
-    AppUtilities.logger.d(
-        "Moving mediaItem ${mediaItem.title} to audioSource for Music Player ");
+    AppUtilities.logger.d("Moving mediaItem ${mediaItem.title} to audioSource for Music Player ");
     try {
-      final downloadsBox = await AppHiveController().getBox(AppHiveBox.downloads.name);
-      
+
+
       if (mediaItem.artUri.toString().startsWith('file:')) {
-        audioSource =
-            AudioSource.uri(Uri.file(mediaItem.extras!['url'].toString()));
+        audioSource = AudioSource.uri(Uri.file(mediaItem.extras!['url'].toString()));
       } else {
-        if (downloadsBox != null && downloadsBox.containsKey(mediaItem.id) &&
-            playerHiveController.useDownload) {
-          audioSource = AudioSource.uri(
-            Uri.file(downloadsBox.get(mediaItem.id)['path'].toString(),),
-            tag: mediaItem.id,
-          );
+        if(playerHiveController.useDownload) {
+          AppUtilities.logger.d("Looking for files from downloads");
+          final downloadsBox = await AppHiveController().getBox(AppHiveBox.downloads.name);
+          if(downloadsBox != null && downloadsBox.containsKey(mediaItem.id)) {
+            audioSource = AudioSource.uri(
+              Uri.file(downloadsBox.get(mediaItem.id)['path'].toString(),),
+              tag: mediaItem.id,
+            );
+          }
         } else {
           String audioUrl = '';
           if (mediaItem.extras!['url'] != null && mediaItem.extras!['url']
-              .toString()
-              .isNotEmpty) {
+              .toString().isNotEmpty) {
             audioUrl = mediaItem.extras!['url'].toString();
             if (playerHiveController.preferredQuality.isNotEmpty && audioUrl.contains('_96.')) {
               audioUrl = audioUrl.replaceAll(
@@ -312,7 +318,8 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
           }
         }
       }
-      _mediaItemExpando[audioSource] = mediaItem;
+
+      if(audioSource != null) _mediaItemExpando[audioSource] = mediaItem;
     } catch (e) {
       AppUtilities.logger.e(e.toString());
     }
@@ -372,14 +379,17 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
   }
 
   void startService() async {
+    if(player.playing) return;
+
     AppUtilities.logger.t('Starting AudioPlayer Service');
-    if (player.playing) player.dispose();
+    // if (player.playing) player.dispose();
     player = AudioPlayer();
     await loadLastQueue();
     await player.setAudioSource(_playlist, preload: false);
-    speed.debounceTime(const Duration(milliseconds: 250)).listen((speed) {
-      playbackState.add(playbackState.value.copyWith(speed: speed));
-    });
+    //TODO Recordar si es necesario
+    // speed.debounceTime(const Duration(milliseconds: 250)).listen((speed) {
+    //   playbackState.add(playbackState.value.copyWith(speed: speed));
+    // });
     await setListeners();
   }
 
@@ -554,11 +564,15 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
 
     try {
       if (currentMediaItem != null) {
-        if (player.audioSource == null) {
+        // if (player.audioSource == null) {
+        //   AudioSource? audioSource = await _itemToSource(currentMediaItem!);
+        //   if (audioSource != null) await player.setAudioSource(audioSource);
+        // }
+
+        if (player.audioSource == null || currentMediaItem?.id != mediaItem.value?.id) {
           AudioSource? audioSource = await _itemToSource(currentMediaItem!);
           if (audioSource != null) await player.setAudioSource(audioSource);
         }
-
 
         setItemInMediaPlayers();
         Get.find<MediaPlayerController>().setIsLoadingAudio(false);
@@ -790,11 +804,10 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
 
       if(dailyTrialUsage >= AudioPlayerConstants.maxDurationTrial) {
         allowFreeTrial = false;
-      } else {
-        if(player.playing) {
-          CaseteTrialUsageManager().increaseDailyTrialUsage(10);
-        }
+      } else if(player.playing) {
+        CaseteTrialUsageManager().increaseDailyTrialUsage(10);
       }
+
     });
     AppUtilities.logger.d('Time is active: ${_timer?.isActive}');
   }

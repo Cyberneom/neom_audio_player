@@ -69,7 +69,7 @@ class NeomPlayerInvoker {
           ),
         ),
       );
-      if(queue.isNotEmpty) audioHandler?.currentMediaItem = queue.first;
+      if(queue.isNotEmpty && index < queue.length) audioHandler?.currentMediaItem = queue.elementAt(index);
 
       updateNowPlaying(queue, index, playItem: playItem);
       AppMediaItemFirestore().existsOrInsert(appMediaItem);
@@ -146,7 +146,14 @@ class NeomPlayerInvoker {
       ///DEPRECATED await audioHandler?.startService();
       if(Platform.isAndroid || Platform.isIOS) {
         await audioHandler?.setShuffleMode(AudioServiceShuffleMode.none);
-        await audioHandler?.updateQueue(queue);
+
+        // 🔄 Reorder the queue so the selected index starts at the beginning
+        List<MediaItem> orderedQueue = [
+          ...queue.sublist(index),
+          ...queue.sublist(0, index)
+        ];
+
+        await audioHandler?.updateQueue(orderedQueue);
 
         int nextIndex = 0;
         if (queue.indexWhere((item) => item.id == queue[index].id) >= 0) {

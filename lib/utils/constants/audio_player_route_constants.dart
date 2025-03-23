@@ -5,9 +5,7 @@ import '../../ui/home/audio_player_home_page.dart';
 
 class AudioPlayerRouteConstants {
 
-  static final eAudioPlayerPages = [const AudioPlayerHomePage(), const ItemlistPage()];
-  static final gAudioPlayerPages = [const AudioPlayerHomePage(), const ItemlistPage()];
-  static final cAudioPlayerPages = [const AudioPlayerHomePage(), const ItemlistPage()];
+  static final audioPlayerPages = [const AudioPlayerHomePage(), const ItemlistPage()];
 
   static const String root = '/';
   static const String home = '/home';

@@ -19,6 +19,7 @@ import 'package:rxdart/rxdart.dart' as rx;
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 // ignore: unused_import
+import '../../data/implementations/player_hive_controller.dart';
 import '../../data/providers/neom_audio_provider.dart';
 import '../../domain/entities/media_lyrics.dart';
 import '../../domain/entities/position_data.dart';
@@ -55,7 +56,7 @@ class MediaPlayerController extends GetxController {
   Itemlist? personalPlaylist;
   Itemlist? releaseItemlist;
 
-  final bool getLyricsOnline = Hive.box(AppHiveBox.settings.name).get('getLyricsOnline', defaultValue: true) as bool;
+  bool getLyricsOnline = false;
   final PanelController panelController = PanelController();
 
   GlobalKey<FlipCardState> onlineCardKey = GlobalKey<FlipCardState>();
@@ -64,7 +65,7 @@ class MediaPlayerController extends GetxController {
 
 
   @override
-  void onInit() async {
+  void onInit() {
     super.onInit();
     AppUtilities.logger.t('onInit MediaPlayer Controller');
 
@@ -74,13 +75,9 @@ class MediaPlayerController extends GetxController {
 
       if(Get.arguments != null && Get.arguments.isNotEmpty) {
         if (Get.arguments[0] is AppReleaseItem) {
-          appMediaItem.value = AppMediaItem.fromAppReleaseItem(Get.arguments[0]);
-          if(appMediaItem.value.artist.contains(' - ')) {
-            appMediaItem.value.album = AppUtilities.getMediaName(appMediaItem.value.artist);
-            appMediaItem.value.artist = AppUtilities.getArtistName(appMediaItem.value.artist);
-          }
+          initReleaseItem(Get.arguments[0]);
         } else if (Get.arguments[0] is AppMediaItem) {
-          appMediaItem.value =  Get.arguments.elementAt(0);
+          initAppMediaItem(Get.arguments[0]);
         } else if (Get.arguments[0] is String) {
           ///VERIFY IF USEFUL
           ///appMediaItemId = arguments[0];???
@@ -90,7 +87,7 @@ class MediaPlayerController extends GetxController {
           reproduceItem = Get.arguments[1] as bool;
         }
       }
-      updateMediaItemValues();
+
       getItemPlaylist();
     } catch (e) {
       AppUtilities.logger.e(e.toString());
@@ -98,8 +95,22 @@ class MediaPlayerController extends GetxController {
 
   }
 
+  void initReleaseItem(AppReleaseItem item) {
+    appMediaItem.value = AppMediaItem.fromAppReleaseItem(item);
+    if(appMediaItem.value.artist.contains(' - ')) {
+      appMediaItem.value.album = AppUtilities.getMediaName(appMediaItem.value.artist);
+      appMediaItem.value.artist = AppUtilities.getArtistName(appMediaItem.value.artist);
+    }
+    updateMediaItemValues();
+  }
+
+  void initAppMediaItem(AppMediaItem item) {
+    appMediaItem.value = item;
+    updateMediaItemValues();
+  }
+
   @override
-  void onReady() async {
+  void onReady() {
     super.onReady();
     isLoading.value = false;
     WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -112,16 +123,24 @@ class MediaPlayerController extends GetxController {
               appMediaItems: [appMediaItem.value],
               index: 0,
             );
-          } else {
-            isLoadingAudio.value = false;
           }
+          isLoadingAudio.value = false;
         });
+
+        getLyricsOnline = PlayerHiveController().getLyricsOnline;
       } catch (e) {
         AppUtilities.logger.e(e.toString());
       }
     });
   }
 
+  @override
+  void onClose() {
+    super.onClose();
+    appMediaItem.value = AppMediaItem();
+    isLoading.value = true;
+    update();
+  }
 
   void clear() {
 
