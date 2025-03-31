@@ -11,6 +11,7 @@ import 'package:get/get.dart';
 // ignore: unused_import
 import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/adapters.dart';
+import 'package:neom_commons/core/data/firestore/itemlist_firestore.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/domain/model/app_release_item.dart';
 import 'package:neom_commons/core/utils/enums/app_hive_box.dart';
@@ -146,7 +147,10 @@ class MediaPlayerController extends GetxController {
 
   }
 
-  void getItemPlaylist() {
+  Future<void> getItemPlaylist() async {
+
+    if(profile.itemlists?.isEmpty ?? true) profile.itemlists = await ItemlistFirestore().getByOwnerId(profile.id);
+
     for(Itemlist list in profile.itemlists?.values ?? {}) {
       if(list.appReleaseItems?.firstWhereOrNull((item) => item.id == appMediaItem.value.id) != null){
         personalPlaylist= list;
