@@ -8,6 +8,7 @@ import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_theme.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
+import 'package:neom_media_player/utils/helpers/media_item_mapper.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 import '../../../domain/entities/queue_state.dart';
@@ -114,8 +115,8 @@ class NowPlayingStream extends StatelessWidget {
                       ),
                     ] : [
                       if(item.extras!['url'].toString().startsWith('http')) ...[
-                        if(showLikeButton) LikeButton(appMediaItem: AppMediaItem.fromMediaItem(queue[index]),),
-                        if(downloadAllowed) DownloadButton(mediaItem: AppMediaItem.fromMediaItem(queue[index]),),
+                        if(showLikeButton) LikeButton(appMediaItem: MediaItemMapper.toAppMediaItem(queue[index]),),
+                        if(downloadAllowed) DownloadButton(mediaItem: MediaItemMapper.toAppMediaItem(queue[index]),),
                       ],
                       ReorderableDragStartListener(
                         key: Key(item.id),

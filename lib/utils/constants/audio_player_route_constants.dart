@@ -7,16 +7,16 @@ class AudioPlayerRouteConstants {
 
   static final audioPlayerPages = [const AudioPlayerHomePage(), const ItemlistPage()];
 
-  static const String root = '/';
-  static const String home = '/home';
-  static const String media = '/media';
-  static const String mini = '/mini';
-  static const String recent = '/recent';
-  static const String pref = '/pref';
-  static const String setting = '/setting';
-  static const String playlists = '/playlists';
-  static const String nowPlaying = '/nowPlaying';
-  static const String downloads = '/downloads';
-  static const String stats = '/stats';
+  static const String root = '/audioplayer';
+  static const String home = '/audioplayer/home';
+  static const String media = '/audioplayer/media';
+  // static const String mini = '/audioplayer/mini';
+  static const String recent = '/audioplayer/recent';
+  static const String welcomePref = '/audioplayer/welcomePreferences';
+  static const String setting = '/audioplayer/setting';
+  // static const String playlists = '/audioplayer/playlists';
+  static const String nowPlaying = '/audioplayer/nowPlaying';
+  static const String downloads = '/audioplayer/downloads';
+  static const String stats = '/audioplayer/stats';
 
 }

@@ -12,7 +12,6 @@ import 'package:neom_commons/core/utils/constants/app_route_constants.dart';
 import 'package:neom_commons/core/utils/constants/app_translation_constants.dart';
 import 'package:neom_commons/core/utils/enums/app_in_use.dart';
 import 'package:neom_commons/core/utils/enums/user_role.dart';
-import 'package:neom_commons/core/utils/enums/verification_level.dart';
 import '../../../utils/constants/audio_player_route_constants.dart';
 import '../../../utils/enums/audio_player_drawer_menu.dart';
 import '../library/playlist_player_page.dart';
@@ -138,22 +137,19 @@ class AudioPlayerDrawer extends StatelessWidget {
             // case AudioPlayerDrawerMenu.nowPlaying:
             //   Navigator.pushNamed(context, AudioPlayerRouteConstants.nowPlaying);
             case AudioPlayerDrawerMenu.lastSession:
-              Navigator.pushNamed(context, AudioPlayerRouteConstants.recent);
+              Get.toNamed(AudioPlayerRouteConstants.recent);
             case AudioPlayerDrawerMenu.favorites:
-              Navigator.push(context, MaterialPageRoute(
-                  builder: (context) => PlaylistPlayerPage(
-                    alternativeName: AppTranslationConstants.favoriteItems.tr,
-                  ),
-                ),
+              Get.to(()=>PlaylistPlayerPage(
+                    alternativeName: AppTranslationConstants.favoriteItems.tr,),
               );
             case AudioPlayerDrawerMenu.downloads:
-              Navigator.pushNamed(context, AudioPlayerRouteConstants.downloads);
+              Get.toNamed(AudioPlayerRouteConstants.downloads);
             case AudioPlayerDrawerMenu.playlists:
               Get.toNamed(AppRouteConstants.lists);
             case AudioPlayerDrawerMenu.stats:
-              Navigator.pushNamed(context, AudioPlayerRouteConstants.stats);
+              Get.toNamed(AudioPlayerRouteConstants.stats);
             case AudioPlayerDrawerMenu.settings:
-              Navigator.pushNamed(context, AudioPlayerRouteConstants.setting);
+              Get.toNamed(AudioPlayerRouteConstants.setting);
             default:
               break;
           }

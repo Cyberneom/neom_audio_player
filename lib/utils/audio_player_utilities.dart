@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get_it/get_it.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/domain/model/app_release_item.dart';
 import 'package:neom_commons/core/utils/enums/app_media_source.dart';
@@ -14,115 +13,115 @@ import 'constants/player_translation_constants.dart';
 
 class AudioPlayerUtilities {
 
-  static final NeomAudioHandler audioHandler = GetIt.I<NeomAudioHandler>();
+  // static final NeomAudioHandler audioHandler = GetIt.I<NeomAudioHandler>();
 
   static List<Widget> getAudioPlayerPages() {
     return AudioPlayerRouteConstants.audioPlayerPages;
   }
 
-  static Future<dynamic> setCounter(BuildContext context) async {
-    showTextInputDialog(
-      context: context,
-      title: PlayerTranslationConstants.enterItemsCount.tr,
-      initialText: '',
-      keyboardType: TextInputType.number,
-      onSubmitted: (String value, BuildContext context) {
-        sleepCounter(
-          int.parse(value),
-        );
-        Navigator.pop(context);
-        AppUtilities.showSnackBar(
-          message: '${PlayerTranslationConstants.sleepTimerSetFor.tr} $value ${PlayerTranslationConstants.mediaItems.tr}',
-        );
-      },
-    );
-  }
+  // static Future<dynamic> setCounter(BuildContext context) async {
+  //   showTextInputDialog(
+  //     context: context,
+  //     title: PlayerTranslationConstants.enterItemsCount.tr,
+  //     initialText: '',
+  //     keyboardType: TextInputType.number,
+  //     onSubmitted: (String value, BuildContext context) {
+  //       sleepCounter(
+  //         int.parse(value),
+  //       );
+  //       Navigator.pop(context);
+  //       AppUtilities.showSnackBar(
+  //         message: '${PlayerTranslationConstants.sleepTimerSetFor.tr} $value ${PlayerTranslationConstants.mediaItems.tr}',
+  //       );
+  //     },
+  //   );
+  // }
 
-  static void sleepTimer(int time) {
-    audioHandler.customAction('sleepTimer', {'time': time});
-  }
+  // static void sleepTimer(int time) {
+  //   audioHandler.customAction('sleepTimer', {'time': time});
+  // }
+  //
+  // static void sleepCounter(int count) {
+  //   audioHandler.customAction('sleepCounter', {'count': count});
+  // }
 
-  static void sleepCounter(int count) {
-    audioHandler.customAction('sleepCounter', {'count': count});
-  }
-
-  static Future<dynamic> setTimer(BuildContext context, BuildContext? scaffoldContext, Duration time,) {
-    return showDialog(
-      context: context,
-      builder: (context) {
-        return SimpleDialog(
-          backgroundColor: AppColor.getMain(),
-          title: Center(
-            child: Text(
-              PlayerTranslationConstants.selectDur.tr,
-              style: TextStyle(
-                fontWeight: FontWeight.w600,
-                color: Theme.of(context).colorScheme.secondary,
-              ),
-            ),
-          ),
-          children: [
-            Center(
-              child: SizedBox(
-                height: 200,
-                width: 200,
-                child: CupertinoTheme(
-                  data: CupertinoThemeData(
-                    primaryColor: Theme.of(context).colorScheme.secondary,
-                    textTheme: CupertinoTextThemeData(
-                      dateTimePickerTextStyle: TextStyle(
-                        fontSize: 16,
-                        color: Theme.of(context).colorScheme.secondary,
-                      ),
-                    ),
-                  ),
-                  child: CupertinoTimerPicker(
-                    mode: CupertinoTimerPickerMode.hm,
-                    onTimerDurationChanged: (value) {
-                      time = value;
-                    },
-
-                  ),
-                ),
-              ),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                TextButton(
-                  style: TextButton.styleFrom(
-                    foregroundColor: Theme.of(context).colorScheme.secondary,
-                  ),
-                  onPressed: () {
-                    sleepTimer(0);
-                    Navigator.pop(context);
-                  },
-                  child: Text(PlayerTranslationConstants.cancel.tr),
-                ),
-                const SizedBox(width: 10,),
-                TextButton(
-                  style: TextButton.styleFrom(
-                    backgroundColor: AppColor.bondiBlue,
-                    foregroundColor: Theme.of(context).colorScheme.secondary == Colors.white
-                        ? Colors.black : Colors.white,
-                  ),
-                  onPressed: () {
-                    sleepTimer(time.inMinutes);
-                    Navigator.pop(context);
-                    AppUtilities.showSnackBar(
-                      message: '${PlayerTranslationConstants.sleepTimerSetFor.tr} ${time.inMinutes} ${PlayerTranslationConstants.minutes.tr}',
-                    );
-                  },
-                  child: Text(PlayerTranslationConstants.ok.tr.toUpperCase()),
-                ),
-                const SizedBox(width: 20,),
-              ],
-            ),
-          ],
-        );
-      },
-    );
-  }
+  // static Future<dynamic> setTimer(BuildContext context, BuildContext? scaffoldContext, Duration time,) {
+  //   return showDialog(
+  //     context: context,
+  //     builder: (context) {
+  //       return SimpleDialog(
+  //         backgroundColor: AppColor.getMain(),
+  //         title: Center(
+  //           child: Text(
+  //             PlayerTranslationConstants.selectDur.tr,
+  //             style: TextStyle(
+  //               fontWeight: FontWeight.w600,
+  //               color: Theme.of(context).colorScheme.secondary,
+  //             ),
+  //           ),
+  //         ),
+  //         children: [
+  //           Center(
+  //             child: SizedBox(
+  //               height: 200,
+  //               width: 200,
+  //               child: CupertinoTheme(
+  //                 data: CupertinoThemeData(
+  //                   primaryColor: Theme.of(context).colorScheme.secondary,
+  //                   textTheme: CupertinoTextThemeData(
+  //                     dateTimePickerTextStyle: TextStyle(
+  //                       fontSize: 16,
+  //                       color: Theme.of(context).colorScheme.secondary,
+  //                     ),
+  //                   ),
+  //                 ),
+  //                 child: CupertinoTimerPicker(
+  //                   mode: CupertinoTimerPickerMode.hm,
+  //                   onTimerDurationChanged: (value) {
+  //                     time = value;
+  //                   },
+  //
+  //                 ),
+  //               ),
+  //             ),
+  //           ),
+  //           Row(
+  //             mainAxisAlignment: MainAxisAlignment.end,
+  //             children: [
+  //               TextButton(
+  //                 style: TextButton.styleFrom(
+  //                   foregroundColor: Theme.of(context).colorScheme.secondary,
+  //                 ),
+  //                 onPressed: () {
+  //                   sleepTimer(0);
+  //                   Navigator.pop(context);
+  //                 },
+  //                 child: Text(PlayerTranslationConstants.cancel.tr),
+  //               ),
+  //               const SizedBox(width: 10,),
+  //               TextButton(
+  //                 style: TextButton.styleFrom(
+  //                   backgroundColor: AppColor.bondiBlue,
+  //                   foregroundColor: Theme.of(context).colorScheme.secondary == Colors.white
+  //                       ? Colors.black : Colors.white,
+  //                 ),
+  //                 onPressed: () {
+  //                   sleepTimer(time.inMinutes);
+  //                   Navigator.pop(context);
+  //                   AppUtilities.showSnackBar(
+  //                     message: '${PlayerTranslationConstants.sleepTimerSetFor.tr} ${time.inMinutes} ${PlayerTranslationConstants.minutes.tr}',
+  //                   );
+  //                 },
+  //                 child: Text(PlayerTranslationConstants.ok.tr.toUpperCase()),
+  //               ),
+  //               const SizedBox(width: 20,),
+  //             ],
+  //           ),
+  //         ],
+  //       );
+  //     },
+  //   );
+  // }
 
   static bool isOwnMediaItem(AppMediaItem appMediaItem) {
     final bool isOwnMediaItem = appMediaItem.url.contains(AppFlavour.getHubName())
@@ -277,7 +276,7 @@ class AudioPlayerUtilities {
 
     for (final item in releaseItems) {
       // Selecciona la lista de claves según el modo: tags o categorías
-      final List<String> keys = byTags ? (item.tags ?? []) : (item.categories ?? []);
+      final List<String> keys = byTags ? (item.tags ?? []) : (item.categories);
       for (final key in keys) {
         if (forbiddenList.contains(key.toLowerCase())) continue;
         categorizedItems.putIfAbsent(key, () => []);

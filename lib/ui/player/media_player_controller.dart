@@ -9,25 +9,20 @@ import 'package:flutter_lyric/lyrics_model_builder.dart';
 import 'package:flutter_lyric/lyrics_reader_model.dart';
 import 'package:get/get.dart';
 // ignore: unused_import
-import 'package:get_it/get_it.dart';
-import 'package:hive_flutter/adapters.dart';
 import 'package:neom_commons/core/data/firestore/itemlist_firestore.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/domain/model/app_release_item.dart';
-import 'package:neom_commons/core/utils/enums/app_hive_box.dart';
 import 'package:neom_commons/neom_commons.dart';
+import 'package:neom_media_player/utils/helpers/media_item_mapper.dart';
 import 'package:rxdart/rxdart.dart' as rx;
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 // ignore: unused_import
 import '../../data/implementations/player_hive_controller.dart';
-import '../../data/providers/neom_audio_provider.dart';
 import '../../domain/entities/media_lyrics.dart';
 import '../../domain/entities/position_data.dart';
 import '../../domain/use_cases/neom_audio_handler.dart';
 import '../../neom_player_invoker.dart';
-import 'package:neom_commons/core/utils/constants/app_hive_constants.dart';
-import '../../utils/helpers/media_item_mapper.dart';
 import '../../utils/neom_audio_utilities.dart';
 import '../library/playlist_player_page.dart';
 import 'lyrics/lyrics.dart';
@@ -184,9 +179,9 @@ class MediaPlayerController extends GetxController {
     AppUtilities.logger.i('Setting new mediaitem ${item?.title}');
     if(item != null) {
       mediaItem.value = item;
-      appMediaItem.value = appItem ?? AppMediaItem.fromMediaItem(item);
+      appMediaItem.value = appItem ?? MediaItemMapper.toAppMediaItem(item);
     } else if(appItem != null) {
-      mediaItem.value= MediaItemMapper.appMediaItemToMediaItem(appMediaItem:appItem);
+      mediaItem.value= MediaItemMapper.fromAppMediaItem(appMediaItem:appItem);
       appMediaItem.value = appItem;
     }
 
@@ -223,7 +218,7 @@ class MediaPlayerController extends GetxController {
   Future<void> sharePopUp() async {
     if (!isSharePopupShown.value) {
       isSharePopupShown.value = true;
-      final AppMediaItem item = AppMediaItem.fromMediaItem(mediaItem.value!);
+      final AppMediaItem item = MediaItemMapper.toAppMediaItem(mediaItem.value!);
       await CoreUtilities().shareAppWithMediaItem(item).whenComplete(() {
         Timer(const Duration(milliseconds: 600), () {
           isSharePopupShown.value = false;

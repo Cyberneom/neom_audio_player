@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/constants/app_translation_constants.dart';
+import 'package:neom_media_player/utils/helpers/media_item_mapper.dart';
 
 import '../../../domain/entities/queue_state.dart';
 import '../../../domain/use_cases/neom_audio_handler.dart';
 import '../../../utils/constants/audio_player_constants.dart';
 import '../../../utils/constants/player_translation_constants.dart';
-import '../../../utils/helpers/media_item_mapper.dart';
 import '../../widgets/download_button.dart';
 import '../../widgets/go_spotify_button.dart';
 import '../../widgets/like_button.dart';
@@ -41,7 +41,7 @@ class ControlButtons extends StatelessWidget {
     } else {
       ///DEPRECATED
       // NeomPlayerInvoker.init(
-      //   appMediaItems: [AppMediaItem.fromMediaItem(mediaItem!)],
+      //   appMediaItems: [MediaItemMapper.toAppMediaItem(mediaItem!)],
       //   index: 0,
       // );
     }
@@ -70,7 +70,7 @@ class ControlButtons extends StatelessWidget {
                 child: LikeButton(
                   padding: EdgeInsets.zero,
                   size: 22.0,
-                  appMediaItem: AppMediaItem.fromMediaItem(mediaItem!),
+                  appMediaItem: MediaItemMapper.toAppMediaItem(mediaItem!),
                 ),
               );
             case 'Previous':
@@ -186,7 +186,7 @@ class ControlButtons extends StatelessWidget {
                   height: miniplayer ? AudioPlayerConstants.miniPlayerHeight : AudioPlayerConstants.audioPlayerHeight,
                   width: miniplayer ? AudioPlayerConstants.miniPlayerWidth : AudioPlayerConstants.audioPlayerWidth,
                   child: DownloadButton(size: 20.0,
-                    mediaItem: AppMediaItem.fromMediaItem(mediaItem!),
+                    mediaItem: MediaItemMapper.toAppMediaItem(mediaItem!),
                   ),
               );
             case 'Spotify':
@@ -198,7 +198,7 @@ class ControlButtons extends StatelessWidget {
                 child: GoSpotifyButton(
                   size: 20.0,
                   padding: EdgeInsets.zero,
-                  appMediaItem: AppMediaItem.fromMediaItem(mediaItem!)
+                  appMediaItem: MediaItemMapper.toAppMediaItem(mediaItem!)
                 ),
               );
             default:

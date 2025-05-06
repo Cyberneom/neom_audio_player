@@ -1,8 +1,8 @@
 import 'package:audio_service/audio_service.dart';
-import 'package:get_it/get_it.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
+import 'package:get/get.dart';
 
 import '../data/providers/neom_audio_provider.dart';
 import '../domain/use_cases/neom_audio_handler.dart';
@@ -13,15 +13,23 @@ class NeomAudioUtilities {
     NeomAudioHandler? audioHandler;
 
     try {
-      if (!GetIt.I.isRegistered<NeomAudioHandler>()) {
+      if (!Get.isRegistered<NeomAudioHandler>()) {
+        AppUtilities.logger.d("NeomAudioHandler not registered, getting and registering...");
+
+        // Obtener la instancia del AudioHandler de forma asíncrona
+        // Reemplaza NeomAudioProvider().getAudioHandler() con tu lógica real para obtener el handler
         audioHandler = await NeomAudioProvider().getAudioHandler();
+
         if (audioHandler != null) {
-          GetIt.I.registerSingleton<NeomAudioHandler>(audioHandler);
+          // Registrar la instancia obtenida como un singleton en GetX
+          Get.put<NeomAudioHandler>(audioHandler);
+          AppUtilities.logger.i("NeomAudioHandler registered successfully with GetX.");
         } else {
-          AppUtilities.logger.w("AudioHandler returned null");
-        }        
+          AppUtilities.logger.w("AudioHandler returned null from provider, cannot register.");
+        }
       } else {
-        audioHandler = GetIt.I.get<NeomAudioHandler>();
+        AppUtilities.logger.d("NeomAudioHandler is already registered with GetX.");
+        audioHandler = Get.find<NeomAudioHandler>();
       }
     } catch (e) {
       AppUtilities.logger.e(e.toString());

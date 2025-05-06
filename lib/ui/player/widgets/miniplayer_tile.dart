@@ -13,6 +13,7 @@ import 'package:neom_commons/core/utils/constants/app_constants.dart';
 import 'package:neom_commons/core/utils/constants/app_route_constants.dart';
 import 'package:neom_commons/core/utils/constants/app_translation_constants.dart';
 import 'package:neom_commons/core/utils/enums/app_media_source.dart';
+import 'package:neom_media_player/utils/helpers/media_item_mapper.dart';
 
 import '../../../data/implementations/player_hive_controller.dart';
 import '../../../utils/constants/audio_player_constants.dart';
@@ -101,7 +102,7 @@ class _MiniPlayerTileState extends State<MiniPlayerTile> {
       contentPadding: const EdgeInsets.symmetric(horizontal: 10),
       onTap: () {
         if(widget.item != null && widget.miniPlayerController.isInternal) {
-          Get.toNamed(AppRouteConstants.audioPlayerMedia, arguments: [AppMediaItem.fromMediaItem(widget.item!)]);
+          Get.toNamed(AppRouteConstants.audioPlayerMedia, arguments: [MediaItemMapper.toAppMediaItem(widget.item!)]);
         }
       },
       leading: Row(

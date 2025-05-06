@@ -1,7 +1,6 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
-import 'package:get_it/get_it.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import '../../domain/use_cases/neom_audio_handler.dart';
 
@@ -12,7 +11,8 @@ void addToNowPlaying({
   required MediaItem mediaItem,
   bool showNotification = true,
 }) {
-  final NeomAudioHandler audioHandler = GetIt.I<NeomAudioHandler>();
+
+  final NeomAudioHandler audioHandler = Get.find<NeomAudioHandler>();
   final MediaItem? currentMediaItem = audioHandler.mediaItem.value;
   if (currentMediaItem != null &&
       currentMediaItem.extras!['url'].toString().startsWith('http')) {
@@ -44,7 +44,8 @@ void playNext(
   MediaItem mediaItem,
   BuildContext context,
 ) {
-  final NeomAudioHandler audioHandler = GetIt.I<NeomAudioHandler>();
+  final NeomAudioHandler audioHandler = Get.find<NeomAudioHandler>();
+
   final MediaItem? currentMediaItem = audioHandler.mediaItem.value;
   if (currentMediaItem != null &&
       currentMediaItem.extras!['url'].toString().startsWith('http')) {

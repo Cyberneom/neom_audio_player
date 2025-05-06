@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:neom_commons/core/app_flavour.dart';
-import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_theme.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
@@ -15,13 +14,13 @@ import 'package:neom_commons/core/utils/enums/app_hive_box.dart';
 import 'package:neom_commons/core/utils/enums/app_in_use.dart';
 import 'package:neom_commons/core/utils/enums/itemlist_type.dart';
 import 'package:neom_commons/core/utils/enums/user_role.dart';
+import 'package:neom_media_player/utils/helpers/media_item_mapper.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../domain/entities/position_data.dart';
 import '../../../utils/audio_player_utilities.dart';
 import 'package:neom_commons/core/utils/constants/app_hive_constants.dart';import '../../../utils/constants/audio_player_constants.dart';
 import '../../../utils/constants/player_translation_constants.dart';
-import '../../../utils/helpers/media_item_mapper.dart';
 import '../../widgets/add_to_playlist_button.dart';
 import '../../widgets/download_button.dart';
 import '../../widgets/go_spotify_button.dart';
@@ -264,7 +263,7 @@ class NameNControls extends StatelessWidget {
                                 },
                               ),
                               (!AudioPlayerUtilities.isOwnMediaItem(_.appMediaItem.value) && AppFlavour.appInUse == AppInUse.g)
-                                  ? GoSpotifyButton(appMediaItem: _.appMediaItem.value) : (downloadAllowed && _.mediaItem.value != null ? DownloadButton(mediaItem: AppMediaItem.fromMediaItem(_.mediaItem.value!),): const SizedBox.shrink()),
+                                  ? GoSpotifyButton(appMediaItem: _.appMediaItem.value) : (downloadAllowed && _.mediaItem.value != null ? DownloadButton(mediaItem: MediaItemMapper.toAppMediaItem(_.mediaItem.value!),): const SizedBox.shrink()),
                               AddToPlaylistButton(appMediaItem: _.appMediaItem.value, playlists: AppUtilities.filterItemlists(_.profile.itemlists?.values.toList() ?? [], ItemlistType.playlist,),
                                 currentPlaylist: _.personalPlaylist,)
                               // _.createPopMenuOption(context, _.appMediaItem.value),

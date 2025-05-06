@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:neom_commons/core/data/implementations/app_hive_controller.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/domain/model/item_list.dart';
 import 'package:neom_commons/core/ui/widgets/neom_image_card.dart';
@@ -12,11 +11,9 @@ import 'package:neom_commons/core/utils/constants/app_route_constants.dart';
 import 'package:neom_commons/core/utils/constants/app_translation_constants.dart';
 import 'package:neom_commons/core/utils/enums/app_hive_box.dart';
 import 'package:neom_commons/core/utils/enums/app_media_source.dart';
-import 'package:neom_commons/core/utils/enums/itemlist_type.dart';
 
 import '../../../neom_player_invoker.dart';
 import '../../../utils/audio_player_utilities.dart';
-import 'package:neom_commons/core/utils/constants/app_hive_constants.dart';
 import '../../../utils/constants/audio_player_route_constants.dart';
 import '../../../utils/constants/player_translation_constants.dart';
 import '../../library/playlist_player_page.dart';

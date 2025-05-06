@@ -7,8 +7,8 @@ import 'package:neom_commons/core/ui/widgets/neom_image_card.dart';
 
 import '../../../../neom_player_invoker.dart';
 import '../../../../utils/constants/player_translation_constants.dart';
-import '../../../widgets/download_button.dart';
-import '../../../widgets/song_tile_trailing_menu.dart';
+import '../../../ui/widgets/download_button.dart';
+import '../../../ui/widgets/song_tile_trailing_menu.dart';
 
 class DownloadsSearch extends SearchDelegate {
   final bool isDowns;

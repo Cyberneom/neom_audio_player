@@ -7,17 +7,15 @@ import 'package:flip_card/flip_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_lyric/lyrics_reader.dart';
 import 'package:get/get.dart';
-import 'package:hive/hive.dart';
 import 'package:neom_commons/core/app_flavour.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
 import 'package:neom_commons/core/utils/constants/app_translation_constants.dart';
 import 'package:neom_commons/core/utils/core_utilities.dart';
-import 'package:neom_commons/core/utils/enums/app_hive_box.dart';
 
 import '../../../data/implementations/player_hive_controller.dart';
 import '../../../domain/entities/queue_state.dart';
-import 'package:neom_commons/core/utils/constants/app_hive_constants.dart';import '../../../utils/constants/player_translation_constants.dart';
+import '../../../utils/constants/player_translation_constants.dart';
 import '../../../utils/enums/lyrics_source.dart';
 import '../../../utils/enums/lyrics_type.dart';
 import '../../widgets/empty_screen.dart';

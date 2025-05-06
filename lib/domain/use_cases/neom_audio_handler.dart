@@ -11,6 +11,7 @@ import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/constants/app_constants.dart';
 import 'package:neom_commons/core/utils/enums/app_hive_box.dart';
 import 'package:neom_commons/core/utils/neom_stopwatch.dart';
+import 'package:neom_media_player/utils/helpers/media_item_mapper.dart';
 import 'package:rxdart/rxdart.dart' as rx;
 
 import '../../data/firestore/casete_session_firestore.dart';
@@ -22,7 +23,6 @@ import '../../ui/player/miniplayer_controller.dart';
 import '../../utils/audio_player_stats.dart';
 import 'package:neom_commons/core/utils/constants/app_hive_constants.dart';
 import '../../utils/constants/audio_player_constants.dart';
-import '../../utils/helpers/media_item_mapper.dart';
 import '../../utils/neom_audio_utilities.dart';
 import '../entities/casete_session.dart';
 import '../entities/queue_state.dart';
@@ -760,7 +760,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
       }
     }
 
-    AudioPlayerStats.addRecentlyPlayed(AppMediaItem.fromMediaItem(currentMediaItem!));
+    AudioPlayerStats.addRecentlyPlayed(MediaItemMapper.toAppMediaItem(currentMediaItem!));
   }
 
   Future<void> trackCaseteSession() async {

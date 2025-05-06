@@ -8,11 +8,11 @@ import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
 import 'package:neom_commons/core/utils/constants/message_translation_constants.dart';
+import 'package:neom_media_player/utils/helpers/media_item_mapper.dart';
 import 'package:path_provider/path_provider.dart';
 
 import 'data/implementations/player_hive_controller.dart';
 import 'domain/use_cases/neom_audio_handler.dart';
-import 'utils/helpers/media_item_mapper.dart';
 import 'utils/neom_audio_utilities.dart';
 
 // ignore: avoid_classes_with_only_static_members
@@ -63,7 +63,7 @@ class NeomPlayerInvoker {
 
       queue.addAll(
         appMediaItems.map(
-              (song) => MediaItemMapper.appMediaItemToMediaItem(appMediaItem: song,
+              (song) => MediaItemMapper.fromAppMediaItem(appMediaItem: song,
             autoplay: recommend,
             // playlistBox: playlistBox,
           ),
@@ -101,7 +101,7 @@ class NeomPlayerInvoker {
   static Future<void> setDownValues(List<AppMediaItem> response, int index) async {
     final List<MediaItem> queue = [];
     queue.addAll(
-      response.map((song) => MediaItemMapper.appMediaItemToMediaItem(appMediaItem: song),),
+      response.map((song) => MediaItemMapper.fromAppMediaItem(appMediaItem: song),),
     );
     await updateNowPlaying(queue, index);
   }

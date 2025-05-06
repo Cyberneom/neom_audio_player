@@ -1,7 +1,9 @@
 dependency_overrides:
   neom_commons:
     path: ../neom_commons
-  neom_itemlists:
-    path: ../neom_itemlists
+#  neom_itemlists:
+#    path: ../neom_itemlists
   neom_commerce:
     path: ../neom_commerce
+  neom_media_player:
+    path: ../neom_media_player

@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/constants/app_page_id_constants.dart';
 import 'package:neom_commons/core/utils/constants/app_route_constants.dart';
+import 'package:neom_media_player/utils/helpers/media_item_mapper.dart';
 
 import 'miniplayer_controller.dart';
 import 'widgets/miniplayer_tile.dart';
@@ -30,8 +31,8 @@ class MiniPlayer extends StatelessWidget {
                   if (direction == DismissDirection.down || direction == DismissDirection.horizontal) {
                     _.audioHandler?.stop();
                   } else {
-                    Get.toNamed(AppRouteConstants.audioPlayerMedia, arguments: [AppMediaItem.fromMediaItem(_.mediaItem!), false]);
-                    // Navigator.push(context, MaterialPageRoute(builder: (context) => MediaPlayerPage(appMediaItem: AppMediaItem.fromMediaItem(_.mediaItem!), reproduceItem: false),),);
+                    Get.toNamed(AppRouteConstants.audioPlayerMedia, arguments: [MediaItemMapper.toAppMediaItem(_.mediaItem!), false]);
+                    // Navigator.push(context, MaterialPageRoute(builder: (context) => MediaPlayerPage(appMediaItem: MediaItemMapper.toAppMediaItem(_.mediaItem!), reproduceItem: false),),);
                   }
                 }
                 return Future.value(false);
