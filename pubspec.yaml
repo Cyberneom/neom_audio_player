@@ -15,15 +15,12 @@ dependencies:
   neom_commons:
     git:
       url: git@github.com:Cyberneom/neom_commons.git
-#  neom_itemlists:
-#    git:
-#      url: git@github.com:Cyberneom/neom_itemlists.git
   neom_commerce:
     git:
       url: git@github.com:emmanuel-montoya/neom_commerce.git
   neom_media_player:
     git:
-      url: git@github.com:Cyberneom/neom_media_player.git
+      url: https://github.com/Cyberneom/neom_media_player.git
 
   just_audio: ^0.9.46
 
