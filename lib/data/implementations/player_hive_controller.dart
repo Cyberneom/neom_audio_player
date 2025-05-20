@@ -87,22 +87,6 @@ class PlayerHiveController {
     return lastPos;
   }
 
-  // Future<bool> getLyricsOnline() async {
-  //   final settingsBox = await AppHiveController().getBox(AppHiveBox.settings.name);
-  //   bool getLyricsOnline =  await settingsBox.get(AppHiveConstants.getLyricsOnline, defaultValue: false) as bool;
-  //   await settingsBox.close();
-  //
-  //   return getLyricsOnline;
-  // }
-
-  // Future<bool> getEnableGesture() async {
-  //   final settingsBox = await AppHiveController().getBox(AppHiveBox.settings.name);
-  //   bool getLyricsOnline =  await settingsBox.get(AppHiveConstants.enableGesture, defaultValue: true) as bool;
-  //   await settingsBox.close();
-  //
-  //   return getLyricsOnline;
-  // }
-
   Future<void> updateItemLastPos(String itemId, int position) async {
     final playerBox = await AppHiveController().getBox(AppHiveBox.player.name);
     await playerBox.put('${AppHiveConstants.lastPos}_$itemId', position);

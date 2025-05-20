@@ -4,20 +4,20 @@ import 'package:get/get.dart';
 import 'package:neom_commons/core/ui/widgets/app_circular_progress_indicator.dart';
 import 'package:neom_commons/neom_commons.dart';
 
-import '../../utils/constants/player_translation_constants.dart';
-import 'media_player_controller.dart';
+import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
+import 'audio_player_controller.dart';
 import 'widgets/artwork_widget.dart';
 import 'widgets/name_n_controls.dart';
 
-class MediaPlayerPage extends StatelessWidget {
+class AudioPlayerPage extends StatelessWidget {
 
-  const MediaPlayerPage({super.key});
+  const AudioPlayerPage({super.key});
   
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<MediaPlayerController>(
+    return GetBuilder<AudioPlayerController>(
       id: AppPageIdConstants.mediaPlayer,
-      init: MediaPlayerController(),
+      init: AudioPlayerController(),
       tag: AppPageIdConstants.mediaPlayer,
       builder: (_) => Obx(() => Scaffold(
         resizeToAvoidBottomInset: false,

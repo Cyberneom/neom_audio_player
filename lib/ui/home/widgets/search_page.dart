@@ -13,7 +13,7 @@ import 'package:neom_commons/core/utils/enums/app_hive_box.dart';
 import 'package:neom_commons/core/utils/enums/app_in_use.dart';
 import 'package:neom_itemlists/itemlists/ui/widgets/app_item_widgets.dart';
 
-import 'package:neom_commons/core/utils/constants/app_hive_constants.dart';import '../../../utils/constants/player_translation_constants.dart';
+import 'package:neom_commons/core/utils/constants/app_hive_constants.dart';import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
 import '../../widgets/empty_screen.dart';
 import '../../widgets/music_search_bar.dart' as searchbar;
 

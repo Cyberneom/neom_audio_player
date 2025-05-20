@@ -6,7 +6,7 @@ import 'package:neom_commons/core/domain/model/app_profile.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 
 import '../../data/implementations/playlist_hive_controller.dart';
-import '../../utils/constants/player_translation_constants.dart';
+import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
 
 class LikeButton extends StatefulWidget {
 

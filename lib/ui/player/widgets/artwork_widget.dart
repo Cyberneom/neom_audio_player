@@ -15,15 +15,15 @@ import 'package:neom_commons/core/utils/core_utilities.dart';
 
 import '../../../data/implementations/player_hive_controller.dart';
 import '../../../domain/entities/queue_state.dart';
-import '../../../utils/constants/player_translation_constants.dart';
+import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
 import '../../../utils/enums/lyrics_source.dart';
 import '../../../utils/enums/lyrics_type.dart';
 import '../../widgets/empty_screen.dart';
-import '../media_player_controller.dart';
+import '../audio_player_controller.dart';
 
 class ArtWorkWidget extends StatelessWidget {
 
-  final MediaPlayerController mediaPlayerController;
+  final AudioPlayerController mediaPlayerController;
   final GlobalKey<FlipCardState>? cardKey;
   final bool offline;
   final bool? getLyricsOnline;
@@ -42,7 +42,7 @@ class ArtWorkWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    MediaPlayerController _ = mediaPlayerController;
+    AudioPlayerController _ = mediaPlayerController;
     double flipCardWidth = width * 0.75;
     final bool enabled = PlayerHiveController().enableGesture;
     return SizedBox(

@@ -8,7 +8,7 @@ import 'package:neom_itemlists/itemlists/ui/search/app_media_item_search_control
 import 'package:neom_media_player/utils/helpers/media_item_mapper.dart';
 import 'package:share_plus/share_plus.dart';
 
-import '../../utils/constants/player_translation_constants.dart';
+import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
 import '../../utils/helpers/add_mediaitem_to_queue.dart';
 import '../library/playlist_player_page.dart';
 import '../player/widgets/add_to_playlist.dart';
@@ -19,7 +19,6 @@ class SongTileTrailingMenu extends StatefulWidget {
   final bool isPlaylist;
   final bool showAddToPlaylist;
   final Function(AppMediaItem)? deleteLiked;
-  final AppMediaItemSearchController? searchController;
 
   const SongTileTrailingMenu({
     super.key,
@@ -28,7 +27,6 @@ class SongTileTrailingMenu extends StatefulWidget {
     this.isPlaylist = false,
     this.showAddToPlaylist = true,
     this.deleteLiked,
-    this.searchController,
   });
 
   @override

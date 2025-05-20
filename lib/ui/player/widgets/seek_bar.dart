@@ -6,7 +6,7 @@ import 'package:neom_commons/core/utils/constants/app_translation_constants.dart
 
 import '../../../domain/use_cases/neom_audio_handler.dart';
 import '../../../utils/audio_player_utilities.dart';
-import '../../../utils/constants/player_translation_constants.dart';
+import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
 
 class SeekBar extends StatefulWidget {
 

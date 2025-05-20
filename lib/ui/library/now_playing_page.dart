@@ -6,7 +6,7 @@
 //
 // import '../../../domain/use_cases/neom_audio_handler.dart';
 // import '../../../utils/constants/audio_player_route_constants.dart';
-// import '../../../utils/constants/player_translation_constants.dart';
+// import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
 // import '../../utils/neom_audio_utilities.dart';
 // import '../player/widgets/now_playing_stream.dart';
 // import '../widgets/empty_screen.dart';

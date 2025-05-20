@@ -18,7 +18,7 @@ import 'package:neom_commons/core/utils/enums/app_hive_box.dart';
 import 'package:neom_commons/core/utils/enums/app_in_use.dart';
 
 import '../../../data/implementations/playlist_hive_controller.dart';
-import 'package:neom_commons/core/utils/constants/app_hive_constants.dart';import '../../../utils/constants/player_translation_constants.dart';
+import 'package:neom_commons/core/utils/constants/app_hive_constants.dart';import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
 import '../../../utils/helpers/songs_count.dart' as songs_count;
 import '../../../utils/neom_audio_utilities.dart';
 import '../player/miniplayer.dart';

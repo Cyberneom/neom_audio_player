@@ -2,19 +2,16 @@
 class CaseteSession {
 
   String id; ///createdTime in milisecondsSinceEpoch as id
-  String itemId; /// ID del libro
+  String itemId; /// Id of audio
   String itemName; /// Título del libro
-  String ownerId; ///USERID OR EMAIL OF OWNER
-  String readerId; ///PROFILEID OF READER
-
-  int totalPages; ///TOTAL NUMBER OF READ PAGES
-  int totalDuration; ///TOTAL DURATION OF SESSION IN MS
-  int casete; ///REAL Number of Pages Read
+  String ownerId; ///EMAIL OF OWNER
+  String listenerId; ///email OF Listener
+  int casete; ///REAL Number of seconds listened
   int createdTime; ///CREATED SESSION TIME IN MILISECONDSSINCEEPOCH
 
   @override
   String toString() {
-    return 'CaseteSession{id: $id, itemId: $itemId, itemName: $itemName, ownerId: $ownerId, readerId: $readerId, totalPages: $totalPages, totalDuration: $totalDuration, createdTime: $createdTime}';
+    return 'CaseteSession{id: $id, itemId: $itemId, itemName: $itemName, ownerId: $ownerId, listenerId: $listenerId, casete: $casete, createdTime: $createdTime}';
   }
 
   CaseteSession({
@@ -22,9 +19,7 @@ class CaseteSession {
     this.itemId = '',
     this.itemName = '',
     this.ownerId = '',
-    this.readerId = '',
-    this.totalPages = 0,
-    this.totalDuration = 0,
+    this.listenerId = '',
     this.casete = 0,
     this.createdTime = 0,
   });
@@ -36,9 +31,7 @@ class CaseteSession {
       'itemId': itemId,
       'itemName': itemName,
       'ownerId': ownerId,
-      'readerId': readerId,
-      'totalPages': totalPages,
-      'totalDuration': totalDuration,
+      'listenerId': listenerId,
       'casete': casete,
       'createdTime': createdTime,
     };
@@ -51,9 +44,7 @@ class CaseteSession {
       itemId: json['itemId'] ?? '',
       itemName: json['itemName'] ?? '',
       ownerId: json['ownerId'] ?? '',
-      readerId: json['readerId'] ?? '',
-      totalPages: json['totalPages'] ?? 0,
-      totalDuration: json['totalDuration'] ?? 0,
+      listenerId: json['listenerId'] ?? '',
       casete: json['casete'] ?? 0,
       createdTime: json['createdTime'] ?? 0,
     );

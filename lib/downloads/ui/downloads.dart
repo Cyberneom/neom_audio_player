@@ -15,7 +15,7 @@
 //
 // import '../../../neom_player_invoker.dart';
 // import 'package:neom_commons/core/utils/constants/app_hive_constants.dart';// import '../../../utils/constants/music_player_route_constants.dart';
-// import '../../../utils/constants/player_translation_constants.dart';
+// import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
 // import '../../../utils/helpers/picker.dart';
 // import '../../widgets/empty_screen.dart';
 // import '../../widgets/image_card.dart';

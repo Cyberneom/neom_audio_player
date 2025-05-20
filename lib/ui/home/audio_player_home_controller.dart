@@ -25,7 +25,6 @@ class AudioPlayerHomeController extends GetxController {
 
   final Rxn<MediaItem> mediaItem = Rxn<MediaItem>();
   final RxBool isLoading = true.obs;
-  final RxBool isButtonDisabled = false.obs;
   final RxBool showSearchBarLeading = false.obs;
 
   List preferredLanguage = [];
@@ -82,6 +81,7 @@ class AudioPlayerHomeController extends GetxController {
       for (final element in recentSongs) {
         AppMediaItem recentMediaItem = AppMediaItem.fromJSON(element);
         recentList[recentMediaItem.id] = recentMediaItem;
+        AppUtilities.logger.d('Recent song: ${recentMediaItem.name}');
       }
     }
 
@@ -118,6 +118,7 @@ class AudioPlayerHomeController extends GetxController {
           excludeFromProfileId: profile.id,
           itemlistType: ItemlistType.playlist
       );
+
       publicItemlists.removeWhere((key, publicList) => publicList.type == ItemlistType.readlist);
       publicItemlists.removeWhere((key, publicList) => publicList.type == ItemlistType.giglist);
     } catch(e) {

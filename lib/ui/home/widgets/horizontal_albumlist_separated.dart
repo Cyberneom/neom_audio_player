@@ -6,7 +6,7 @@ import 'package:neom_commons/core/ui/widgets/neom_image_card.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
 import 'package:neom_commons/core/utils/constants/app_route_constants.dart';
 import 'package:neom_commons/core/utils/enums/itemlist_type.dart';
-import '../../player/media_player_controller.dart';
+import '../../player/audio_player_controller.dart';
 import '../../widgets/custom_physics.dart';
 import '../../widgets/song_tile_trailing_menu.dart';
 
@@ -104,8 +104,8 @@ class HorizontalAlbumsListSeparated extends StatelessWidget {
                     ),
                     onTap: () => onTap(songsList.indexOf(item)),
                     onLongPress: () {
-                      if (Get.isRegistered<MediaPlayerController>()) {
-                        Get.delete<MediaPlayerController>();
+                      if (Get.isRegistered<AudioPlayerController>()) {
+                        Get.delete<AudioPlayerController>();
                         Get.toNamed(AppRouteConstants.audioPlayerMedia, arguments: [item]);
                       } else {
                         Get.toNamed(AppRouteConstants.audioPlayerMedia, arguments: [item]);

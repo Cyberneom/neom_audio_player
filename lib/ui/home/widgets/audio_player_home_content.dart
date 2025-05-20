@@ -15,7 +15,7 @@ import 'package:neom_commons/core/utils/enums/app_media_source.dart';
 import '../../../neom_player_invoker.dart';
 import '../../../utils/audio_player_utilities.dart';
 import '../../../utils/constants/audio_player_route_constants.dart';
-import '../../../utils/constants/player_translation_constants.dart';
+import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
 import '../../library/playlist_player_page.dart';
 import '../../widgets/empty_screen.dart';
 import '../../widgets/song_tile_trailing_menu.dart';
@@ -60,11 +60,6 @@ class AudioPlayerHomeContent extends StatelessWidget {
           AppUtilities.logger.t('Building AudioPlayerHome Index $idx');
 
           if (idx == _.recentIndex && _.recentList.isNotEmpty) return buildLastSessionContainer(context, _);
-
-          // if (idx == _.myPlaylistsIndex && _.myItemLists.isNotEmpty) {
-          //   return buildPlaylistsContainer(_.myItemLists.values.toList(), context,
-          //       PlayerTranslationConstants.yourPlaylists.tr, boxSize);
-          // }
 
           if (idx == _.favoriteItemsIndex && _.favoriteItems.isNotEmpty) return buildFavoriteItemsContainer(_, context, boxSize);
 

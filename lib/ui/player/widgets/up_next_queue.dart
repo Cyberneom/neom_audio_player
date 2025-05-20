@@ -6,13 +6,13 @@ import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_theme.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
-import '../../../utils/constants/player_translation_constants.dart';
-import '../media_player_controller.dart';
+import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
+import '../audio_player_controller.dart';
 import 'now_playing_stream.dart';
 
 class UpNextQueue extends StatelessWidget {
 
-  final MediaPlayerController mediaPlayerController;
+  final AudioPlayerController mediaPlayerController;
   final PanelController panelController;
   final double minHeight;
 
@@ -24,7 +24,7 @@ class UpNextQueue extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    MediaPlayerController _ = mediaPlayerController;
+    AudioPlayerController _ = mediaPlayerController;
     return SizedBox(
       child: SlidingUpPanel(
         minHeight: minHeight,

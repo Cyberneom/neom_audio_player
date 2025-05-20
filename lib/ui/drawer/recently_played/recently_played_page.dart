@@ -6,10 +6,11 @@ import 'package:neom_commons/core/ui/widgets/appbar_child.dart';
 import 'package:neom_commons/core/ui/widgets/neom_image_card.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/enums/app_hive_box.dart';
+import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
 
 import '../../../neom_player_invoker.dart';
-import 'package:neom_commons/core/utils/constants/app_hive_constants.dart';import '../../../utils/constants/audio_player_route_constants.dart';
-import '../../../utils/constants/player_translation_constants.dart';
+import 'package:neom_commons/core/utils/constants/app_hive_constants.dart';
+import '../../../utils/constants/audio_player_route_constants.dart';
 import '../../widgets/empty_screen.dart';
 import '../../widgets/like_button.dart';
 

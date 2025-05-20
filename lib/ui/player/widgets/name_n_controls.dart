@@ -14,25 +14,24 @@ import 'package:neom_commons/core/utils/enums/app_hive_box.dart';
 import 'package:neom_commons/core/utils/enums/app_in_use.dart';
 import 'package:neom_commons/core/utils/enums/itemlist_type.dart';
 import 'package:neom_commons/core/utils/enums/user_role.dart';
+import 'package:neom_media_player/ui/widgets/download_button.dart';
 import 'package:neom_media_player/utils/helpers/media_item_mapper.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../domain/entities/position_data.dart';
 import '../../../utils/audio_player_utilities.dart';
 import 'package:neom_commons/core/utils/constants/app_hive_constants.dart';import '../../../utils/constants/audio_player_constants.dart';
-import '../../../utils/constants/player_translation_constants.dart';
+import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
 import '../../widgets/add_to_playlist_button.dart';
-import '../../widgets/download_button.dart';
-import '../../widgets/go_spotify_button.dart';
 import '../../widgets/like_button.dart';
-import '../media_player_controller.dart';
+import '../audio_player_controller.dart';
 import 'control_buttons.dart';
 import 'seek_bar.dart';
 import 'up_next_queue.dart';
 
 class NameNControls extends StatelessWidget {
 
-  final MediaPlayerController mediaPlayerController;
+  final AudioPlayerController mediaPlayerController;
   final double width;
   final double height;
   final bool downloadAllowed;
@@ -48,7 +47,7 @@ class NameNControls extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    MediaPlayerController _ = mediaPlayerController;
+    AudioPlayerController _ = mediaPlayerController;
 
     final double titleBoxHeight = height * 0.3;
     final double seekBoxHeight = height * 0.18;
@@ -262,8 +261,7 @@ class NameNControls extends StatelessWidget {
                                   );
                                 },
                               ),
-                              (!AudioPlayerUtilities.isOwnMediaItem(_.appMediaItem.value) && AppFlavour.appInUse == AppInUse.g)
-                                  ? GoSpotifyButton(appMediaItem: _.appMediaItem.value) : (downloadAllowed && _.mediaItem.value != null ? DownloadButton(mediaItem: MediaItemMapper.toAppMediaItem(_.mediaItem.value!),): const SizedBox.shrink()),
+                              downloadAllowed && _.mediaItem.value != null ? DownloadButton(mediaItem: MediaItemMapper.toAppMediaItem(_.mediaItem.value!),): const SizedBox.shrink(),
                               AddToPlaylistButton(appMediaItem: _.appMediaItem.value, playlists: AppUtilities.filterItemlists(_.profile.itemlists?.values.toList() ?? [], ItemlistType.playlist,),
                                 currentPlaylist: _.personalPlaylist,)
                               // _.createPopMenuOption(context, _.appMediaItem.value),

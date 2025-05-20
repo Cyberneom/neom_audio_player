@@ -7,7 +7,7 @@ import 'package:neom_commons/core/domain/model/item_list.dart';
 
 import 'package:neom_commons/core/utils/app_utilities.dart';
 
-import '../../utils/constants/player_translation_constants.dart';
+import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
 import '../player/widgets/add_to_playlist.dart';
 
 class AddToPlaylistButton extends StatefulWidget {

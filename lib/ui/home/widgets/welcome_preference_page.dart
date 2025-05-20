@@ -11,7 +11,7 @@ import 'package:neom_commons/core/utils/constants/app_hive_constants.dart';
 import 'package:neom_commons/core/utils/enums/app_hive_box.dart';import '../../../utils/constants/audio_player_constants.dart';
 import '../../../utils/constants/audio_player_route_constants.dart';
 import '../../../utils/constants/countrycodes.dart';
-import '../../../utils/constants/player_translation_constants.dart';
+import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
 
 class WelcomePreferencePage extends StatefulWidget {
   const WelcomePreferencePage({super.key});

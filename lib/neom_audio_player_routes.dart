@@ -4,7 +4,7 @@ import 'audio_player_root_page.dart';
 import 'ui/drawer/recently_played/recently_played_page.dart';
 import 'ui/drawer/settings/audio_player_settings_page.dart';
 import 'ui/home/widgets/welcome_preference_page.dart';
-import 'ui/player/media_player_page.dart';
+import 'ui/player/audio_player_page.dart';
 import 'ui/player/miniplayer.dart';
 import 'ui/drawer/stats/stats_page.dart';
 import 'utils/constants/audio_player_route_constants.dart';
@@ -19,7 +19,7 @@ class NeomAudioPlayerRoutes {
     ),
     GetPage(
       name: AppRouteConstants.audioPlayerMedia,
-      page: () => const MediaPlayerPage(),
+      page: () => const AudioPlayerPage(),
       transition: Transition.leftToRight,
     ),
     GetPage(

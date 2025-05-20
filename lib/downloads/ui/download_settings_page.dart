@@ -8,7 +8,7 @@
 // import 'package:neom_commons/core/utils/enums/app_hive_box.dart';
 //
 // import '../../../domain/use_cases/ext_storage_provider.dart';
-// import '../../../utils/constants/player_translation_constants.dart';
+// import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
 // import '../../../utils/helpers/picker.dart';
 // import '../settings/widgets/hive_box_switch_tile.dart';
 //

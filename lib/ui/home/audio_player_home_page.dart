@@ -11,7 +11,7 @@ import 'package:neom_commons/core/utils/constants/app_page_id_constants.dart';
 import 'package:neom_commons/core/utils/constants/app_translation_constants.dart';
 import 'package:neom_commons/core/utils/enums/subscription_status.dart';
 
-import '../../utils/constants/player_translation_constants.dart';
+import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
 import '../drawer/audio_player_drawer.dart';
 import '../widgets/audio_player_widgets.dart';
 import 'audio_player_home_controller.dart';

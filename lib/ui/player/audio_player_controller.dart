@@ -27,7 +27,7 @@ import '../../utils/neom_audio_utilities.dart';
 import '../library/playlist_player_page.dart';
 import 'lyrics/lyrics.dart';
 
-class MediaPlayerController extends GetxController {
+class AudioPlayerController extends GetxController {
 
   final userController = Get.find<UserController>();
   NeomAudioHandler? audioHandler;
@@ -285,7 +285,7 @@ class MediaPlayerController extends GetxController {
 
         if(isEmail) {
           AppUser? bookUser = await UserFirestore().getByEmail(ownerId);
-          List<AppProfile> bookUserProfiles = await ProfileFirestore().retrieveProfiles(bookUser?.id ?? '');
+          List<AppProfile> bookUserProfiles = await ProfileFirestore().retrieveByUserId(bookUser?.id ?? '');
           ownerId = bookUserProfiles.isNotEmpty ? bookUserProfiles.first.id : '';
         }
 

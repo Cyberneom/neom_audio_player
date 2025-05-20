@@ -6,7 +6,7 @@ import 'package:neom_commons/core/ui/widgets/appbar_child.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_theme.dart';
 
-import 'package:neom_commons/core/utils/enums/app_hive_box.dart';import '../../../utils/constants/player_translation_constants.dart';
+import 'package:neom_commons/core/utils/enums/app_hive_box.dart';import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
 
 class StatsPage extends StatelessWidget {
   const StatsPage({super.key});

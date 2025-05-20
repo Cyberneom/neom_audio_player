@@ -3,14 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/constants/app_translation_constants.dart';
+import 'package:neom_media_player/ui/widgets/download_button.dart';
+import 'package:neom_media_player/ui/widgets/go_spotify_button.dart';
 import 'package:neom_media_player/utils/helpers/media_item_mapper.dart';
 
 import '../../../domain/entities/queue_state.dart';
 import '../../../domain/use_cases/neom_audio_handler.dart';
 import '../../../utils/constants/audio_player_constants.dart';
-import '../../../utils/constants/player_translation_constants.dart';
-import '../../widgets/download_button.dart';
-import '../../widgets/go_spotify_button.dart';
+import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
 import '../../widgets/like_button.dart';
 
 // ignore: must_be_immutable
@@ -37,13 +37,7 @@ class ControlButtons extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if(mediaItem == null && audioHandler?.mediaItem.value != null) {
-       mediaItem = audioHandler?.mediaItem.value;
-    } else {
-      ///DEPRECATED
-      // NeomPlayerInvoker.init(
-      //   appMediaItems: [MediaItemMapper.toAppMediaItem(mediaItem!)],
-      //   index: 0,
-      // );
+      mediaItem = audioHandler?.mediaItem.value;
     }
 
     final String url = mediaItem?.extras?['url'].toString() ?? '';
@@ -80,7 +74,6 @@ class ControlButtons extends StatelessWidget {
                 child: StreamBuilder<QueueState>(
                 stream: audioHandler?.queueState,
                 builder: (context, snapshot) {
-                  ///DEPRECATED final queueState = snapshot.data;
                   return IconButton(
                     padding: EdgeInsets.zero,
                     icon: const Icon(Icons.skip_previous_rounded),
@@ -188,18 +181,6 @@ class ControlButtons extends StatelessWidget {
                   child: DownloadButton(size: 20.0,
                     mediaItem: MediaItemMapper.toAppMediaItem(mediaItem!),
                   ),
-              );
-            case 'Spotify':
-              return !isOnline
-                  ? const SizedBox.shrink()
-                  : SizedBox(
-                height: miniplayer ? AudioPlayerConstants.miniPlayerHeight : AudioPlayerConstants.audioPlayerHeight,
-                width: miniplayer ? AudioPlayerConstants.miniPlayerWidth : AudioPlayerConstants.audioPlayerWidth,
-                child: GoSpotifyButton(
-                  size: 20.0,
-                  padding: EdgeInsets.zero,
-                  appMediaItem: MediaItemMapper.toAppMediaItem(mediaItem!)
-                ),
               );
             default:
               break;
