@@ -15,7 +15,7 @@ import 'package:neom_commons/core/utils/core_utilities.dart';
 import 'package:neom_commons/core/utils/enums/app_item_state.dart';
 import 'package:neom_commons/core/utils/enums/itemlist_type.dart';
 import 'package:neom_commons/core/utils/enums/profile_type.dart';
-import 'package:neom_itemlists/itemlists/ui/search/app_media_item_search_controller.dart';
+import 'package:neom_search/search/ui/itemlist/app_media_item_search_controller.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
 
 class AddToPlaylist {

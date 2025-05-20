@@ -21,6 +21,9 @@ dependencies:
   neom_media_player:
     git:
       url: https://github.com/Cyberneom/neom_media_player.git
+  neom_search:
+    git:
+      url: https://github.com/Cyberneom/neom_search.git
 
   just_audio: ^0.9.46
 
