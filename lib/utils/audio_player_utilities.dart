@@ -1,13 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/domain/model/app_release_item.dart';
 import 'package:neom_commons/core/utils/enums/app_media_source.dart';
 import 'package:neom_commons/neom_commons.dart';
 
 import '../domain/use_cases/neom_audio_handler.dart';
-import '../ui/widgets/textinput_dialog.dart';
 import 'constants/audio_player_route_constants.dart';
 
 class AudioPlayerUtilities {

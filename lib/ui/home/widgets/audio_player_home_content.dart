@@ -11,11 +11,11 @@ import 'package:neom_commons/core/utils/constants/app_route_constants.dart';
 import 'package:neom_commons/core/utils/constants/app_translation_constants.dart';
 import 'package:neom_commons/core/utils/enums/app_hive_box.dart';
 import 'package:neom_commons/core/utils/enums/app_media_source.dart';
+import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
 
 import '../../../neom_player_invoker.dart';
 import '../../../utils/audio_player_utilities.dart';
 import '../../../utils/constants/audio_player_route_constants.dart';
-import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
 import '../../library/playlist_player_page.dart';
 import '../../widgets/empty_screen.dart';
 import '../../widgets/song_tile_trailing_menu.dart';

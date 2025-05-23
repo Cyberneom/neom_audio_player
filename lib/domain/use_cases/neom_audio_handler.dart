@@ -20,7 +20,6 @@ import '../../data/implementations/playlist_hive_controller.dart';
 import '../../ui/player/audio_player_controller.dart';
 import '../../ui/player/miniplayer_controller.dart';
 import '../../utils/audio_player_stats.dart';
-import 'package:neom_commons/core/utils/constants/app_hive_constants.dart';
 import '../../utils/constants/audio_player_constants.dart';
 import '../../utils/neom_audio_utilities.dart';
 import '../entities/casete_session.dart';
@@ -292,7 +291,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
         if(playerHiveController.useDownload) {
           AppUtilities.logger.d("Looking for files from downloads");
           final downloadsBox = await AppHiveController().getBox(AppHiveBox.downloads.name);
-          if(downloadsBox != null && downloadsBox.containsKey(mediaItem.id)) {
+          if(downloadsBox.containsKey(mediaItem.id)) {
             audioSource = AudioSource.uri(
               Uri.file(downloadsBox.get(mediaItem.id)['path'].toString(),),
               tag: mediaItem.id,
@@ -443,12 +442,12 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
   }
 
   @override
-  Future<void> updateQueue(List<MediaItem> newQueue) async {
+  Future<void> updateQueue(List<MediaItem> queue) async {
     AppUtilities.logger.d(
-        "Updating Music Player Queue with ${newQueue.length} items");
+        "Updating Music Player Queue with ${queue.length} items");
     try {
       await _playlist.clear();
-      final List<AudioSource> sources = await _itemsToSources(newQueue);
+      final List<AudioSource> sources = await _itemsToSources(queue);
       await _playlist.addAll(sources);
     } catch (e) {
       AppUtilities.logger.e(e.toString());

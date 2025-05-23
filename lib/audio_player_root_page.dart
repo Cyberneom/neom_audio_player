@@ -6,13 +6,13 @@ import 'package:neom_commons/core/ui/widgets/app_circular_progress_indicator.dar
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_theme.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
+import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
 
 import 'ui/drawer/audio_player_drawer.dart';
 import 'ui/player/miniplayer.dart';
 import 'ui/player/miniplayer_controller.dart';
 import 'ui/widgets/audio_player_bottom_app_bar.dart';
 import 'utils/audio_player_utilities.dart';
-import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
 
 class AudioPlayerRootPage extends StatefulWidget {
   const AudioPlayerRootPage({super.key});

@@ -5,10 +5,9 @@ import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/domain/model/item_list.dart';
 import 'package:neom_commons/core/ui/widgets/neom_image_card.dart';
 import 'package:neom_media_player/ui/widgets/download_button.dart';
+import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
 
 import '../../../../neom_player_invoker.dart';
-import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
-import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
 import '../../../ui/widgets/song_tile_trailing_menu.dart';
 
 class DownloadsSearch extends SearchDelegate {

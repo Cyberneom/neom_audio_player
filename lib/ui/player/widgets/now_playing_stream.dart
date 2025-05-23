@@ -4,17 +4,16 @@ import 'package:audio_service/audio_service.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_theme.dart';
 import 'package:neom_commons/core/utils/constants/app_assets.dart';
 import 'package:neom_media_player/ui/widgets/download_button.dart';
+import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
 import 'package:neom_media_player/utils/helpers/media_item_mapper.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 import '../../../domain/entities/queue_state.dart';
 import '../../../domain/use_cases/neom_audio_handler.dart';
-import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
 import '../../widgets/like_button.dart';
 
 class NowPlayingStream extends StatelessWidget {

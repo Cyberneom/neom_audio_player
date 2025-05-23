@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_theme.dart';
+import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
-import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
 import '../audio_player_controller.dart';
 import 'now_playing_stream.dart';
 

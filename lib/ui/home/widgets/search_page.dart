@@ -8,12 +8,13 @@ import 'package:neom_commons/core/data/implementations/app_hive_controller.dart'
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/domain/model/app_release_item.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
+import 'package:neom_commons/core/utils/constants/app_hive_constants.dart';
 import 'package:neom_commons/core/utils/constants/app_translation_constants.dart';
 import 'package:neom_commons/core/utils/enums/app_hive_box.dart';
 import 'package:neom_commons/core/utils/enums/app_in_use.dart';
 import 'package:neom_itemlists/itemlists/ui/widgets/app_item_widgets.dart';
+import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
 
-import 'package:neom_commons/core/utils/constants/app_hive_constants.dart';import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
 import '../../widgets/empty_screen.dart';
 import '../../widgets/music_search_bar.dart' as searchbar;
 
@@ -50,6 +51,7 @@ class SearchPageState extends State<SearchPage> {
   List search = [];
   bool showHistory = true;
   bool liveSearch = true;
+  bool _settingsLoaded = false; // Flag to track if Hive settings are loaded
 
   final controller = TextEditingController();
 
@@ -57,13 +59,42 @@ class SearchPageState extends State<SearchPage> {
   Map<String, AppReleaseItem> items = {};
 
   @override
-  void initState() async {
+  void initState() {
+    super.initState(); // Call super.initState() first
     controller.text = widget.query;
+    searchParam = widget.query; // Initialize searchParam as well
+    _loadInitialSettingsAndData();
+  }
+
+  Future<void> _loadInitialSettingsAndData() async {
     settingsBox = await AppHiveController().getBox(AppHiveBox.settings.name);
-    search = settingsBox?.get(AppHiveConstants.search, defaultValue: [],) as List;
-    showHistory = settingsBox?.get(AppHiveConstants.showHistory, defaultValue: true) as bool;
-    liveSearch = settingsBox?.get(AppHiveConstants.liveSearch, defaultValue: true) as bool;
-    super.initState();
+    if (mounted) { // Check if the widget is still in the tree
+      setState(() {
+        search = settingsBox?.get(AppHiveConstants.search, defaultValue: []) as List;
+        showHistory = settingsBox?.get(AppHiveConstants.showHistory, defaultValue: true) as bool;
+        liveSearch = settingsBox?.get(AppHiveConstants.liveSearch, defaultValue: true) as bool;
+        _settingsLoaded = true; // Mark settings as loaded
+      });
+
+      // Now that settings are loaded, decide what to fetch
+      // This logic was previously in build method controlled by 'status' flag
+      if (widget.fromHome) { // Use widget.fromHome for initial decision
+        await getTrendingSearch();
+      } else if (widget.query.isNotEmpty) { // If there's an initial query and not from home
+        await fetchResults();
+      } else {
+        // If not fromHome and no initial query, perhaps just show history or trending
+        // For now, let's assume it implies showing history, which is handled by fromHome=true logic in build
+        // Or, if you want trending search in this case too:
+        // await getTrendingSearch();
+        // Or set fetched = true if nothing else to load initially
+        if (mounted) {
+          setState(() {
+            fetched = true; // Or false if trending search is called
+          });
+        }
+      }
+    }
   }
 
   @override
@@ -84,6 +115,7 @@ class SearchPageState extends State<SearchPage> {
             value.artist.toLowerCase().contains(searchParam.toLowerCase()))
         );
 
+
       }
     }
 
@@ -93,8 +125,6 @@ class SearchPageState extends State<SearchPage> {
       }
     }
 
-    ///DEPRECATED appMediaItems.addAll(await SpotifySearch.searchSongs(searchParam));
-    
     fetched = true;
     
     setState(() {},);

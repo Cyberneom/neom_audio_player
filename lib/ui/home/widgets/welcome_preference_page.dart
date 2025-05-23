@@ -6,12 +6,13 @@ import 'package:neom_commons/core/data/implementations/user_controller.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_theme.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
-
 import 'package:neom_commons/core/utils/constants/app_hive_constants.dart';
-import 'package:neom_commons/core/utils/enums/app_hive_box.dart';import '../../../utils/constants/audio_player_constants.dart';
+import 'package:neom_commons/core/utils/enums/app_hive_box.dart';
+import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
+
+import '../../../utils/constants/audio_player_constants.dart';
 import '../../../utils/constants/audio_player_route_constants.dart';
 import '../../../utils/constants/countrycodes.dart';
-import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
 
 class WelcomePreferencePage extends StatefulWidget {
   const WelcomePreferencePage({super.key});

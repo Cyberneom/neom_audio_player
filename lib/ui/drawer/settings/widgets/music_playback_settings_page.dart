@@ -8,9 +8,9 @@ import 'package:neom_commons/core/utils/app_theme.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
 import 'package:neom_commons/core/utils/enums/app_hive_box.dart';
 import 'package:neom_commons/core/utils/enums/app_in_use.dart';
+import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
 
 import '../../../../utils/constants/audio_player_constants.dart';
-import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
 import 'hive_box_switch_tile.dart';
 
 class MusicPlaybackSettingsPage extends StatefulWidget {

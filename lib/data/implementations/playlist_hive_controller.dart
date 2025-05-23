@@ -38,7 +38,6 @@ class PlaylistHiveController {
   bool firstTime = false;
   int lastNotificationCheckDate = 0;
 
-  @override
   Future<void> _init() async {
     if (_isInitialized) return;
     _isInitialized = true;

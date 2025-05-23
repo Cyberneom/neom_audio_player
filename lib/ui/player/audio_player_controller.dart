@@ -190,13 +190,13 @@ class AudioPlayerController extends GetxController {
   }
 
   void updateMediaItemValues() {
-    mediaItemTitle.value = appMediaItem.value?.name ?? '';
-    mediaItemArtist.value = appMediaItem.value.artist ?? '';
-    mediaItemAlbum.value = appMediaItem.value?.album ?? '';
+    mediaItemTitle.value = appMediaItem.value.name;
+    mediaItemArtist.value = appMediaItem.value.artist;
+    mediaItemAlbum.value = appMediaItem.value.album;
     if(mediaItemTitle.contains(' - ')) {
-      mediaItemTitle.value = AppUtilities.getMediaName(appMediaItem.value!.name);
-      if(appMediaItem.value?.artist?.isEmpty ?? true) {
-        mediaItemArtist.value = AppUtilities.getArtistName(appMediaItem.value!.name);
+      mediaItemTitle.value = AppUtilities.getMediaName(appMediaItem.value.name);
+      if(appMediaItem.value.artist.isEmpty) {
+        mediaItemArtist.value = AppUtilities.getArtistName(appMediaItem.value.name);
       }
     }
   }

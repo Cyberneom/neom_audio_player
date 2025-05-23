@@ -1,8 +1,8 @@
 import 'package:audio_service/audio_service.dart';
+import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
-import 'package:get/get.dart';
 
 import '../data/providers/neom_audio_provider.dart';
 import '../domain/use_cases/neom_audio_handler.dart';

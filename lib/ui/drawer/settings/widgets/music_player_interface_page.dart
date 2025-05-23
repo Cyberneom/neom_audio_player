@@ -4,10 +4,11 @@ import 'package:hive/hive.dart';
 import 'package:neom_commons/core/ui/widgets/appbar_child.dart';
 import 'package:neom_commons/core/utils/app_color.dart';
 import 'package:neom_commons/core/utils/app_theme.dart';
-
 import 'package:neom_commons/core/utils/constants/app_hive_constants.dart';
-import 'package:neom_commons/core/utils/enums/app_hive_box.dart';import '../../../../utils/constants/audio_player_constants.dart';
+import 'package:neom_commons/core/utils/enums/app_hive_box.dart';
 import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
+
+import '../../../../utils/constants/audio_player_constants.dart';
 import 'hive_box_switch_tile.dart';
 
 class MusicPlayerInterfacePage extends StatefulWidget {

@@ -1,16 +1,14 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:neom_commons/core/domain/model/app_media_item.dart';
 import 'package:neom_commons/core/utils/constants/app_translation_constants.dart';
 import 'package:neom_media_player/ui/widgets/download_button.dart';
-import 'package:neom_media_player/ui/widgets/go_spotify_button.dart';
+import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
 import 'package:neom_media_player/utils/helpers/media_item_mapper.dart';
 
 import '../../../domain/entities/queue_state.dart';
 import '../../../domain/use_cases/neom_audio_handler.dart';
 import '../../../utils/constants/audio_player_constants.dart';
-import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
 import '../../widgets/like_button.dart';
 
 // ignore: must_be_immutable
