@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:audio_service/audio_service.dart';
 import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:neom_commerce/woo/data/api_services/woo_orders_api.dart';
 import 'package:neom_commons/core/data/implementations/app_hive_controller.dart';
 import 'package:neom_commons/core/data/implementations/user_controller.dart';
 import 'package:neom_commons/core/utils/app_utilities.dart';
@@ -412,7 +411,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
 
     player.seek(Duration.zero,
       index: player.shuffleModeEnabled && index != 0 ? player
-          .shuffleIndices![index] : index,
+          .shuffleIndices[index] : index,
     );
 
   }
@@ -458,7 +457,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
   Future<void> updateMediaItem(MediaItem mediaItem) async {
     AppUtilities.logger.d('updateMediaItem');
     final index = queue.value.indexWhere((item) => item.id == mediaItem.id);
-    _mediaItemExpando[player.sequence![index]] = mediaItem;
+    _mediaItemExpando[player.sequence[index]] = mediaItem;
   }
 
   @override
@@ -551,7 +550,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
   Future<void> skipToQueueItem(int index) async {
     if (index < 0 || index >= _playlist.children.length) return;
     player.seek(Duration.zero,
-      index: player.shuffleModeEnabled ? player.shuffleIndices![index] : index,
+      index: player.shuffleModeEnabled ? player.shuffleIndices[index] : index,
     );
   }
 
@@ -768,14 +767,15 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
     }
 
     String itemName =  mediaItem.value?.title ?? '';
-    String orderId = '';
 
-    if(isAuthor) {
-      orderId = await WooOrdersApi.createSessionOrder(userController.user, itemName, currentDuration);
-    }
+    ///DEPRECATED
+    //String orderId = '';
+    // if(isAuthor) {
+    //   orderId = await WooOrdersApi.createSessionOrder(userController.user, itemName, currentDuration);
+    // }
 
     CaseteSession caseteSession = CaseteSession(
-      id: orderId,
+      // id: orderId,
       createdTime: DateTime.now().millisecondsSinceEpoch,
       ownerId: currentMediaItem?.artist ?? '',
       itemId: currentMediaItem?.id ??'',

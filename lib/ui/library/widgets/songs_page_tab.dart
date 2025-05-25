@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:neom_commons/core/domain/model/app_media_item.dart';
-import 'package:neom_itemlists/itemlists/ui/widgets/app_item_widgets.dart';
+
 
 import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
 import '../../home/widgets/search_page.dart';
+import '../../widgets/audio_player_widgets.dart';
 import '../../widgets/empty_screen.dart';
 import '../../widgets/playlist_head.dart';
 import '../playlist_player_page.dart';

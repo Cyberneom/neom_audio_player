@@ -3,8 +3,6 @@ dependency_overrides:
     path: ../neom_commons
   neom_itemlists:
     path: ../neom_itemlists
-  neom_commerce:
-    path: ../neom_commerce
   neom_media_player:
     path: ../neom_media_player
   neom_search:

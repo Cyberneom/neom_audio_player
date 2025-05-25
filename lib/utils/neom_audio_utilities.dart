@@ -39,7 +39,7 @@ class NeomAudioUtilities {
   }
 
   static int? getQueueIndex(AudioPlayer player, int? currentIndex) {
-    final effectiveIndices = player.effectiveIndices ?? [];
+    final effectiveIndices = player.effectiveIndices;
     final shuffleIndicesInv = List.filled(effectiveIndices.length, 0);
     for (var i = 0; i < effectiveIndices.length; i++) {
       shuffleIndicesInv[effectiveIndices[i]] = i;

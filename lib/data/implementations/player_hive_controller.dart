@@ -54,7 +54,6 @@ class PlayerHiveController {
   Map<String, AppReleaseItem> releaseItems = {};
   Map<String, Itemlist> releaseItemlists = {};
 
-  @override
   Future<void> _init() async {
     if (_isInitialized) return;
     _isInitialized = true;

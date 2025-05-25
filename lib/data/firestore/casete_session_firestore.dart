@@ -10,7 +10,6 @@ class CaseteSessionFirestore {
   final caseteSessionsReference = FirebaseFirestore.instance.collection(AppFirestoreCollectionConstants.caseteSessions);
   final authorsCaseteSessionsReference = FirebaseFirestore.instance.collection(AppFirestoreCollectionConstants.authorsCaseteSessions);
 
-  @override
   Future<String> insert(CaseteSession session, {bool isAuthor = false}) async {
     AppUtilities.logger.d("Inserting session ${session.id}");
 
@@ -33,8 +32,6 @@ class CaseteSessionFirestore {
 
   }
 
-
-  @override
   Future<bool> remove(CaseteSession session) async {
     AppUtilities.logger.d("Removing product ${session.id}");
 
@@ -49,8 +46,6 @@ class CaseteSessionFirestore {
     return false;
   }
 
-
-  @override
   Future<CaseteSession> retrieveSession(String orderId) async {
     AppUtilities.logger.d("Retrieving session for id $orderId");
     CaseteSession session = CaseteSession();
@@ -75,8 +70,6 @@ class CaseteSessionFirestore {
     return session;
   }
 
-
-  @override
   Future<Map<String, CaseteSession>> retrieveFromList(List<String> sessionIds) async {
     AppUtilities.logger.d("Getting sessions from list");
 

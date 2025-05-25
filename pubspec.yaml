@@ -15,9 +15,6 @@ dependencies:
   neom_commons:
     git:
       url: git@github.com:Cyberneom/neom_commons.git
-  neom_commerce:
-    git:
-      url: git@github.com:emmanuel-montoya/neom_commerce.git
   neom_media_player:
     git:
       url: https://github.com/Cyberneom/neom_media_player.git
@@ -25,9 +22,8 @@ dependencies:
     git:
       url: https://github.com/Cyberneom/neom_search.git
 
-  just_audio: ^0.9.46
+  just_audio: ^0.10.3
 
-  #DEPRECATED
   flip_card: ^0.7.0
   sliding_up_panel: ^2.0.0+1
   flutter_lyric: ^2.0.4+6
