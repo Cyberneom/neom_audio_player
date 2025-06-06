@@ -108,7 +108,7 @@ class AudioPlayerHomeController extends GetxController {
   }
 
   Future<void> getHomePageData() async {
-    AppUtilities.logger.d('Get ItemLists Home Data');
+    AppUtilities.logger.d('Fetching home page data...');
     try {
       myItemLists = profile.itemlists ?? {};
       myItemLists.removeWhere((key, publicList) => publicList.type == ItemlistType.readlist);
@@ -119,8 +119,8 @@ class AudioPlayerHomeController extends GetxController {
           itemlistType: ItemlistType.playlist
       );
 
-      publicItemlists.removeWhere((key, publicList) => publicList.type == ItemlistType.readlist);
-      publicItemlists.removeWhere((key, publicList) => publicList.type == ItemlistType.giglist);
+      publicItemlists.removeWhere((key, publicList) => publicList.type == ItemlistType.readlist
+          || publicList.type == ItemlistType.giglist);
     } catch(e) {
       AppUtilities.logger.e(e.toString());
     }
@@ -133,6 +133,7 @@ class AudioPlayerHomeController extends GetxController {
       publicItemlists[sortedItem.id] = sortedItem;
     }
 
+    AppUtilities.logger.d('${publicItemlists.length} public itemlists fetched.');
   }
 
   void clear() {

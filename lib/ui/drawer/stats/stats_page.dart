@@ -25,7 +25,11 @@ class StatsPage extends StatelessWidget {
           future: AppHiveController().openHiveBox(AppHiveBox.stats.name),
           builder: (BuildContext context, AsyncSnapshot<Box> snapshot,) {
             int songsPlayed = snapshot.data?.length ?? 0;
-            Map mostPlayed = snapshot.data?.get('mostPlayed', defaultValue: {}) as Map;
+
+            Map mostPlayed = {};
+            if(snapshot.data != null) {
+              mostPlayed = snapshot.data?.get('mostPlayed', defaultValue: {}) as Map;
+            }
             return Container(
             decoration: AppTheme.boxDecoration,
             width: AppTheme.fullWidth(context),

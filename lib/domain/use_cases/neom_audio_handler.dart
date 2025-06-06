@@ -188,6 +188,8 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
   }
 
   Future<void> loadLastQueue() async {
+    AppUtilities.logger.d('Loading last queue from Hive');
+    
     if (playerHiveController.loadStart) {
       await Future.delayed(const Duration(milliseconds: 500)); // Agrega un breve delay para dar tiempo a otros procesos
       final List lastQueueList = playerHiveController.lastQueueList;
@@ -377,11 +379,12 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
   void startService() async {
     if(player.playing) return;
 
-    AppUtilities.logger.t('Starting AudioPlayer Service');
+    AppUtilities.logger.d('Starting AudioPlayer Service');
     // if (player.playing) player.dispose();
     player = AudioPlayer();
     await loadLastQueue();
     await player.setAudioSource(_playlist, preload: false);
+
     //TODO Recordar si es necesario
     // speed.debounceTime(const Duration(milliseconds: 250)).listen((speed) {
     //   playbackState.add(playbackState.value.copyWith(speed: speed));
@@ -560,11 +563,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
 
     try {
       if (currentMediaItem != null) {
-        // if (player.audioSource == null) {
-        //   AudioSource? audioSource = await _itemToSource(currentMediaItem!);
-        //   if (audioSource != null) await player.setAudioSource(audioSource);
-        // }
-
+        
         if (player.audioSource == null || currentMediaItem?.id != mediaItem.value?.id) {
           AudioSource? audioSource = await _itemToSource(currentMediaItem!);
           if (audioSource != null) await player.setAudioSource(audioSource);

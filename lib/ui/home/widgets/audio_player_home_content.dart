@@ -51,8 +51,8 @@ class AudioPlayerHomeContent extends StatelessWidget {
         PlayerTranslationConstants.nothingTo.tr, 15.0,
         PlayerTranslationConstants.showHere.tr, 50,
         PlayerTranslationConstants.startSearch.tr, 23.0,),
-      ) : ListView.builder
-        (physics: const BouncingScrollPhysics(),
+      ) : ListView.builder(
+        physics: const BouncingScrollPhysics(),
         shrinkWrap: true,
         padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
         itemCount: _.publicItemlists.isEmpty ? _.previousIndex : (_.publicItemlists.length + _.previousIndex),
