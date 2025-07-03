@@ -2,19 +2,19 @@ import 'package:audio_service/audio_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
-import 'package:neom_commons/core/data/firestore/app_media_item_firestore.dart';
-import 'package:neom_commons/core/data/firestore/itemlist_firestore.dart';
-import 'package:neom_commons/core/data/implementations/app_hive_controller.dart';
-import 'package:neom_commons/core/data/implementations/user_controller.dart';
-import 'package:neom_commons/core/domain/model/app_media_item.dart';
-import 'package:neom_commons/core/domain/model/app_profile.dart';
-import 'package:neom_commons/core/domain/model/item_list.dart';
-import 'package:neom_commons/core/utils/app_utilities.dart';
-import 'package:neom_commons/core/utils/constants/app_hive_constants.dart';
-import 'package:neom_commons/core/utils/constants/app_page_id_constants.dart';
-import 'package:neom_commons/core/utils/enums/app_hive_box.dart';
-import 'package:neom_commons/core/utils/enums/itemlist_type.dart';
-import 'package:neom_commons/core/utils/enums/media_item_type.dart';
+import 'package:neom_commons/commons/utils/constants/app_page_id_constants.dart';
+import 'package:neom_core/core/app_config.dart';
+import 'package:neom_core/core/data/firestore/app_media_item_firestore.dart';
+import 'package:neom_core/core/data/firestore/itemlist_firestore.dart';
+import 'package:neom_core/core/data/implementations/app_hive_controller.dart';
+import 'package:neom_core/core/data/implementations/user_controller.dart';
+import 'package:neom_core/core/domain/model/app_media_item.dart';
+import 'package:neom_core/core/domain/model/app_profile.dart';
+import 'package:neom_core/core/domain/model/item_list.dart';
+import 'package:neom_core/core/utils/constants/app_hive_constants.dart';
+import 'package:neom_core/core/utils/enums/app_hive_box.dart';
+import 'package:neom_core/core/utils/enums/itemlist_type.dart';
+import 'package:neom_core/core/utils/enums/media_item_type.dart';
 
 import '../../data/implementations/player_hive_controller.dart';
 
@@ -50,14 +50,14 @@ class AudioPlayerHomeController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    AppUtilities.logger.t('Music Player Home Controller Init');
+    AppConfig.logger.t('Music Player Home Controller Init');
     try {
       profile = userController.profile;
       releaseItemlists =  userController.releaseItemlists;
       scrollController.addListener(_scrollListener);
       getHomePageData();
     } catch (e) {
-      AppUtilities.logger.e(e.toString());
+      AppConfig.logger.e(e.toString());
     }
   }
 
@@ -67,7 +67,7 @@ class AudioPlayerHomeController extends GetxController {
     try {
       initializeAudioPlayerHome();
     } catch (e) {
-      AppUtilities.logger.e(e.toString());
+      AppConfig.logger.e(e.toString());
     }
 
     userController.defaultItemlistType = ItemlistType.playlist;
@@ -77,11 +77,11 @@ class AudioPlayerHomeController extends GetxController {
 
   Future<void> initializeAudioPlayerHome() async {
     if(recentSongs.isNotEmpty) {
-      AppUtilities.logger.d('Retrieving recent songs from Hive.');
+      AppConfig.logger.d('Retrieving recent songs from Hive.');
       for (final element in recentSongs) {
         AppMediaItem recentMediaItem = AppMediaItem.fromJSON(element);
         recentList[recentMediaItem.id] = recentMediaItem;
-        AppUtilities.logger.d('Recent song: ${recentMediaItem.name}');
+        AppConfig.logger.d('Recent song: ${recentMediaItem.name}');
       }
     }
 
@@ -108,7 +108,7 @@ class AudioPlayerHomeController extends GetxController {
   }
 
   Future<void> getHomePageData() async {
-    AppUtilities.logger.d('Fetching home page data...');
+    AppConfig.logger.d('Fetching home page data...');
     try {
       myItemLists = profile.itemlists ?? {};
       myItemLists.removeWhere((key, publicList) => publicList.type == ItemlistType.readlist);
@@ -122,7 +122,7 @@ class AudioPlayerHomeController extends GetxController {
       publicItemlists.removeWhere((key, publicList) => publicList.type == ItemlistType.readlist
           || publicList.type == ItemlistType.giglist);
     } catch(e) {
-      AppUtilities.logger.e(e.toString());
+      AppConfig.logger.e(e.toString());
     }
 
     List<Itemlist> sortedList = publicItemlists.values.toList();
@@ -133,7 +133,7 @@ class AudioPlayerHomeController extends GetxController {
       publicItemlists[sortedItem.id] = sortedItem;
     }
 
-    AppUtilities.logger.d('${publicItemlists.length} public itemlists fetched.');
+    AppConfig.logger.d('${publicItemlists.length} public itemlists fetched.');
   }
 
   void clear() {

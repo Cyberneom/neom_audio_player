@@ -28,6 +28,8 @@ class AudioPlayerConstants {
     'Vietnamese',
   ];
 
+  static const String currentArtwork = 'currentArtwork';
+
   static const double miniPlayerHeight = 30;
   static const double miniPlayerWidth = 30;
   static const double audioPlayerHeight= 65;

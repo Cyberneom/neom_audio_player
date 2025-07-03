@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:neom_commons/core/utils/constants/app_translation_constants.dart';
+import 'package:neom_commons/commons/utils/constants/app_translation_constants.dart';
 import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
 
 import '../../../domain/use_cases/neom_audio_handler.dart';

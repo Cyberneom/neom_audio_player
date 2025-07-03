@@ -1,6 +1,6 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
-import 'package:neom_commons/core/app_flavour.dart';
+import 'package:neom_core/core/app_properties.dart';
 import '../../domain/use_cases/neom_audio_handler.dart';
 
 class NeomAudioProvider {
@@ -26,9 +26,9 @@ class NeomAudioProvider {
     audioHandler = await AudioService.init(
       builder: () => NeomAudioHandler(),
       config: AudioServiceConfig(
-        androidNotificationChannelId: AppFlavour.getNotificationChannelId(),
-        androidNotificationChannelName: AppFlavour.getNotificationChannelName(),
-        androidNotificationIcon: AppFlavour.getNotificationIcon(),
+        androidNotificationChannelId: AppProperties.getNotificationChannelId(),
+        androidNotificationChannelName: AppProperties.getNotificationChannelName(),
+        androidNotificationIcon: AppProperties.getNotificationIcon(),
         androidShowNotificationBadge: true,
         androidStopForegroundOnPause: true,
         notificationColor: Colors.grey[900],

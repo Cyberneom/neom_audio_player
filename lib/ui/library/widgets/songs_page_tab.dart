@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:neom_commons/core/domain/model/app_media_item.dart';
-
+import 'package:neom_core/core/domain/model/app_media_item.dart';
 
 import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
 import '../../home/widgets/search_page.dart';

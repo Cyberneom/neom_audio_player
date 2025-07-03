@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:neom_commons/core/domain/model/app_media_item.dart';
-import 'package:neom_commons/core/domain/model/item_list.dart';
-import 'package:neom_commons/core/ui/widgets/neom_image_card.dart';
-import 'package:neom_commons/core/utils/app_theme.dart';
-import 'package:neom_commons/core/utils/app_utilities.dart';
-import 'package:neom_commons/core/utils/constants/app_assets.dart';
-import 'package:neom_commons/core/utils/constants/app_route_constants.dart';
-import 'package:neom_commons/core/utils/enums/app_media_source.dart';
+import 'package:neom_commons/commons/ui/theme/app_theme.dart';
+import 'package:neom_commons/commons/ui/widgets/neom_image_card.dart';
+import 'package:neom_commons/commons/utils/app_utilities.dart';
+import 'package:neom_commons/commons/utils/constants/app_assets.dart';
+import 'package:neom_core/core/domain/model/app_media_item.dart';
+import 'package:neom_core/core/domain/model/item_list.dart';
+import 'package:neom_core/core/utils/constants/app_route_constants.dart';
+import 'package:neom_core/core/utils/enums/app_media_source.dart';
 import 'package:neom_media_player/ui/widgets/download_button.dart';
 import 'package:neom_media_player/utils/helpers/media_item_mapper.dart';
 
 import '../../data/implementations/player_hive_controller.dart';
-import '../../neom_player_invoker.dart';
+import '../../audio_player_invoker.dart';
 import '../player/audio_player_controller.dart';
 import 'like_button.dart';
 import 'song_tile_trailing_menu.dart';

@@ -21,7 +21,7 @@
 //     OrderType? orderType,
 //     String? path,
 //   }) async {
-//     AppUtilities.logger.i(
+//     AppConfig.logger.i(
 //       'Getting songs with path: $path, sortType: $sortType, orderType: $orderType',
 //     );
 //     return audioQuery.querySongs(

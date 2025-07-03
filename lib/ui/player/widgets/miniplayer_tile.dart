@@ -4,14 +4,13 @@ import 'package:audio_service/audio_service.dart';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:neom_commons/core/app_flavour.dart';
-import 'package:neom_commons/core/ui/widgets/neom_image_card.dart';
-import 'package:neom_commons/core/utils/app_color.dart';
-import 'package:neom_commons/core/utils/app_utilities.dart';
-import 'package:neom_commons/core/utils/constants/app_constants.dart';
-import 'package:neom_commons/core/utils/constants/app_route_constants.dart';
-import 'package:neom_commons/core/utils/constants/app_translation_constants.dart';
-import 'package:neom_commons/core/utils/enums/app_media_source.dart';
+import 'package:neom_commons/commons/ui/theme/app_color.dart';
+import 'package:neom_commons/commons/ui/widgets/neom_image_card.dart';
+import 'package:neom_commons/commons/utils/app_utilities.dart';
+import 'package:neom_commons/commons/utils/constants/app_translation_constants.dart';
+import 'package:neom_core/core/app_properties.dart';
+import 'package:neom_core/core/utils/constants/app_route_constants.dart';
+import 'package:neom_core/core/utils/enums/app_media_source.dart';
 import 'package:neom_media_player/utils/helpers/media_item_mapper.dart';
 
 import '../../../data/implementations/player_hive_controller.dart';
@@ -122,7 +121,7 @@ class _MiniPlayerTileState extends State<MiniPlayerTile> {
                   boxDimension: widget.useDense ? 40.0 : 50.0,
                   localImage: widget.item?.artUri?.toString().startsWith('file:') ?? false,
                   imageUrl: (widget.item?.artUri?.toString().startsWith('file:') ?? false
-                      ? widget.item?.artUri?.toFilePath() : widget.item?.artUri?.toString()) ?? AppFlavour.getAppLogoUrl(),
+                      ? widget.item?.artUri?.toFilePath() : widget.item?.artUri?.toString()) ?? AppProperties.getAppLogoUrl(),
                 ),
               ),
             ),
@@ -150,13 +149,13 @@ class _MiniPlayerTileState extends State<MiniPlayerTile> {
         child: widget.item == null
             ? (widget.isTimeline ? IconButton(onPressed: () => widget.miniPlayerController.goToMusicPlayerHome(),
             icon: const Icon(Icons.arrow_forward_ios)
-        ) : Hero(tag: AppConstants.currentArtwork,
+        ) : Hero(tag: AudioPlayerConstants.currentArtwork,
           child: NeomImageCard(
             elevation: 10,
             boxDimension: widget.useDense ? 40.0 : 50.0,
             localImage: widget.item?.artUri?.toString().startsWith('file:') ?? false,
             imageUrl: (widget.item?.artUri?.toString().startsWith('file:') ?? false
-                ? widget.item?.artUri?.toFilePath() : widget.item?.artUri?.toString()) ?? AppFlavour.getAppLogoUrl(),
+                ? widget.item?.artUri?.toFilePath() : widget.item?.artUri?.toString()) ?? AppProperties.getAppLogoUrl(),
           ),
         )
         ) : widget.miniPlayerController.audioHandler != null

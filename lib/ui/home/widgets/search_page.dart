@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
-import 'package:neom_commons/core/app_flavour.dart';
-import 'package:neom_commons/core/data/firestore/app_media_item_firestore.dart';
-import 'package:neom_commons/core/data/firestore/app_release_item_firestore.dart';
-import 'package:neom_commons/core/data/implementations/app_hive_controller.dart';
-import 'package:neom_commons/core/domain/model/app_media_item.dart';
-import 'package:neom_commons/core/domain/model/app_release_item.dart';
-import 'package:neom_commons/core/utils/app_color.dart';
-import 'package:neom_commons/core/utils/constants/app_hive_constants.dart';
-import 'package:neom_commons/core/utils/constants/app_translation_constants.dart';
-import 'package:neom_commons/core/utils/enums/app_hive_box.dart';
-import 'package:neom_commons/core/utils/enums/app_in_use.dart';
+import 'package:neom_commons/commons/app_flavour.dart';
+import 'package:neom_commons/commons/ui/theme/app_color.dart';
+import 'package:neom_commons/commons/utils/constants/app_translation_constants.dart';
+import 'package:neom_commons/commons/utils/mappers/app_media_item_mapper.dart';
+import 'package:neom_core/core/data/firestore/app_media_item_firestore.dart';
+import 'package:neom_core/core/data/firestore/app_release_item_firestore.dart';
+import 'package:neom_core/core/data/implementations/app_hive_controller.dart';
+import 'package:neom_core/core/domain/model/app_media_item.dart';
+import 'package:neom_core/core/domain/model/app_release_item.dart';
+import 'package:neom_core/core/utils/constants/app_hive_constants.dart';
+import 'package:neom_core/core/utils/enums/app_hive_box.dart';
+import 'package:neom_core/core/utils/enums/app_in_use.dart';
 
 import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
 
@@ -52,7 +53,7 @@ class SearchPageState extends State<SearchPage> {
   List search = [];
   bool showHistory = true;
   bool liveSearch = true;
-  bool _settingsLoaded = false; // Flag to track if Hive settings are loaded
+// Flag to track if Hive settings are loaded
 
   final controller = TextEditingController();
 
@@ -74,7 +75,7 @@ class SearchPageState extends State<SearchPage> {
         search = settingsBox?.get(AppHiveConstants.search, defaultValue: []) as List;
         showHistory = settingsBox?.get(AppHiveConstants.showHistory, defaultValue: true) as bool;
         liveSearch = settingsBox?.get(AppHiveConstants.liveSearch, defaultValue: true) as bool;
-        _settingsLoaded = true; // Mark settings as loaded
+// Mark settings as loaded
       });
 
       // Now that settings are loaded, decide what to fetch
@@ -122,7 +123,7 @@ class SearchPageState extends State<SearchPage> {
 
     for (var item in items.values) {
       if(item.name.toLowerCase().contains(searchParam.toLowerCase()) || (item.ownerName.toLowerCase().contains(searchParam.toLowerCase()))){
-        appMediaItems[item.id] = AppMediaItem.fromAppReleaseItem(item);
+        appMediaItems[item.id] = AppMediaItemMapper.fromAppReleaseItem(item);
       }
     }
 

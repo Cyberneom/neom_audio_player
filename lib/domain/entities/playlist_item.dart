@@ -1,7 +1,7 @@
 
 
 import 'package:enum_to_string/enum_to_string.dart';
-import 'package:neom_commons/core/utils/app_utilities.dart';
+import 'package:neom_core/core/app_config.dart';
 import '../../utils/enums/playlist_type.dart';
 
 class PlaylistItem {
@@ -27,7 +27,7 @@ class PlaylistItem {
   });
 
   Map<String, dynamic> toJSON() {
-    AppUtilities.logger.d('PlaylistItem toJSON');
+    AppConfig.logger.d('PlaylistItem toJSON');
     return <String, dynamic> {
       'id': id,
       'title': title,

@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:neom_commons/core/utils/constants/app_page_id_constants.dart';
-import 'package:neom_commons/core/utils/constants/app_route_constants.dart';
+import 'package:neom_commons/commons/utils/constants/app_page_id_constants.dart';
+import 'package:neom_core/core/utils/constants/app_route_constants.dart';
 import 'package:neom_media_player/utils/helpers/media_item_mapper.dart';
 
 import 'miniplayer_controller.dart';

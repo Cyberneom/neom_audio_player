@@ -160,7 +160,7 @@
 //         message: '${PlayerTranslationConstants.deleted.tr} ${song['title']}',
 //       );
 //     } catch (e) {
-//       AppUtilities.logger.e('Failed to delete $audioFile.path ${e.toString()}');
+//       AppConfig.logger.e('Failed to delete $audioFile.path ${e.toString()}');
 //       AppUtilities.showSnackBar(
 //         message: '${PlayerTranslationConstants.failedDelete.tr}: ${audioFile.path}\nError: $e',
 //       );
@@ -388,7 +388,7 @@
 //                       try {
 //                         await [Permission.manageExternalStorage,].request();
 //                       } catch (e) {
-//                         AppUtilities.logger.e(e.toString());
+//                         AppConfig.logger.e(e.toString());
 //                       }
 //                     }
 //                   },
@@ -569,7 +569,7 @@
 //                   );
 //                 }
 //               } catch (e) {
-//                 AppUtilities.logger.e('Failed to edit tags ${e.toString()}');
+//                 AppConfig.logger.e('Failed to edit tags ${e.toString()}');
 //                 AppUtilities.showSnackBar(
 //                   message: '${PlayerTranslationConstants.failedTagEdit.tr}\nError: $e',
 //                 );

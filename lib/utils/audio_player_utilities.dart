@@ -1,22 +1,19 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:neom_commons/core/domain/model/app_media_item.dart';
-import 'package:neom_commons/core/domain/model/app_release_item.dart';
-import 'package:neom_commons/core/utils/enums/app_media_source.dart';
-import 'package:neom_commons/neom_commons.dart';
+import 'package:neom_commons/commons/ui/theme/app_color.dart';
+import 'package:neom_core/core/app_properties.dart';
+import 'package:neom_core/core/domain/model/app_media_item.dart';
+import 'package:neom_core/core/domain/model/app_release_item.dart';
+import 'package:neom_core/core/domain/model/item_list.dart';
+import 'package:neom_core/core/utils/enums/app_media_source.dart';
 
 import '../domain/use_cases/neom_audio_handler.dart';
-import 'constants/audio_player_route_constants.dart';
 
 class AudioPlayerUtilities {
 
-  static List<Widget> getAudioPlayerPages() {
-    return AudioPlayerRouteConstants.audioPlayerPages;
-  }
-
   static bool isOwnMediaItem(AppMediaItem appMediaItem) {
-    final bool isOwnMediaItem = appMediaItem.url.contains(AppFlavour.getHubName())
-        || appMediaItem.url.contains(AppFlavour.getStorageServerName())
+    final bool isOwnMediaItem = appMediaItem.url.contains(AppProperties.getHubName())
+        || appMediaItem.url.contains(AppProperties.getStorageServerName())
         || appMediaItem.mediaSource == AppMediaSource.internal;
 
     return isOwnMediaItem;

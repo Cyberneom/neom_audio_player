@@ -1,22 +1,22 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:neom_commons/core/app_flavour.dart';
-import 'package:neom_commons/core/data/implementations/app_drawer_controller.dart';
-import 'package:neom_commons/core/ui/widgets/custom_widgets.dart';
-import 'package:neom_commons/core/utils/app_color.dart';
-import 'package:neom_commons/core/utils/app_theme.dart';
-import 'package:neom_commons/core/utils/constants/app_constants.dart';
-import 'package:neom_commons/core/utils/constants/app_page_id_constants.dart';
-import 'package:neom_commons/core/utils/constants/app_route_constants.dart';
-import 'package:neom_commons/core/utils/constants/app_translation_constants.dart';
-import 'package:neom_commons/core/utils/enums/app_in_use.dart';
-import 'package:neom_commons/core/utils/enums/user_role.dart';
+import 'package:neom_commons/commons/app_flavour.dart';
+import 'package:neom_commons/commons/ui/theme/app_color.dart';
+import 'package:neom_commons/commons/ui/theme/app_theme.dart';
+import 'package:neom_commons/commons/ui/widgets/custom_widgets.dart';
+import 'package:neom_commons/commons/utils/constants/app_constants.dart';
+import 'package:neom_commons/commons/utils/constants/app_page_id_constants.dart';
+import 'package:neom_commons/commons/utils/constants/app_translation_constants.dart';
+import 'package:neom_core/core/app_properties.dart';
+import 'package:neom_core/core/data/implementations/app_drawer_controller.dart';
+import 'package:neom_core/core/utils/constants/app_route_constants.dart';
+import 'package:neom_core/core/utils/enums/app_in_use.dart';
+import 'package:neom_core/core/utils/enums/user_role.dart';
 import '../../../utils/constants/audio_player_route_constants.dart';
 import '../../../utils/enums/audio_player_drawer_menu.dart';
 import '../library/playlist_player_page.dart';
 import '../player/miniplayer_controller.dart';
-
 
 class AudioPlayerDrawer extends StatelessWidget {
 
@@ -107,16 +107,16 @@ class AudioPlayerDrawer extends StatelessWidget {
                             border: Border.all(color: Colors.white, width: 2),
                             borderRadius: BorderRadius.circular(28),
                             image: DecorationImage(
-                              image: CachedNetworkImageProvider(_.appProfile.photoUrl.isNotEmpty
-                                  ? _.appProfile.photoUrl : AppFlavour.getNoImageUrl(),),
+                              image: CachedNetworkImageProvider(_.appProfile.value.photoUrl.isNotEmpty
+                                  ? _.appProfile.value.photoUrl : AppProperties.getNoImageUrl(),),
                               fit: BoxFit.cover,
                             ),
                           ),
                         ),
                         onTap: ()=> Get.toNamed(AppRouteConstants.profile),
                       ),
-                      Text(_.appProfile.name.length > AppConstants.maxArtistNameLength
-                          ? '${_.appProfile.name.substring(0,AppConstants.maxArtistNameLength)}...' : _.appProfile.name,
+                      Text(_.appProfile.value.name.length > AppConstants.maxArtistNameLength
+                          ? '${_.appProfile.value.name.substring(0,AppConstants.maxArtistNameLength)}...' : _.appProfile.value.name,
                         style: AppTheme.primaryTitleText,
                         overflow: TextOverflow.fade,
                       ),

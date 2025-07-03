@@ -1,21 +1,24 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:neom_commons/core/app_flavour.dart';
-import 'package:neom_commons/core/ui/widgets/app_circular_progress_indicator.dart';
-import 'package:neom_commons/core/utils/app_color.dart';
-import 'package:neom_commons/core/utils/app_theme.dart';
-import 'package:neom_commons/core/utils/app_utilities.dart';
+import 'package:neom_commons/commons/app_flavour.dart';
+import 'package:neom_commons/commons/ui/theme/app_color.dart';
+import 'package:neom_commons/commons/ui/theme/app_theme.dart';
+import 'package:neom_commons/commons/ui/widgets/app_circular_progress_indicator.dart';
+import 'package:neom_core/core/app_config.dart';
 import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
 
-import 'ui/drawer/audio_player_drawer.dart';
-import 'ui/player/miniplayer.dart';
-import 'ui/player/miniplayer_controller.dart';
-import 'ui/widgets/audio_player_bottom_app_bar.dart';
-import 'utils/audio_player_utilities.dart';
+import 'drawer/audio_player_drawer.dart';
+import 'home/audio_player_home_page.dart';
+import 'player/miniplayer.dart';
+import 'player/miniplayer_controller.dart';
+import 'widgets/audio_player_bottom_app_bar.dart';
 
 class AudioPlayerRootPage extends StatefulWidget {
-  const AudioPlayerRootPage({super.key});
+  final Widget? secondaryPage;
+
+  const AudioPlayerRootPage({super.key, this.secondaryPage});
+
 
   @override
   AudioPlayerRootPageState createState() => AudioPlayerRootPageState();
@@ -27,6 +30,7 @@ class AudioPlayerRootPageState extends State<AudioPlayerRootPage> {
   bool hasItems = false;
   bool isLoading = false;
   int currentIndex = 0;
+
 
   @override
   void initState() {
@@ -55,7 +59,7 @@ class AudioPlayerRootPageState extends State<AudioPlayerRootPage> {
             PageView(
                 physics: const NeverScrollableScrollPhysics(),
                 controller: pageController,
-                children: AudioPlayerUtilities.getAudioPlayerPages()
+                children: [AudioPlayerHomePage(), if(widget.secondaryPage != null) widget.secondaryPage!]
             ),
             Positioned(
               left: 0, right: 0,
@@ -77,7 +81,7 @@ class AudioPlayerRootPageState extends State<AudioPlayerRootPage> {
             onTabSelected:(int index) => selectPageView(index, context: context),
             items: [
               MusicPlayerBottomAppBarItem(iconData: Icons.play_circle_fill, text: AppFlavour.getAudioPlayerHomeTitle(),),
-              MusicPlayerBottomAppBarItem(iconData: Icons.library_music, text: PlayerTranslationConstants.playlists.tr,),
+              if(widget.secondaryPage != null) MusicPlayerBottomAppBarItem(iconData: Icons.library_music, text: PlayerTranslationConstants.playlists.tr,),
             ],
           ),
         ),
@@ -85,7 +89,7 @@ class AudioPlayerRootPageState extends State<AudioPlayerRootPage> {
   }
 
   void selectPageView(int index, {BuildContext? context}) async {
-    AppUtilities.logger.t("Changing page view to index: $index");
+    AppConfig.logger.t("Changing page view to index: $index");
 
     try {
       if(pageController.hasClients) {
@@ -94,7 +98,7 @@ class AudioPlayerRootPageState extends State<AudioPlayerRootPage> {
       }
 
     } catch (e) {
-      AppUtilities.logger.e(e.toString());
+      AppConfig.logger.e(e.toString());
     }
 
     setState(() {});

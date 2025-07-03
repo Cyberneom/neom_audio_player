@@ -2,13 +2,12 @@ import 'dart:async';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:enum_to_string/enum_to_string.dart';
-import 'package:neom_commons/core/data/implementations/app_hive_controller.dart';
-import 'package:neom_commons/core/domain/model/app_release_item.dart';
-import 'package:neom_commons/core/domain/model/item_list.dart';
-import 'package:neom_commons/core/utils/app_utilities.dart';
-import 'package:neom_commons/core/utils/constants/app_hive_constants.dart';
-import 'package:neom_commons/core/utils/enums/app_hive_box.dart';
-
+import 'package:neom_core/core/app_config.dart';
+import 'package:neom_core/core/data/implementations/app_hive_controller.dart';
+import 'package:neom_core/core/domain/model/app_release_item.dart';
+import 'package:neom_core/core/domain/model/item_list.dart';
+import 'package:neom_core/core/utils/constants/app_hive_constants.dart';
+import 'package:neom_core/core/utils/enums/app_hive_box.dart';
 
 class PlayerHiveController {
 
@@ -58,18 +57,18 @@ class PlayerHiveController {
     if (_isInitialized) return;
     _isInitialized = true;
     try {
-      AppUtilities.logger.t('PlayerHive Controller');
+      AppConfig.logger.t('PlayerHive Controller');
       await fetchCachedData();
       await fetchSettingsData();
     } catch (e) {
-      AppUtilities.logger.e(e.toString());
+      AppConfig.logger.e(e.toString());
     }
 
   }
 
 
   Future<void> fetchCachedData() async {
-    AppUtilities.logger.t('Fetch Cache Data');
+    AppConfig.logger.t('Fetch Cache Data');
     final playerBox = await AppHiveController().getBox(AppHiveBox.player.name);
 
     lastQueueList = playerBox.get(AppHiveConstants.lastQueue, defaultValue: [])?.toList() as List;
@@ -93,7 +92,7 @@ class PlayerHiveController {
   }
 
   Future<void> fetchSettingsData() async {
-    AppUtilities.logger.t('Fetch Settings Data');
+    AppConfig.logger.t('Fetch Settings Data');
 
     final settingsBox = await AppHiveController().getBox(AppHiveBox.settings.name);
 

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:neom_commons/core/utils/app_utilities.dart';
+import 'package:neom_core/core/app_config.dart';
 
 // ignore: avoid_classes_with_only_static_members
 class HandleRoute {
 
   static Route? handleRoute(String? url) {
-    AppUtilities.logger.i('received route url: $url');
+    AppConfig.logger.i('received route url: $url');
     if (url == null) return null;
 
     final RegExpMatch? fileResult = RegExp(r'\/[0-9]+\/([0-9]+)\/').firstMatch('$url/');

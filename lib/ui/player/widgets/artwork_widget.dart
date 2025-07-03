@@ -7,11 +7,11 @@ import 'package:flip_card/flip_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_lyric/lyrics_reader.dart';
 import 'package:get/get.dart';
-import 'package:neom_commons/core/app_flavour.dart';
-import 'package:neom_commons/core/utils/app_color.dart';
-import 'package:neom_commons/core/utils/constants/app_assets.dart';
-import 'package:neom_commons/core/utils/constants/app_translation_constants.dart';
-import 'package:neom_commons/core/utils/core_utilities.dart';
+import 'package:neom_commons/commons/ui/theme/app_color.dart';
+import 'package:neom_commons/commons/utils/app_utilities.dart';
+import 'package:neom_commons/commons/utils/constants/app_assets.dart';
+import 'package:neom_commons/commons/utils/constants/app_translation_constants.dart';
+import 'package:neom_core/core/app_properties.dart';
 import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
 
 import '../../../data/implementations/player_hive_controller.dart';
@@ -129,7 +129,7 @@ class ArtWorkWidget extends StatelessWidget {
                   valueListenable: _.lyricsSource,
                   child: const CircularProgressIndicator(),
                   builder: (BuildContext context, String value, Widget? child,) {
-                    if (value == '' || value == AppFlavour.getAppName() || value == LyricsSource.internal.name) {
+                    if (value == '' || value == AppProperties.getAppName() || value == LyricsSource.internal.name) {
                       return const SizedBox.shrink();
                     }
                     return Align(
@@ -155,7 +155,7 @@ class ArtWorkWidget extends StatelessWidget {
                       tooltip: PlayerTranslationConstants.copy.tr,
                       onPressed: () {
                         Feedback.forLongPress(context);
-                        CoreUtilities.copyToClipboard(text: _.mediaLyrics.lyrics,);
+                        AppUtilities.copyToClipboard(text: _.mediaLyrics.lyrics,);
                       },
                       icon: const Icon(Icons.copy_rounded),
                       color:

@@ -5,16 +5,16 @@ import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
-import 'package:neom_commons/core/app_flavour.dart';
-import 'package:neom_commons/core/utils/app_color.dart';
-import 'package:neom_commons/core/utils/app_theme.dart';
-import 'package:neom_commons/core/utils/app_utilities.dart';
-import 'package:neom_commons/core/utils/constants/app_hive_constants.dart';
-import 'package:neom_commons/core/utils/constants/app_translation_constants.dart';
-import 'package:neom_commons/core/utils/enums/app_hive_box.dart';
-import 'package:neom_commons/core/utils/enums/app_in_use.dart';
-import 'package:neom_commons/core/utils/enums/itemlist_type.dart';
-import 'package:neom_commons/core/utils/enums/user_role.dart';
+import 'package:neom_commons/commons/app_flavour.dart';
+import 'package:neom_commons/commons/ui/theme/app_color.dart';
+import 'package:neom_commons/commons/ui/theme/app_theme.dart';
+import 'package:neom_commons/commons/utils/constants/app_translation_constants.dart';
+import 'package:neom_core/core/utils/constants/app_hive_constants.dart';
+import 'package:neom_core/core/utils/core_utilities.dart';
+import 'package:neom_core/core/utils/enums/app_hive_box.dart';
+import 'package:neom_core/core/utils/enums/app_in_use.dart';
+import 'package:neom_core/core/utils/enums/itemlist_type.dart';
+import 'package:neom_core/core/utils/enums/user_role.dart';
 import 'package:neom_media_player/ui/widgets/download_button.dart';
 import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
 import 'package:neom_media_player/utils/helpers/media_item_mapper.dart';
@@ -263,7 +263,9 @@ class NameNControls extends StatelessWidget {
                                 },
                               ),
                               downloadAllowed && _.mediaItem.value != null ? DownloadButton(mediaItem: MediaItemMapper.toAppMediaItem(_.mediaItem.value!),): const SizedBox.shrink(),
-                              AddToPlaylistButton(appMediaItem: _.appMediaItem.value, playlists: AppUtilities.filterItemlists(_.profile.itemlists?.values.toList() ?? [], ItemlistType.playlist,),
+                              AddToPlaylistButton(
+                                appMediaItem: _.appMediaItem.value,
+                                playlists: CoreUtilities.filterItemlists(_.profile.itemlists?.values.toList() ?? [], ItemlistType.playlist,),
                                 currentPlaylist: _.personalPlaylist,)
                               // _.createPopMenuOption(context, _.appMediaItem.value),
                             ],

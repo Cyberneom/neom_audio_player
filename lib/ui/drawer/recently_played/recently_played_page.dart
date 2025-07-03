@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
-import 'package:neom_commons/core/domain/model/app_media_item.dart';
-import 'package:neom_commons/core/ui/widgets/appbar_child.dart';
-import 'package:neom_commons/core/ui/widgets/neom_image_card.dart';
-import 'package:neom_commons/core/utils/app_color.dart';
-import 'package:neom_commons/core/utils/constants/app_hive_constants.dart';
-import 'package:neom_commons/core/utils/enums/app_hive_box.dart';
+import 'package:neom_commons/commons/ui/theme/app_color.dart';
+import 'package:neom_commons/commons/ui/widgets/appbar_child.dart';
+import 'package:neom_commons/commons/ui/widgets/neom_image_card.dart';
+import 'package:neom_core/core/domain/model/app_media_item.dart';
+import 'package:neom_core/core/utils/constants/app_hive_constants.dart';
+import 'package:neom_core/core/utils/enums/app_hive_box.dart';
 import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
 
-import '../../../neom_player_invoker.dart';
+import '../../../audio_player_invoker.dart';
 import '../../../utils/constants/audio_player_route_constants.dart';
 import '../../widgets/empty_screen.dart';
 import '../../widgets/like_button.dart';

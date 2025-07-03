@@ -1,5 +1,6 @@
 import 'package:hive/hive.dart';
-import 'package:neom_commons/core/utils/enums/app_hive_box.dart';
+import 'package:neom_core/core/utils/enums/app_hive_box.dart';
+
 void addSongsCount(String playlistName, int len, List images) {
   final Map playlistDetails =
       Hive.box(AppHiveBox.settings.name).get('playlistDetails', defaultValue: {}) as Map;

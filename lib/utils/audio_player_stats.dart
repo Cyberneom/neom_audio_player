@@ -1,14 +1,15 @@
 import 'dart:convert';
 
-import 'package:neom_commons/core/data/implementations/app_hive_controller.dart';
-import 'package:neom_commons/core/domain/model/app_media_item.dart';
-import 'package:neom_commons/core/utils/app_utilities.dart';
-import 'package:neom_commons/core/utils/constants/app_hive_constants.dart';
-import 'package:neom_commons/core/utils/enums/app_hive_box.dart';
+import 'package:neom_core/core/app_config.dart';
+import 'package:neom_core/core/data/implementations/app_hive_controller.dart';
+import 'package:neom_core/core/domain/model/app_media_item.dart';
+import 'package:neom_core/core/utils/constants/app_hive_constants.dart';
+import 'package:neom_core/core/utils/enums/app_hive_box.dart';
+
 class AudioPlayerStats {
 
   static Future<void> addRecentlyPlayed(AppMediaItem appMediaItem) async {
-    AppUtilities.logger.d('Adding ${appMediaItem.id} to recently played');
+    AppConfig.logger.d('Adding ${appMediaItem.id} to recently played');
 
     try {
       final playerBox = await AppHiveController().getBox(AppHiveBox.player.name);
@@ -29,7 +30,7 @@ class AudioPlayerStats {
       if ((songStats[AppHiveConstants.playCount] as int) > (mostPlayed[AppHiveConstants.playCount] as int? ?? 0)) {
         statsBox.put(AppHiveConstants.mostPlayed, songStats);
       }
-      AppUtilities.logger.i('Adding mediaItemId: ${appMediaItem.id} Name: ${appMediaItem.name} data to stats');
+      AppConfig.logger.i('Adding mediaItemId: ${appMediaItem.id} Name: ${appMediaItem.name} data to stats');
 
       recentList.insert(0, appMediaItem.toJSON());
 
@@ -42,7 +43,7 @@ class AudioPlayerStats {
       }
       playerBox.put(AppHiveConstants.recentSongs, recentList);
     } catch(e) {
-      AppUtilities.logger.e(e.toString());
+      AppConfig.logger.e(e.toString());
     }
 
   }

@@ -1,6 +1,6 @@
-import 'package:neom_commons/core/data/implementations/app_hive_controller.dart';
-import 'package:neom_commons/core/utils/app_utilities.dart';
-import 'package:neom_commons/core/utils/enums/app_hive_box.dart';
+import 'package:neom_core/core/app_config.dart';
+import 'package:neom_core/core/data/implementations/app_hive_controller.dart';
+import 'package:neom_core/core/utils/enums/app_hive_box.dart';
 
 class CaseteTrialUsageManager {
 
@@ -22,7 +22,7 @@ class CaseteTrialUsageManager {
     storedUsage += trialUsage;
     caseteBox.put('dailyTrialUsage', storedUsage);
 
-    AppUtilities.logger.d('Daily trial usage updated to: $storedUsage');
+    AppConfig.logger.d('Daily trial usage updated to: $storedUsage');
   }
 
   // Method to retrieve current daily trial usage
@@ -47,6 +47,6 @@ class CaseteTrialUsageManager {
   void increaseDailyTrialUsage(int increment) async {
     int currentUsage = await getDailyTrialUsage();
     setDailyTrialUsage(increment);
-    AppUtilities.logger.d('Increased usage by $increment, new usage: $currentUsage');
+    AppConfig.logger.d('Increased usage by $increment, new usage: $currentUsage');
   }
 }

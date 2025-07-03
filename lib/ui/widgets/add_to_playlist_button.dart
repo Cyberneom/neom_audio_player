@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:neom_commons/core/data/firestore/itemlist_firestore.dart';
-import 'package:neom_commons/core/data/implementations/user_controller.dart';
-import 'package:neom_commons/core/domain/model/app_media_item.dart';
-import 'package:neom_commons/core/domain/model/item_list.dart';
-
-import 'package:neom_commons/core/utils/app_utilities.dart';
-
+import 'package:neom_commons/commons/utils/app_utilities.dart';
+import 'package:neom_core/core/app_config.dart';
+import 'package:neom_core/core/data/firestore/itemlist_firestore.dart';
+import 'package:neom_core/core/data/implementations/user_controller.dart';
+import 'package:neom_core/core/domain/model/app_media_item.dart';
+import 'package:neom_core/core/domain/model/item_list.dart';
 import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
 import '../player/widgets/add_to_playlist.dart';
 
@@ -45,7 +44,7 @@ class AddToPlaylistButtonState extends State<AddToPlaylistButton> {
   Widget build(BuildContext context) {
     try {
     } catch (e) {
-      AppUtilities.logger.e('Error in likeButton: $e');
+      AppConfig.logger.e('Error in likeButton: $e');
     }
     return IconButton(
         padding: widget.padding,
@@ -84,7 +83,7 @@ class AddToPlaylistButtonState extends State<AddToPlaylistButton> {
               }
             }
           } catch(e) {
-            AppUtilities.logger.e(e.toString());
+            AppConfig.logger.e(e.toString());
           }
         },
     );

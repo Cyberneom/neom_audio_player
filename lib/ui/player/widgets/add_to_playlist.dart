@@ -2,50 +2,45 @@ import 'package:enum_to_string/enum_to_string.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:get/get.dart';
-import 'package:neom_commons/core/domain/model/app_media_item.dart';
-import 'package:neom_commons/core/domain/model/item_list.dart';
-import 'package:neom_commons/core/utils/app_color.dart';
-import 'package:neom_commons/core/utils/app_theme.dart';
-import 'package:neom_commons/core/utils/app_utilities.dart';
-import 'package:neom_commons/core/utils/constants/app_assets.dart';
-import 'package:neom_commons/core/utils/constants/app_constants.dart';
-import 'package:neom_commons/core/utils/constants/app_translation_constants.dart';
-import 'package:neom_commons/core/utils/constants/message_translation_constants.dart';
-import 'package:neom_commons/core/utils/core_utilities.dart';
-import 'package:neom_commons/core/utils/enums/app_item_state.dart';
-import 'package:neom_commons/core/utils/enums/itemlist_type.dart';
-import 'package:neom_commons/core/utils/enums/profile_type.dart';
-import 'package:neom_search/search/ui/itemlist/app_media_item_search_controller.dart';
+import 'package:neom_commons/commons/ui/theme/app_color.dart';
+import 'package:neom_commons/commons/ui/theme/app_theme.dart';
+import 'package:neom_commons/commons/utils/app_utilities.dart';
+import 'package:neom_commons/commons/utils/constants/app_assets.dart';
+import 'package:neom_commons/commons/utils/constants/app_constants.dart';
+import 'package:neom_commons/commons/utils/constants/app_translation_constants.dart';
+import 'package:neom_commons/commons/utils/constants/message_translation_constants.dart';
+import 'package:neom_core/core/app_config.dart';
+import 'package:neom_core/core/data/implementations/user_controller.dart';
+import 'package:neom_core/core/domain/model/app_media_item.dart';
+import 'package:neom_core/core/domain/model/item_list.dart';
+import 'package:neom_core/core/domain/use_cases/itemlist_service.dart';
+import 'package:neom_core/core/utils/core_utilities.dart';
+import 'package:neom_core/core/utils/enums/app_item_state.dart';
+import 'package:neom_core/core/utils/enums/itemlist_type.dart';
+import 'package:neom_core/core/utils/enums/profile_type.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
 
 class AddToPlaylist {
-  // Box settingsBox = Hive.box(AppHiveBox.settings.name);
-  // List playlistNames = Hive.box(AppHiveBox.settings.name).get('playlistNames', defaultValue: [AppHiveBox.favoriteItems.name]) as List;
-  // Map playlistDetails = Hive.box(AppHiveBox.settings.name).get('playlistDetails', defaultValue: {}) as Map;
 
   Future<bool> addToPlaylist(BuildContext context, AppMediaItem appMediaItem, {List<Itemlist>? playlists, bool fromSearch = false, bool goHome = true}) async {
 
     List<Itemlist> itemlists = []; ///GET INFO FROM CONTROLLER
     ProfileType type = ProfileType.general; ///GET INFO FROM CONTROLLER
-    AppMediaItemSearchController searchController;
+    ItemlistService itemlistServiceImpl;
 
     try {
-      // Check if the controller is active
-      if (Get.isRegistered<AppMediaItemSearchController>()) {
-        searchController = Get.find<AppMediaItemSearchController>();
-      } else {
-        searchController = Get.put(AppMediaItemSearchController());
-      }
-      itemlists = AppUtilities.filterItemlists(searchController.itemlists.values.toList(), ItemlistType.playlist);
+      itemlistServiceImpl = Get.find<ItemlistService>();
+
+      itemlists = CoreUtilities.filterItemlists(itemlistServiceImpl.getItemlists(), ItemlistType.playlist);
       itemlists.removeWhere((element) => !element.isModifiable);
 
       if(itemlists.isEmpty) {
-        itemlists.add(await searchController.createBasicItemlist());
+        itemlists.add(await itemlistServiceImpl.createBasicItemlist());
       }
 
-      searchController.setSelectedItemlist(itemlists.first.id);
-      type = searchController.profile.type;
-      searchController.appMediaItem = appMediaItem;
+      itemlistServiceImpl.setSelectedItemlist(itemlists.first.id);
+      type = Get.find<UserController>().profile.type;
+      itemlistServiceImpl.setAppMediaItem(appMediaItem);
 
       itemlists.length > 1 ? Alert(
         context: context,
@@ -75,14 +70,14 @@ class AddToPlaylist {
                               allowHalfRating: false,
                               itemCount: 5,
                               ratingWidget: RatingWidget(
-                                full: CoreUtilities.ratingImage(AppAssets.heart),
-                                half: CoreUtilities.ratingImage(AppAssets.heartHalf),
-                                empty: CoreUtilities.ratingImage(AppAssets.heartBorder),
+                                full: AppUtilities.ratingImage(AppAssets.heart),
+                                half: AppUtilities.ratingImage(AppAssets.heartHalf),
+                                empty: AppUtilities.ratingImage(AppAssets.heartBorder),
                               ),
                               itemPadding: const EdgeInsets.symmetric(horizontal: 1.0),
                               itemSize: 12,
                               onRatingUpdate: (rating) {
-                                AppUtilities.logger.i('New Rating set to $rating');
+                                AppConfig.logger.i('New Rating set to $rating');
                               },
                             ),
                           ],
@@ -90,9 +85,9 @@ class AddToPlaylist {
                     );
                   }).toList(),
                   onChanged: (String? newState) {
-                    searchController.setAppItemState(EnumToString.fromString(AppItemState.values, newState!) ?? AppItemState.noState);
+                    itemlistServiceImpl.setAppItemState(EnumToString.fromString(AppItemState.values, newState!) ?? AppItemState.noState);
                   },
-                  value: CoreUtilities.getItemState(searchController.appItemState.value).name,
+                  value: CoreUtilities.getItemState(itemlistServiceImpl.getItemState()).name,
                   alignment: Alignment.center,
                   icon: const Icon(Icons.arrow_downward),
                   iconSize: 20,
@@ -119,9 +114,9 @@ class AddToPlaylist {
                   ),
               ).toList(),
               onChanged: (String? selectedItemlist) {
-                searchController.setSelectedItemlist(selectedItemlist!);
+                itemlistServiceImpl.setSelectedItemlist(selectedItemlist!);
               },
-              value: searchController.itemlistId.value,
+              value: itemlistServiceImpl.getSelectedItemlist(),
               icon: const Icon(Icons.arrow_downward),
               alignment: Alignment.center,
               iconSize: 20,
@@ -147,26 +142,26 @@ class AddToPlaylist {
         buttons: [
           DialogButton(
             color: AppColor.bondiBlue75,
-            child: Obx(()=> searchController.isLoading.value ? const Center(child: CircularProgressIndicator())
+            child: Obx(()=> itemlistServiceImpl.checkIsLoading() ? const Center(child: CircularProgressIndicator())
                 : Text(AppTranslationConstants.add.tr,
             ),),
             onPressed: () async => {
               if(type == ProfileType.appArtist)
-                searchController.appItemState > 0
-                    ? await searchController.addItemlistItem(context, fanItemState: searchController.appItemState.value, goHome: goHome)
+                itemlistServiceImpl.getItemState() > 0
+                    ? await itemlistServiceImpl.addItemlistItem(context, goHome: goHome)
                     : AppUtilities.showSnackBar(
                       title: AppTranslationConstants.appItemPrefs.tr,
                       message: MessageTranslationConstants.selectItemStateMsg.tr
                     )
               else
-                await searchController.addItemlistItem(context, fanItemState: AppItemState.heardIt.value, goHome: goHome),
+                await itemlistServiceImpl.addItemlistItem(context, fanItemState: AppItemState.heardIt.value, goHome: goHome),
             },
           ),
         ],
-      ).show() : await searchController.addItemlistItem(context, fanItemState: AppItemState.heardIt.value, goHome: goHome);
+      ).show() : await itemlistServiceImpl.addItemlistItem(context, fanItemState: AppItemState.heardIt.value, goHome: goHome);
 
     } catch(e) {
-      AppUtilities.logger.e(e.toString());
+      AppConfig.logger.e(e.toString());
       return false;
     }
     return true;

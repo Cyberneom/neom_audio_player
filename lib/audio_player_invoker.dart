@@ -3,11 +3,12 @@ import 'dart:io';
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:get/get.dart' as getx;
-import 'package:neom_commons/core/data/firestore/app_media_item_firestore.dart';
-import 'package:neom_commons/core/domain/model/app_media_item.dart';
-import 'package:neom_commons/core/utils/app_utilities.dart';
-import 'package:neom_commons/core/utils/constants/app_assets.dart';
-import 'package:neom_commons/core/utils/constants/message_translation_constants.dart';
+import 'package:neom_commons/commons/utils/app_utilities.dart';
+import 'package:neom_commons/commons/utils/constants/app_assets.dart';
+import 'package:neom_commons/commons/utils/constants/message_translation_constants.dart';
+import 'package:neom_core/core/app_config.dart';
+import 'package:neom_core/core/data/firestore/app_media_item_firestore.dart';
+import 'package:neom_core/core/domain/model/app_media_item.dart';
 import 'package:neom_media_player/utils/helpers/media_item_mapper.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -43,23 +44,23 @@ class NeomPlayerInvoker {
           setValues(finalList, globalIndex, recommend: recommend, playItem: playItem);
         }
       } else {
-        AppUtilities.logger.d('Item is free - Nupale Session is not active.');
+        AppConfig.logger.d('Item is free - Nupale Session is not active.');
       }
 
       ///This would be needed when adding offline mode downloading audio.
       // await MetadataGod.initialize();
     } catch(e) {
-      AppUtilities.logger.e(e.toString());
+      AppConfig.logger.e(e.toString());
     }
   }
 
   static Future<void> setValues(List<AppMediaItem> appMediaItems, int index, {bool recommend = true, bool playItem = false}) async {
-    AppUtilities.logger.t('Settings Values for index $index');
+    AppConfig.logger.t('Settings Values for index $index');
 
     try {
       final List<MediaItem> queue = [];
       AppMediaItem appMediaItem = appMediaItems[index];
-      AppUtilities.logger.t('Loading media ${appMediaItem.name} for music player with index $index');
+      AppConfig.logger.t('Loading media ${appMediaItem.name} for music player with index $index');
 
       queue.addAll(
         appMediaItems.map(
@@ -74,7 +75,7 @@ class NeomPlayerInvoker {
       updateNowPlaying(queue, index, playItem: playItem);
       AppMediaItemFirestore().existsOrInsert(appMediaItem);
     } catch(e) {
-      AppUtilities.logger.e(e.toString());
+      AppConfig.logger.e(e.toString());
     }
   }
 
@@ -140,7 +141,7 @@ class NeomPlayerInvoker {
   static Future<void> updateNowPlaying(List<MediaItem> queue, int index, {bool playItem = true}) async {
 
     bool nowPlaying = audioHandler?.playbackState.value.playing ?? false;
-    AppUtilities.logger.d('Updating Now Playing info. Now Playing: $nowPlaying');
+    AppConfig.logger.d('Updating Now Playing info. Now Playing: $nowPlaying');
 
     try {
       ///DEPRECATED await audioHandler?.startService();
@@ -158,7 +159,7 @@ class NeomPlayerInvoker {
         int nextIndex = 0;
         if (queue.indexWhere((item) => item.id == queue[index].id) >= 0) {
           nextIndex = queue.indexWhere((item) => item.id == queue[index].id);
-          AppUtilities.logger.d('MediaItem found in Queue with Index $index');
+          AppConfig.logger.d('MediaItem found in Queue with Index $index');
         }
 
         await audioHandler?.customAction('skipToMediaItem', {'id': queue[index].id, 'index': nextIndex},);
@@ -166,20 +167,20 @@ class NeomPlayerInvoker {
         audioHandler?.currentMediaItem = queue.elementAt(index);
 
         if(playItem || nowPlaying) {
-          AppUtilities.logger.d("Starting stream for ${queue[index].artist ?? ''} - ${queue[index].title} and URL ${queue[index].extras!['url'].toString()}");
+          AppConfig.logger.d("Starting stream for ${queue[index].artist ?? ''} - ${queue[index].title} and URL ${queue[index].extras!['url'].toString()}");
           await audioHandler?.play();
         }
 
         enforceRepeat();
       } else {
-        AppUtilities.logger.i('MusicPlayer not available yet.');
+        AppConfig.logger.i('MusicPlayer not available yet.');
         AppUtilities.showSnackBar(
           title: MessageTranslationConstants.underConstruction,
           message: MessageTranslationConstants.featureAvailableSoon,
         );
       }
     } catch(e) {
-      AppUtilities.logger.e(e.toString());
+      AppConfig.logger.e(e.toString());
     }
   }
 

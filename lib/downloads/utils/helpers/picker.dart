@@ -12,7 +12,7 @@
 //   }) async {
 //     final String? temp =
 //         await FilePicker.platform.getDirectoryPath(dialogTitle: message);
-//     AppUtilities.logger.i('Selected folder: $temp');
+//     AppConfig.logger.i('Selected folder: $temp');
 //     return (temp == '/' || temp == null) ? '' : temp;
 //   }
 //

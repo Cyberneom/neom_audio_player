@@ -4,12 +4,12 @@ import 'package:audio_service/audio_service.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:neom_commons/core/data/firestore/app_media_item_firestore.dart';
-import 'package:neom_commons/core/data/implementations/app_hive_controller.dart';
-import 'package:neom_commons/core/data/implementations/user_controller.dart';
-import 'package:neom_commons/core/domain/model/app_media_item.dart';
-import 'package:neom_commons/core/utils/app_utilities.dart';
-import 'package:neom_commons/core/utils/enums/app_hive_box.dart';
+import 'package:neom_core/core/app_config.dart';
+import 'package:neom_core/core/data/firestore/app_media_item_firestore.dart';
+import 'package:neom_core/core/data/implementations/app_hive_controller.dart';
+import 'package:neom_core/core/data/implementations/user_controller.dart';
+import 'package:neom_core/core/domain/model/app_media_item.dart';
+import 'package:neom_core/core/utils/enums/app_hive_box.dart';
 import 'package:neom_media_player/utils/helpers/media_item_mapper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -42,7 +42,7 @@ class PlaylistHiveController {
     if (_isInitialized) return;
     _isInitialized = true;
 
-    AppUtilities.logger.d('onInit PlaylistHive Controller');
+    AppConfig.logger.d('onInit PlaylistHive Controller');
     globalMediaItems = await AppMediaItemFirestore().fetchAll();
 
   }

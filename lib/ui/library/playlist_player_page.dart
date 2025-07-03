@@ -3,20 +3,21 @@ import 'package:flutter/rendering.dart';
 // import 'package:path_provider/path_provider.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
-import 'package:neom_commons/core/app_flavour.dart';
-import 'package:neom_commons/core/data/firestore/app_media_item_firestore.dart';
-import 'package:neom_commons/core/domain/model/app_media_item.dart';
-import 'package:neom_commons/core/domain/model/app_profile.dart';
-import 'package:neom_commons/core/domain/model/item_list.dart';
-import 'package:neom_commons/core/ui/widgets/app_circular_progress_indicator.dart';
-import 'package:neom_commons/core/ui/widgets/appbar_child.dart';
-import 'package:neom_commons/core/utils/app_color.dart';
-import 'package:neom_commons/core/utils/app_theme.dart';
-import 'package:neom_commons/core/utils/app_utilities.dart';
-import 'package:neom_commons/core/utils/constants/app_constants.dart';
-import 'package:neom_commons/core/utils/constants/app_hive_constants.dart';
-import 'package:neom_commons/core/utils/enums/app_hive_box.dart';
-import 'package:neom_commons/core/utils/enums/app_in_use.dart';
+import 'package:neom_commons/commons/app_flavour.dart';
+import 'package:neom_commons/commons/ui/theme/app_color.dart';
+import 'package:neom_commons/commons/ui/theme/app_theme.dart';
+import 'package:neom_commons/commons/ui/widgets/app_circular_progress_indicator.dart';
+import 'package:neom_commons/commons/ui/widgets/appbar_child.dart';
+import 'package:neom_commons/commons/utils/app_utilities.dart';
+import 'package:neom_commons/commons/utils/constants/app_constants.dart';
+import 'package:neom_commons/commons/utils/mappers/app_media_item_mapper.dart';
+import 'package:neom_core/core/data/firestore/app_media_item_firestore.dart';
+import 'package:neom_core/core/domain/model/app_media_item.dart';
+import 'package:neom_core/core/domain/model/app_profile.dart';
+import 'package:neom_core/core/domain/model/item_list.dart';
+import 'package:neom_core/core/utils/constants/app_hive_constants.dart';
+import 'package:neom_core/core/utils/enums/app_hive_box.dart';
+import 'package:neom_core/core/utils/enums/app_in_use.dart';
 import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
 
 import '../../../data/implementations/playlist_hive_controller.dart';
@@ -69,7 +70,7 @@ class PlaylistPlayerPageState extends State<PlaylistPlayerPage>
     });
 
     if (widget.itemlist != null) {
-      _appMediaItems = AppMediaItem.mapItemsFromItemlist(widget.itemlist!);
+      _appMediaItems = AppMediaItemMapper.mapItemsFromItemlist(widget.itemlist!);
       isLoading = false;
     } else {
       getFavoriteItems();
@@ -113,7 +114,6 @@ class PlaylistPlayerPageState extends State<PlaylistPlayerPage>
     return Scaffold(
       backgroundColor: AppColor.main50,
       appBar: AppBarChild(
-
         title: widget.itemlist != null ? (releaseName.length > AppConstants.maxAppBarTitleLength ?
         '${releaseName.capitalizeFirst.substring(0,AppConstants.maxAppBarTitleLength)}...'
             : releaseName.capitalizeFirst)
@@ -220,40 +220,6 @@ class PlaylistPlayerPageState extends State<PlaylistPlayerPage>
           ],
         )
       ),
-      ///DEPRECATED
-      // floatingActionButton: ValueListenableBuilder(
-      //   valueListenable: _showShuffle,
-      //   child: FloatingActionButton(
-      //     backgroundColor: AppColor.bondiBlue,
-      //     elevation: 20,
-      //     child: const Icon(
-      //       Icons.shuffle_rounded,
-      //       color: Colors.white,
-      //       size: 24.0,
-      //     ),
-      //     onPressed: () {
-      //       if (_appMediaItems.isNotEmpty) {
-      //         NeomPlayerInvoker.init(
-      //           appMediaItems: _appMediaItems,
-      //           index: 0,
-      //           recommend: false,
-      //           shuffle: true,
-      //         );
-      //       }
-      //     },
-      //   ),
-      //   builder: (BuildContext context, bool showShuffle, Widget? child,) {
-      //     return AnimatedSlide(
-      //       duration: const Duration(milliseconds: 300),
-      //       offset: showShuffle ? Offset.zero : const Offset(0, 2),
-      //       child: AnimatedOpacity(
-      //         duration: const Duration(milliseconds: 300),
-      //         opacity: showShuffle ? 1 : 0,
-      //         child: child,
-      //       ),
-      //     );
-      //     },
-      // ),
     );
   }
 

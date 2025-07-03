@@ -8,21 +8,31 @@ import 'package:flutter_lyric/lyric_ui/ui_netease.dart';
 import 'package:flutter_lyric/lyrics_model_builder.dart';
 import 'package:flutter_lyric/lyrics_reader_model.dart';
 import 'package:get/get.dart';
-// ignore: unused_import
-import 'package:neom_commons/core/data/firestore/itemlist_firestore.dart';
-import 'package:neom_commons/core/domain/model/app_media_item.dart';
-import 'package:neom_commons/core/domain/model/app_release_item.dart';
-import 'package:neom_commons/neom_commons.dart';
+import 'package:neom_commons/commons/utils/app_utilities.dart';
+import 'package:neom_commons/commons/utils/constants/app_page_id_constants.dart';
+import 'package:neom_commons/commons/utils/constants/app_translation_constants.dart';
+import 'package:neom_commons/commons/utils/external_utilities.dart';
+import 'package:neom_commons/commons/utils/mappers/app_media_item_mapper.dart';
+import 'package:neom_core/core/app_config.dart';
+import 'package:neom_core/core/data/firestore/itemlist_firestore.dart';
+import 'package:neom_core/core/data/firestore/profile_firestore.dart';
+import 'package:neom_core/core/data/firestore/user_firestore.dart';
+import 'package:neom_core/core/data/implementations/user_controller.dart';
+import 'package:neom_core/core/domain/model/app_media_item.dart';
+import 'package:neom_core/core/domain/model/app_profile.dart';
+import 'package:neom_core/core/domain/model/app_release_item.dart';
+import 'package:neom_core/core/domain/model/app_user.dart';
+import 'package:neom_core/core/domain/model/item_list.dart';
+import 'package:neom_core/core/utils/constants/app_route_constants.dart';
+import 'package:neom_core/core/utils/validator.dart';
 import 'package:neom_media_player/utils/helpers/media_item_mapper.dart';
 import 'package:rxdart/rxdart.dart' as rx;
 import 'package:sliding_up_panel/sliding_up_panel.dart';
-
-// ignore: unused_import
 import '../../data/implementations/player_hive_controller.dart';
 import '../../domain/entities/media_lyrics.dart';
 import '../../domain/entities/position_data.dart';
 import '../../domain/use_cases/neom_audio_handler.dart';
-import '../../neom_player_invoker.dart';
+import '../../audio_player_invoker.dart';
 import '../../utils/neom_audio_utilities.dart';
 import '../library/playlist_player_page.dart';
 import 'lyrics/lyrics.dart';
@@ -63,7 +73,7 @@ class AudioPlayerController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    AppUtilities.logger.t('onInit MediaPlayer Controller');
+    AppConfig.logger.t('onInit MediaPlayer Controller');
 
     try {
       user = userController.user;
@@ -86,13 +96,13 @@ class AudioPlayerController extends GetxController {
 
       getItemPlaylist();
     } catch (e) {
-      AppUtilities.logger.e(e.toString());
+      AppConfig.logger.e(e.toString());
     }
 
   }
 
   void initReleaseItem(AppReleaseItem item) {
-    appMediaItem.value = AppMediaItem.fromAppReleaseItem(item);
+    appMediaItem.value = AppMediaItemMapper.fromAppReleaseItem(item);
     if(appMediaItem.value.artist.contains(' - ')) {
       appMediaItem.value.album = AppUtilities.getMediaName(appMediaItem.value.artist);
       appMediaItem.value.artist = AppUtilities.getArtistName(appMediaItem.value.artist);
@@ -125,7 +135,7 @@ class AudioPlayerController extends GetxController {
 
         getLyricsOnline = PlayerHiveController().getLyricsOnline;
       } catch (e) {
-        AppUtilities.logger.e(e.toString());
+        AppConfig.logger.e(e.toString());
       }
     });
   }
@@ -176,7 +186,7 @@ class AudioPlayerController extends GetxController {
 
   ///DEPRECATED
   void setMediaItem({MediaItem? item, AppMediaItem? appItem}) {
-    AppUtilities.logger.i('Setting new mediaitem ${item?.title}');
+    AppConfig.logger.i('Setting new mediaitem ${item?.title}');
     if(item != null) {
       mediaItem.value = item;
       appMediaItem.value = appItem ?? MediaItemMapper.toAppMediaItem(item);
@@ -219,7 +229,7 @@ class AudioPlayerController extends GetxController {
     if (!isSharePopupShown.value) {
       isSharePopupShown.value = true;
       final AppMediaItem item = MediaItemMapper.toAppMediaItem(mediaItem.value!);
-      await CoreUtilities().shareAppWithMediaItem(item).whenComplete(() {
+      await ExternalUtilities.shareAppWithMediaItem(item).whenComplete(() {
         Timer(const Duration(milliseconds: 600), () {
           isSharePopupShown.value = false;
         });
@@ -246,7 +256,7 @@ class AudioPlayerController extends GetxController {
   bool flipped = false;
 
   Future<void> fetchLyrics() async {
-    AppUtilities.logger.i('Fetching lyrics for ${appMediaItem.value.name}');
+    AppConfig.logger.i('Fetching lyrics for ${appMediaItem.value.name}');
     done.value = false;
     lyricsSource.value = '';
     String appMediaItemLyric = appMediaItem.value.lyrics.isNotEmpty || (appMediaItem.value.description?.isNotEmpty ?? false)  ? (appMediaItem.value.lyrics.isNotEmpty ? appMediaItem.value.lyrics : appMediaItem.value.description ?? '') : '';
@@ -272,7 +282,7 @@ class AudioPlayerController extends GetxController {
   );
 
   void goToOwnerProfile() async {
-    AppUtilities.logger.i('goToOwnerProfile for ${appMediaItem.value.artistId}');
+    AppConfig.logger.i('goToOwnerProfile for ${appMediaItem.value.artistId}');
 
     String ownerId = appMediaItem.value.artistId ?? '';
 
@@ -297,7 +307,7 @@ class AudioPlayerController extends GetxController {
 
       }
     } catch (e) {
-      AppUtilities.logger.e(e.toString());
+      AppConfig.logger.e(e.toString());
     }
   }
 

@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
-import 'package:neom_commons/core/data/implementations/app_hive_controller.dart';
-import 'package:neom_commons/core/ui/widgets/appbar_child.dart';
-import 'package:neom_commons/core/utils/app_color.dart';
-import 'package:neom_commons/core/utils/app_theme.dart';
-
-import 'package:neom_commons/core/utils/enums/app_hive_box.dart';import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
+import 'package:neom_commons/commons/ui/theme/app_color.dart';
+import 'package:neom_commons/commons/ui/theme/app_theme.dart';
+import 'package:neom_commons/commons/ui/widgets/appbar_child.dart';
+import 'package:neom_core/core/data/implementations/app_hive_controller.dart';
+import 'package:neom_core/core/utils/enums/app_hive_box.dart';
+import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
 
 class StatsPage extends StatelessWidget {
   const StatsPage({super.key});

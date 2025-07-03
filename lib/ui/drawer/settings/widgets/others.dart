@@ -3,12 +3,12 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
-import 'package:neom_commons/core/app_flavour.dart';
-import 'package:neom_commons/core/ui/widgets/appbar_child.dart';
-import 'package:neom_commons/core/utils/app_color.dart';
-import 'package:neom_commons/core/utils/app_theme.dart';
-import 'package:neom_commons/core/utils/enums/app_hive_box.dart';
-import 'package:neom_commons/core/utils/enums/app_in_use.dart';
+import 'package:neom_commons/commons/app_flavour.dart';
+import 'package:neom_commons/commons/ui/theme/app_color.dart';
+import 'package:neom_commons/commons/ui/theme/app_theme.dart';
+import 'package:neom_commons/commons/ui/widgets/appbar_child.dart';
+import 'package:neom_core/core/utils/enums/app_hive_box.dart';
+import 'package:neom_core/core/utils/enums/app_in_use.dart';
 
 import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
 import 'hive_box_switch_tile.dart';

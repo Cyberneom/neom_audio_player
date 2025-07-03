@@ -2,12 +2,12 @@ import 'package:audio_service/audio_service.dart';
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:neom_commons/core/data/implementations/user_controller.dart';
-import 'package:neom_commons/core/domain/model/app_media_item.dart';
-import 'package:neom_commons/core/utils/app_utilities.dart';
-import 'package:neom_commons/core/utils/constants/app_page_id_constants.dart';
-import 'package:neom_commons/core/utils/constants/app_route_constants.dart';
-import 'package:neom_commons/core/utils/enums/app_media_source.dart';
+import 'package:neom_commons/commons/utils/constants/app_page_id_constants.dart';
+import 'package:neom_core/core/app_config.dart';
+import 'package:neom_core/core/data/implementations/user_controller.dart';
+import 'package:neom_core/core/domain/model/app_media_item.dart';
+import 'package:neom_core/core/utils/constants/app_route_constants.dart';
+import 'package:neom_core/core/utils/enums/app_media_source.dart';
 
 import '../../domain/use_cases/neom_audio_handler.dart';
 import '../../utils/neom_audio_utilities.dart';
@@ -31,12 +31,12 @@ class MiniPlayerController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    AppUtilities.logger.d('onInit miniPlayer Controller');
+    AppConfig.logger.d('onInit miniPlayer Controller');
 
     try {
 
     } catch (e) {
-      AppUtilities.logger.e(e.toString());
+      AppConfig.logger.e(e.toString());
     }
 
   }
@@ -48,7 +48,7 @@ class MiniPlayerController extends GetxController {
     try {
 
     } catch (e) {
-      AppUtilities.logger.e(e.toString());
+      AppConfig.logger.e(e.toString());
     }
 
     isLoading = false;
@@ -60,7 +60,7 @@ class MiniPlayerController extends GetxController {
   }
 
   Future<void> setMediaItem(MediaItem item) async {
-    AppUtilities.logger.d('Setting new mediaitem ${item.title}');
+    AppConfig.logger.d('Setting new mediaitem ${item.title}');
     audioHandler ??= await NeomAudioUtilities.getAudioHandler();
     audioHandlerRegistered = true;
     mediaItem = item;
@@ -71,13 +71,13 @@ class MiniPlayerController extends GetxController {
   }
 
   void setIsTimeline(bool value) {
-    AppUtilities.logger.d('Setting IsTimeline: $value');
+    AppConfig.logger.d('Setting IsTimeline: $value');
     isTimeline = value;
     update([AppPageIdConstants.home, AppPageIdConstants.timeline]);
   }
 
   void setShowInTimeline({bool value = true}) {
-    AppUtilities.logger.i('Setting showInTimeline to $value');
+    AppConfig.logger.i('Setting showInTimeline to $value');
     showInTimeline =  value;
     update([AppPageIdConstants.home, AppPageIdConstants.audioPlayerHome, AppPageIdConstants.miniPlayer]);
   }

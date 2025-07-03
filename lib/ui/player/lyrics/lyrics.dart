@@ -1,7 +1,7 @@
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
-import 'package:neom_commons/core/utils/app_utilities.dart';
-import 'package:neom_commons/core/utils/constants/app_translation_constants.dart';
+import 'package:neom_commons/commons/utils/constants/app_translation_constants.dart';
+import 'package:neom_core/core/app_config.dart';
 
 import '../../../domain/entities/media_lyrics.dart';
 import '../../../utils/enums/lyrics_source.dart';
@@ -12,16 +12,16 @@ class Lyrics {
 
   static Future<MediaLyrics> getLyrics({required String id, required String title, required String artist}) async {
     MediaLyrics mediaLyrics = MediaLyrics(mediaId: id);
-    AppUtilities.logger.i('Getting Synced Lyrics');
+    AppConfig.logger.i('Getting Synced Lyrics');
     ///DEPRECATED mediaLyrics = await getSpotifyLyricsFromId(id);
     if (mediaLyrics.lyrics.isEmpty) {
       //TODO Implement to get lyrics from gigmeout blog entries
 
       ///DEPRECATED
-      /// AppUtilities.logger.d('Lyrics not found on Spotify, searching on Google');
+      /// AppConfig.logger.d('Lyrics not found on Spotify, searching on Google');
       /// mediaLyrics = await getGoogleLyrics(title: title, artist: artist);
       /// if (mediaLyrics.lyrics.isEmpty) {
-      ///   AppUtilities.logger.d('Lyrics not available on Google, finding on Musixmatch');
+      ///   AppConfig.logger.d('Lyrics not available on Google, finding on Musixmatch');
       ///   mediaLyrics = await getMusixMatchLyrics(title: title, artist: artist);
       /// }
     }
@@ -53,11 +53,11 @@ class Lyrics {
   //         }
   //       }
   //     } else {
-  //       AppUtilities.logger.w('getSpotifyLyricsFromId returned ${res.statusCode}');
+  //       AppConfig.logger.w('getSpotifyLyricsFromId returned ${res.statusCode}');
   //     }
   //     return mediaLyrics;
   //   } catch (e) {
-  //     AppUtilities.logger.e('Error in getSpotifyLyrics ${e.toString()}');
+  //     AppConfig.logger.e('Error in getSpotifyLyrics ${e.toString()}');
   //     return mediaLyrics;
   //   }
   // }
@@ -122,11 +122,11 @@ class Lyrics {
     String lyrics = '';
     try {
       final String link = await getLyricsLink(title, artist);
-      AppUtilities.logger.i('Found Musixmatch Lyrics Link: $link');
+      AppConfig.logger.i('Found Musixmatch Lyrics Link: $link');
       lyrics = await scrapLink(link);
       mediaLyrics.lyrics = lyrics;
     } catch (e) {
-      AppUtilities.logger.e('Error in getMusixMatchLyrics ${e.toString()}');
+      AppConfig.logger.e('Error in getMusixMatchLyrics ${e.toString()}');
     }
 
     return mediaLyrics;
@@ -143,7 +143,7 @@ class Lyrics {
   }
 
   static Future<String> scrapLink(String unencodedPath) async {
-    AppUtilities.logger.i('Trying to scrap lyrics from $unencodedPath');
+    AppConfig.logger.i('Trying to scrap lyrics from $unencodedPath');
     const String authority = 'www.musixmatch.com';
     final http.Response res = await http.get(Uri.https(authority, unencodedPath));
     if (res.statusCode != 200) return '';

@@ -3,13 +3,13 @@ import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:neom_commons/core/ui/widgets/app_circular_progress_indicator.dart';
-import 'package:neom_commons/core/ui/widgets/right_side_company_logo.dart';
-import 'package:neom_commons/core/utils/app_color.dart';
-import 'package:neom_commons/core/utils/app_theme.dart';
-import 'package:neom_commons/core/utils/constants/app_page_id_constants.dart';
-import 'package:neom_commons/core/utils/constants/app_translation_constants.dart';
-import 'package:neom_commons/core/utils/enums/subscription_status.dart';
+import 'package:neom_commons/commons/ui/theme/app_color.dart';
+import 'package:neom_commons/commons/ui/theme/app_theme.dart';
+import 'package:neom_commons/commons/ui/widgets/app_circular_progress_indicator.dart';
+import 'package:neom_commons/commons/ui/widgets/right_side_company_logo.dart';
+import 'package:neom_commons/commons/utils/constants/app_page_id_constants.dart';
+import 'package:neom_commons/commons/utils/constants/app_translation_constants.dart';
+import 'package:neom_core/core/utils/enums/subscription_status.dart';
 
 import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
 import '../drawer/audio_player_drawer.dart';
@@ -44,7 +44,8 @@ class AudioPlayerHomePage extends StatelessWidget {
                           SliverAppBar(
                             leading: homeDrawer(context: context,),
                             title: Text(
-                              (_.userController.userSubscription?.status == SubscriptionStatus.active) ? AppTranslationConstants.activeSubscription.tr : '',
+                              (_.userController.userSubscription?.status == SubscriptionStatus.active)
+                                  ? AppTranslationConstants.activeSubscription.tr : '',
                               style: TextStyle(
                                 color: Colors.white.withOpacity(0.8),
                                 fontWeight: FontWeight.bold,

@@ -1,7 +1,7 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
-import 'package:neom_commons/core/utils/app_utilities.dart';
+import 'package:neom_commons/commons/utils/app_utilities.dart';
 import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
 import '../../domain/use_cases/neom_audio_handler.dart';
 

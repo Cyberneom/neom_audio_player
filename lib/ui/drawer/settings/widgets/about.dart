@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:neom_commons/core/ui/widgets/appbar_child.dart';
-import 'package:neom_commons/core/utils/app_color.dart';
+import 'package:neom_commons/commons/ui/theme/app_color.dart';
+import 'package:neom_commons/commons/ui/widgets/appbar_child.dart';
 import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 

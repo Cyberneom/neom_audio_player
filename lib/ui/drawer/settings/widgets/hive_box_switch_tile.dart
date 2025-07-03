@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/adapters.dart';
-import 'package:neom_commons/core/utils/app_theme.dart';
-import 'package:neom_commons/core/utils/app_utilities.dart';
-import 'package:neom_commons/core/utils/enums/app_hive_box.dart';
+import 'package:neom_commons/commons/ui/theme/app_theme.dart';
+import 'package:neom_core/core/app_config.dart';
+import 'package:neom_core/core/utils/enums/app_hive_box.dart';
+
 class HiveBoxSwitchTile extends StatelessWidget {
   const HiveBoxSwitchTile({
     super.key,
@@ -38,7 +39,7 @@ class HiveBoxSwitchTile extends StatelessWidget {
           value: box.get(keyName, defaultValue: defaultValue) as bool? ??
               defaultValue,
           onChanged: (val) {
-            AppUtilities.logger.d("Changing status for setting on $key with value as: $val");
+            AppConfig.logger.d("Changing status for setting on $key with value as: $val");
             box.put(keyName, val);
             onChanged?.call(val: val, box: box);
           },

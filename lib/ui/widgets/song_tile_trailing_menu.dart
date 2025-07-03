@@ -1,9 +1,9 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:neom_commons/core/domain/model/app_media_item.dart';
-import 'package:neom_commons/core/domain/model/item_list.dart';
-import 'package:neom_commons/core/utils/app_color.dart';
+import 'package:neom_commons/commons/ui/theme/app_color.dart';
+import 'package:neom_core/core/domain/model/app_media_item.dart';
+import 'package:neom_core/core/domain/model/item_list.dart';
 import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
 import 'package:neom_media_player/utils/helpers/media_item_mapper.dart';
 import 'package:share_plus/share_plus.dart';

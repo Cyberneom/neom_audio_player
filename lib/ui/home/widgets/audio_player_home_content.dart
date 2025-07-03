@@ -1,19 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:neom_commons/core/domain/model/app_media_item.dart';
-import 'package:neom_commons/core/domain/model/item_list.dart';
-import 'package:neom_commons/core/ui/widgets/neom_image_card.dart';
-import 'package:neom_commons/core/utils/app_utilities.dart';
-import 'package:neom_commons/core/utils/constants/app_assets.dart';
-import 'package:neom_commons/core/utils/constants/app_page_id_constants.dart';
-import 'package:neom_commons/core/utils/constants/app_route_constants.dart';
-import 'package:neom_commons/core/utils/constants/app_translation_constants.dart';
-import 'package:neom_commons/core/utils/enums/app_hive_box.dart';
-import 'package:neom_commons/core/utils/enums/app_media_source.dart';
+import 'package:neom_commons/commons/ui/widgets/neom_image_card.dart';
+import 'package:neom_commons/commons/utils/constants/app_assets.dart';
+import 'package:neom_commons/commons/utils/constants/app_page_id_constants.dart';
+import 'package:neom_commons/commons/utils/constants/app_translation_constants.dart';
+import 'package:neom_commons/commons/utils/mappers/app_media_item_mapper.dart';
+import 'package:neom_core/core/app_config.dart';
+import 'package:neom_core/core/domain/model/app_media_item.dart';
+import 'package:neom_core/core/domain/model/item_list.dart';
+import 'package:neom_core/core/utils/constants/app_route_constants.dart';
+import 'package:neom_core/core/utils/enums/app_hive_box.dart';
+import 'package:neom_core/core/utils/enums/app_media_source.dart';
 import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
 
-import '../../../neom_player_invoker.dart';
+import '../../../audio_player_invoker.dart';
 import '../../../utils/audio_player_utilities.dart';
 import '../../../utils/constants/audio_player_route_constants.dart';
 import '../../library/playlist_player_page.dart';
@@ -57,7 +58,7 @@ class AudioPlayerHomeContent extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
         itemCount: _.publicItemlists.isEmpty ? _.previousIndex : (_.publicItemlists.length + _.previousIndex),
         itemBuilder: (context, idx) {
-          AppUtilities.logger.t('Building AudioPlayerHome Index $idx');
+          AppConfig.logger.t('Building AudioPlayerHome Index $idx');
 
           if (idx == _.recentIndex && _.recentList.isNotEmpty) return buildLastSessionContainer(context, _);
 
@@ -101,7 +102,7 @@ class AudioPlayerHomeContent extends StatelessWidget {
                   itemCount: publicList.getTotalItems(),
                   ///TRY TO MAKE ALLIANCE WITH RADIO STATIONS ONLINE
                   itemBuilder: (context, index) {
-                    List<AppMediaItem> itemsOnLists = AppMediaItem.mapItemsFromItemlist(publicList);
+                    List<AppMediaItem> itemsOnLists = AppMediaItemMapper.mapItemsFromItemlist(publicList);
                     if (publicList.id.isEmpty || itemsOnLists.isEmpty) return const SizedBox.shrink();
                     AppMediaItem item = itemsOnLists.elementAt(index);
                     return GestureDetector(
