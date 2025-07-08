@@ -1,7 +1,7 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
-import 'package:neom_core/core/app_properties.dart';
-import '../../domain/use_cases/neom_audio_handler.dart';
+import 'package:neom_core/app_properties.dart';
+import '../../neom_audio_handler.dart';
 
 class NeomAudioProvider {
 

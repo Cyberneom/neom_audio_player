@@ -1,18 +1,18 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:neom_commons/commons/app_flavour.dart';
-import 'package:neom_commons/commons/ui/theme/app_color.dart';
-import 'package:neom_commons/commons/ui/theme/app_theme.dart';
-import 'package:neom_commons/commons/ui/widgets/custom_widgets.dart';
-import 'package:neom_commons/commons/utils/constants/app_constants.dart';
-import 'package:neom_commons/commons/utils/constants/app_page_id_constants.dart';
-import 'package:neom_commons/commons/utils/constants/app_translation_constants.dart';
-import 'package:neom_core/core/app_properties.dart';
-import 'package:neom_core/core/data/implementations/app_drawer_controller.dart';
-import 'package:neom_core/core/utils/constants/app_route_constants.dart';
-import 'package:neom_core/core/utils/enums/app_in_use.dart';
-import 'package:neom_core/core/utils/enums/user_role.dart';
+import 'package:neom_commons/ui/theme/app_color.dart';
+import 'package:neom_commons/ui/theme/app_theme.dart';
+import 'package:neom_commons/ui/widgets/custom_widgets.dart';
+import 'package:neom_commons/utils/constants/app_constants.dart';
+import 'package:neom_commons/utils/constants/app_page_id_constants.dart';
+import 'package:neom_commons/utils/constants/app_translation_constants.dart';
+import 'package:neom_core/app_config.dart';
+import 'package:neom_core/app_properties.dart';
+import 'package:neom_core/data/implementations/app_drawer_controller.dart';
+import 'package:neom_core/utils/constants/app_route_constants.dart';
+import 'package:neom_core/utils/enums/app_in_use.dart';
+import 'package:neom_core/utils/enums/user_role.dart';
 import '../../../utils/constants/audio_player_route_constants.dart';
 import '../../../utils/enums/audio_player_drawer_menu.dart';
 import '../library/playlist_player_page.dart';
@@ -48,7 +48,7 @@ class AudioPlayerDrawer extends StatelessWidget {
                       // drawerRowOption(MusicPlayerDrawerMenu.myMusic, const Icon(MdiIcons.folderMusic,), context),
                       // drawerRowOption(MusicPlayerDrawerMenu.downloads, const Icon(Icons.download_done_rounded,), context),
                       drawerRowOption(AudioPlayerDrawerMenu.settings, const Icon(Icons.playlist_play_rounded,), context),
-                      if(AppFlavour.appInUse == AppInUse.e && _.user.userRole != UserRole.subscriber)
+                      if(AppConfig.instance.appInUse == AppInUse.e && _.user.userRole != UserRole.subscriber)
                       Column(
                         children: [
                           const Divider(),
@@ -61,7 +61,7 @@ class AudioPlayerDrawer extends StatelessWidget {
                             ), ),
                           const Divider(),
                           drawerRowOption(AudioPlayerDrawerMenu.podcastUpload, const Icon(Icons.podcasts), context),
-                          if(AppFlavour.appInUse == AppInUse.e)
+                          if(AppConfig.instance.appInUse == AppInUse.e)
                             drawerRowOption(AudioPlayerDrawerMenu.audiobookUpload, const Icon(Icons.multitrack_audio), context),
                         ],
                       ),

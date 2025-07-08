@@ -1,13 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:neom_commons/commons/ui/theme/app_color.dart';
-import 'package:neom_core/core/app_properties.dart';
-import 'package:neom_core/core/domain/model/app_media_item.dart';
-import 'package:neom_core/core/domain/model/app_release_item.dart';
-import 'package:neom_core/core/domain/model/item_list.dart';
-import 'package:neom_core/core/utils/enums/app_media_source.dart';
+import 'package:neom_commons/ui/theme/app_color.dart';
+import 'package:neom_core/app_properties.dart';
+import 'package:neom_core/domain/model/app_media_item.dart';
+import 'package:neom_core/domain/model/app_release_item.dart';
+import 'package:neom_core/domain/model/item_list.dart';
+import 'package:neom_core/utils/enums/app_media_source.dart';
 
-import '../domain/use_cases/neom_audio_handler.dart';
+import '../neom_audio_handler.dart';
 
 class AudioPlayerUtilities {
 

@@ -1,23 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-// import 'package:path_provider/path_provider.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
-import 'package:neom_commons/commons/app_flavour.dart';
-import 'package:neom_commons/commons/ui/theme/app_color.dart';
-import 'package:neom_commons/commons/ui/theme/app_theme.dart';
-import 'package:neom_commons/commons/ui/widgets/app_circular_progress_indicator.dart';
-import 'package:neom_commons/commons/ui/widgets/appbar_child.dart';
-import 'package:neom_commons/commons/utils/app_utilities.dart';
-import 'package:neom_commons/commons/utils/constants/app_constants.dart';
-import 'package:neom_commons/commons/utils/mappers/app_media_item_mapper.dart';
-import 'package:neom_core/core/data/firestore/app_media_item_firestore.dart';
-import 'package:neom_core/core/domain/model/app_media_item.dart';
-import 'package:neom_core/core/domain/model/app_profile.dart';
-import 'package:neom_core/core/domain/model/item_list.dart';
-import 'package:neom_core/core/utils/constants/app_hive_constants.dart';
-import 'package:neom_core/core/utils/enums/app_hive_box.dart';
-import 'package:neom_core/core/utils/enums/app_in_use.dart';
+import 'package:neom_commons/ui/theme/app_color.dart';
+import 'package:neom_commons/ui/theme/app_theme.dart';
+import 'package:neom_commons/ui/widgets/app_circular_progress_indicator.dart';
+import 'package:neom_commons/ui/widgets/appbar_child.dart';
+import 'package:neom_commons/utils/constants/app_constants.dart';
+import 'package:neom_commons/utils/mappers/app_media_item_mapper.dart';
+import 'package:neom_commons/utils/text_utilities.dart';
+import 'package:neom_core/app_config.dart';
+import 'package:neom_core/data/firestore/app_media_item_firestore.dart';
+import 'package:neom_core/domain/model/app_media_item.dart';
+import 'package:neom_core/domain/model/app_profile.dart';
+import 'package:neom_core/domain/model/item_list.dart';
+import 'package:neom_core/utils/constants/app_hive_constants.dart';
+import 'package:neom_core/utils/enums/app_hive_box.dart';
+import 'package:neom_core/utils/enums/app_in_use.dart';
 import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
 
 import '../../../data/implementations/playlist_hive_controller.dart';
@@ -110,7 +109,7 @@ class PlaylistPlayerPageState extends State<PlaylistPlayerPage>
 
   @override
   Widget build(BuildContext context) {
-    String releaseName = AppUtilities.getMediaName(widget.itemlist?.name ?? '');
+    String releaseName = TextUtilities.getMediaName(widget.itemlist?.name ?? '');
     return Scaffold(
       backgroundColor: AppColor.main50,
       appBar: AppBarChild(
@@ -212,7 +211,7 @@ class PlaylistPlayerPageState extends State<PlaylistPlayerPage>
               playlistName: widget.itemlist?.name ?? '',
               scrollController: _scrollController,
             ),
-            if(AppFlavour.appInUse == AppInUse.g) const Positioned(
+            if(AppConfig.instance.appInUse == AppInUse.g) const Positioned(
               left: 0, right: 0,
               bottom: 0,
               child: MiniPlayer(),

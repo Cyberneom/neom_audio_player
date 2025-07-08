@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:neom_commons/commons/ui/widgets/neom_image_card.dart';
-import 'package:neom_commons/commons/utils/constants/app_assets.dart';
-import 'package:neom_core/core/domain/model/app_media_item.dart';
-import 'package:neom_core/core/domain/model/item_list.dart';
-import 'package:neom_core/core/utils/constants/app_route_constants.dart';
-import 'package:neom_core/core/utils/enums/itemlist_type.dart';
+import 'package:neom_commons/ui/widgets/neom_image_card.dart';
+import 'package:neom_commons/utils/constants/app_assets.dart';
+import 'package:neom_core/domain/model/app_media_item.dart';
+import 'package:neom_core/domain/model/item_list.dart';
+import 'package:neom_core/utils/constants/app_route_constants.dart';
+import 'package:neom_core/utils/enums/itemlist_type.dart';
 
 import '../../player/audio_player_controller.dart';
 import '../../widgets/custom_physics.dart';

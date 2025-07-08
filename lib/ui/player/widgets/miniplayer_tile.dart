@@ -4,13 +4,13 @@ import 'package:audio_service/audio_service.dart';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:neom_commons/commons/ui/theme/app_color.dart';
-import 'package:neom_commons/commons/ui/widgets/neom_image_card.dart';
-import 'package:neom_commons/commons/utils/app_utilities.dart';
-import 'package:neom_commons/commons/utils/constants/app_translation_constants.dart';
-import 'package:neom_core/core/app_properties.dart';
-import 'package:neom_core/core/utils/constants/app_route_constants.dart';
-import 'package:neom_core/core/utils/enums/app_media_source.dart';
+import 'package:neom_commons/ui/theme/app_color.dart';
+import 'package:neom_commons/ui/widgets/neom_image_card.dart';
+import 'package:neom_commons/utils/constants/app_translation_constants.dart';
+import 'package:neom_commons/utils/text_utilities.dart';
+import 'package:neom_core/app_properties.dart';
+import 'package:neom_core/utils/constants/app_route_constants.dart';
+import 'package:neom_core/utils/enums/app_media_source.dart';
 import 'package:neom_media_player/utils/helpers/media_item_mapper.dart';
 
 import '../../../data/implementations/player_hive_controller.dart';
@@ -56,9 +56,9 @@ class _MiniPlayerTileState extends State<MiniPlayerTile> {
     subtitleText = widget.item?.artist ?? '';
 
     if(titleText.contains(' - ')) {
-      titleText = AppUtilities.getMediaName(titleText);
+      titleText = TextUtilities.getMediaName(titleText);
       if(subtitleText.isEmpty) {
-        subtitleText = AppUtilities.getArtistName(titleText);
+        subtitleText = TextUtilities.getArtistName(titleText);
       }
     }
 

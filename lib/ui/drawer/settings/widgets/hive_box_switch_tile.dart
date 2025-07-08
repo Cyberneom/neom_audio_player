@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/adapters.dart';
-import 'package:neom_commons/commons/ui/theme/app_theme.dart';
-import 'package:neom_core/core/app_config.dart';
-import 'package:neom_core/core/utils/enums/app_hive_box.dart';
+import 'package:neom_commons/ui/theme/app_theme.dart';
+import 'package:neom_core/app_config.dart';
+import 'package:neom_core/utils/enums/app_hive_box.dart';
 
 class HiveBoxSwitchTile extends StatelessWidget {
   const HiveBoxSwitchTile({

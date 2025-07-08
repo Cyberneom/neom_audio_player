@@ -3,7 +3,7 @@ import 'dart:math';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:neom_commons/commons/utils/constants/app_assets.dart';
+import 'package:neom_commons/utils/constants/app_assets.dart';
 
 class BouncyImageSliverScrollView extends StatelessWidget {
   final ScrollController scrollController;

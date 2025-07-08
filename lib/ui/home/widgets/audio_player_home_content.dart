@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:neom_commons/commons/ui/widgets/neom_image_card.dart';
-import 'package:neom_commons/commons/utils/constants/app_assets.dart';
-import 'package:neom_commons/commons/utils/constants/app_page_id_constants.dart';
-import 'package:neom_commons/commons/utils/constants/app_translation_constants.dart';
-import 'package:neom_commons/commons/utils/mappers/app_media_item_mapper.dart';
-import 'package:neom_core/core/app_config.dart';
-import 'package:neom_core/core/domain/model/app_media_item.dart';
-import 'package:neom_core/core/domain/model/item_list.dart';
-import 'package:neom_core/core/utils/constants/app_route_constants.dart';
-import 'package:neom_core/core/utils/enums/app_hive_box.dart';
-import 'package:neom_core/core/utils/enums/app_media_source.dart';
+import 'package:neom_commons/ui/widgets/neom_image_card.dart';
+import 'package:neom_commons/utils/constants/app_assets.dart';
+import 'package:neom_commons/utils/constants/app_page_id_constants.dart';
+import 'package:neom_commons/utils/constants/app_translation_constants.dart';
+import 'package:neom_commons/utils/mappers/app_media_item_mapper.dart';
+import 'package:neom_core/app_config.dart';
+import 'package:neom_core/domain/model/app_media_item.dart';
+import 'package:neom_core/domain/model/item_list.dart';
+import 'package:neom_core/utils/constants/app_route_constants.dart';
+import 'package:neom_core/utils/enums/app_hive_box.dart';
+import 'package:neom_core/utils/enums/app_media_source.dart';
 import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
 
 import '../../../audio_player_invoker.dart';
@@ -275,7 +275,7 @@ class AudioPlayerHomeContent extends StatelessWidget {
           HorizontalAlbumsListSeparated(
             songsList: _.recentList.values.where((item)=> item.mediaSource == AppMediaSource.internal).toList(),
             onTap: (int idx) {
-              NeomPlayerInvoker.init(
+              Get.find<AudioPlayerInvoker>().init(
                 appMediaItems: _.recentList.values.toList(),
                 index: idx,
               );

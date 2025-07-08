@@ -2,29 +2,29 @@ import 'dart:async';
 import 'package:audio_service/audio_service.dart';
 import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:neom_core/core/app_config.dart';
-import 'package:neom_core/core/data/implementations/app_hive_controller.dart';
-import 'package:neom_core/core/data/implementations/neom_stopwatch.dart';
-import 'package:neom_core/core/data/implementations/user_controller.dart';
-import 'package:neom_core/core/utils/constants/core_constants.dart';
-import 'package:neom_core/core/utils/core_utilities.dart';
-import 'package:neom_core/core/utils/enums/app_hive_box.dart';
+import 'package:neom_core/app_config.dart';
+import 'package:neom_core/data/implementations/app_hive_controller.dart';
+import 'package:neom_core/data/implementations/neom_stopwatch.dart';
+import 'package:neom_core/data/implementations/user_controller.dart';
+import 'package:neom_core/utils/constants/core_constants.dart';
+import 'package:neom_core/utils/core_utilities.dart';
+import 'package:neom_core/utils/enums/app_hive_box.dart';
 import 'package:neom_media_player/utils/helpers/media_item_mapper.dart';
 import 'package:rxdart/rxdart.dart' as rx;
-import '../../data/firestore/casete_session_firestore.dart';
-import '../../data/firestore/casete_trial_usage_manager.dart';
-import '../../data/implementations/player_hive_controller.dart';
-import '../../data/implementations/playlist_hive_controller.dart';
-import '../../ui/player/audio_player_controller.dart';
-import '../../ui/player/miniplayer_controller.dart';
-import '../../utils/audio_player_stats.dart';
-import '../../utils/constants/audio_player_constants.dart';
-import '../../utils/neom_audio_utilities.dart';
-import '../entities/casete_session.dart';
-import '../entities/queue_state.dart';
-import 'neom_audio_service.dart';
+import 'data/firestore/casete_session_firestore.dart';
+import 'data/firestore/casete_trial_usage_manager.dart';
+import 'data/implementations/player_hive_controller.dart';
+import 'data/implementations/playlist_hive_controller.dart';
+import 'ui/player/audio_player_controller.dart';
+import 'ui/player/miniplayer_controller.dart';
+import 'utils/audio_player_stats.dart';
+import 'utils/constants/audio_player_constants.dart';
+import 'utils/neom_audio_utilities.dart';
+import 'domain/entities/casete_session.dart';
+import 'domain/entities/queue_state.dart';
+import 'domain/use_cases/audio_handler_service.dart';
 
-class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler implements NeomAudioService {
+class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler implements AudioHandlerService {
 
   int? count;
   Timer? _sleepTimer;
@@ -260,14 +260,6 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
     }
   }
 
-  // void refreshJob() {
-  //   jobRunning = true;
-  //   while (refreshLinks.isNotEmpty) {
-  //     // isolateSendPort?.send(refreshLinks.removeAt(0));
-  //   }
-  //   jobRunning = false;
-  // }
-
   Future<void> refreshLink(Map newData) async {
     AppConfig.logger.i(
         'Audio Player refreshLink | received new link for ${newData['title']}');
@@ -383,11 +375,6 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
     player = AudioPlayer();
     await loadLastQueue();
     await player.setAudioSource(_playlist, preload: false);
-
-    //TODO Recordar si es necesario
-    // speed.debounceTime(const Duration(milliseconds: 250)).listen((speed) {
-    //   playbackState.add(playbackState.value.copyWith(speed: speed));
-    // });
     await setListeners();
   }
 

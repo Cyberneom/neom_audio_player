@@ -1,10 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:neom_commons/commons/ui/widgets/neom_image_card.dart';
-import 'package:neom_commons/commons/utils/mappers/app_media_item_mapper.dart';
-import 'package:neom_core/core/domain/model/app_media_item.dart';
-import 'package:neom_core/core/domain/model/item_list.dart';
+import 'package:neom_commons/ui/widgets/neom_image_card.dart';
+import 'package:neom_commons/utils/mappers/app_media_item_mapper.dart';
+import 'package:neom_core/domain/model/app_media_item.dart';
+import 'package:neom_core/domain/model/item_list.dart';
 import 'package:neom_media_player/ui/widgets/download_button.dart';
 import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
 
@@ -105,7 +105,7 @@ class DownloadsSearch extends SearchDelegate {
                 ],
               ),
         onTap: () {
-          NeomPlayerInvoker.init(
+          Get.find<AudioPlayerInvoker>().init(
             appMediaItems: AppMediaItemMapper.listFromList(suggestionList),
             index: index,
             isOffline: isDowns,
@@ -159,7 +159,7 @@ class DownloadsSearch extends SearchDelegate {
           overflow: TextOverflow.ellipsis,
         ),
         onTap: () {
-          NeomPlayerInvoker.init(
+          Get.find<AudioPlayerInvoker>().init(
             appMediaItems: AppMediaItemMapper.listFromList(suggestionList),
             index: index,
             isOffline: isDowns,

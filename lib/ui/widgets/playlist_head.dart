@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:neom_core/core/domain/model/app_media_item.dart';
+import 'package:neom_core/domain/model/app_media_item.dart';
 import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
 
 import '../../audio_player_invoker.dart';
@@ -36,7 +36,7 @@ class PlaylistHead extends StatelessWidget {
           const Spacer(),
           TextButton.icon(
             onPressed: () {
-              NeomPlayerInvoker.init(
+              Get.find<AudioPlayerInvoker>().init(
                 appMediaItems: songsList,
                 index: 0,
                 isOffline: offline,
@@ -53,7 +53,7 @@ class PlaylistHead extends StatelessWidget {
           ),
           IconButton(
             onPressed: () {
-              NeomPlayerInvoker.init(
+              Get.find<AudioPlayerInvoker>().init(
                 appMediaItems: songsList,
                 index: 0,
                 isOffline: offline,

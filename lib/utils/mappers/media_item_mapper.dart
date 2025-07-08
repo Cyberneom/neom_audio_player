@@ -1,8 +1,8 @@
 import 'package:audio_service/audio_service.dart';
-import 'package:neom_commons/commons/utils/app_utilities.dart';
-import 'package:neom_core/core/domain/model/app_media_item.dart';
-import 'package:neom_core/core/utils/core_utilities.dart';
-import 'package:neom_core/core/utils/enums/app_media_source.dart';
+import 'package:neom_commons/utils/text_utilities.dart';
+import 'package:neom_core/domain/model/app_media_item.dart';
+import 'package:neom_core/utils/core_utilities.dart';
+import 'package:neom_core/utils/enums/app_media_source.dart';
 
 class MediaItemMapper  {
 
@@ -111,9 +111,9 @@ class MediaItemMapper  {
     return AppMediaItem(
       id: mediaItem.id,
       album: mediaItem.album ?? '',
-      artist: mediaItem.artist ?? AppUtilities.getArtistName(mediaItem.title),
+      artist: mediaItem.artist ?? TextUtilities.getArtistName(mediaItem.title),
       duration: mediaItem.duration?.inSeconds ?? 0,
-      name: AppUtilities.getMediaName(mediaItem.title),
+      name: TextUtilities.getMediaName(mediaItem.title),
       imgUrl: mediaItem.artUri?.toString() ?? '',
       genres: mediaItem.genre != null ? [mediaItem.genre!] : [],
       url: mediaItem.extras?['url'].toString() ?? '',

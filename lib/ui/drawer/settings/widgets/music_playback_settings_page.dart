@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
-import 'package:neom_commons/commons/app_flavour.dart';
-import 'package:neom_commons/commons/ui/theme/app_color.dart';
-import 'package:neom_commons/commons/ui/theme/app_theme.dart';
-import 'package:neom_commons/commons/ui/widgets/appbar_child.dart';
-import 'package:neom_commons/commons/utils/app_utilities.dart';
-import 'package:neom_core/core/utils/enums/app_hive_box.dart';
-import 'package:neom_core/core/utils/enums/app_in_use.dart';
+import 'package:neom_commons/ui/theme/app_color.dart';
+import 'package:neom_commons/ui/theme/app_theme.dart';
+import 'package:neom_commons/ui/widgets/appbar_child.dart';
+import 'package:neom_commons/utils/app_utilities.dart';
+import 'package:neom_core/app_config.dart';
+import 'package:neom_core/utils/enums/app_hive_box.dart';
+import 'package:neom_core/utils/enums/app_in_use.dart';
 import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
 
 import '../../../../utils/constants/audio_player_constants.dart';
@@ -39,7 +39,7 @@ class _MusicPlaybackSettingsPageState extends State<MusicPlaybackSettingsPage> {
             physics: const BouncingScrollPhysics(),
             padding: const EdgeInsets.all(10.0),
             children: [
-              if(AppFlavour.appInUse == AppInUse.g) ListTile(
+              if(AppConfig.instance.appInUse == AppInUse.g) ListTile(
                 title: Text(PlayerTranslationConstants.musicLang.tr,),
                 subtitle: Text(PlayerTranslationConstants.musicLangSub.tr,),
                 trailing: SizedBox(

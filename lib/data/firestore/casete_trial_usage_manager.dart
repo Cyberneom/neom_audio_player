@@ -1,6 +1,6 @@
-import 'package:neom_core/core/app_config.dart';
-import 'package:neom_core/core/data/implementations/app_hive_controller.dart';
-import 'package:neom_core/core/utils/enums/app_hive_box.dart';
+import 'package:neom_core/app_config.dart';
+import 'package:neom_core/data/implementations/app_hive_controller.dart';
+import 'package:neom_core/utils/enums/app_hive_box.dart';
 
 class CaseteTrialUsageManager {
 

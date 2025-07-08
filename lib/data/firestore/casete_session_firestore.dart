@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:neom_core/core/app_config.dart';
-import 'package:neom_core/core/data/firestore/constants/app_firestore_collection_constants.dart';
+import 'package:neom_core/app_config.dart';
+import 'package:neom_core/data/firestore/constants/app_firestore_collection_constants.dart';
 
 import '../../domain/entities/casete_session.dart';
 

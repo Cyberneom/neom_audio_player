@@ -4,9 +4,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:hive/hive.dart';
-import 'package:neom_commons/commons/ui/theme/app_theme.dart';
-import 'package:neom_core/core/data/implementations/app_hive_controller.dart';
-import 'package:neom_core/core/utils/enums/app_hive_box.dart';
+import 'package:neom_commons/ui/theme/app_theme.dart';
+import 'package:neom_core/data/implementations/app_hive_controller.dart';
+import 'package:neom_core/utils/enums/app_hive_box.dart';
 import '../../data/implementations/player_hive_controller.dart';
 
 class MusicSearchBar extends StatefulWidget {

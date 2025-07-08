@@ -1,2 +1,2 @@
 # neom_audio_player
-Audio Player Module for Open Neom.
+Audio Player Module for Open Neom

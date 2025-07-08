@@ -2,15 +2,15 @@ import 'package:audio_service/audio_service.dart';
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:neom_commons/commons/utils/constants/app_page_id_constants.dart';
-import 'package:neom_core/core/app_config.dart';
-import 'package:neom_core/core/data/implementations/user_controller.dart';
-import 'package:neom_core/core/domain/model/app_media_item.dart';
-import 'package:neom_core/core/utils/constants/app_route_constants.dart';
-import 'package:neom_core/core/utils/enums/app_media_source.dart';
+import 'package:neom_commons/utils/constants/app_page_id_constants.dart';
+import 'package:neom_core/app_config.dart';
+import 'package:neom_core/data/implementations/user_controller.dart';
+import 'package:neom_core/domain/model/app_media_item.dart';
+import 'package:neom_core/utils/constants/app_route_constants.dart';
+import 'package:neom_core/utils/enums/app_media_source.dart';
 
-import '../../domain/use_cases/neom_audio_handler.dart';
-import '../../utils/neom_audio_utilities.dart';
+import '../../audio_player_invoker.dart';
+import '../../neom_audio_handler.dart';
 
 class MiniPlayerController extends GetxController {
 
@@ -61,7 +61,7 @@ class MiniPlayerController extends GetxController {
 
   Future<void> setMediaItem(MediaItem item) async {
     AppConfig.logger.d('Setting new mediaitem ${item.title}');
-    audioHandler ??= await NeomAudioUtilities.getAudioHandler();
+    audioHandler ??= await Get.find<AudioPlayerInvoker>().getOrInitAudioHandler();
     audioHandlerRegistered = true;
     mediaItem = item;
     source = EnumToString.fromString(AppMediaSource.values, mediaItem?.extras?["source"] ?? AppMediaSource.internal.name) ?? AppMediaSource.internal;

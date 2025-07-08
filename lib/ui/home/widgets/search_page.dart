@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
-import 'package:neom_commons/commons/app_flavour.dart';
-import 'package:neom_commons/commons/ui/theme/app_color.dart';
-import 'package:neom_commons/commons/utils/constants/app_translation_constants.dart';
-import 'package:neom_commons/commons/utils/mappers/app_media_item_mapper.dart';
-import 'package:neom_core/core/data/firestore/app_media_item_firestore.dart';
-import 'package:neom_core/core/data/firestore/app_release_item_firestore.dart';
-import 'package:neom_core/core/data/implementations/app_hive_controller.dart';
-import 'package:neom_core/core/domain/model/app_media_item.dart';
-import 'package:neom_core/core/domain/model/app_release_item.dart';
-import 'package:neom_core/core/utils/constants/app_hive_constants.dart';
-import 'package:neom_core/core/utils/enums/app_hive_box.dart';
-import 'package:neom_core/core/utils/enums/app_in_use.dart';
+import 'package:neom_commons/ui/theme/app_color.dart';
+import 'package:neom_commons/utils/constants/app_translation_constants.dart';
+import 'package:neom_commons/utils/mappers/app_media_item_mapper.dart';
+import 'package:neom_core/app_config.dart';
+import 'package:neom_core/data/firestore/app_media_item_firestore.dart';
+import 'package:neom_core/data/firestore/app_release_item_firestore.dart';
+import 'package:neom_core/data/implementations/app_hive_controller.dart';
+import 'package:neom_core/domain/model/app_media_item.dart';
+import 'package:neom_core/domain/model/app_release_item.dart';
+import 'package:neom_core/utils/constants/app_hive_constants.dart';
+import 'package:neom_core/utils/enums/app_hive_box.dart';
+import 'package:neom_core/utils/enums/app_in_use.dart';
 
 import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
 
@@ -108,7 +108,7 @@ class SearchPageState extends State<SearchPage> {
   Future<void> fetchResults() async {
 
     if(items.isEmpty) {
-      if(AppFlavour.appInUse != AppInUse.e) {
+      if(AppConfig.instance.appInUse != AppInUse.e) {
         items = await AppReleaseItemFirestore().retrieveAll();
       } else {
         appMediaItems = await AppMediaItemFirestore().fetchAll();

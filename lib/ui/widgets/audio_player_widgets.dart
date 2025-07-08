@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:neom_commons/commons/ui/theme/app_theme.dart';
-import 'package:neom_commons/commons/ui/widgets/neom_image_card.dart';
-import 'package:neom_commons/commons/utils/app_utilities.dart';
-import 'package:neom_commons/commons/utils/constants/app_assets.dart';
-import 'package:neom_core/core/domain/model/app_media_item.dart';
-import 'package:neom_core/core/domain/model/item_list.dart';
-import 'package:neom_core/core/utils/constants/app_route_constants.dart';
-import 'package:neom_core/core/utils/enums/app_media_source.dart';
+import 'package:neom_commons/ui/theme/app_theme.dart';
+import 'package:neom_commons/ui/widgets/neom_image_card.dart';
+import 'package:neom_commons/utils/constants/app_assets.dart';
+import 'package:neom_commons/utils/text_utilities.dart';
+import 'package:neom_core/domain/model/app_media_item.dart';
+import 'package:neom_core/domain/model/item_list.dart';
+import 'package:neom_core/utils/constants/app_route_constants.dart';
+import 'package:neom_core/utils/enums/app_media_source.dart';
 import 'package:neom_media_player/ui/widgets/download_button.dart';
-import 'package:neom_media_player/utils/helpers/media_item_mapper.dart';
 
 import '../../data/implementations/player_hive_controller.dart';
 import '../../audio_player_invoker.dart';
@@ -46,7 +45,7 @@ ListTile createCoolMediaItemTile(BuildContext context, AppMediaItem appMediaItem
       style: const TextStyle(fontWeight: FontWeight.w500,),
       overflow: TextOverflow.ellipsis,
     ),
-    subtitle: Text(AppUtilities.getArtistName(appMediaItem.artist),
+    subtitle: Text(TextUtilities.getArtistName(appMediaItem.artist),
       overflow: TextOverflow.ellipsis,
     ),
     isThreeLine: false,
@@ -79,9 +78,9 @@ ListTile createCoolMediaItemTile(BuildContext context, AppMediaItem appMediaItem
         } else {
           Get.put(AudioPlayerController()).setMediaItem(appItem: appMediaItem);
         }
-        NeomPlayerInvoker.updateNowPlaying([MediaItemMapper.fromAppMediaItem(appMediaItem:appMediaItem)], 0);
+        Get.find<AudioPlayerInvoker>().updateNowPlaying([appMediaItem], 0);
       } else {
-        NeomPlayerInvoker.updateNowPlaying([MediaItemMapper.fromAppMediaItem(appMediaItem:appMediaItem)], 0);
+        Get.find<AudioPlayerInvoker>().updateNowPlaying([appMediaItem], 0);
       }
 
       // Get.toNamed(AppRouteConstants.audioPlayerMedia, arguments: [appMediaItem]);

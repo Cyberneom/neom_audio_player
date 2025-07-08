@@ -3,12 +3,12 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
-import 'package:neom_commons/commons/app_flavour.dart';
-import 'package:neom_commons/commons/ui/theme/app_color.dart';
-import 'package:neom_commons/commons/ui/theme/app_theme.dart';
-import 'package:neom_commons/commons/ui/widgets/appbar_child.dart';
-import 'package:neom_core/core/utils/enums/app_hive_box.dart';
-import 'package:neom_core/core/utils/enums/app_in_use.dart';
+import 'package:neom_commons/ui/theme/app_color.dart';
+import 'package:neom_commons/ui/theme/app_theme.dart';
+import 'package:neom_commons/ui/widgets/appbar_child.dart';
+import 'package:neom_core/app_config.dart';
+import 'package:neom_core/utils/enums/app_hive_box.dart';
+import 'package:neom_core/utils/enums/app_in_use.dart';
 
 import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
 import 'hive_box_switch_tile.dart';
@@ -48,7 +48,7 @@ class _OthersPageState extends State<OthersPage> {
             //   isThreeLine: true,
             //   defaultValue: true,
             // ),
-            if(AppFlavour.appInUse == AppInUse.g) HiveBoxSwitchTile(
+            if(AppConfig.instance.appInUse == AppInUse.g) HiveBoxSwitchTile(
               title: PlayerTranslationConstants.getLyricsOnline.tr,
               subtitle: PlayerTranslationConstants.getLyricsOnlineSub.tr,
               keyName: 'getLyricsOnline',

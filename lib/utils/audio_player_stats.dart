@@ -1,10 +1,10 @@
 import 'dart:convert';
 
-import 'package:neom_core/core/app_config.dart';
-import 'package:neom_core/core/data/implementations/app_hive_controller.dart';
-import 'package:neom_core/core/domain/model/app_media_item.dart';
-import 'package:neom_core/core/utils/constants/app_hive_constants.dart';
-import 'package:neom_core/core/utils/enums/app_hive_box.dart';
+import 'package:neom_core/app_config.dart';
+import 'package:neom_core/data/implementations/app_hive_controller.dart';
+import 'package:neom_core/domain/model/app_media_item.dart';
+import 'package:neom_core/utils/constants/app_hive_constants.dart';
+import 'package:neom_core/utils/enums/app_hive_box.dart';
 
 class AudioPlayerStats {
 

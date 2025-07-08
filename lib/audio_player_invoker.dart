@@ -3,48 +3,46 @@ import 'dart:io';
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:get/get.dart' as getx;
-import 'package:neom_commons/commons/utils/app_utilities.dart';
-import 'package:neom_commons/commons/utils/constants/app_assets.dart';
-import 'package:neom_commons/commons/utils/constants/message_translation_constants.dart';
-import 'package:neom_core/core/app_config.dart';
-import 'package:neom_core/core/data/firestore/app_media_item_firestore.dart';
-import 'package:neom_core/core/domain/model/app_media_item.dart';
+import 'package:neom_commons/utils/app_utilities.dart';
+import 'package:neom_commons/utils/constants/app_assets.dart';
+import 'package:neom_commons/utils/constants/message_translation_constants.dart';
+import 'package:neom_core/app_config.dart';
+import 'package:neom_core/data/firestore/app_media_item_firestore.dart';
+import 'package:neom_core/domain/model/app_media_item.dart';
+import 'package:neom_core/domain/use_cases/audio_player_service.dart';
 import 'package:neom_media_player/utils/helpers/media_item_mapper.dart';
 import 'package:path_provider/path_provider.dart';
 
 import 'data/implementations/player_hive_controller.dart';
-import 'domain/use_cases/neom_audio_handler.dart';
-import 'utils/neom_audio_utilities.dart';
+import 'data/providers/neom_audio_provider.dart';
+import 'neom_audio_handler.dart';
 
-// ignore: avoid_classes_with_only_static_members
-class NeomPlayerInvoker {
+class AudioPlayerInvoker implements AudioPlayerService {
 
-  // static final NeomAudioHandler audioHandler = GetIt.I<NeomAudioHandler>();
-  static NeomAudioHandler? audioHandler;
+  NeomAudioHandler? audioHandler;
 
-  static Future<void> init({required List<AppMediaItem> appMediaItems, required int index,
+  @override
+  Future<void> init({required List<AppMediaItem> appMediaItems, required int index,
     bool fromMiniPlayer = false, bool isOffline = false, bool recommend = true,
     bool fromDownloads = false, bool shuffle = false, String? playlistBox, bool playItem = true,}) async {
 
 
     try {
-      audioHandler = await NeomAudioUtilities.getAudioHandler();
+      audioHandler = await getOrInitAudioHandler();
 
       final int globalIndex = index < 0 ? 0 : index;
-      final List<AppMediaItem> finalList = appMediaItems;
-      if (shuffle) finalList.shuffle();
+      if(shuffle) appMediaItems.shuffle();
 
       if (!fromMiniPlayer) {
-        if (Platform.isIOS) {
-          audioHandler?.stop(); /// Don't know why but it fixes the playback issue with iOS Side
-        }
+        if (Platform.isIOS) audioHandler?.stop();
+
         if (isOffline) {
-          fromDownloads ? setDownValues(finalList, globalIndex) : setOffValues(finalList, globalIndex);
+          await updateNowPlaying(appMediaItems, index, fromDownloads: fromDownloads, isOffline: isOffline);
         } else {
-          setValues(finalList, globalIndex, recommend: recommend, playItem: playItem);
+          setValues(appMediaItems, globalIndex, recommend: recommend, playItem: playItem);
         }
       } else {
-        AppConfig.logger.d('Item is free - Nupale Session is not active.');
+        AppConfig.logger.d('Item is free - Session is not active.');
       }
 
       ///This would be needed when adding offline mode downloading audio.
@@ -54,101 +52,53 @@ class NeomPlayerInvoker {
     }
   }
 
-  static Future<void> setValues(List<AppMediaItem> appMediaItems, int index, {bool recommend = true, bool playItem = false}) async {
+  @override
+  Future<void> setValues(List<AppMediaItem> appMediaItems, int index, {bool recommend = true, bool playItem = false}) async {
     AppConfig.logger.t('Settings Values for index $index');
 
     try {
-      final List<MediaItem> queue = [];
+      // final List<MediaItem> queue = [];
       AppMediaItem appMediaItem = appMediaItems[index];
       AppConfig.logger.t('Loading media ${appMediaItem.name} for music player with index $index');
-
-      queue.addAll(
-        appMediaItems.map(
-              (song) => MediaItemMapper.fromAppMediaItem(appMediaItem: song,
-            autoplay: recommend,
-            // playlistBox: playlistBox,
-          ),
-        ),
-      );
-      if(queue.isNotEmpty && index < queue.length) audioHandler?.currentMediaItem = queue.elementAt(index);
-
-      updateNowPlaying(queue, index, playItem: playItem);
       AppMediaItemFirestore().existsOrInsert(appMediaItem);
+
+      updateNowPlaying(appMediaItems, index, recommend: recommend, playItem: playItem);
     } catch(e) {
       AppConfig.logger.e(e.toString());
     }
   }
 
-  static void setOffValues(List<AppMediaItem> response, int index) {
-    getTemporaryDirectory().then((tempDir) async {
-      final File file = File('${tempDir.path}/cover.jpg');
-      if (!await file.exists()) {
-        final byteData = await rootBundle.load(AppAssets.audioPlayerCover);
-        await file.writeAsBytes(
-          byteData.buffer
-              .asUint8List(byteData.offsetInBytes, byteData.lengthInBytes),
-        );
-      }
-      final List<MediaItem> queue = [];
-      for (int i = 0; i < response.length; i++) {
-        queue.add(
-          await setTags(response[i], tempDir),
-        );
-      }
-      await updateNowPlaying(queue, index);
-    });
-  }
-
-  static Future<void> setDownValues(List<AppMediaItem> response, int index) async {
-    final List<MediaItem> queue = [];
-    queue.addAll(
-      response.map((song) => MediaItemMapper.fromAppMediaItem(appMediaItem: song),),
-    );
-    await updateNowPlaying(queue, index);
-  }
-
-  static Future<MediaItem> setTags(AppMediaItem appMediaItem, Directory tempDir,) async {
-    String playTitle = appMediaItem.name;
-    if(playTitle.isEmpty && appMediaItem.album.isNotEmpty) {
-      playTitle = appMediaItem.album;
-    }
-    String playArtist = appMediaItem.artist;
-    playArtist == '<unknown>' ? playArtist = 'Unknown' : playArtist = appMediaItem.artist;
-
-    final String playAlbum = appMediaItem.album;
-    final int playDuration = appMediaItem.duration;
-    final String imagePath = '${tempDir.path}/${appMediaItem.name.removeAllWhitespace}.png';
-
-    final MediaItem tempDict = MediaItem(
-      id: appMediaItem.id.toString(),
-      album: playAlbum,
-      duration: Duration(milliseconds: playDuration),
-      title: playTitle.split('(')[0],
-      artist: playArtist,
-      genre: appMediaItem.genres?.isNotEmpty ?? false ? appMediaItem.genres?.first : null,
-      artUri: Uri.file(imagePath),
-      extras: {
-        'url': appMediaItem.url,
-        'date_added': appMediaItem.publishedYear,
-        'date_modified': appMediaItem.releaseDate,
-        // 'size': response.size,
-        'year': appMediaItem.publishedYear,
-      },
-    );
-    return tempDict;
-  }
-
-  static Future<void> updateNowPlaying(List<MediaItem> queue, int index, {bool playItem = true}) async {
+  @override
+  Future<void> updateNowPlaying(List<AppMediaItem> appMediaItems, int index,
+      {bool recommend = true, bool playItem = true, bool fromDownloads = false, bool isOffline = false}) async {
 
     bool nowPlaying = audioHandler?.playbackState.value.playing ?? false;
     AppConfig.logger.d('Updating Now Playing info. Now Playing: $nowPlaying');
 
+    List<MediaItem> queue = [];
+
     try {
-      ///DEPRECATED await audioHandler?.startService();
+      if(isOffline) {
+        getTemporaryDirectory().then((tempDir) async {
+          final File file = File('${tempDir.path}/cover.jpg');
+          if (!await file.exists()) {
+            final byteData = await rootBundle.load(AppAssets.audioPlayerCover);
+            await file.writeAsBytes(
+              byteData.buffer
+                  .asUint8List(byteData.offsetInBytes, byteData.lengthInBytes),
+            );
+          }
+          for (int i = 0; i < appMediaItems.length; i++) {
+            queue.add(await setTags(appMediaItems[i], tempDir),);
+          }
+        });
+      } else {
+        queue = appMediaItems.map((item) => MediaItemMapper
+            .fromAppMediaItem(appMediaItem: item, autoplay: recommend,),).toList();
+      }
       if(Platform.isAndroid || Platform.isIOS) {
         await audioHandler?.setShuffleMode(AudioServiceShuffleMode.none);
 
-        // 🔄 Reorder the queue so the selected index starts at the beginning
         List<MediaItem> orderedQueue = [
           ...queue.sublist(index),
           ...queue.sublist(0, index)
@@ -184,7 +134,38 @@ class NeomPlayerInvoker {
     }
   }
 
-  static void enforceRepeat() {
+  Future<MediaItem> setTags(AppMediaItem appMediaItem, Directory tempDir,) async {
+    String playTitle = appMediaItem.name;
+    if(playTitle.isEmpty && appMediaItem.album.isNotEmpty) {
+      playTitle = appMediaItem.album;
+    }
+    String playArtist = appMediaItem.artist;
+    playArtist == '<unknown>' ? playArtist = 'Unknown' : playArtist = appMediaItem.artist;
+
+    String playAlbum = appMediaItem.album;
+    int playDuration = appMediaItem.duration;
+    String imagePath = '${tempDir.path}/${appMediaItem.name.removeAllWhitespace}.png';
+
+    MediaItem tempDict = MediaItem(
+      id: appMediaItem.id.toString(),
+      album: playAlbum,
+      duration: Duration(milliseconds: playDuration),
+      title: playTitle.split('(')[0],
+      artist: playArtist,
+      genre: appMediaItem.genres?.isNotEmpty ?? false ? appMediaItem.genres?.first : null,
+      artUri: Uri.file(imagePath),
+      extras: {
+        'url': appMediaItem.url,
+        'date_added': appMediaItem.publishedYear,
+        'date_modified': appMediaItem.releaseDate,
+        'year': appMediaItem.publishedYear,
+      },
+    );
+    return tempDict;
+  }
+
+  @override
+  void enforceRepeat() {
     final bool enforceRepeat = PlayerHiveController().enforceRepeat;
     if (enforceRepeat) {
       final AudioServiceRepeatMode repeatMode = PlayerHiveController().repeatMode;
@@ -202,6 +183,59 @@ class NeomPlayerInvoker {
       audioHandler?.setRepeatMode(AudioServiceRepeatMode.none);
       PlayerHiveController().updateRepeatMode(AudioServiceRepeatMode.none);
     }
+  }
+
+  @override
+  Future<void> initAudioHandler() async {
+    AppConfig.logger.d("Initializing NeomAudioHandler...");
+
+    NeomAudioHandler? handler;
+
+    try {
+      if (!getx.Get.isRegistered<NeomAudioHandler>()) {
+        AppConfig.logger.d("NeomAudioHandler not registered, getting and registering...");
+
+        // Obtener la instancia del AudioHandler de forma asíncrona
+        // Reemplaza NeomAudioProvider().getAudioHandler() con tu lógica real para obtener el handler
+        handler = await NeomAudioProvider().getAudioHandler();
+
+        // Registrar la instancia obtenida como un singleton en GetX
+        getx.Get.put<NeomAudioHandler>(handler);
+        AppConfig.logger.i("NeomAudioHandler registered successfully with GetX.");
+      } else {
+        AppConfig.logger.d("NeomAudioHandler is already registered with GetX.");
+        handler = getx.Get.find<NeomAudioHandler>();
+      }
+    } catch (e) {
+      AppConfig.logger.e(e.toString());
+    }
+
+    audioHandler = handler;
+  }
+
+  Future<NeomAudioHandler?> getOrInitAudioHandler() async {
+    NeomAudioHandler? handler;
+
+    try {
+      if (!getx.Get.isRegistered<NeomAudioHandler>()) {
+        AppConfig.logger.d("NeomAudioHandler not registered, getting and registering...");
+
+        // Obtener la instancia del AudioHandler de forma asíncrona
+        // Reemplaza NeomAudioProvider().getAudioHandler() con tu lógica real para obtener el handler
+        handler = await NeomAudioProvider().getAudioHandler();
+
+        // Registrar la instancia obtenida como un singleton en GetX
+        getx.Get.put<NeomAudioHandler>(handler);
+        AppConfig.logger.i("NeomAudioHandler registered successfully with GetX.");
+      } else {
+        AppConfig.logger.d("NeomAudioHandler is already registered with GetX.");
+        handler = getx.Get.find<NeomAudioHandler>();
+      }
+    } catch (e) {
+      AppConfig.logger.e(e.toString());
+    }
+
+    return handler;
   }
 
 }

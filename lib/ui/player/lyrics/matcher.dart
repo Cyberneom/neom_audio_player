@@ -1,4 +1,4 @@
-import 'package:neom_core/core/app_config.dart';
+import 'package:neom_core/app_config.dart';
 
 bool matchSongs({
   required String title,

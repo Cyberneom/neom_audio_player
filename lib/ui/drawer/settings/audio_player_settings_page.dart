@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:neom_commons/commons/app_flavour.dart';
-import 'package:neom_commons/commons/ui/theme/app_color.dart';
-import 'package:neom_commons/commons/ui/theme/app_theme.dart';
-import 'package:neom_commons/commons/ui/widgets/appbar_child.dart';
-import 'package:neom_core/core/utils/enums/app_in_use.dart';
+import 'package:neom_commons/ui/theme/app_color.dart';
+import 'package:neom_commons/ui/theme/app_theme.dart';
+import 'package:neom_commons/ui/widgets/appbar_child.dart';
+import 'package:neom_core/app_config.dart';
+import 'package:neom_core/utils/enums/app_in_use.dart';
 
 import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
 import 'widgets/music_playback_settings_page.dart';
@@ -110,7 +110,7 @@ class _AudioPlayerSettingsPageState extends State<AudioPlayerSettingsPage> {
         'icon': Icons.miscellaneous_services_rounded,
         'onTap': const OthersPage(),
         'isThreeLine': true,
-        'items': AppFlavour.appInUse == AppInUse.g ? [
+        'items': AppConfig.instance.appInUse == AppInUse.g ? [
           PlayerTranslationConstants.getLyricsOnline.tr,
           PlayerTranslationConstants.stopOnClose.tr,
           PlayerTranslationConstants.clearCache.tr,

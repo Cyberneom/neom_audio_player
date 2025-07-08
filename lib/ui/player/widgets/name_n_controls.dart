@@ -5,16 +5,16 @@ import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
-import 'package:neom_commons/commons/app_flavour.dart';
-import 'package:neom_commons/commons/ui/theme/app_color.dart';
-import 'package:neom_commons/commons/ui/theme/app_theme.dart';
-import 'package:neom_commons/commons/utils/constants/app_translation_constants.dart';
-import 'package:neom_core/core/utils/constants/app_hive_constants.dart';
-import 'package:neom_core/core/utils/core_utilities.dart';
-import 'package:neom_core/core/utils/enums/app_hive_box.dart';
-import 'package:neom_core/core/utils/enums/app_in_use.dart';
-import 'package:neom_core/core/utils/enums/itemlist_type.dart';
-import 'package:neom_core/core/utils/enums/user_role.dart';
+import 'package:neom_commons/ui/theme/app_color.dart';
+import 'package:neom_commons/ui/theme/app_theme.dart';
+import 'package:neom_commons/utils/constants/app_translation_constants.dart';
+import 'package:neom_core/app_config.dart';
+import 'package:neom_core/utils/constants/app_hive_constants.dart';
+import 'package:neom_core/utils/core_utilities.dart';
+import 'package:neom_core/utils/enums/app_hive_box.dart';
+import 'package:neom_core/utils/enums/app_in_use.dart';
+import 'package:neom_core/utils/enums/itemlist_type.dart';
+import 'package:neom_core/utils/enums/user_role.dart';
 import 'package:neom_media_player/ui/widgets/download_button.dart';
 import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
 import 'package:neom_media_player/utils/helpers/media_item_mapper.dart';
@@ -117,7 +117,7 @@ class NameNControls extends StatelessWidget {
                             ),
 
                           ),
-                          if(!AudioPlayerUtilities.isOwnMediaItem(_.appMediaItem.value) && AppFlavour.appInUse == AppInUse.g)
+                          if(!AudioPlayerUtilities.isOwnMediaItem(_.appMediaItem.value) && AppConfig.instance.appInUse == AppInUse.g)
                             Padding(
                               padding: const EdgeInsets.only(top: 5),
                               child: AnimatedTextKit(
@@ -148,7 +148,7 @@ class NameNControls extends StatelessWidget {
                       ///DEPRECATED Duration bufferedPosition = Duration.zero;
                       Duration duration = Duration.zero;
 
-                      if(!AudioPlayerUtilities.isOwnMediaItem(_.appMediaItem.value) && AppFlavour.appInUse == AppInUse.g) {
+                      if(!AudioPlayerUtilities.isOwnMediaItem(_.appMediaItem.value) && AppConfig.instance.appInUse == AppInUse.g) {
                         duration = const Duration(seconds: AudioPlayerConstants.externalDuration);
                       } else {
                         duration = Duration(seconds: _.audioHandler?.player.duration?.inSeconds ?? 0);
@@ -210,7 +210,7 @@ class NameNControls extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               ControlButtons(_.audioHandler, mediaItem: _.mediaItem.value,),
-                              if(!AudioPlayerUtilities.isOwnMediaItem(_.appMediaItem.value) && AppFlavour.appInUse == AppInUse.g)
+                              if(!AudioPlayerUtilities.isOwnMediaItem(_.appMediaItem.value) && AppConfig.instance.appInUse == AppInUse.g)
                                 ElevatedButton(
                                   onPressed: () async {
                                     await launchUrl(Uri.parse(_.appMediaItem.value.permaUrl),

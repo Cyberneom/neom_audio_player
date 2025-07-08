@@ -1,5 +1,5 @@
 import 'package:get/get.dart';
-import 'package:neom_core/core/utils/constants/app_route_constants.dart';
+import 'package:neom_core/utils/constants/app_route_constants.dart';
 
 import 'ui/drawer/recently_played/recently_played_page.dart';
 import 'ui/drawer/settings/audio_player_settings_page.dart';

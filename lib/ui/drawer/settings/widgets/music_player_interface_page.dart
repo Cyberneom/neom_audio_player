@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
-import 'package:neom_commons/commons/ui/theme/app_color.dart';
-import 'package:neom_commons/commons/ui/theme/app_theme.dart';
-import 'package:neom_commons/commons/ui/widgets/appbar_child.dart';
-import 'package:neom_core/core/utils/constants/app_hive_constants.dart';
-import 'package:neom_core/core/utils/enums/app_hive_box.dart';
+import 'package:neom_commons/ui/theme/app_color.dart';
+import 'package:neom_commons/ui/theme/app_theme.dart';
+import 'package:neom_commons/ui/widgets/appbar_child.dart';
+import 'package:neom_core/utils/constants/app_hive_constants.dart';
+import 'package:neom_core/utils/enums/app_hive_box.dart';
 import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
 
 import '../../../../utils/constants/audio_player_constants.dart';

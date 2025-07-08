@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:neom_commons/commons/ui/theme/app_color.dart';
+import 'package:neom_commons/ui/theme/app_color.dart';
 import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
 
 class TextInputDialog extends StatelessWidget {
