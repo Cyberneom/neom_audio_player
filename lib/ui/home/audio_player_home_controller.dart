@@ -7,10 +7,10 @@ import 'package:neom_core/app_config.dart';
 import 'package:neom_core/data/firestore/app_media_item_firestore.dart';
 import 'package:neom_core/data/firestore/itemlist_firestore.dart';
 import 'package:neom_core/data/implementations/app_hive_controller.dart';
-import 'package:neom_core/data/implementations/user_controller.dart';
 import 'package:neom_core/domain/model/app_media_item.dart';
 import 'package:neom_core/domain/model/app_profile.dart';
 import 'package:neom_core/domain/model/item_list.dart';
+import 'package:neom_core/domain/use_cases/user_service.dart';
 import 'package:neom_core/utils/constants/app_hive_constants.dart';
 import 'package:neom_core/utils/enums/app_hive_box.dart';
 import 'package:neom_core/utils/enums/itemlist_type.dart';
@@ -20,7 +20,7 @@ import '../../data/implementations/player_hive_controller.dart';
 
 class AudioPlayerHomeController extends GetxController {
 
-  final userController = Get.find<UserController>();
+  final userServiceImpl = Get.find<UserService>();
   final ScrollController scrollController = ScrollController();
 
   final Rxn<MediaItem> mediaItem = Rxn<MediaItem>();
@@ -52,8 +52,8 @@ class AudioPlayerHomeController extends GetxController {
     super.onInit();
     AppConfig.logger.t('Music Player Home Controller Init');
     try {
-      profile = userController.profile;
-      releaseItemlists =  userController.releaseItemlists;
+      profile = userServiceImpl.profile;
+      releaseItemlists =  AppConfig.instance.releaseItemlists;
       scrollController.addListener(_scrollListener);
       getHomePageData();
     } catch (e) {
@@ -70,9 +70,8 @@ class AudioPlayerHomeController extends GetxController {
       AppConfig.logger.e(e.toString());
     }
 
-    userController.defaultItemlistType = ItemlistType.playlist;
+    AppConfig.instance.defaultItemlistType = ItemlistType.playlist;
     isLoading.value = false;
-    // update([AppPageIdConstants.audioPlayerHome]);
   }
 
   Future<void> initializeAudioPlayerHome() async {

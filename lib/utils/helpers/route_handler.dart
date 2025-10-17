@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:neom_core/app_config.dart';
 
-// ignore: avoid_classes_with_only_static_members
 class HandleRoute {
 
   static Route? handleRoute(String? url) {

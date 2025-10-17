@@ -1,20 +1,21 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:neom_commons/ui/app_drawer_controller.dart';
 import 'package:neom_commons/ui/theme/app_color.dart';
 import 'package:neom_commons/ui/theme/app_theme.dart';
 import 'package:neom_commons/ui/widgets/custom_widgets.dart';
 import 'package:neom_commons/utils/constants/app_constants.dart';
 import 'package:neom_commons/utils/constants/app_page_id_constants.dart';
-import 'package:neom_commons/utils/constants/app_translation_constants.dart';
+import 'package:neom_commons/utils/constants/translations/app_translation_constants.dart';
 import 'package:neom_core/app_config.dart';
 import 'package:neom_core/app_properties.dart';
-import 'package:neom_core/data/implementations/app_drawer_controller.dart';
 import 'package:neom_core/utils/constants/app_route_constants.dart';
 import 'package:neom_core/utils/enums/app_in_use.dart';
 import 'package:neom_core/utils/enums/user_role.dart';
 import '../../../utils/constants/audio_player_route_constants.dart';
 import '../../../utils/enums/audio_player_drawer_menu.dart';
+import '../../utils/constants/audio_player_translation_constants.dart';
 import '../library/playlist_player_page.dart';
 import '../player/miniplayer_controller.dart';
 
@@ -27,7 +28,7 @@ class AudioPlayerDrawer extends StatelessWidget {
     return GetBuilder<AppDrawerController>(
     id: AppPageIdConstants.appDrawer,
     init: AppDrawerController(),
-    builder: (_) {
+    builder: (controller) {
       return Drawer(
         child: Container(
           color: AppColor.drawer,
@@ -39,7 +40,7 @@ class AudioPlayerDrawer extends StatelessWidget {
                   child: ListView(
                     physics: const BouncingScrollPhysics(),
                     children: <Widget>[
-                      _menuHeader(context, _),
+                      _menuHeader(context, controller),
                       const Divider(),
                       // drawerRowOption(AudioPlayerDrawerMenu.nowPlaying,  const Icon(Icons.queue_music_rounded,), context),
                       drawerRowOption(AudioPlayerDrawerMenu.lastSession, const Icon(Icons.history_rounded), context),
@@ -48,11 +49,11 @@ class AudioPlayerDrawer extends StatelessWidget {
                       // drawerRowOption(MusicPlayerDrawerMenu.myMusic, const Icon(MdiIcons.folderMusic,), context),
                       // drawerRowOption(MusicPlayerDrawerMenu.downloads, const Icon(Icons.download_done_rounded,), context),
                       drawerRowOption(AudioPlayerDrawerMenu.settings, const Icon(Icons.playlist_play_rounded,), context),
-                      if(AppConfig.instance.appInUse == AppInUse.e && _.user.userRole != UserRole.subscriber)
+                      if(AppConfig.instance.appInUse == AppInUse.e && controller.user?.userRole != UserRole.subscriber)
                       Column(
                         children: [
                           const Divider(),
-                          Text(AppTranslationConstants.professionals.tr,
+                          Text(AudioPlayerTranslationConstants.professionals.tr,
                             textAlign: TextAlign.start,
                             style: const TextStyle(
                               fontSize: 20,
@@ -76,7 +77,7 @@ class AudioPlayerDrawer extends StatelessWidget {
     },);
   }
 
-  Widget _menuHeader(BuildContext context, AppDrawerController _) {
+  Widget _menuHeader(BuildContext context, AppDrawerController controller) {
     return Center(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -107,16 +108,16 @@ class AudioPlayerDrawer extends StatelessWidget {
                             border: Border.all(color: Colors.white, width: 2),
                             borderRadius: BorderRadius.circular(28),
                             image: DecorationImage(
-                              image: CachedNetworkImageProvider(_.appProfile.value.photoUrl.isNotEmpty
-                                  ? _.appProfile.value.photoUrl : AppProperties.getNoImageUrl(),),
+                              image: CachedNetworkImageProvider(controller.appProfile.value?.photoUrl.isNotEmpty ?? false
+                                  ? controller.appProfile.value!.photoUrl : AppProperties.getAppLogoUrl(),),
                               fit: BoxFit.cover,
                             ),
                           ),
                         ),
                         onTap: ()=> Get.toNamed(AppRouteConstants.profile),
                       ),
-                      Text(_.appProfile.value.name.length > AppConstants.maxArtistNameLength
-                          ? '${_.appProfile.value.name.substring(0,AppConstants.maxArtistNameLength)}...' : _.appProfile.value.name,
+                      Text((controller.appProfile.value?.name.length ?? 0) > AppConstants.maxArtistNameLength
+                          ? '${controller.appProfile.value!.name.substring(0,AppConstants.maxArtistNameLength)}...' : controller.appProfile.value?.name ?? '',
                         style: AppTheme.primaryTitleText,
                         overflow: TextOverflow.fade,
                       ),

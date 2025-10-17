@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:neom_commons/utils/app_utilities.dart';
+import 'package:neom_commons/utils/constants/translations/app_translation_constants.dart';
+import 'package:neom_commons/utils/constants/translations/common_translation_constants.dart';
 import 'package:neom_core/app_config.dart';
 import 'package:neom_core/data/firestore/profile_firestore.dart';
 import 'package:neom_core/domain/model/app_media_item.dart';
 import 'package:neom_core/domain/model/app_profile.dart';
-import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
 
 import '../../data/implementations/playlist_hive_controller.dart';
 
@@ -66,7 +67,7 @@ class LikeButtonState extends State<LikeButton>
 
   @override
   Widget build(BuildContext context) {
-    AppProfile profile = playlistHiveController.userController.profile;
+    AppProfile profile = playlistHiveController.userServiceImpl.profile;
     try {
       liked = profile.favoriteItems?.contains(widget.appMediaItem?.id) ?? false;
     } catch (e) {
@@ -81,7 +82,7 @@ class LikeButtonState extends State<LikeButton>
           color: liked ? Colors.redAccent : Theme.of(context).iconTheme.color,
         ),
         iconSize: widget.size,
-        tooltip: liked ? PlayerTranslationConstants.unlike.tr : PlayerTranslationConstants.like.tr,
+        tooltip: liked ? AppTranslationConstants.unlike.tr : AppTranslationConstants.like.tr,
         onPressed: () async {
           String itemId = widget.appMediaItem?.id ?? '';
 
@@ -109,7 +110,7 @@ class LikeButtonState extends State<LikeButton>
           });
           AppUtilities.showSnackBar(
             title: '${widget.appMediaItem?.name}',
-            message: liked ? PlayerTranslationConstants.addedToFav.tr : PlayerTranslationConstants.removedFromFav.tr
+            message: liked ? CommonTranslationConstants.addedToFav.tr : CommonTranslationConstants.removedFromFav.tr
           );
         },
       ),

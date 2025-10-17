@@ -10,7 +10,7 @@ import 'package:flutter_lyric/lyrics_reader_model.dart';
 import 'package:get/get.dart';
 import 'package:neom_commons/utils/app_utilities.dart';
 import 'package:neom_commons/utils/constants/app_page_id_constants.dart';
-import 'package:neom_commons/utils/constants/app_translation_constants.dart';
+import 'package:neom_commons/utils/constants/translations/common_translation_constants.dart';
 import 'package:neom_commons/utils/mappers/app_media_item_mapper.dart';
 import 'package:neom_commons/utils/share_utilities.dart';
 import 'package:neom_commons/utils/text_utilities.dart';
@@ -18,28 +18,28 @@ import 'package:neom_core/app_config.dart';
 import 'package:neom_core/data/firestore/itemlist_firestore.dart';
 import 'package:neom_core/data/firestore/profile_firestore.dart';
 import 'package:neom_core/data/firestore/user_firestore.dart';
-import 'package:neom_core/data/implementations/user_controller.dart';
 import 'package:neom_core/domain/model/app_media_item.dart';
 import 'package:neom_core/domain/model/app_profile.dart';
 import 'package:neom_core/domain/model/app_release_item.dart';
 import 'package:neom_core/domain/model/app_user.dart';
 import 'package:neom_core/domain/model/item_list.dart';
+import 'package:neom_core/domain/use_cases/audio_player_invoker_service.dart';
+import 'package:neom_core/domain/use_cases/user_service.dart';
 import 'package:neom_core/utils/constants/app_route_constants.dart';
 import 'package:neom_core/utils/validator.dart';
-import 'package:neom_media_player/utils/helpers/media_item_mapper.dart';
-import 'package:rxdart/rxdart.dart' as rx;
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 import '../../data/implementations/player_hive_controller.dart';
-import '../../domain/entities/media_lyrics.dart';
-import '../../domain/entities/position_data.dart';
+import '../../domain/models/media_lyrics.dart';
+import '../../domain/use_cases/audio_player_service.dart';
 import '../../neom_audio_handler.dart';
 import '../../audio_player_invoker.dart';
+import '../../utils/mappers/media_item_mapper.dart';
 import '../library/playlist_player_page.dart';
 import 'lyrics/lyrics.dart';
 
-class AudioPlayerController extends GetxController {
+class AudioPlayerController extends GetxController implements AudioPlayerService {
 
-  final userController = Get.find<UserController>();
+  final userServiceImpl = Get.find<UserService>();
   NeomAudioHandler? audioHandler;
 
   AppUser user = AppUser();
@@ -69,15 +69,14 @@ class AudioPlayerController extends GetxController {
   final Duration time = Duration.zero;
   int mediaItemDuration = 10;
 
-
   @override
   void onInit() {
     super.onInit();
     AppConfig.logger.t('onInit MediaPlayer Controller');
 
     try {
-      user = userController.user;
-      profile = userController.profile;
+      user = userServiceImpl.user;
+      profile = userServiceImpl.profile;
 
       if(Get.arguments != null && Get.arguments.isNotEmpty) {
         if (Get.arguments[0] is AppReleaseItem) {
@@ -101,6 +100,7 @@ class AudioPlayerController extends GetxController {
 
   }
 
+  @override
   void initReleaseItem(AppReleaseItem item) {
     appMediaItem.value = AppMediaItemMapper.fromAppReleaseItem(item);
     if(appMediaItem.value.artist.contains(' - ')) {
@@ -110,6 +110,7 @@ class AudioPlayerController extends GetxController {
     updateMediaItemValues();
   }
 
+  @override
   void initAppMediaItem(AppMediaItem item) {
     appMediaItem.value = item;
     updateMediaItemValues();
@@ -121,11 +122,11 @@ class AudioPlayerController extends GetxController {
     isLoading.value = false;
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       try {
-        Get.find<AudioPlayerInvoker>().getOrInitAudioHandler().then((handler) async {
+        Get.find<AudioPlayerInvoker>().getOrInitAudioHandler().then((NeomAudioHandler? handler) async {
           audioHandler = handler;
           bool alreadyPlaying = audioHandler?.currentMediaItem?.id == appMediaItem.value.id;
           if(reproduceItem && !alreadyPlaying) {
-            await Get.find<AudioPlayerInvoker>().init(
+            await Get.find<AudioPlayerInvokerService>().init(
               appMediaItems: [appMediaItem.value],
               index: 0,
             );
@@ -148,10 +149,12 @@ class AudioPlayerController extends GetxController {
     update();
   }
 
+  @override
   void clear() {
 
   }
 
+  @override
   Future<void> getItemPlaylist() async {
 
     if(profile.itemlists?.isEmpty ?? true) profile.itemlists = await ItemlistFirestore().getByOwnerId(profile.id);
@@ -167,7 +170,7 @@ class AudioPlayerController extends GetxController {
       }
     }
 
-    for(Itemlist list in userController.releaseItemlists.values) {
+    for(Itemlist list in AppConfig.instance.releaseItemlists.values) {
       if(list.appReleaseItems?.firstWhereOrNull((item) => item.id == appMediaItem.value.id) != null){
         releaseItemlist = list;
         break;
@@ -179,12 +182,13 @@ class AudioPlayerController extends GetxController {
     }
   }
 
+  @override
   void gotoPlaylistPlayer() {
     getItemPlaylist();
     Get.to(() => PlaylistPlayerPage(itemlist: releaseItemlist));
   }
 
-  ///DEPRECATED
+  @override
   void setMediaItem({MediaItem? item, AppMediaItem? appItem}) {
     AppConfig.logger.i('Setting new mediaitem ${item?.title}');
     if(item != null) {
@@ -199,6 +203,7 @@ class AudioPlayerController extends GetxController {
     update();
   }
 
+  @override
   void updateMediaItemValues() {
     mediaItemTitle.value = appMediaItem.value.name;
     mediaItemArtist.value = appMediaItem.value.artist;
@@ -209,14 +214,20 @@ class AudioPlayerController extends GetxController {
         mediaItemArtist.value = TextUtilities.getArtistName(appMediaItem.value.name);
       }
     }
+
+    if(mediaItem.value == null) {
+      mediaItem.value= MediaItemMapper.fromAppMediaItem(appMediaItem:appMediaItem.value);
+    }
   }
 
+  @override
   void toggleLyricsCard() {
     onlineCardKey.currentState!.toggleCard();
     setFlipped(!flipped);
     update([AppPageIdConstants.mediaPlayer]);
   }
 
+  @override
   void setFlipped(bool value) {
     flipped = value;
     if (flipped && mediaLyrics.mediaId != appMediaItem.value.id) {
@@ -225,6 +236,7 @@ class AudioPlayerController extends GetxController {
     update([AppPageIdConstants.mediaPlayer]);
   }
 
+  @override
   Future<void> sharePopUp() async {
     if (!isSharePopupShown.value) {
       isSharePopupShown.value = true;
@@ -238,6 +250,7 @@ class AudioPlayerController extends GetxController {
     update([AppPageIdConstants.mediaPlayer]);
   }
 
+  @override
   void goToTimeline(BuildContext context) {
     Get.back();
     update();
@@ -255,6 +268,7 @@ class AudioPlayerController extends GetxController {
   LyricsReaderModel? lyricsReaderModel;
   bool flipped = false;
 
+  @override
   Future<void> fetchLyrics() async {
     AppConfig.logger.i('Fetching lyrics for ${appMediaItem.value.name}');
     done.value = false;
@@ -271,16 +285,9 @@ class AudioPlayerController extends GetxController {
     lyricsSource.value = mediaLyrics.source.name;
     lyricsReaderModel = LyricsModelBuilder.create().bindLyricToMain(mediaLyrics.lyrics).getModel();
     done.value = true;
-    // update([AppPageIdConstants.mediaPlayer]);
   }
 
-  Stream<Duration> get bufferedPositionStream => audioHandler?.playbackState.map((state) => state.bufferedPosition).distinct() ?? Stream.value(Duration.zero);
-  Stream<Duration?> get durationStream => audioHandler?.mediaItem.map((item) => item?.duration).distinct() ?? Stream.value(Duration.zero);
-  Stream<PositionData> get positionDataStream => rx.Rx.combineLatest3<Duration, Duration, Duration?, PositionData>(
-        AudioService.position, bufferedPositionStream, durationStream,
-        (position, bufferedPosition, duration) => PositionData(position, bufferedPosition, duration ?? Duration.zero),
-  );
-
+  @override
   void goToOwnerProfile() async {
     AppConfig.logger.i('goToOwnerProfile for ${appMediaItem.value.artistId}');
 
@@ -302,7 +309,7 @@ class AudioPlayerController extends GetxController {
         if(ownerId.isNotEmpty && ownerId.length > 5) {
           Get.toNamed(AppRouteConstants.mateDetails, arguments: ownerId);
         } else {
-          AppUtilities.showSnackBar(message: AppTranslationConstants.noItemOwnerFound.tr);
+          AppUtilities.showSnackBar(message: CommonTranslationConstants.noItemOwnerFound.tr);
         }
 
       }
@@ -311,96 +318,14 @@ class AudioPlayerController extends GetxController {
     }
   }
 
+  @override
   bool isOffline() {
-    // mediaItem = MediaItemMapper.appMediaItemToMediaItem(appMediaItem: _.appMediaItem.value);
     return !(mediaItem.value?.extras!['url'].toString() ?? '').startsWith('http');
   }
 
+  @override
   void setIsLoadingAudio(bool loading) {
     isLoadingAudio.value = loading;
   }
-
-
-///DEPRECATED
-// Widget createPopMenuOption(BuildContext context, AppMediaItem appMediaItem, {bool offline = false}) {
-//   return PopupMenuButton(
-//     icon: const Icon(Icons.more_vert_rounded,color: AppColor.white),
-//     color: AppColor.getMain(),
-//     shape: const RoundedRectangleBorder(
-//       borderRadius: BorderRadius.all(
-//         Radius.circular(15.0),
-//       ),
-//     ),
-//     onSelected: (int? value) {
-//       if(value != null) {
-//         AudioPlayerUtilities.onSelectedPopUpMenu(context, value, appMediaItem, Duration.zero);
-//       }
-//     },
-//     itemBuilder: (context) => offline ? [
-//       PopupMenuItem(
-//         value: 1,
-//         child: Row(
-//           children: [
-//             Icon(CupertinoIcons.timer,
-//               color: Theme.of(context).iconTheme.color,
-//             ),
-//             const SizedBox(width: 10.0),
-//             Text(PlayerTranslationConstants.sleepTimer.tr,),
-//           ],
-//         ),
-//       ),
-//       PopupMenuItem(
-//         value: 10,
-//         child: Row(
-//           children: [
-//             Icon(Icons.info_rounded,
-//               color: Theme.of(context).iconTheme.color,
-//             ),
-//             AppTheme.widthSpace10,
-//             Text("PlayerTranslationConstants.songInfo.tr"),
-//           ],
-//         ),
-//       ),
-//     ] : [
-//       PopupMenuItem(
-//         value: 0,
-//         child: Row(
-//           children: [
-//             Icon(Icons.playlist_add_rounded,
-//               color: Theme.of(context).iconTheme.color,
-//             ),
-//             AppTheme.widthSpace10,
-//             Text(PlayerTranslationConstants.addToPlaylist.tr,),],),
-//       ),
-//       PopupMenuItem(
-//         value: 1,
-//         child: Row(
-//           children: [
-//             Icon(
-//               CupertinoIcons.timer,
-//               color: Theme.of(context).iconTheme.color,
-//             ),
-//             AppTheme.widthSpace10,
-//             Text(
-//               PlayerTranslationConstants.sleepTimer.tr,
-//             ),
-//           ],
-//         ),
-//       ),
-//       PopupMenuItem(
-//         value: 10,
-//         child: Row(
-//           children: [
-//             Icon(Icons.info_rounded,
-//               color: Theme.of(context).iconTheme.color,
-//             ),
-//             const SizedBox(width: 10.0),
-//             Text("PlayerTranslationConstants.songInfo.tr,"),
-//           ],
-//         ),
-//       ),
-//     ],
-//   );
-// }
 
 }

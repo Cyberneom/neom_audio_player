@@ -73,7 +73,7 @@ class AudioPlayerUtilities {
                     ],
                   ),
                   Slider(
-                    inactiveColor: Theme.of(context).iconTheme.color!.withOpacity(0.4),
+                    inactiveColor: Theme.of(context).iconTheme.color!.withAlpha(104),
                     activeColor: Theme.of(context).iconTheme.color,
                     divisions: divisions,
                     min: min,

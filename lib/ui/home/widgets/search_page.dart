@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:neom_commons/ui/theme/app_color.dart';
-import 'package:neom_commons/utils/constants/app_translation_constants.dart';
+import 'package:neom_commons/utils/constants/translations/app_translation_constants.dart';
 import 'package:neom_commons/utils/mappers/app_media_item_mapper.dart';
 import 'package:neom_core/app_config.dart';
 import 'package:neom_core/data/firestore/app_media_item_firestore.dart';
@@ -14,8 +14,7 @@ import 'package:neom_core/utils/constants/app_hive_constants.dart';
 import 'package:neom_core/utils/enums/app_hive_box.dart';
 import 'package:neom_core/utils/enums/app_in_use.dart';
 
-import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
-
+import '../../../utils/constants/audio_player_translation_constants.dart';
 import '../../widgets/audio_player_widgets.dart';
 import '../../widgets/empty_screen.dart';
 import '../../widgets/music_search_bar.dart' as searchbar;
@@ -143,8 +142,8 @@ class SearchPageState extends State<SearchPage> {
     return emptyScreen(
       context, 0,
       ':( ', 100,
-      PlayerTranslationConstants.sorry.tr, 60,
-      PlayerTranslationConstants.resultsNotFound.tr, 20,
+      AppTranslationConstants.sorry.tr, 60,
+      AudioPlayerTranslationConstants.resultsNotFound.tr, 20,
     );
   }
 
@@ -163,7 +162,7 @@ class SearchPageState extends State<SearchPage> {
             controller: controller,
             liveSearch: liveSearch,
             autofocus: widget.autofocus,
-            hintText: PlayerTranslationConstants.searchText.tr,
+            hintText: AudioPlayerTranslationConstants.searchText.tr,
             leading: IconButton(
               icon: const Icon(Icons.arrow_back_rounded),
               onPressed: () {
@@ -255,7 +254,7 @@ class SearchPageState extends State<SearchPage> {
                             child: Row(
                               children: [
                                 Text(
-                                  PlayerTranslationConstants.trendingSearch.tr,
+                                  AudioPlayerTranslationConstants.trendingSearch.tr,
                                   style: TextStyle(
                                     color: Theme.of(context)
                                         .colorScheme
@@ -282,7 +281,7 @@ class SearchPageState extends State<SearchPage> {
                                       selectedColor: Theme.of(context)
                                           .colorScheme
                                           .secondary
-                                          .withOpacity(0.2),
+                                          .withAlpha(52),
                                       labelStyle: TextStyle(
                                         color: Theme.of(context)
                                             .textTheme

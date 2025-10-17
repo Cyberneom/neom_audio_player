@@ -5,19 +5,21 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:get/get.dart' as getx;
 import 'package:neom_commons/utils/app_utilities.dart';
 import 'package:neom_commons/utils/constants/app_assets.dart';
-import 'package:neom_commons/utils/constants/message_translation_constants.dart';
+import 'package:neom_commons/utils/constants/translations/common_translation_constants.dart';
+import 'package:neom_commons/utils/constants/translations/message_translation_constants.dart';
 import 'package:neom_core/app_config.dart';
 import 'package:neom_core/data/firestore/app_media_item_firestore.dart';
 import 'package:neom_core/domain/model/app_media_item.dart';
-import 'package:neom_core/domain/use_cases/audio_player_service.dart';
-import 'package:neom_media_player/utils/helpers/media_item_mapper.dart';
+import 'package:neom_core/domain/use_cases/audio_player_invoker_service.dart';
 import 'package:path_provider/path_provider.dart';
 
 import 'data/implementations/player_hive_controller.dart';
 import 'data/providers/neom_audio_provider.dart';
 import 'neom_audio_handler.dart';
+import 'ui/player/miniplayer_controller.dart';
+import 'utils/mappers/media_item_mapper.dart';
 
-class AudioPlayerInvoker implements AudioPlayerService {
+class AudioPlayerInvoker implements AudioPlayerInvokerService {
 
   NeomAudioHandler? audioHandler;
 
@@ -62,7 +64,7 @@ class AudioPlayerInvoker implements AudioPlayerService {
       AppConfig.logger.t('Loading media ${appMediaItem.name} for music player with index $index');
       AppMediaItemFirestore().existsOrInsert(appMediaItem);
 
-      updateNowPlaying(appMediaItems, index, recommend: recommend, playItem: playItem);
+      await updateNowPlaying(appMediaItems, index, recommend: recommend, playItem: playItem);
     } catch(e) {
       AppConfig.logger.e(e.toString());
     }
@@ -93,8 +95,10 @@ class AudioPlayerInvoker implements AudioPlayerService {
           }
         });
       } else {
-        queue = appMediaItems.map((item) => MediaItemMapper
-            .fromAppMediaItem(appMediaItem: item, autoplay: recommend,),).toList();
+        queue = appMediaItems.map((item) => MediaItemMapper.fromAppMediaItem(
+          appMediaItem: item,
+          autoplay: recommend,
+        ),).toList();
       }
       if(Platform.isAndroid || Platform.isIOS) {
         await audioHandler?.setShuffleMode(AudioServiceShuffleMode.none);
@@ -119,13 +123,14 @@ class AudioPlayerInvoker implements AudioPlayerService {
         if(playItem || nowPlaying) {
           AppConfig.logger.d("Starting stream for ${queue[index].artist ?? ''} - ${queue[index].title} and URL ${queue[index].extras!['url'].toString()}");
           await audioHandler?.play();
+          getx.Get.find<MiniPlayerController>().setMediaItem(queue.elementAt(index));
         }
 
         enforceRepeat();
       } else {
         AppConfig.logger.i('MusicPlayer not available yet.');
         AppUtilities.showSnackBar(
-          title: MessageTranslationConstants.underConstruction,
+          title: CommonTranslationConstants.underConstruction,
           message: MessageTranslationConstants.featureAvailableSoon,
         );
       }
@@ -213,6 +218,7 @@ class AudioPlayerInvoker implements AudioPlayerService {
     audioHandler = handler;
   }
 
+  @override
   Future<NeomAudioHandler?> getOrInitAudioHandler() async {
     NeomAudioHandler? handler;
 
@@ -236,6 +242,21 @@ class AudioPlayerInvoker implements AudioPlayerService {
     }
 
     return handler;
+  }
+
+  @override
+  Future<void> pause() async {
+    await audioHandler?.pause();
+  }
+
+  @override
+  Future<void> play() async {
+    await audioHandler?.play();
+  }
+
+  @override
+  Future<void> stop() async {
+    await audioHandler?.stop();
   }
 
 }

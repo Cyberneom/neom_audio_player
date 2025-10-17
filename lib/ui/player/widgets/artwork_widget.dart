@@ -9,13 +9,14 @@ import 'package:flutter_lyric/lyrics_reader.dart';
 import 'package:get/get.dart';
 import 'package:neom_commons/ui/theme/app_color.dart';
 import 'package:neom_commons/utils/constants/app_assets.dart';
-import 'package:neom_commons/utils/constants/app_translation_constants.dart';
+import 'package:neom_commons/utils/constants/translations/app_translation_constants.dart';
+import 'package:neom_commons/utils/constants/translations/common_translation_constants.dart';
 import 'package:neom_commons/utils/device_utilities.dart';
 import 'package:neom_core/app_properties.dart';
-import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
 
 import '../../../data/implementations/player_hive_controller.dart';
-import '../../../domain/entities/queue_state.dart';
+import '../../../domain/models/queue_state.dart';
+import '../../../utils/constants/audio_player_translation_constants.dart';
 import '../../../utils/enums/lyrics_source.dart';
 import '../../../utils/enums/lyrics_type.dart';
 import '../../widgets/empty_screen.dart';
@@ -42,7 +43,7 @@ class ArtWorkWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    AudioPlayerController _ = mediaPlayerController;
+    AudioPlayerController controller = mediaPlayerController;
     double flipCardWidth = width * 0.75;
     final bool enabled = PlayerHiveController().enableGesture;
     return SizedBox(
@@ -54,7 +55,7 @@ class ArtWorkWidget extends StatelessWidget {
           key: cardKey,
           flipOnTouch: false,
           onFlipDone: (value) {
-            _.setFlipped(value);
+            controller.setFlipped(value);
           },
           back: GestureDetector(
             onTap: () => cardKey?.currentState!.toggleCard(),
@@ -82,21 +83,17 @@ class ArtWorkWidget extends StatelessWidget {
                         horizontal: 20,
                       ),
                       child: ValueListenableBuilder(
-                        valueListenable: _.done,
+                        valueListenable: controller.done,
                         child: const CircularProgressIndicator(),
-                        builder: (
-                            BuildContext context,
-                            bool value,
-                            Widget? child,
-                            ) {
-                          return value ? _.mediaLyrics.lyrics.isEmpty ? emptyScreen(
+                        builder: (BuildContext context, bool value, Widget? child,) {
+                          return value ? controller.mediaLyrics.lyrics.isEmpty ? emptyScreen(
                             context, 0,
                             ':( ', 80.0,
-                            PlayerTranslationConstants.lyrics.tr, 40.0,
-                            PlayerTranslationConstants.notAvailable.tr, 20.0,
+                            AudioPlayerTranslationConstants.lyrics.tr, 40.0,
+                            CommonTranslationConstants.notAvailable.tr, 20.0,
                             useWhite: true,
-                          ) : _.mediaLyrics.type == LyricsType.text
-                              ? SelectableText(_.mediaLyrics.lyrics,
+                          ) : controller.mediaLyrics.type == LyricsType.text
+                              ? SelectableText(controller.mediaLyrics.lyrics,
                             textAlign: TextAlign.center,
                             style: const TextStyle(
                               fontSize: 16.0,
@@ -107,14 +104,14 @@ class ArtWorkWidget extends StatelessWidget {
                               final position =
                                   snapshot.data ?? Duration.zero;
                               return LyricsReader(
-                                model: _.lyricsReaderModel,
+                                model: controller.lyricsReaderModel,
                                 position: position.inMilliseconds,
                                 lyricUi: UINetease(highlight: false),
                                 playing: true,
                                 size: Size(flipCardWidth, flipCardWidth,),
                                 emptyBuilder: () => Center(
-                                  child: Text('Lyrics Not Found',
-                                    style: _.lyricUI.getOtherMainTextStyle(),
+                                  child: Text(AudioPlayerTranslationConstants.lyricsNotFound,
+                                    style: controller.lyricUI.getOtherMainTextStyle(),
                                   ),
                                 ),
                               );
@@ -125,8 +122,8 @@ class ArtWorkWidget extends StatelessWidget {
                     ),
                   ),
                 ),
-                if(_.mediaLyrics.lyrics.isNotEmpty) ValueListenableBuilder(
-                  valueListenable: _.lyricsSource,
+                if(controller.mediaLyrics.lyrics.isNotEmpty) ValueListenableBuilder(
+                  valueListenable: controller.lyricsSource,
                   child: const CircularProgressIndicator(),
                   builder: (BuildContext context, String value, Widget? child,) {
                     if (value == '' || value == AppProperties.getAppName() || value == LyricsSource.internal.name) {
@@ -134,14 +131,14 @@ class ArtWorkWidget extends StatelessWidget {
                     }
                     return Align(
                       alignment: Alignment.bottomRight,
-                      child: Text('${AppTranslationConstants.poweredBy.tr} ${value.capitalizeFirst}',
+                      child: Text('${AudioPlayerTranslationConstants.poweredBy.tr} ${value.capitalizeFirst}',
                         style: Theme.of(context).textTheme.bodySmall!
                             .copyWith(fontSize: 10.0, color: Colors.white70),
                       ),
                     );
                   },
                 ),
-                if(_.mediaLyrics.lyrics.isNotEmpty) Align(
+                if(controller.mediaLyrics.lyrics.isNotEmpty) Align(
                   alignment: Alignment.bottomRight,
                   child: Card(
                     elevation: 10.0,
@@ -152,14 +149,14 @@ class ArtWorkWidget extends StatelessWidget {
                     color: AppColor.main75,
                     clipBehavior: Clip.antiAlias,
                     child: IconButton(
-                      tooltip: PlayerTranslationConstants.copy.tr,
+                      tooltip: AppTranslationConstants.copy.tr,
                       onPressed: () {
                         Feedback.forLongPress(context);
-                        DeviceUtilities.copyToClipboard(text: _.mediaLyrics.lyrics,);
+                        DeviceUtilities.copyToClipboard(text: controller.mediaLyrics.lyrics,);
                       },
                       icon: const Icon(Icons.copy_rounded),
                       color:
-                      Theme.of(context).iconTheme.color!.withOpacity(0.6),
+                      Theme.of(context).iconTheme.color!.withAlpha(156),
                     ),
                   ),
                 ),
@@ -167,12 +164,12 @@ class ArtWorkWidget extends StatelessWidget {
             ),
           ),
           front: StreamBuilder<QueueState>(
-            stream: _.audioHandler?.queueState,
+            stream: controller.audioHandler?.queueState,
             builder: (context, snapshot) {
               final queueState = snapshot.data ?? QueueState.empty;
               return GestureDetector(
                 onTap: !enabled ? null : () {
-                  // AddToPlaylist().addToPlaylist(context, _.appMediaItem.value,);
+                  // AddToPlaylist().addToPlaylist(context, controller.appMediaItem.value,);
                   ///TODO WHEN ADDING MORE FUNCTIONS
                   // tapped.value = true;
                   // Future.delayed(const Duration(seconds: 2), () async {
@@ -181,10 +178,10 @@ class ArtWorkWidget extends StatelessWidget {
                 },
                 onDoubleTapDown: (details) {
                   if (details.globalPosition.dx <= width * 2 / 5) {
-                    _.audioHandler?.customAction('rewind');
-                    _.doubleTapped.value = -1;
+                    controller.audioHandler?.customAction('rewind');
+                    controller.doubleTapped.value = -1;
                     Future.delayed(const Duration(milliseconds: 500), () async {
-                      _.doubleTapped.value = 0;
+                      controller.doubleTapped.value = 0;
                     });
                   }
                   if (details.globalPosition.dx > width * 2 / 5 &&
@@ -192,10 +189,10 @@ class ArtWorkWidget extends StatelessWidget {
                     cardKey?.currentState!.toggleCard();
                   }
                   if (details.globalPosition.dx >= width * 3 / 5) {
-                    _.audioHandler?.customAction('fastForward');
-                    _.doubleTapped.value = 1;
+                    controller.audioHandler?.customAction('fastForward');
+                    controller.doubleTapped.value = 1;
                     Future.delayed(const Duration(milliseconds: 500), () async {
-                      _.doubleTapped.value = 0;
+                      controller.doubleTapped.value = 0;
                     });
                   }
                 },
@@ -205,32 +202,32 @@ class ArtWorkWidget extends StatelessWidget {
                 onHorizontalDragEnd: !enabled ? null : (DragEndDetails details) {
                   if ((details.primaryVelocity ?? 0) > 100) {
                     if (queueState.hasPrevious) {
-                      _.audioHandler?.skipToPrevious();
+                      controller.audioHandler?.skipToPrevious();
                     }
                   }
 
                   if ((details.primaryVelocity ?? 0) < -100) {
                     if (queueState.hasNext) {
-                      _.audioHandler?.skipToNext();
+                      controller.audioHandler?.skipToNext();
                     }
                   }
                 },
                 onLongPress: !enabled ? null : () {
-                  if (!_.offline) {
+                  if (!controller.offline) {
                     Feedback.forLongPress(context);
-                    // AddToPlaylist().addToPlaylist(context, MediaItemMapper.appMediaItemToMediaItem(appMediaItem: _.appMediaItem));
+                    // AddToPlaylist().addToPlaylist(context, MediaItemMapper.appMediaItemToMediaItem(appMediaItem: controller.appMediaItem));
                   }
                 },
                 onVerticalDragStart: !enabled ? null : (details) {
-                  _.dragging.value = true;
+                  controller.dragging.value = true;
                 },
                 onVerticalDragEnd: !enabled ? null : (details) {
-                  _.dragging.value = false;
+                  controller.dragging.value = false;
                 },
                 onVerticalDragUpdate: !enabled ? null
                     : (DragUpdateDetails details) {
                   if (details.delta.dy != 0.0) {
-                    double volume = _.audioHandler?.volume.value ?? 0;
+                    double volume = controller.audioHandler?.volume.value ?? 0;
                     volume -= details.delta.dy / 150;
                     if (volume < 0) {
                       volume = 0;
@@ -238,7 +235,7 @@ class ArtWorkWidget extends StatelessWidget {
                     if (volume > 1.0) {
                       volume = 1.0;
                     }
-                    _.audioHandler?.setVolume(volume);
+                    controller.audioHandler?.setVolume(volume);
                   }
                 },
                 child: Stack(
@@ -250,7 +247,7 @@ class ArtWorkWidget extends StatelessWidget {
                         borderRadius: BorderRadius.circular(15.0),
                       ),
                       clipBehavior: Clip.antiAlias,
-                      child: _.appMediaItem.value.imgUrl.startsWith('file')
+                      child: controller.appMediaItem.value.imgUrl.startsWith('file')
                           ? Image(
                         fit: BoxFit.contain,
                         width: flipCardWidth,
@@ -260,7 +257,7 @@ class ArtWorkWidget extends StatelessWidget {
                             image: AssetImage(AppAssets.audioPlayerCover),
                           );
                         },
-                        image: FileImage(File(_.appMediaItem.value.imgUrl,),),
+                        image: FileImage(File(controller.appMediaItem.value.imgUrl,),),
                       ) : CachedNetworkImage(
                         fit: BoxFit.contain,
                         errorWidget: (BuildContext context, _, __) =>
@@ -271,12 +268,12 @@ class ArtWorkWidget extends StatelessWidget {
                         const Image(fit: BoxFit.cover,
                           image: AssetImage(AppAssets.audioPlayerCover),
                         ),
-                        imageUrl: _.appMediaItem.value.imgUrl,
+                        imageUrl: controller.appMediaItem.value.imgUrl,
                         width: flipCardWidth,
                       ),
                     ),
                     ValueListenableBuilder(
-                      valueListenable: _.doubleTapped,
+                      valueListenable: controller.doubleTapped,
                       child: const Icon(
                         Icons.forward_10_rounded,
                         size: 60.0,
@@ -302,11 +299,11 @@ class ArtWorkWidget extends StatelessWidget {
                                     colors: value == 1
                                         ? [
                                       Colors.transparent,
-                                      Colors.black.withOpacity(0.4),
-                                      Colors.black.withOpacity(0.7),
+                                      Colors.black.withAlpha(104),
+                                      Colors.black.withAlpha(178),
                                     ] : [
-                                      Colors.black.withOpacity(0.7),
-                                      Colors.black.withOpacity(0.4),
+                                      Colors.black.withAlpha(178),
+                                      Colors.black.withAlpha(104),
                                       Colors.transparent,
                                     ],
                                   ),
@@ -336,9 +333,9 @@ class ArtWorkWidget extends StatelessWidget {
                       },
                     ),
                     ValueListenableBuilder(
-                      valueListenable: _.dragging,
+                      valueListenable: controller.dragging,
                       child: StreamBuilder<double>(
-                        stream: _.audioHandler?.volume,
+                        stream: controller.audioHandler?.volume,
                         builder: (context, snapshot) {
                           final double volumeValue = snapshot.data ?? 1.0;
                           return Center(
@@ -360,13 +357,13 @@ class ArtWorkWidget extends StatelessWidget {
                                       child: SliderTheme(
                                         data: SliderTheme.of(context).copyWith(
                                           activeTrackColor: Theme.of(context).iconTheme.color,
-                                          inactiveTrackColor: Theme.of(context).iconTheme.color!.withOpacity(0.3),
+                                          inactiveTrackColor: Theme.of(context).iconTheme.color!.withAlpha(78),
                                           thumbColor: Theme.of(context).iconTheme.color,
                                           thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8.0,),
                                           trackShape: const RoundedRectSliderTrackShape(),
                                         ),
                                         child: Slider(
-                                          value: _.audioHandler?.volume.value ?? 0,
+                                          value: controller.audioHandler?.volume.value ?? 0,
                                           onChanged: (_) {},
                                         ),
                                       ),

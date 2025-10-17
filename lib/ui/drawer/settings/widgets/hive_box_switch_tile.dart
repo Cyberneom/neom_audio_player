@@ -30,7 +30,7 @@ class HiveBoxSwitchTile extends StatelessWidget {
       valueListenable: Hive.box(AppHiveBox.settings.name).listenable(),
       builder: (BuildContext context, Box box, Widget? widget) {
         return SwitchListTile(
-          activeColor: Theme.of(context).colorScheme.secondary,
+          activeThumbColor: Theme.of(context).colorScheme.secondary,
           contentPadding: contentPadding,
           title: Text(title, style: AppTheme.settingsTitleStyle,),
           subtitle: subtitle != null ? Text(subtitle!, style: AppTheme.settingsSubtitleStyle, textAlign: TextAlign.justify,) : null,

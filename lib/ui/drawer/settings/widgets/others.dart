@@ -6,11 +6,12 @@ import 'package:hive/hive.dart';
 import 'package:neom_commons/ui/theme/app_color.dart';
 import 'package:neom_commons/ui/theme/app_theme.dart';
 import 'package:neom_commons/ui/widgets/appbar_child.dart';
+import 'package:neom_commons/utils/constants/translations/app_translation_constants.dart';
 import 'package:neom_core/app_config.dart';
 import 'package:neom_core/utils/enums/app_hive_box.dart';
 import 'package:neom_core/utils/enums/app_in_use.dart';
 
-import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
+import '../../../../utils/constants/audio_player_translation_constants.dart';
 import 'hive_box_switch_tile.dart';
 
 class OthersPage extends StatefulWidget {
@@ -33,7 +34,7 @@ class _OthersPageState extends State<OthersPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: AppColor.main50,
-        appBar: AppBarChild(title: PlayerTranslationConstants.others.tr,),
+        appBar: AppBarChild(title: AppTranslationConstants.others.tr,),
         body: Container(
           decoration: AppTheme.appBoxDecoration,
           child: ListView(
@@ -42,30 +43,30 @@ class _OthersPageState extends State<OthersPage> {
           children: [
             ///DOWNLOAD FEATURE IN PROGRESS
             // BoxSwitchTile(
-            //   title: Text(PlayerTranslationConstants.useDown.tr,),
-            //   subtitle: Text(PlayerTranslationConstants.useDownSub.tr,),
+            //   title: Text(AudioPlayerTranslationConstants.useDown.tr,),
+            //   subtitle: Text(AudioPlayerTranslationConstants.useDownSub.tr,),
             //   keyName: 'useDown',
             //   isThreeLine: true,
             //   defaultValue: true,
             // ),
             if(AppConfig.instance.appInUse == AppInUse.g) HiveBoxSwitchTile(
-              title: PlayerTranslationConstants.getLyricsOnline.tr,
-              subtitle: PlayerTranslationConstants.getLyricsOnlineSub.tr,
+              title: AudioPlayerTranslationConstants.getLyricsOnline.tr,
+              subtitle: AudioPlayerTranslationConstants.getLyricsOnlineSub.tr,
               keyName: 'getLyricsOnline',
               isThreeLine: true,
               defaultValue: true,
             ),
             HiveBoxSwitchTile(
-              title: PlayerTranslationConstants.stopOnClose.tr,
-              subtitle: PlayerTranslationConstants.stopOnCloseSub.tr,
+              title: AudioPlayerTranslationConstants.stopOnClose.tr,
+              subtitle: AudioPlayerTranslationConstants.stopOnCloseSub.tr,
               isThreeLine: true,
               keyName: 'stopForegroundService',
               defaultValue: false,
             ),
             ///VERITY TO PLAY LOCAL FILES
             // ListTile(
-            //   title: Text(PlayerTranslationConstants.includeExcludeFolder.tr,),
-            //   subtitle: Text(PlayerTranslationConstants.includeExcludeFolderSub.tr,),
+            //   title: Text(AudioPlayerTranslationConstants.includeExcludeFolder.tr,),
+            //   subtitle: Text(AudioPlayerTranslationConstants.includeExcludeFolderSub.tr,),
             //   dense: true,
             //   onTap: () {
             //     final GlobalKey<AnimatedListState> listKey =
@@ -101,7 +102,7 @@ class _OthersPageState extends State<OthersPage> {
             //                           children: <Widget>[
             //                             ChoiceChip(
             //                               label: Text(
-            //                                 PlayerTranslationConstants.excluded.tr,
+            //                                 AudioPlayerTranslationConstants.excluded.tr,
             //                               ),
             //                               selectedColor: Theme.of(context).colorScheme.secondary.withOpacity(0.2),
             //                               labelStyle: TextStyle(
@@ -123,7 +124,7 @@ class _OthersPageState extends State<OthersPage> {
             //                             AppTheme.widthSpace5,
             //                             ChoiceChip(
             //                               label: Text(
-            //                                 PlayerTranslationConstants.included.tr,
+            //                                 AudioPlayerTranslationConstants.included.tr,
             //                               ),
             //                               selectedColor: Theme.of(context).colorScheme.secondary.withOpacity(0.2),
             //                               labelStyle: TextStyle(
@@ -147,8 +148,8 @@ class _OthersPageState extends State<OthersPage> {
             //                         Padding(
             //                           padding: const EdgeInsets.only(left: 5.0, top: 5.0, bottom: 10.0,),
             //                           child: Text(value
-            //                                 ? PlayerTranslationConstants.includedDetails.tr
-            //                                 : PlayerTranslationConstants.excludedDetails.tr,
+            //                                 ? AudioPlayerTranslationConstants.includedDetails.tr
+            //                                 : AudioPlayerTranslationConstants.excludedDetails.tr,
             //                             textAlign: TextAlign.start,
             //                           ),
             //                         ),
@@ -160,7 +161,7 @@ class _OthersPageState extends State<OthersPage> {
             //               if (idx == 1) {
             //                 return ListTile(
             //                   title: Text(
-            //                     PlayerTranslationConstants.addNew.tr,
+            //                     AudioPlayerTranslationConstants.addNew.tr,
             //                   ),
             //                   leading: const Icon(
             //                     CupertinoIcons.add,
@@ -216,8 +217,8 @@ class _OthersPageState extends State<OthersPage> {
             //   },
             // ),
             ListTile(
-              title: Text(PlayerTranslationConstants.clearCache.tr,),
-              subtitle: Text(PlayerTranslationConstants.clearCacheSub.tr,),
+              title: Text(AudioPlayerTranslationConstants.clearCache.tr,),
+              subtitle: Text(AudioPlayerTranslationConstants.clearCacheSub.tr,),
               trailing: SizedBox(
                 height: 70.0,
                 width: 70.0,

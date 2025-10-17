@@ -5,12 +5,13 @@ import 'package:neom_commons/ui/theme/app_color.dart';
 import 'package:neom_commons/ui/theme/app_theme.dart';
 import 'package:neom_commons/ui/widgets/appbar_child.dart';
 import 'package:neom_commons/utils/app_utilities.dart';
+import 'package:neom_commons/utils/constants/translations/app_translation_constants.dart';
 import 'package:neom_core/app_config.dart';
 import 'package:neom_core/utils/enums/app_hive_box.dart';
 import 'package:neom_core/utils/enums/app_in_use.dart';
-import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
 
 import '../../../../utils/constants/audio_player_constants.dart';
+import '../../../../utils/constants/audio_player_translation_constants.dart';
 import 'hive_box_switch_tile.dart';
 
 class MusicPlaybackSettingsPage extends StatefulWidget {
@@ -32,7 +33,7 @@ class _MusicPlaybackSettingsPageState extends State<MusicPlaybackSettingsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: AppColor.main50,
-        appBar: AppBarChild(title: PlayerTranslationConstants.musicPlayback.tr,),
+        appBar: AppBarChild(title: AudioPlayerTranslationConstants.musicPlayback.tr,),
         body: Container(
           decoration: AppTheme.appBoxDecoration,
           child: ListView(
@@ -40,8 +41,8 @@ class _MusicPlaybackSettingsPageState extends State<MusicPlaybackSettingsPage> {
             padding: const EdgeInsets.all(10.0),
             children: [
               if(AppConfig.instance.appInUse == AppInUse.g) ListTile(
-                title: Text(PlayerTranslationConstants.musicLang.tr,),
-                subtitle: Text(PlayerTranslationConstants.musicLangSub.tr,),
+                title: Text(AudioPlayerTranslationConstants.musicLang.tr,),
+                subtitle: Text(AudioPlayerTranslationConstants.musicLangSub.tr,),
                 trailing: SizedBox(
                   width: 150,
                   child: Text(preferredLanguage.isEmpty ? 'None' : preferredLanguage.join(', '),
@@ -96,7 +97,7 @@ class _MusicPlaybackSettingsPageState extends State<MusicPlaybackSettingsPage> {
                                   TextButton(
                                     style: TextButton.styleFrom(foregroundColor: Theme.of(context).colorScheme.secondary,),
                                     onPressed: () => Navigator.pop(context),
-                                    child: Text(PlayerTranslationConstants.cancel.tr,),
+                                    child: Text(AppTranslationConstants.cancel.tr,),
                                   ),
                                   TextButton(
                                     style: TextButton.styleFrom(foregroundColor: Theme.of(context).colorScheme.secondary,),
@@ -113,11 +114,11 @@ class _MusicPlaybackSettingsPageState extends State<MusicPlaybackSettingsPage> {
                                       );
                                       if(preferredLanguage.isEmpty) {
                                         AppUtilities.showSnackBar(
-                                          message: PlayerTranslationConstants.noLangSelected.tr,
+                                          message: AudioPlayerTranslationConstants.noLangSelected.tr,
                                         );
                                       }
                                     },
-                                    child: Text(PlayerTranslationConstants.ok.tr.toUpperCase(),
+                                    child: Text(AppTranslationConstants.ok.tr.toUpperCase(),
                                       style: const TextStyle(fontWeight: FontWeight.w600,),
                                     ),
                                   ),
@@ -132,8 +133,8 @@ class _MusicPlaybackSettingsPageState extends State<MusicPlaybackSettingsPage> {
                 },
               ),
               ListTile(
-                title: Text(PlayerTranslationConstants.streamQuality.tr,),
-                subtitle: Text(PlayerTranslationConstants.streamQualitySub.tr,),
+                title: Text(AudioPlayerTranslationConstants.streamQuality.tr,),
+                subtitle: Text(AudioPlayerTranslationConstants.streamQualitySub.tr,),
                 onTap: () {},
                 trailing: DropdownButton(
                   dropdownColor: AppColor.getMain(),
@@ -164,10 +165,10 @@ class _MusicPlaybackSettingsPageState extends State<MusicPlaybackSettingsPage> {
               ),
               ListTile(
                 title: Text(
-                  PlayerTranslationConstants.streamWifiQuality.tr,
+                  AudioPlayerTranslationConstants.streamWifiQuality.tr,
                 ),
                 subtitle: Text(
-                  PlayerTranslationConstants.streamWifiQualitySub.tr,
+                  AudioPlayerTranslationConstants.streamWifiQualitySub.tr,
                 ),
                 onTap: () {},
                 trailing: DropdownButton(
@@ -200,33 +201,33 @@ class _MusicPlaybackSettingsPageState extends State<MusicPlaybackSettingsPage> {
                 dense: true,
               ),
               HiveBoxSwitchTile(
-                title: PlayerTranslationConstants.loadLast.tr,
-                subtitle: PlayerTranslationConstants.loadLastSub.tr,
+                title: AudioPlayerTranslationConstants.loadLast.tr,
+                subtitle: AudioPlayerTranslationConstants.loadLastSub.tr,
                 keyName: 'loadStart',
                 defaultValue: true,
               ),
               HiveBoxSwitchTile(
-                title: PlayerTranslationConstants.resetOnSkip.tr,
-                subtitle: PlayerTranslationConstants.resetOnSkipSub.tr,
+                title: AudioPlayerTranslationConstants.resetOnSkip.tr,
+                subtitle: AudioPlayerTranslationConstants.resetOnSkipSub.tr,
                 keyName: 'resetOnSkip',
                 defaultValue: false,
               ),
               HiveBoxSwitchTile(
-                title: PlayerTranslationConstants.enforceRepeat.tr,
-                subtitle: PlayerTranslationConstants.enforceRepeatSub.tr,
+                title: AudioPlayerTranslationConstants.enforceRepeat.tr,
+                subtitle: AudioPlayerTranslationConstants.enforceRepeatSub.tr,
                 keyName: 'enforceRepeat',
                 defaultValue: false,
               ),
               // HiveBoxSwitchTile(
-              //   title: PlayerTranslationConstants.autoplay.tr,
-              //   subtitle: PlayerTranslationConstants.autoplaySub.tr,
+              //   title: AudioPlayerTranslationConstants.autoplay.tr,
+              //   subtitle: AudioPlayerTranslationConstants.autoplaySub.tr,
               //   keyName: 'autoplay',
               //   defaultValue: true,
               //   isThreeLine: true,
               // ),
               HiveBoxSwitchTile(
-                title: PlayerTranslationConstants.cacheMediaItem.tr,
-                subtitle: PlayerTranslationConstants.cacheMediaItemSub.tr,
+                title: AudioPlayerTranslationConstants.cacheMediaItem.tr,
+                subtitle: AudioPlayerTranslationConstants.cacheMediaItemSub.tr,
                 keyName: 'cacheSong',
                 defaultValue: true,
               ),

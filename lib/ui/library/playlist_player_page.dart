@@ -7,6 +7,7 @@ import 'package:neom_commons/ui/theme/app_theme.dart';
 import 'package:neom_commons/ui/widgets/app_circular_progress_indicator.dart';
 import 'package:neom_commons/ui/widgets/appbar_child.dart';
 import 'package:neom_commons/utils/constants/app_constants.dart';
+import 'package:neom_commons/utils/constants/translations/app_translation_constants.dart';
 import 'package:neom_commons/utils/mappers/app_media_item_mapper.dart';
 import 'package:neom_commons/utils/text_utilities.dart';
 import 'package:neom_core/app_config.dart';
@@ -17,11 +18,11 @@ import 'package:neom_core/domain/model/item_list.dart';
 import 'package:neom_core/utils/constants/app_hive_constants.dart';
 import 'package:neom_core/utils/enums/app_hive_box.dart';
 import 'package:neom_core/utils/enums/app_in_use.dart';
-import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
 
 import '../../../data/implementations/playlist_hive_controller.dart';
 import '../../../utils/helpers/songs_count.dart' as songs_count;
 import '../../../utils/neom_audio_utilities.dart';
+import '../../utils/constants/audio_player_translation_constants.dart';
 import '../player/miniplayer.dart';
 import 'widgets/songs_page_tab.dart';
 
@@ -85,7 +86,7 @@ class PlaylistPlayerPageState extends State<PlaylistPlayerPage>
   }
 
   Future<void> getFavoriteItems() async {
-    AppProfile profile = playlistHiveController.userController.profile;
+    AppProfile profile = playlistHiveController.userServiceImpl.profile;
     Map<String, AppMediaItem> items = await AppMediaItemFirestore().retrieveFromList(profile.favoriteItems ?? []);
     _appMediaItems = items.values.toList();
     setState(() {
@@ -144,15 +145,15 @@ class PlaylistPlayerPageState extends State<PlaylistPlayerPage>
                 },
               itemBuilder: (context) {
                 final List<String> sortTypes = [
-                  PlayerTranslationConstants.displayName.tr.capitalizeFirst,
-                  PlayerTranslationConstants.dateAdded.tr.capitalizeFirst,
-                  PlayerTranslationConstants.album.tr.capitalizeFirst,
-                  PlayerTranslationConstants.artist.tr.capitalizeFirst,
-                  PlayerTranslationConstants.duration.tr.capitalizeFirst,
+                  AudioPlayerTranslationConstants.displayName.tr.capitalizeFirst,
+                  AudioPlayerTranslationConstants.dateAdded.tr.capitalizeFirst,
+                  AppTranslationConstants.album.tr.capitalizeFirst,
+                  AppTranslationConstants.artist.tr.capitalizeFirst,
+                  AppTranslationConstants.duration.tr.capitalizeFirst,
                 ];
                 final List<String> orderTypes = [
-                  PlayerTranslationConstants.inc.tr,
-                  PlayerTranslationConstants.dec.tr,
+                  AudioPlayerTranslationConstants.inc.tr,
+                  AudioPlayerTranslationConstants.dec.tr,
                 ];
                 final menuList = <PopupMenuEntry<int>>[];
                 menuList.addAll(

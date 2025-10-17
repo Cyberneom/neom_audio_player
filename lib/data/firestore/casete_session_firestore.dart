@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:neom_core/app_config.dart';
 import 'package:neom_core/data/firestore/constants/app_firestore_collection_constants.dart';
 
-import '../../domain/entities/casete_session.dart';
+import '../../domain/models/casete/casete_session.dart';
 
 class CaseteSessionFirestore {
 
@@ -13,7 +13,6 @@ class CaseteSessionFirestore {
     AppConfig.logger.d("Inserting session ${session.id}");
 
     try {
-
       CollectionReference sessionReference = isAuthor ? authorsCaseteSessionsReference : caseteSessionsReference;
 
       if(session.id.isNotEmpty) {

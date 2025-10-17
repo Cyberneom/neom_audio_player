@@ -5,14 +5,15 @@ import 'package:neom_commons/app_flavour.dart';
 import 'package:neom_commons/ui/theme/app_color.dart';
 import 'package:neom_commons/ui/theme/app_theme.dart';
 import 'package:neom_commons/utils/app_utilities.dart';
-import 'package:neom_core/data/implementations/user_controller.dart';
+import 'package:neom_commons/utils/constants/country_codes.dart';
+import 'package:neom_commons/utils/constants/translations/app_translation_constants.dart';
+import 'package:neom_core/domain/use_cases/user_service.dart';
 import 'package:neom_core/utils/constants/app_hive_constants.dart';
 import 'package:neom_core/utils/enums/app_hive_box.dart';
-import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
 
 import '../../../utils/constants/audio_player_constants.dart';
 import '../../../utils/constants/audio_player_route_constants.dart';
-import '../../../utils/constants/countrycodes.dart';
+import '../../../utils/constants/audio_player_translation_constants.dart';
 
 class WelcomePreferencePage extends StatefulWidget {
   const WelcomePreferencePage({super.key});
@@ -23,7 +24,7 @@ class WelcomePreferencePage extends StatefulWidget {
 
 class WelcomePreferencePageState extends State<WelcomePreferencePage> {
 
-  UserController userController = Get.find<UserController>();
+  UserService userServiceImpl = Get.find<UserService>();
   List preferredLanguage = Hive.box(AppHiveBox.settings.name).get(AppHiveConstants.preferredLanguage, defaultValue: ['Español'])?.toList() as List;
   String region = Hive.box(AppHiveBox.settings.name).get(AppHiveConstants.region, defaultValue: 'México') as String;
 
@@ -43,12 +44,12 @@ class WelcomePreferencePageState extends State<WelcomePreferencePage> {
                     padding: const EdgeInsets.only(right: 15),
                     child: TextButton(
                       onPressed: () {
-                        Hive.box(AppHiveBox.settings.name).put(AppHiveConstants.userId, userController.user.id,);
+                        Hive.box(AppHiveBox.settings.name).put(AppHiveConstants.userId, userServiceImpl.user.id,);
                         Navigator.popAndPushNamed(context, AudioPlayerRouteConstants.root,);
                       },
                       child: Text(
-                        PlayerTranslationConstants.skip.tr,
-                        style: TextStyle(color: Colors.grey.withOpacity(0.9),),
+                        AudioPlayerTranslationConstants.skip.tr,
+                        style: TextStyle(color: Colors.grey.withAlpha(230),),
                       ),
                     ),
                   ),
@@ -74,7 +75,7 @@ class WelcomePreferencePageState extends State<WelcomePreferencePage> {
                           children: [
                             RichText(
                               text: TextSpan(
-                                text: '${PlayerTranslationConstants.welcome.tr}\n',
+                                text: '${AppTranslationConstants.welcome.tr}\n',
                                 style: TextStyle(
                                   fontSize: 46,
                                   height: 1.0,
@@ -85,7 +86,7 @@ class WelcomePreferencePageState extends State<WelcomePreferencePage> {
                                 children: <TextSpan>[
                                   TextSpan(
                                     text:
-                                        PlayerTranslationConstants.aboard.tr,
+                                    AppTranslationConstants.aboard.tr,
                                     style: const TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 52,
@@ -101,7 +102,7 @@ class WelcomePreferencePageState extends State<WelcomePreferencePage> {
                                     ),
                                   ),
                                   TextSpan(
-                                    text: PlayerTranslationConstants.tryOurMusicPlayer.tr,
+                                    text: AudioPlayerTranslationConstants.tryOurMusicPlayer.tr,
                                     style: const TextStyle(
                                       height: 1.5,
                                       fontWeight: FontWeight.w300,
@@ -122,7 +123,7 @@ class WelcomePreferencePageState extends State<WelcomePreferencePage> {
                               children: [
                                 ListTile(
                                   contentPadding: const EdgeInsets.symmetric(horizontal: 5.0,),
-                                  title: Text(PlayerTranslationConstants.langQue.tr,),
+                                  title: Text(AudioPlayerTranslationConstants.langQue.tr,),
                                   trailing: Container(
                                     padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10,),
                                     height: 57.0,
@@ -186,7 +187,7 @@ class WelcomePreferencePageState extends State<WelcomePreferencePage> {
                                                           foregroundColor: Theme.of(context,).colorScheme.secondary,
                                                         ),
                                                         onPressed: () => Navigator.pop(context,),
-                                                        child: Text(PlayerTranslationConstants.cancel.tr,),
+                                                        child: Text(AppTranslationConstants.cancel.tr,),
                                                       ),
                                                       TextButton(
                                                         style: TextButton.styleFrom(
@@ -200,12 +201,12 @@ class WelcomePreferencePageState extends State<WelcomePreferencePage> {
                                                           });
                                                           if (preferredLanguage.isEmpty) {
                                                             AppUtilities.showSnackBar(
-                                                              message: PlayerTranslationConstants.noLangSelected.tr,
+                                                              message: AudioPlayerTranslationConstants.noLangSelected.tr,
                                                             );
                                                           }
                                                         },
                                                         child: Text(
-                                                          PlayerTranslationConstants.ok.tr.toUpperCase(),
+                                                          AppTranslationConstants.ok.tr.toUpperCase(),
                                                           style: const TextStyle(fontWeight: FontWeight.w600,),
                                                         ),
                                                       ),
@@ -223,7 +224,7 @@ class WelcomePreferencePageState extends State<WelcomePreferencePage> {
                                 AppTheme.heightSpace20,
                                 ListTile(
                                   contentPadding: const EdgeInsets.symmetric(horizontal: 5.0,),
-                                  title: Text(PlayerTranslationConstants.countryQue.tr,),
+                                  title: Text(AudioPlayerTranslationConstants.countryQue.tr,),
                                   trailing: Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                                     height: 57.0,
@@ -281,7 +282,7 @@ class WelcomePreferencePageState extends State<WelcomePreferencePage> {
                                 const SizedBox(height: 20.0,),
                                 GestureDetector(
                                   onTap: () {
-                                    Hive.box(AppHiveBox.settings.name).put(AppHiveConstants.userId, userController.user.id,);
+                                    Hive.box(AppHiveBox.settings.name).put(AppHiveConstants.userId, userServiceImpl.user.id,);
                                     Navigator.popAndPushNamed(context, AudioPlayerRouteConstants.root,);
                                   },
                                   child: Container(
@@ -300,7 +301,7 @@ class WelcomePreferencePageState extends State<WelcomePreferencePage> {
                                     ),
                                     child: Center(
                                       child: Text(
-                                        PlayerTranslationConstants.finish.tr,
+                                        AppTranslationConstants.finish.tr,
                                         style: const TextStyle(
                                           color: Colors.black,
                                           fontWeight: FontWeight.bold,

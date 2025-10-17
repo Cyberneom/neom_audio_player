@@ -2,27 +2,28 @@ import 'dart:async';
 import 'package:audio_service/audio_service.dart';
 import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:neom_commons/utils/constants/translations/app_translation_constants.dart';
 import 'package:neom_core/app_config.dart';
 import 'package:neom_core/data/implementations/app_hive_controller.dart';
 import 'package:neom_core/data/implementations/neom_stopwatch.dart';
-import 'package:neom_core/data/implementations/user_controller.dart';
+import 'package:neom_core/domain/use_cases/audio_handler_service.dart';
+import 'package:neom_core/domain/use_cases/user_service.dart';
 import 'package:neom_core/utils/constants/core_constants.dart';
 import 'package:neom_core/utils/core_utilities.dart';
 import 'package:neom_core/utils/enums/app_hive_box.dart';
-import 'package:neom_media_player/utils/helpers/media_item_mapper.dart';
 import 'package:rxdart/rxdart.dart' as rx;
 import 'data/firestore/casete_session_firestore.dart';
 import 'data/firestore/casete_trial_usage_manager.dart';
 import 'data/implementations/player_hive_controller.dart';
 import 'data/implementations/playlist_hive_controller.dart';
+import 'domain/models/casete/casete_session.dart';
+import 'domain/models/queue_state.dart';
 import 'ui/player/audio_player_controller.dart';
 import 'ui/player/miniplayer_controller.dart';
 import 'utils/audio_player_stats.dart';
 import 'utils/constants/audio_player_constants.dart';
+import 'utils/mappers/media_item_mapper.dart';
 import 'utils/neom_audio_utilities.dart';
-import 'domain/entities/casete_session.dart';
-import 'domain/entities/queue_state.dart';
-import 'domain/use_cases/audio_handler_service.dart';
 
 class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler implements AudioHandlerService {
 
@@ -35,7 +36,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
   final ConcatenatingAudioSource _playlist = ConcatenatingAudioSource(
       children: []);
 
-  String connectionType = AudioPlayerConstants.wifi;
+  String connectionType = AppTranslationConstants.wifi;
 
   final List<String> refreshLinks = [];
   bool jobRunning = false;
@@ -47,7 +48,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
   final rx.BehaviorSubject<List<MediaItem>> _recentSubject = rx.BehaviorSubject
       .seeded(<MediaItem>[]);
 
-  final userController = Get.find<UserController>();
+  final userServiceImpl = Get.find<UserService>();
   final neomStopwatch =  NeomStopwatch();
 
   int caseteSessionDuration = 0; //Seconds per session
@@ -80,7 +81,6 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
         return shuffleIndices.map((i) => sequence[i]).toList();
       }).whereType<List<IndexedAudioSource>>();
 
-  @override
   Stream<QueueState> get queueState =>
       rx.Rx.combineLatest3<List<MediaItem>,
           PlaybackState,
@@ -123,8 +123,6 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
       AppConfig.logger.e('Error while loading last queue $e');
     }
 
-
-    ///DEPRECATED if (!jobRunning) refreshJob();
   }
 
   Future<void> setListeners() async {
@@ -753,19 +751,13 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
 
     String itemName =  mediaItem.value?.title ?? '';
 
-    ///DEPRECATED
-    //String orderId = '';
-    // if(isAuthor) {
-    //   orderId = await WooOrdersApi.createSessionOrder(userController.user, itemName, currentDuration);
-    // }
-
     CaseteSession caseteSession = CaseteSession(
       // id: orderId,
       createdTime: DateTime.now().millisecondsSinceEpoch,
       ownerId: currentMediaItem?.artist ?? '',
       itemId: currentMediaItem?.id ??'',
       itemName: itemName,
-      listenerId: userController.user.email,
+      listenerId: userServiceImpl.user.email,
       casete: averageCasete,
     );
 

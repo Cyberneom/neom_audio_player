@@ -7,13 +7,13 @@ import 'package:get/get.dart';
 import 'package:neom_commons/ui/theme/app_color.dart';
 import 'package:neom_commons/ui/theme/app_theme.dart';
 import 'package:neom_commons/utils/constants/app_assets.dart';
-import 'package:neom_media_player/ui/widgets/download_button.dart';
-import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
-import 'package:neom_media_player/utils/helpers/media_item_mapper.dart';
+import 'package:neom_commons/utils/constants/translations/app_translation_constants.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
-import '../../../domain/entities/queue_state.dart';
+import '../../../domain/models/queue_state.dart';
 import '../../../neom_audio_handler.dart';
+import '../../../utils/constants/audio_player_translation_constants.dart';
+import '../../../utils/mappers/media_item_mapper.dart';
 import '../../widgets/like_button.dart';
 
 class NowPlayingStream extends StatelessWidget {
@@ -109,13 +109,14 @@ class NowPlayingStream extends StatelessWidget {
                         ? [
                       IconButton(
                         icon: const Icon(Icons.bar_chart_rounded,),
-                        tooltip: PlayerTranslationConstants.playing.tr,
+                        tooltip: AppTranslationConstants.playing.tr,
                         onPressed: () {},
                       ),
                     ] : [
                       if(item.extras!['url'].toString().startsWith('http')) ...[
                         if(showLikeButton) LikeButton(appMediaItem: MediaItemMapper.toAppMediaItem(queue[index]),),
-                        if(downloadAllowed) DownloadButton(mediaItem: MediaItemMapper.toAppMediaItem(queue[index]),),
+                        ///TO IMPLEMENT WHEN ADDING neom_downloads as dependency
+                        // if(downloadAllowed) DownloadButton(mediaItem: MediaItemMapper.toAppMediaItem(queue[index]),),
                       ],
                       ReorderableDragStartListener(
                         key: Key(item.id),
@@ -140,7 +141,7 @@ class NowPlayingStream extends StatelessWidget {
                                 RotatedBox(
                                   quarterTurns: 3,
                                   child: Text(
-                                    PlayerTranslationConstants.addedBy.tr,
+                                    AudioPlayerTranslationConstants.addedBy.tr,
                                     textAlign: TextAlign.start,
                                     style: const TextStyle(
                                       fontSize: 5.0,
@@ -150,7 +151,7 @@ class NowPlayingStream extends StatelessWidget {
                                 RotatedBox(
                                   quarterTurns: 3,
                                   child: Text(
-                                    PlayerTranslationConstants.autoplay.tr,
+                                    AudioPlayerTranslationConstants.autoplay.tr,
                                     textAlign: TextAlign.start,
                                     style: TextStyle(
                                       fontSize: 8.0,

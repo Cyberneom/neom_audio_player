@@ -2,8 +2,8 @@ import 'package:audio_service/audio_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:neom_commons/utils/app_utilities.dart';
-import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
 import '../../neom_audio_handler.dart';
+import '../constants/audio_player_translation_constants.dart';
 
 void addToNowPlaying({
   required BuildContext context,
@@ -17,14 +17,14 @@ void addToNowPlaying({
       currentMediaItem.extras!['url'].toString().startsWith('http')) {
     if (audioHandler.queue.value.contains(mediaItem) && showNotification) {
       AppUtilities.showSnackBar(
-        message: PlayerTranslationConstants.alreadyInQueue.tr,
+        message: AudioPlayerTranslationConstants.alreadyInQueue.tr,
       );
     } else {
       audioHandler.addQueueItem(mediaItem);
 
       if (showNotification) {
         AppUtilities.showSnackBar(
-          message: '${mediaItem.title} - ${PlayerTranslationConstants.addedToQueue.tr}',
+          message: '${mediaItem.title} - ${AudioPlayerTranslationConstants.addedToQueue.tr}',
         );
       }
     }
@@ -32,8 +32,8 @@ void addToNowPlaying({
     if (showNotification) {
       AppUtilities.showSnackBar(
         message: currentMediaItem == null
-            ? PlayerTranslationConstants.nothingPlaying.tr
-            : PlayerTranslationConstants.cantAddToQueue.tr,
+            ? AudioPlayerTranslationConstants.nothingPlaying.tr
+            : AudioPlayerTranslationConstants.cantAddToQueue.tr,
       );
     }
   }
@@ -64,13 +64,13 @@ void playNext(
     }
 
     AppUtilities.showSnackBar(
-      message: '"${mediaItem.title}" ${PlayerTranslationConstants.willPlayNext.tr}',
+      message: '"${mediaItem.title}" ${AudioPlayerTranslationConstants.willPlayNext.tr}',
     );
   } else {
     AppUtilities.showSnackBar(
       message: currentMediaItem == null
-          ? PlayerTranslationConstants.nothingPlaying.tr
-          : PlayerTranslationConstants.cantAddToQueue.tr,
+          ? AudioPlayerTranslationConstants.nothingPlaying.tr
+          : AudioPlayerTranslationConstants.cantAddToQueue.tr,
     );
   }
 }

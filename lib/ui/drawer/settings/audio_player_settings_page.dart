@@ -3,10 +3,11 @@ import 'package:get/get.dart';
 import 'package:neom_commons/ui/theme/app_color.dart';
 import 'package:neom_commons/ui/theme/app_theme.dart';
 import 'package:neom_commons/ui/widgets/appbar_child.dart';
+import 'package:neom_commons/utils/constants/translations/app_translation_constants.dart';
 import 'package:neom_core/app_config.dart';
 import 'package:neom_core/utils/enums/app_in_use.dart';
 
-import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
+import '../../../utils/constants/audio_player_translation_constants.dart';
 import 'widgets/music_playback_settings_page.dart';
 import 'widgets/music_player_interface_page.dart';
 import 'widgets/others.dart';
@@ -37,7 +38,7 @@ class _AudioPlayerSettingsPageState extends State<AudioPlayerSettingsPage> {
         backgroundColor: AppColor.main50,
         resizeToAvoidBottomInset: false,
 
-        appBar: AppBarChild(title: PlayerTranslationConstants.settings.tr,),
+        appBar: AppBarChild(title: AppTranslationConstants.settings.tr,),
         body: Container(
           decoration: AppTheme.appBoxDecoration,
           child: Column(
@@ -54,74 +55,74 @@ class _AudioPlayerSettingsPageState extends State<AudioPlayerSettingsPage> {
   Widget _settingsItem(BuildContext context) {
     final List<Map<String, dynamic>> settingsList = [
       {
-        'title': PlayerTranslationConstants.ui.tr,
+        'title': AudioPlayerTranslationConstants.ui.tr,
         'icon': Icons.design_services_rounded,
         'onTap': MusicPlayerInterfacePage(
           callback: widget.callback,
         ),
         'isThreeLine': true,
         'items': [
-          PlayerTranslationConstants.miniButtons.tr,
-          PlayerTranslationConstants.changeOrder.tr,
-          PlayerTranslationConstants.compactNotificationButtons.tr,
-          PlayerTranslationConstants.showPlaylists.tr,
-          PlayerTranslationConstants.showLast.tr,
-          PlayerTranslationConstants.enableGesture.tr,
-          PlayerTranslationConstants.useLessDataImage.tr,
+          AudioPlayerTranslationConstants.miniButtons.tr,
+          AudioPlayerTranslationConstants.changeOrder.tr,
+          AudioPlayerTranslationConstants.compactNotificationButtons.tr,
+          AudioPlayerTranslationConstants.showPlaylists.tr,
+          AudioPlayerTranslationConstants.showLast.tr,
+          AudioPlayerTranslationConstants.enableGesture.tr,
+          AudioPlayerTranslationConstants.useLessDataImage.tr,
         ],
       },
       {
-        'title': PlayerTranslationConstants.musicPlayback.tr,
+        'title': AudioPlayerTranslationConstants.musicPlayback.tr,
         'icon': Icons.music_note_rounded,
         'onTap': MusicPlaybackSettingsPage(
           callback: widget.callback,
         ),
         'isThreeLine': true,
         'items': [
-          // PlayerTranslationConstants.musicLang.tr,
-          PlayerTranslationConstants.streamQuality.tr,
-          // PlayerTranslationConstants.chartLocation.tr,
-          PlayerTranslationConstants.streamWifiQuality.tr,
-          /// PlayerTranslationConstants.ytStreamQuality.tr,
-          PlayerTranslationConstants.loadLast.tr,
-          PlayerTranslationConstants.resetOnSkip.tr,
-          PlayerTranslationConstants.enforceRepeat.tr,
-          // PlayerTranslationConstants.autoplay.tr,
-          PlayerTranslationConstants.cacheMediaItem.tr,
+          // AudioPlayerTranslationConstants.musicLang.tr,
+          AudioPlayerTranslationConstants.streamQuality.tr,
+          // AudioPlayerTranslationConstants.chartLocation.tr,
+          AudioPlayerTranslationConstants.streamWifiQuality.tr,
+          /// AudioPlayerTranslationConstants.ytStreamQuality.tr,
+          AudioPlayerTranslationConstants.loadLast.tr,
+          AudioPlayerTranslationConstants.resetOnSkip.tr,
+          AudioPlayerTranslationConstants.enforceRepeat.tr,
+          // AudioPlayerTranslationConstants.autoplay.tr,
+          AudioPlayerTranslationConstants.cacheMediaItem.tr,
         ],
       },
       ///DOWNLOAD IN PROGRESS
       // {
-      //   'title': PlayerTranslationConstants.downloads.tr,
+      //   'title': AudioPlayerTranslationConstants.downloads.tr,
       //   'icon': Icons.download_done_rounded,
       //   'onTap': const DownloadSettingsPage(),
       //   'isThreeLine': true,
       //   'items': [
-      //     PlayerTranslationConstants.downQuality.tr,
-      //     PlayerTranslationConstants.downLocation.tr,
-      //     PlayerTranslationConstants.downFilename.tr,
-      //     PlayerTranslationConstants.ytDownQuality.tr,
-      //     PlayerTranslationConstants.createAlbumFold.tr,
-      //     PlayerTranslationConstants.createYtFold.tr,
+      //     AudioPlayerTranslationConstants.downQuality.tr,
+      //     AudioPlayerTranslationConstants.downLocation.tr,
+      //     AudioPlayerTranslationConstants.downFilename.tr,
+      //     AudioPlayerTranslationConstants.ytDownQuality.tr,
+      //     AudioPlayerTranslationConstants.createAlbumFold.tr,
+      //     AudioPlayerTranslationConstants.createYtFold.tr,
       //   ],
       // },
       {
-        'title': PlayerTranslationConstants.others.tr.capitalize,
+        'title': AppTranslationConstants.others.tr.capitalize,
         'icon': Icons.miscellaneous_services_rounded,
         'onTap': const OthersPage(),
         'isThreeLine': true,
         'items': AppConfig.instance.appInUse == AppInUse.g ? [
-          PlayerTranslationConstants.getLyricsOnline.tr,
-          PlayerTranslationConstants.stopOnClose.tr,
-          PlayerTranslationConstants.clearCache.tr,
-          // PlayerTranslationConstants.useDown.tr,
-          // PlayerTranslationConstants.includeExcludeFolder.tr,
-          // PlayerTranslationConstants.minAudioLen.tr,
-          // PlayerTranslationConstants.supportEq.tr,
-          // PlayerTranslationConstants.checkUpdate.tr,
-          // PlayerTranslationConstants.shareLogs.tr,
-        ] : [ PlayerTranslationConstants.stopOnClose.tr,
-          PlayerTranslationConstants.clearCache.tr,
+          AudioPlayerTranslationConstants.getLyricsOnline.tr,
+          AudioPlayerTranslationConstants.stopOnClose.tr,
+          AudioPlayerTranslationConstants.clearCache.tr,
+          // AudioPlayerTranslationConstants.useDown.tr,
+          // AudioPlayerTranslationConstants.includeExcludeFolder.tr,
+          // AudioPlayerTranslationConstants.minAudioLen.tr,
+          // AudioPlayerTranslationConstants.supportEq.tr,
+          // AudioPlayerTranslationConstants.checkUpdate.tr,
+          // AudioPlayerTranslationConstants.shareLogs.tr,
+        ] : [ AudioPlayerTranslationConstants.stopOnClose.tr,
+          AudioPlayerTranslationConstants.clearCache.tr,
         ],
       },
     ];
@@ -208,7 +209,7 @@ class _AudioPlayerSettingsPageState extends State<AudioPlayerSettingsPage> {
   //                   ),
   //                 ),
   //                 fillColor: Theme.of(context).colorScheme.secondary,
-  //                 prefixIcon: const Icon(CupertinoIcons.search),
+  //                 prefixIcon: const Icon(Icons.search),
   //                 suffixIcon: query.trim() != ''
   //                     ? IconButton(
   //                         icon: const Icon(Icons.close_rounded),
@@ -219,7 +220,7 @@ class _AudioPlayerSettingsPageState extends State<AudioPlayerSettingsPage> {
   //                       )
   //                     : null,
   //                 border: InputBorder.none,
-  //                 hintText: PlayerTranslationConstants.search.tr,
+  //                 hintText: AudioPlayerTranslationConstants.search.tr,
   //               ),
   //               keyboardType: TextInputType.text,
   //               textInputAction: TextInputAction.search,

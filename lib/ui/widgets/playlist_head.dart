@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:neom_core/domain/model/app_media_item.dart';
-import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
 
 import '../../audio_player_invoker.dart';
+import '../../utils/constants/audio_player_translation_constants.dart';
 
 class PlaylistHead extends StatelessWidget {
   final List<AppMediaItem> songsList;
@@ -30,7 +30,7 @@ class PlaylistHead extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            '${songsList.length} ${PlayerTranslationConstants.mediaItems.tr}',
+            '${songsList.length} ${AudioPlayerTranslationConstants.mediaItems.tr}',
             style: const TextStyle(fontWeight: FontWeight.w600),
           ),
           const Spacer(),
@@ -47,7 +47,7 @@ class PlaylistHead extends StatelessWidget {
             },
             icon: const Icon(Icons.shuffle_rounded),
             label: Text(
-              PlayerTranslationConstants.shuffle.tr.tr,
+              AudioPlayerTranslationConstants.shuffle.tr.tr,
               style: const TextStyle(fontWeight: FontWeight.w600),
             ),
           ),
@@ -61,7 +61,7 @@ class PlaylistHead extends StatelessWidget {
                 recommend: false,
               );
             },
-            tooltip: PlayerTranslationConstants.shuffle.tr,
+            tooltip: AudioPlayerTranslationConstants.shuffle.tr,
             icon: const Icon(Icons.play_arrow_rounded),
             iconSize: 30.0,
           ),

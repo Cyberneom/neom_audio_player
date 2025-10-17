@@ -3,14 +3,15 @@ import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:neom_commons/ui/theme/app_color.dart';
 import 'package:neom_commons/ui/widgets/appbar_child.dart';
-import 'package:neom_commons/ui/widgets/neom_image_card.dart';
+import 'package:neom_commons/ui/widgets/images/neom_image_card.dart';
+import 'package:neom_commons/utils/constants/translations/common_translation_constants.dart';
 import 'package:neom_core/domain/model/app_media_item.dart';
 import 'package:neom_core/utils/constants/app_hive_constants.dart';
 import 'package:neom_core/utils/enums/app_hive_box.dart';
-import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
 
 import '../../../audio_player_invoker.dart';
 import '../../../utils/constants/audio_player_route_constants.dart';
+import '../../../utils/constants/audio_player_translation_constants.dart';
 import '../../widgets/empty_screen.dart';
 import '../../widgets/like_button.dart';
 
@@ -46,7 +47,7 @@ class RecentlyPlayedPageState extends State<RecentlyPlayedPage> {
     return Scaffold(
         backgroundColor: AppColor.main50,
         appBar: AppBarChild(
-          title: PlayerTranslationConstants.lastSession.tr,
+          title: CommonTranslationConstants.lastSession.tr,
           actionWidgets: [
             IconButton(
               onPressed: () {
@@ -55,7 +56,7 @@ class RecentlyPlayedPageState extends State<RecentlyPlayedPage> {
                   _songs = {};
                 });
               },
-              tooltip: PlayerTranslationConstants.clearAll.tr,
+              tooltip: AudioPlayerTranslationConstants.clearAll.tr,
               icon: const Icon(Icons.clear_all_rounded),
             ),
           ],
@@ -63,9 +64,9 @@ class RecentlyPlayedPageState extends State<RecentlyPlayedPage> {
         body: _songs.isEmpty ? TextButton(
           child: emptyScreen(
             context, 3,
-            PlayerTranslationConstants.nothingTo.tr, 16,
-            PlayerTranslationConstants.showHere.tr, 45.0,
-            PlayerTranslationConstants.playSomething.tr, 26.0,
+            AudioPlayerTranslationConstants.nothingTo.tr, 16,
+            AudioPlayerTranslationConstants.showHere.tr, 45.0,
+            AudioPlayerTranslationConstants.playSomething.tr, 26.0,
           ),
           onPressed: ()=> Navigator.pushNamed(context, AudioPlayerRouteConstants.home),
         ) : ListView.builder(

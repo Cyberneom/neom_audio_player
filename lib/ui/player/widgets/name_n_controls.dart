@@ -5,9 +5,10 @@ import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
+import 'package:neom_commons/app_flavour.dart';
 import 'package:neom_commons/ui/theme/app_color.dart';
 import 'package:neom_commons/ui/theme/app_theme.dart';
-import 'package:neom_commons/utils/constants/app_translation_constants.dart';
+import 'package:neom_commons/utils/constants/translations/app_translation_constants.dart';
 import 'package:neom_core/app_config.dart';
 import 'package:neom_core/utils/constants/app_hive_constants.dart';
 import 'package:neom_core/utils/core_utilities.dart';
@@ -15,14 +16,11 @@ import 'package:neom_core/utils/enums/app_hive_box.dart';
 import 'package:neom_core/utils/enums/app_in_use.dart';
 import 'package:neom_core/utils/enums/itemlist_type.dart';
 import 'package:neom_core/utils/enums/user_role.dart';
-import 'package:neom_media_player/ui/widgets/download_button.dart';
-import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
-import 'package:neom_media_player/utils/helpers/media_item_mapper.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../../../domain/entities/position_data.dart';
 import '../../../utils/audio_player_utilities.dart';
 import '../../../utils/constants/audio_player_constants.dart';
+import '../../../utils/constants/audio_player_translation_constants.dart';
 import '../../widgets/add_to_playlist_button.dart';
 import '../../widgets/like_button.dart';
 import '../audio_player_controller.dart';
@@ -32,14 +30,14 @@ import 'up_next_queue.dart';
 
 class NameNControls extends StatelessWidget {
 
-  final AudioPlayerController mediaPlayerController;
+  final AudioPlayerController audioPlayerController;
   final double width;
   final double height;
   final bool downloadAllowed;
   final bool isLoading;
 
   const NameNControls({super.key,
-    required this.mediaPlayerController,
+    required this.audioPlayerController,
     required this.width,
     required this.height,
     this.downloadAllowed = false,
@@ -48,11 +46,11 @@ class NameNControls extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    AudioPlayerController _ = mediaPlayerController;
+    AudioPlayerController controller = audioPlayerController;
 
     final double titleBoxHeight = height * 0.3;
     final double seekBoxHeight = height * 0.18;
-    final double controlBoxHeight = _.offline ? height * 0.2
+    final double controlBoxHeight = controller.offline ? height * 0.2
         : (height < 350 ? height * 0.4 : height > 500 ? height * 0.2 : height * 0.38);
 
     final double nowPlayingBoxHeight = min(70, height * 0.15);
@@ -72,7 +70,7 @@ class NameNControls extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 10),
                       child: Column(
                         children: [
-                          Text(_.mediaItemTitle.value,
+                          Text(controller.mediaItemTitle.value,
                             style: TextStyle(
                               fontSize: titleBoxHeight/3.2,
                               fontWeight: FontWeight.bold,
@@ -83,7 +81,7 @@ class NameNControls extends StatelessWidget {
                           AppTheme.heightSpace5,
                           GestureDetector(
                             child: Text(
-                              _.mediaItemArtist.isNotEmpty ? _.mediaItemArtist.value : AppTranslationConstants.unknown.tr.capitalizeFirst,
+                              controller.mediaItemArtist.isNotEmpty ? controller.mediaItemArtist.value : AppTranslationConstants.unknown.tr.capitalizeFirst,
                               style: TextStyle(
                                 fontSize: titleBoxHeight / 6,
                                 fontWeight: FontWeight.w600,
@@ -91,12 +89,12 @@ class NameNControls extends StatelessWidget {
                               textAlign: TextAlign.center,
                               maxLines: 2,
                             ),
-                            onTap: () => (_.appMediaItem.value.artistId?.isEmpty ?? true) ? {}
-                                : _.goToOwnerProfile(),
+                            onTap: () => (controller.appMediaItem.value.artistId?.isEmpty ?? true) ? {}
+                                : controller.goToOwnerProfile(),
                           ),
-                          if(_.mediaItemAlbum.isNotEmpty) TextButton(
+                          if(controller.mediaItemAlbum.isNotEmpty) TextButton(
                             onPressed: () {
-                              _.gotoPlaylistPlayer();
+                              controller.gotoPlaylistPlayer();
                             },
                             style: TextButton.styleFrom(
                               padding: EdgeInsets.zero,
@@ -106,7 +104,7 @@ class NameNControls extends StatelessWidget {
                                 color: Colors.yellow
                               ),
                             ),
-                            child: Text(_.mediaItemAlbum.value.capitalizeFirst,
+                            child: Text(controller.mediaItemAlbum.value.capitalizeFirst,
                               textAlign: TextAlign.center,
                               maxLines: 2,
                               style: TextStyle(
@@ -117,16 +115,16 @@ class NameNControls extends StatelessWidget {
                             ),
 
                           ),
-                          if(!AudioPlayerUtilities.isOwnMediaItem(_.appMediaItem.value) && AppConfig.instance.appInUse == AppInUse.g)
+                          if(!AudioPlayerUtilities.isOwnMediaItem(controller.appMediaItem.value) && AppConfig.instance.appInUse == AppInUse.g)
                             Padding(
                               padding: const EdgeInsets.only(top: 5),
                               child: AnimatedTextKit(
                                 repeatForever: true,
                                 animatedTexts: [
-                                  FlickerAnimatedText('(${AppTranslationConstants.releasePreview.tr})', textStyle: const TextStyle(fontSize: 12)),
+                                  FlickerAnimatedText('(${AudioPlayerTranslationConstants.releasePreview.tr})', textStyle: const TextStyle(fontSize: 12)),
                                 ],
                                 onTap: () async {
-                                  await launchUrl(Uri.parse(_.appMediaItem.value.permaUrl),
+                                  await launchUrl(Uri.parse(controller.appMediaItem.value.permaUrl),
                                     mode: LaunchMode.externalApplication,
                                   );
                                 },
@@ -141,31 +139,23 @@ class NameNControls extends StatelessWidget {
                 Container(
                   height: seekBoxHeight,
                   padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: StreamBuilder<PositionData>(
-                    stream: _.positionDataStream,
+                  child: StreamBuilder<Duration>(
+                    stream: controller.audioHandler?.player.positionStream,
                     builder: (context, snapshot) {
-                      Duration position = Duration.zero;
-                      ///DEPRECATED Duration bufferedPosition = Duration.zero;
-                      Duration duration = Duration.zero;
+                      Duration position  = snapshot.data ?? Duration.zero;
+                      Duration duration = controller.audioHandler?.player.duration ?? Duration.zero;
 
-                      if(!AudioPlayerUtilities.isOwnMediaItem(_.appMediaItem.value) && AppConfig.instance.appInUse == AppInUse.g) {
+                      if(AppFlavour.addAudioLimitation() && !AudioPlayerUtilities.isOwnMediaItem(controller.appMediaItem.value)) {
                         duration = const Duration(seconds: AudioPlayerConstants.externalDuration);
-                      } else {
-                        duration = Duration(seconds: _.audioHandler?.player.duration?.inSeconds ?? 0);
-                      }
-
-                      if(snapshot.data != null) {
-                        PositionData positionData = snapshot.data!;
-                        position = positionData.position;
                       }
 
                       return SeekBar(
                         position: position,
                         duration: duration,
-                        offline: _.offline,
-                        onChangeEnd: (newPosition) => _.audioHandler?.seek(newPosition),
-                        audioHandler: _.audioHandler,
-                        isAdmin: _.user.userRole != UserRole.subscriber,
+                        offline: controller.offline,
+                        onChangeEnd: (newPosition) => controller.audioHandler?.seek(newPosition),
+                        audioHandler: controller.audioHandler,
+                        isAdmin: controller.user.userRole != UserRole.subscriber,
                       );
                     },
                   ),
@@ -185,35 +175,35 @@ class NameNControls extends StatelessWidget {
                             children: [
                               AppTheme.heightSpace5,
                               StreamBuilder<bool>(
-                                stream: _.audioHandler?.playbackState
+                                stream: controller.audioHandler?.playbackState
                                     .map((state) => state.shuffleMode == AudioServiceShuffleMode.all,).distinct(),
                                 builder: (context, snapshot) {
                                   final shuffleModeEnabled = snapshot.data ?? false;
                                   return IconButton(icon: shuffleModeEnabled
                                         ? const Icon(Icons.shuffle_rounded,)
                                         : Icon(Icons.shuffle_rounded, color: Theme.of(context).disabledColor,),
-                                    tooltip: PlayerTranslationConstants.shuffle.tr,
+                                    tooltip: AudioPlayerTranslationConstants.shuffle.tr,
                                     onPressed: () async {
                                       final enable = !shuffleModeEnabled;
-                                      await _.audioHandler?.setShuffleMode(enable
+                                      await controller.audioHandler?.setShuffleMode(enable
                                           ? AudioServiceShuffleMode.all : AudioServiceShuffleMode.none,
                                       );
                                     },
                                   );
                                 },
                               ),
-                              if (!_.offline) LikeButton(appMediaItem: _.appMediaItem.value),
+                              if (!controller.offline) LikeButton(appMediaItem: controller.appMediaItem.value),
                             ],
                           ),
                           Column(
                             mainAxisSize: MainAxisSize.min,
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              ControlButtons(_.audioHandler, mediaItem: _.mediaItem.value,),
-                              if(!AudioPlayerUtilities.isOwnMediaItem(_.appMediaItem.value) && AppConfig.instance.appInUse == AppInUse.g)
+                              ControlButtons(controller.audioHandler, mediaItem: controller.mediaItem.value,),
+                              if(!AudioPlayerUtilities.isOwnMediaItem(controller.appMediaItem.value) && AppConfig.instance.appInUse == AppInUse.g)
                                 ElevatedButton(
                                   onPressed: () async {
-                                    await launchUrl(Uri.parse(_.appMediaItem.value.permaUrl),
+                                    await launchUrl(Uri.parse(controller.appMediaItem.value.permaUrl),
                                     mode: LaunchMode.externalApplication,
                                     );
                                   },
@@ -225,7 +215,7 @@ class NameNControls extends StatelessWidget {
                                     ),
                                     elevation: 10
                                   ),
-                                  child: Text(AppTranslationConstants.playOnSpotify.tr,
+                                  child: Text(AudioPlayerTranslationConstants.playOnSpotify.tr,
                                     style: const TextStyle(fontSize: 15),
                                   ),
                                 ),
@@ -236,7 +226,7 @@ class NameNControls extends StatelessWidget {
                             children: [
                               AppTheme.heightSpace5,
                               StreamBuilder<AudioServiceRepeatMode>(
-                                stream: _.audioHandler?.playbackState.map((state) => state.repeatMode).distinct(),
+                                stream: controller.audioHandler?.playbackState.map((state) => state.repeatMode).distinct(),
                                 builder: (context, snapshot) {
                                   final repeatMode = snapshot.data ?? AudioServiceRepeatMode.none;
                                   const texts = ['None', 'All', 'One'];
@@ -256,18 +246,19 @@ class NameNControls extends StatelessWidget {
                                     tooltip: 'Repeat ${texts[(index + 1) % texts.length]}',
                                     onPressed: () async {
                                       await Hive.box(AppHiveBox.settings.name).put(AppHiveConstants.repeatMode, texts[(index + 1) % texts.length],);
-                                      await _.audioHandler?.setRepeatMode(cycleModes[(cycleModes.indexOf(repeatMode) + 1) % cycleModes.length],
+                                      await controller.audioHandler?.setRepeatMode(cycleModes[(cycleModes.indexOf(repeatMode) + 1) % cycleModes.length],
                                       );
                                     },
                                   );
                                 },
                               ),
-                              downloadAllowed && _.mediaItem.value != null ? DownloadButton(mediaItem: MediaItemMapper.toAppMediaItem(_.mediaItem.value!),): const SizedBox.shrink(),
+                              ///TO IMPLEMENT WHEN ADDING neom_downloads as dependency
+                              // downloadAllowed && controller.mediaItem.value != null ? DownloadButton(mediaItem: MediaItemMapper.toAppMediaItem(controller.mediaItem.value!),): const SizedBox.shrink(),
                               AddToPlaylistButton(
-                                appMediaItem: _.appMediaItem.value,
-                                playlists: CoreUtilities.filterItemlists(_.profile.itemlists?.values.toList() ?? [], ItemlistType.playlist,),
-                                currentPlaylist: _.personalPlaylist,)
-                              // _.createPopMenuOption(context, _.appMediaItem.value),
+                                appMediaItem: controller.appMediaItem.value,
+                                playlists: CoreUtilities.filterItemlists(controller.profile.itemlists?.values.toList() ?? [], ItemlistType.playlist,),
+                                currentPlaylist: controller.personalPlaylist,)
+                              // controller.createPopMenuOption(context, controller.appMediaItem.value),
                             ],
                           ),
                         ],
@@ -280,8 +271,8 @@ class NameNControls extends StatelessWidget {
             ),
           ),
           UpNextQueue(
-            mediaPlayerController: _,
-            panelController: _.panelController,
+            mediaPlayerController: controller,
+            panelController: controller.panelController,
             minHeight: nowPlayingBoxHeight,
           ),
         ],

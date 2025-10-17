@@ -2,13 +2,14 @@ import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:neom_commons/ui/theme/app_color.dart';
+import 'package:neom_commons/utils/constants/translations/app_translation_constants.dart';
+import 'package:neom_commons/utils/share_utilities.dart';
 import 'package:neom_core/domain/model/app_media_item.dart';
 import 'package:neom_core/domain/model/item_list.dart';
-import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
-import 'package:neom_media_player/utils/helpers/media_item_mapper.dart';
-import 'package:share_plus/share_plus.dart';
 
+import '../../utils/constants/audio_player_translation_constants.dart';
 import '../../utils/helpers/add_mediaitem_to_queue.dart';
+import '../../utils/mappers/media_item_mapper.dart';
 import '../library/playlist_player_page.dart';
 import '../player/widgets/add_to_playlist.dart';
 
@@ -59,7 +60,7 @@ class SongTileTrailingMenuState extends State<SongTileTrailingMenu> {
                   color: Theme.of(context).iconTheme.color,
                 ),
                 const SizedBox(width: 10.0),
-                Text(PlayerTranslationConstants.addToPlaylist.tr),
+                Text(AudioPlayerTranslationConstants.addToPlaylist.tr),
               ],
             ),
         ),
@@ -72,7 +73,7 @@ class SongTileTrailingMenuState extends State<SongTileTrailingMenu> {
                 color: Theme.of(context).iconTheme.color,
               ),
               const SizedBox(width: 10.0),
-              Text(PlayerTranslationConstants.addToQueue.tr),
+              Text(AudioPlayerTranslationConstants.addToQueue.tr),
             ],
           ),
         ),
@@ -86,7 +87,7 @@ class SongTileTrailingMenuState extends State<SongTileTrailingMenu> {
                 size: 26.0,
               ),
               const SizedBox(width: 10.0),
-              Text(PlayerTranslationConstants.playNext.tr),
+              Text(AudioPlayerTranslationConstants.playNext.tr),
             ],
           ),
         ),
@@ -99,7 +100,7 @@ class SongTileTrailingMenuState extends State<SongTileTrailingMenu> {
                 color: Theme.of(context).iconTheme.color,
               ),
               const SizedBox(width: 10.0),
-              Text(PlayerTranslationConstants.share.tr),
+              Text(AppTranslationConstants.toShare.tr),
             ],
           ),
         ),
@@ -110,9 +111,7 @@ class SongTileTrailingMenuState extends State<SongTileTrailingMenu> {
               children: [
                 const Icon(Icons.delete_rounded,),
                 const SizedBox(width: 10.0,),
-                Text(
-                  PlayerTranslationConstants.remove.tr,
-                ),
+                Text(AppTranslationConstants.toRemove.tr,),
               ],
             ),
           ),
@@ -126,7 +125,7 @@ class SongTileTrailingMenuState extends State<SongTileTrailingMenu> {
           case 2:
             playNext(mediaItem, context);
           case 3:
-            Share.share(widget.appMediaItem.permaUrl);
+            ShareUtilities.shareAppWithMediaItem(widget.appMediaItem);
           case 4:
             widget.deleteLiked!(widget.appMediaItem);
           case 5:

@@ -1,12 +1,12 @@
 name: neom_audio_player
 description: Audio Player Module for Open Neom.
-version: 1.5.0
+version: 1.5.1
 homepage: https://github.com/Cyberneom/neom_audio_player
 publish_to: 'none'
 
 environment:
-  sdk: ">=3.4.0 <4.0.0"
-  flutter: ">=3.0.0"
+  sdk: ">=3.8.0 <4.0.0"
+  flutter: ">=3.19.0"
 
 dependencies:
   flutter:
@@ -18,9 +18,6 @@ dependencies:
   neom_commons:
     git:
       url: git@github.com:Cyberneom/neom_commons.git
-  neom_media_player:
-    git:
-      url: https://github.com/Cyberneom/neom_media_player.git
 
   audio_service: ^0.18.18
   just_audio: ^0.10.3

@@ -4,20 +4,22 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:neom_commons/utils/constants/app_page_id_constants.dart';
 import 'package:neom_core/app_config.dart';
-import 'package:neom_core/data/implementations/user_controller.dart';
 import 'package:neom_core/domain/model/app_media_item.dart';
+import 'package:neom_core/domain/use_cases/miniplayer_service.dart';
+import 'package:neom_core/domain/use_cases/user_service.dart';
 import 'package:neom_core/utils/constants/app_route_constants.dart';
 import 'package:neom_core/utils/enums/app_media_source.dart';
 
 import '../../audio_player_invoker.dart';
 import '../../neom_audio_handler.dart';
+import '../../utils/mappers/media_item_mapper.dart';
 
-class MiniPlayerController extends GetxController {
+class MiniPlayerController extends GetxController implements MiniPlayerService {
 
-  final userController = Get.find<UserController>();
+  final userServiceImpl = Get.find<UserService>();
 
   AppMediaItem appMediaItem = AppMediaItem();
-  MediaItem? mediaItem;
+  Rxn<MediaItem> mediaItem = Rxn<MediaItem>();
   bool isLoading = true;
   bool isTimeline = true;
   bool isButtonDisabled = false;
@@ -59,52 +61,67 @@ class MiniPlayerController extends GetxController {
 
   }
 
-  Future<void> setMediaItem(MediaItem item) async {
-    AppConfig.logger.d('Setting new mediaitem ${item.title}');
+  @override
+  Future<void> setAppMediaItem(AppMediaItem appMediaItem) async {
+    AppConfig.logger.d('Setting new mediaitem ${appMediaItem.name}');
     audioHandler ??= await Get.find<AudioPlayerInvoker>().getOrInitAudioHandler();
     audioHandlerRegistered = true;
-    mediaItem = item;
-    source = EnumToString.fromString(AppMediaSource.values, mediaItem?.extras?["source"] ?? AppMediaSource.internal.name) ?? AppMediaSource.internal;
+    mediaItem.value = MediaItemMapper.fromAppMediaItem(appMediaItem: appMediaItem);
+    source = EnumToString.fromString(AppMediaSource.values, mediaItem.value?.extras?["source"] ?? AppMediaSource.internal.name) ?? AppMediaSource.internal;
     isInternal = source == AppMediaSource.internal || source == AppMediaSource.offline;
 
     update([AppPageIdConstants.miniPlayer]);
   }
 
+  Future<void> setMediaItem(MediaItem item) async {
+    AppConfig.logger.d('Setting new mediaitem ${item.title}');
+    audioHandler ??= await Get.find<AudioPlayerInvoker>().getOrInitAudioHandler();
+    audioHandlerRegistered = true;
+    mediaItem.value = item;
+    source = EnumToString.fromString(AppMediaSource.values, mediaItem.value?.extras?["source"] ?? AppMediaSource.internal.name) ?? AppMediaSource.internal;
+    isInternal = source == AppMediaSource.internal || source == AppMediaSource.offline;
+
+    update([AppPageIdConstants.miniPlayer]);
+  }
+
+  @override
   void setIsTimeline(bool value) {
     AppConfig.logger.d('Setting IsTimeline: $value');
     isTimeline = value;
     update([AppPageIdConstants.home, AppPageIdConstants.timeline]);
   }
 
+  @override
   void setShowInTimeline({bool value = true}) {
     AppConfig.logger.i('Setting showInTimeline to $value');
     showInTimeline =  value;
     update([AppPageIdConstants.home, AppPageIdConstants.audioPlayerHome, AppPageIdConstants.miniPlayer]);
   }
 
+  @override
   StreamBuilder<Duration> positionSlider({bool isPreview = false}) {
     return StreamBuilder<Duration>(
-      stream: AudioService.position,
+      stream: audioHandler?.player.positionStream,
       builder: (context, snapshot) {
         final position = snapshot.data;
         double? maxDuration = audioHandler?.player.duration?.inSeconds.toDouble();
+
         return position == null || maxDuration == null
             ? const SizedBox.shrink()
             : (position.inSeconds.toDouble() < 0.0 ||
             (position.inSeconds.toDouble() > (maxDuration)))
-            ? const SizedBox.shrink()
-            : SliderTheme(
+            ? const SizedBox.shrink() : SliderTheme(
           data: SliderTheme.of(context).copyWith(
             activeTrackColor: Theme.of(context).colorScheme.secondary,
             inactiveTrackColor: Colors.transparent,
-            trackHeight: 5,
+            trackHeight: 1,
             thumbColor: Theme.of(context).colorScheme.secondary,
             thumbShape: const RoundSliderThumbShape(
               enabledThumbRadius: 1.0,
             ),
             overlayColor: Colors.transparent,
             overlayShape: const RoundSliderOverlayShape(
-              overlayRadius: 2.0,
+              overlayRadius: 1.0,
             ),
           ),
           child: Center(
@@ -113,11 +130,7 @@ class MiniPlayerController extends GetxController {
               value: position.inSeconds.toDouble(),
               max: isPreview ? 30 : maxDuration,
               onChanged: (newPosition) {
-                audioHandler?.seek(
-                  Duration(
-                    seconds: newPosition.round(),
-                  ),
-                );
+                audioHandler?.seek(Duration(seconds: newPosition.round(),),);
               },
             ),
           ),
@@ -126,15 +139,17 @@ class MiniPlayerController extends GetxController {
     );
   }
 
+  @override
   void goToMusicPlayerHome() {
     isTimeline = false;
     Get.toNamed(AppRouteConstants.audioPlayerHome);
     update([AppPageIdConstants.home, AppPageIdConstants.audioPlayerHome, AppPageIdConstants.miniPlayer]);
   }
 
+  @override
   void goToTimeline(BuildContext context) {
     isTimeline = true;
-    showInTimeline = mediaItem != null;
+    showInTimeline = mediaItem.value != null;
 
     Get.back();
     update([AppPageIdConstants.home, AppPageIdConstants.audioPlayerHome, AppPageIdConstants.miniPlayer]);

@@ -4,11 +4,12 @@ import 'package:hive/hive.dart';
 import 'package:neom_commons/ui/theme/app_color.dart';
 import 'package:neom_commons/ui/theme/app_theme.dart';
 import 'package:neom_commons/ui/widgets/appbar_child.dart';
+import 'package:neom_commons/utils/constants/translations/app_translation_constants.dart';
 import 'package:neom_core/utils/constants/app_hive_constants.dart';
 import 'package:neom_core/utils/enums/app_hive_box.dart';
-import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
 
 import '../../../../utils/constants/audio_player_constants.dart';
+import '../../../../utils/constants/audio_player_translation_constants.dart';
 import 'hive_box_switch_tile.dart';
 
 class MusicPlayerInterfacePage extends StatefulWidget {
@@ -38,7 +39,7 @@ class _MusicPlayerInterfacePageState extends State<MusicPlayerInterfacePage> {
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: AppColor.main50,
-        appBar: AppBarChild(title: PlayerTranslationConstants.ui.tr,),
+        appBar: AppBarChild(title: AudioPlayerTranslationConstants.ui.tr,),
         body: Container(
           decoration: AppTheme.appBoxDecoration,
           child: ListView(
@@ -47,10 +48,10 @@ class _MusicPlayerInterfacePageState extends State<MusicPlayerInterfacePage> {
             children: [
               ListTile(
                 title: Text(
-                  PlayerTranslationConstants.miniButtons.tr,
+                  AudioPlayerTranslationConstants.miniButtons.tr,
                 ),
                 subtitle: Text(
-                  PlayerTranslationConstants.miniButtonsSub.tr,
+                  AudioPlayerTranslationConstants.miniButtonsSub.tr,
                 ),
                 dense: true,
                 onTap: () {
@@ -86,7 +87,7 @@ class _MusicPlayerInterfacePageState extends State<MusicPlayerInterfacePage> {
                                   setState(() {});
                                 },
                                 header: Center(
-                                  child: Text(PlayerTranslationConstants.changeOrder.tr,),
+                                  child: Text(AudioPlayerTranslationConstants.changeOrder.tr,),
                                 ),
                                 children: order.map((e) {
                                   return Row(
@@ -125,7 +126,7 @@ class _MusicPlayerInterfacePageState extends State<MusicPlayerInterfacePage> {
                             actions: [
                               TextButton(
                                 onPressed: () => Navigator.pop(context),
-                                child: Text(PlayerTranslationConstants.cancel.tr,),
+                                child: Text(AppTranslationConstants.cancel.tr,),
                               ),
                               TextButton(
                                 style: TextButton.styleFrom(
@@ -154,7 +155,7 @@ class _MusicPlayerInterfacePageState extends State<MusicPlayerInterfacePage> {
                                     },
                                   );
                                 },
-                                child: Text(PlayerTranslationConstants.ok.tr.toUpperCase(),),
+                                child: Text(AppTranslationConstants.ok.tr.toUpperCase(),),
                               ),
                               const SizedBox(
                                 width: 5,
@@ -168,8 +169,8 @@ class _MusicPlayerInterfacePageState extends State<MusicPlayerInterfacePage> {
                 },
               ),
               ListTile(
-                title: Text(PlayerTranslationConstants.compactNotificationButtons.tr,),
-                subtitle: Text(PlayerTranslationConstants.compactNotificationButtonsSub.tr),
+                title: Text(AudioPlayerTranslationConstants.compactNotificationButtons.tr,),
+                subtitle: Text(AudioPlayerTranslationConstants.compactNotificationButtonsSub.tr),
                 dense: true,
                 onTap: () {
                   showDialog(
@@ -221,7 +222,7 @@ class _MusicPlayerInterfacePageState extends State<MusicPlayerInterfacePage> {
                                 children: [
                                   Center(
                                     child: Text(
-                                      PlayerTranslationConstants.compactNotificationButtonsHeader.tr,
+                                      AudioPlayerTranslationConstants.compactNotificationButtonsHeader.tr,
                                     ),
                                   ),
                                   ...buttons.map((value) {
@@ -264,7 +265,7 @@ class _MusicPlayerInterfacePageState extends State<MusicPlayerInterfacePage> {
                             actions: [
                               TextButton(
                                 onPressed: () => Navigator.pop(context),
-                                child: Text(PlayerTranslationConstants.cancel.tr,),
+                                child: Text(AppTranslationConstants.cancel.tr,),
                               ),
                               TextButton(
                                 style: TextButton.styleFrom(
@@ -285,7 +286,7 @@ class _MusicPlayerInterfacePageState extends State<MusicPlayerInterfacePage> {
                                     },
                                   );
                                 },
-                                child: Text(PlayerTranslationConstants.ok.tr.toUpperCase(),),
+                                child: Text(AppTranslationConstants.ok.tr.toUpperCase(),),
                               ),
                               AppTheme.widthSpace5,
                             ],
@@ -297,26 +298,26 @@ class _MusicPlayerInterfacePageState extends State<MusicPlayerInterfacePage> {
                 },
               ),
               HiveBoxSwitchTile(
-                title: PlayerTranslationConstants.showPlaylists.tr,
+                title: AudioPlayerTranslationConstants.showPlaylists.tr,
                 keyName: 'showPlaylist',
                 defaultValue: true,
               ),
               HiveBoxSwitchTile(
-                title: PlayerTranslationConstants.showLast.tr,
-                subtitle: PlayerTranslationConstants.showLastSub.tr,
+                title: AudioPlayerTranslationConstants.showLast.tr,
+                subtitle: AudioPlayerTranslationConstants.showLastSub.tr,
                 keyName: 'showRecent',
                 defaultValue: true,
               ),
               HiveBoxSwitchTile(
-                title: PlayerTranslationConstants.enableGesture.tr,
-                subtitle: PlayerTranslationConstants.enableGestureSub.tr,
+                title: AudioPlayerTranslationConstants.enableGesture.tr,
+                subtitle: AudioPlayerTranslationConstants.enableGestureSub.tr,
                 keyName: 'enableGesture',
                 defaultValue: true,
                 isThreeLine: true,
               ),
               HiveBoxSwitchTile(
-                title: PlayerTranslationConstants.useLessDataImage.tr,
-                subtitle: PlayerTranslationConstants.useLessDataImageSub.tr,
+                title: AudioPlayerTranslationConstants.useLessDataImage.tr,
+                subtitle: AudioPlayerTranslationConstants.useLessDataImageSub.tr,
                 keyName: 'enableImageOptimization',
                 defaultValue: false,
                 isThreeLine: true,

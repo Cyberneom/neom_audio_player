@@ -1,12 +1,11 @@
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:neom_commons/app_flavour.dart';
 import 'package:neom_commons/ui/theme/app_color.dart';
 import 'package:neom_commons/ui/theme/app_theme.dart';
 import 'package:neom_commons/ui/widgets/app_circular_progress_indicator.dart';
+import 'package:neom_commons/utils/constants/translations/app_translation_constants.dart';
 import 'package:neom_core/app_config.dart';
-import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
 
 import 'drawer/audio_player_drawer.dart';
 import 'home/audio_player_home_page.dart';
@@ -51,9 +50,9 @@ class AudioPlayerRootPageState extends State<AudioPlayerRootPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: AppColor.main50,
-        drawer: const AudioPlayerDrawer(),
-        body: isLoading ? const AppCircularProgressIndicator() :
+      backgroundColor: AppFlavour.getBackgroundColor(),
+      drawer: const AudioPlayerDrawer(),
+      body: isLoading ? const AppCircularProgressIndicator() :
         Stack(
           children: [
             PageView(
@@ -76,12 +75,12 @@ class AudioPlayerRootPageState extends State<AudioPlayerRootPage> {
           child: AudioPlayerBottomAppBar(
             backgroundColor: AppColor.bottomNavigationBar,
             color: Colors.white54,
-            selectedColor: Colors.white.withOpacity(0.9),
+            selectedColor: Colors.white.withAlpha(230),
             notchedShape: const CircularNotchedRectangle(),
             onTabSelected:(int index) => selectPageView(index, context: context),
             items: [
               MusicPlayerBottomAppBarItem(iconData: Icons.play_circle_fill, text: AppFlavour.getAudioPlayerHomeTitle(),),
-              if(widget.secondaryPage != null) MusicPlayerBottomAppBarItem(iconData: Icons.library_music, text: PlayerTranslationConstants.playlists.tr,),
+              if(widget.secondaryPage != null) MusicPlayerBottomAppBarItem(iconData: Icons.library_music, text: AppTranslationConstants.playlists.tr,),
             ],
           ),
         ),

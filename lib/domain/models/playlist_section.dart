@@ -1,5 +1,3 @@
-
-
 import 'playlist_item.dart';
 
 class PlaylistSection {

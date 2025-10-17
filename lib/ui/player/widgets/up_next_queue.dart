@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:neom_commons/ui/theme/app_color.dart';
 import 'package:neom_commons/ui/theme/app_theme.dart';
-import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
+import '../../../utils/constants/audio_player_translation_constants.dart';
 import '../audio_player_controller.dart';
 import 'now_playing_stream.dart';
 
@@ -24,7 +24,7 @@ class UpNextQueue extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    AudioPlayerController _ = mediaPlayerController;
+    AudioPlayerController controller = mediaPlayerController;
     return SizedBox(
       child: SlidingUpPanel(
         minHeight: minHeight,
@@ -69,7 +69,7 @@ class UpNextQueue extends StatelessWidget {
                 ),
                 Expanded(
                   child: Center(child: Text(
-                    PlayerTranslationConstants.upNextQueue.tr,
+                    AudioPlayerTranslationConstants.upNextQueue.tr,
                     textAlign: TextAlign.center,
                     style: const TextStyle(
                       fontWeight: FontWeight.w600,
@@ -100,7 +100,7 @@ class UpNextQueue extends StatelessWidget {
                 child: NowPlayingStream(
                   head: true,
                   headHeight: minHeight,
-                  audioHandler: _.audioHandler,
+                  audioHandler: controller.audioHandler,
                   scrollController: scrollController,
                   panelController: panelController,
                   showLikeButton: false,

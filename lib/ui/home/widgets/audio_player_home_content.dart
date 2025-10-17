@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:neom_commons/ui/widgets/neom_image_card.dart';
+import 'package:neom_commons/ui/widgets/images/neom_image_card.dart';
 import 'package:neom_commons/utils/constants/app_assets.dart';
 import 'package:neom_commons/utils/constants/app_page_id_constants.dart';
-import 'package:neom_commons/utils/constants/app_translation_constants.dart';
+import 'package:neom_commons/utils/constants/translations/app_translation_constants.dart';
+import 'package:neom_commons/utils/constants/translations/common_translation_constants.dart';
 import 'package:neom_commons/utils/mappers/app_media_item_mapper.dart';
 import 'package:neom_core/app_config.dart';
 import 'package:neom_core/domain/model/app_media_item.dart';
@@ -12,11 +13,11 @@ import 'package:neom_core/domain/model/item_list.dart';
 import 'package:neom_core/utils/constants/app_route_constants.dart';
 import 'package:neom_core/utils/enums/app_hive_box.dart';
 import 'package:neom_core/utils/enums/app_media_source.dart';
-import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
 
 import '../../../audio_player_invoker.dart';
 import '../../../utils/audio_player_utilities.dart';
 import '../../../utils/constants/audio_player_route_constants.dart';
+import '../../../utils/constants/audio_player_translation_constants.dart';
 import '../../library/playlist_player_page.dart';
 import '../../widgets/empty_screen.dart';
 import '../../widgets/song_tile_trailing_menu.dart';
@@ -38,9 +39,9 @@ class AudioPlayerHomeContent extends StatelessWidget {
 
     return GetBuilder<AudioPlayerHomeController>(
       id: AppPageIdConstants.audioPlayerHome,
-      builder: (_) => _.isLoading.value ? const Center(child: CircularProgressIndicator(),)
-        : (_.myItemLists.isEmpty && _.favoriteItems.isEmpty && _.recentList.isEmpty
-          && _.publicItemlists.isEmpty && _.releaseItemlists.isEmpty)
+      builder: (controller) => controller.isLoading.value ? const Center(child: CircularProgressIndicator(),)
+        : (controller.myItemLists.isEmpty && controller.favoriteItems.isEmpty && controller.recentList.isEmpty
+          && controller.publicItemlists.isEmpty && controller.releaseItemlists.isEmpty)
         ? TextButton(
           onPressed: ()=> Navigator.push(context, MaterialPageRoute(
             builder: (context) => const SearchPage(
@@ -49,27 +50,27 @@ class AudioPlayerHomeContent extends StatelessWidget {
           ),
         ),
         child: emptyScreen(context, 3,
-        PlayerTranslationConstants.nothingTo.tr, 15.0,
-        PlayerTranslationConstants.showHere.tr, 50,
-        PlayerTranslationConstants.startSearch.tr, 23.0,),
+        AudioPlayerTranslationConstants.nothingTo.tr, 15.0,
+        AudioPlayerTranslationConstants.showHere.tr, 50,
+        AudioPlayerTranslationConstants.startSearch.tr, 23.0,),
       ) : ListView.builder(
         physics: const BouncingScrollPhysics(),
         shrinkWrap: true,
         padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
-        itemCount: _.publicItemlists.isEmpty ? _.previousIndex : (_.publicItemlists.length + _.previousIndex),
+        itemCount: controller.publicItemlists.isEmpty ? controller.previousIndex : (controller.publicItemlists.length + controller.previousIndex),
         itemBuilder: (context, idx) {
           AppConfig.logger.t('Building AudioPlayerHome Index $idx');
 
-          if (idx == _.recentIndex && _.recentList.isNotEmpty) return buildLastSessionContainer(context, _);
+          if (idx == controller.recentIndex && controller.recentList.isNotEmpty) return buildLastSessionContainer(context, controller);
 
-          if (idx == _.favoriteItemsIndex && _.favoriteItems.isNotEmpty) return buildFavoriteItemsContainer(_, context, boxSize);
+          if (idx == controller.favoriteItemsIndex && controller.favoriteItems.isNotEmpty) return buildFavoriteItemsContainer(controller, context, boxSize);
 
-          if (idx == _.lastReleasesIndex && _.releaseItemlists.isNotEmpty) return buildCategorizedPlaylists(_, boxSize, context);
+          if (idx == controller.lastReleasesIndex && controller.releaseItemlists.isNotEmpty) return buildCategorizedPlaylists(controller, boxSize, context);
 
           Itemlist publicList = Itemlist();
-          if(_.publicItemlists.isNotEmpty) {
-            int publicIndex = idx-_.previousIndex < 0 ? 0 : idx-_.previousIndex;
-            publicList = _.publicItemlists.values.elementAt(publicIndex);
+          if(controller.publicItemlists.isNotEmpty) {
+            int publicIndex = idx-controller.previousIndex < 0 ? 0 : idx-controller.previousIndex;
+            publicList = controller.publicItemlists.values.elementAt(publicIndex);
             bool containsExternalItems = publicList.appMediaItems?.where(
                     (item) => item.mediaSource != AppMediaSource.internal || item.mediaSource != AppMediaSource.offline).isNotEmpty ?? true;
             if (publicList.getTotalItems() == 0 || containsExternalItems) {
@@ -225,8 +226,8 @@ class AudioPlayerHomeContent extends StatelessWidget {
     );
   }
 
-  Widget buildCategorizedPlaylists(AudioPlayerHomeController _, double boxSize, BuildContext context) {
-    Map<String, List<Itemlist>> categorized = AudioPlayerUtilities.categorizePlaylistsByTags(_.releaseItemlists.values.toList());
+  Widget buildCategorizedPlaylists(AudioPlayerHomeController controller, double boxSize, BuildContext context) {
+    Map<String, List<Itemlist>> categorized = AudioPlayerUtilities.categorizePlaylistsByTags(controller.releaseItemlists.values.toList());
 
     Set<Itemlist> shownPlaylists = {};
     if(categorized.isNotEmpty) {
@@ -243,15 +244,15 @@ class AudioPlayerHomeContent extends StatelessWidget {
         },
       );
     } else {
-      return _.releaseItemlists.isNotEmpty ? buildPlaylistsContainer(_.releaseItemlists.values.toList(), context,
-          AppTranslationConstants.recentReleases.tr, boxSize) : const SizedBox.shrink();
+      return controller.releaseItemlists.isNotEmpty ? buildPlaylistsContainer(controller.releaseItemlists.values.toList(), context,
+          CommonTranslationConstants.recentReleases.tr, boxSize) : const SizedBox.shrink();
     }
   }
 
-  Widget buildLastSessionContainer(BuildContext context, AudioPlayerHomeController _) {
-    return _.settingsBox != null ?
+  Widget buildLastSessionContainer(BuildContext context, AudioPlayerHomeController controller) {
+    return controller.settingsBox != null ?
     ValueListenableBuilder(
-      valueListenable: _.settingsBox!.listenable(),
+      valueListenable: controller.settingsBox!.listenable(),
       child: Column(
         children: [
           GestureDetector(
@@ -260,7 +261,7 @@ class AudioPlayerHomeContent extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.fromLTRB(15, 10, 0, 5),
                   child: Text(
-                    PlayerTranslationConstants.lastSession.tr,
+                    CommonTranslationConstants.lastSession.tr,
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.secondary,
                       fontSize: 18,
@@ -273,10 +274,10 @@ class AudioPlayerHomeContent extends StatelessWidget {
             onTap: () => Navigator.pushNamed(context, AudioPlayerRouteConstants.recent),
           ),
           HorizontalAlbumsListSeparated(
-            songsList: _.recentList.values.where((item)=> item.mediaSource == AppMediaSource.internal).toList(),
+            songsList: controller.recentList.values.where((item)=> item.mediaSource == AppMediaSource.internal).toList(),
             onTap: (int idx) {
               Get.find<AudioPlayerInvoker>().init(
-                appMediaItems: _.recentList.values.toList(),
+                appMediaItems: controller.recentList.values.toList(),
                 index: idx,
               );
             },
@@ -284,7 +285,7 @@ class AudioPlayerHomeContent extends StatelessWidget {
         ],
       ),
       builder: (BuildContext context, Box box, Widget? child) {
-        return (_.recentList.isEmpty ||
+        return (controller.recentList.isEmpty ||
             !(box.get('showRecent', defaultValue: true) as bool))
             ? const SizedBox.shrink() : child!;
       },
@@ -322,7 +323,7 @@ class AudioPlayerHomeContent extends StatelessWidget {
                 Itemlist itemlist = playlists.elementAt(index);
                 final String name = itemlist.name;
                 final String? subtitle = itemlist.getTotalItems() == 0 ? null :
-                '${itemlist.getTotalItems()} ${PlayerTranslationConstants.mediaItems.tr}';
+                '${itemlist.getTotalItems()} ${AudioPlayerTranslationConstants.mediaItems.tr}';
                 return GestureDetector(
                   child: SizedBox(
                     width: boxSize - 20,
@@ -408,7 +409,7 @@ class AudioPlayerHomeContent extends StatelessWidget {
     );
   }
 
-  Widget buildFavoriteItemsContainer(AudioPlayerHomeController _, BuildContext context, double boxSize) {
+  Widget buildFavoriteItemsContainer(AudioPlayerHomeController controller, BuildContext context, double boxSize) {
     return Column(
       children: [
         GestureDetector(
@@ -417,7 +418,7 @@ class AudioPlayerHomeContent extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.fromLTRB(15, 10, 15, 5),
                 child: Text(
-                  PlayerTranslationConstants.favorites.tr.toUpperCase(),
+                  AppTranslationConstants.favorites.tr.toUpperCase(),
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.secondary,
                     fontSize: 18,
@@ -437,9 +438,9 @@ class AudioPlayerHomeContent extends StatelessWidget {
             physics: const BouncingScrollPhysics(),
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 10),
-            itemCount: _.favoriteItems.length,
+            itemCount: controller.favoriteItems.length,
             itemBuilder: (context, index) {
-              AppMediaItem favoriteItem = _.favoriteItems.elementAt(index);
+              AppMediaItem favoriteItem = controller.favoriteItems.elementAt(index);
               final String subtitle = favoriteItem.artist;
               return favoriteItem.mediaSource == AppMediaSource.internal ? GestureDetector(
                 child: SizedBox(

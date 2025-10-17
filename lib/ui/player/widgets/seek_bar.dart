@@ -2,22 +2,19 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:neom_commons/utils/constants/app_translation_constants.dart';
-import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
+import 'package:neom_commons/utils/constants/translations/app_translation_constants.dart';
 
 import '../../../neom_audio_handler.dart';
 import '../../../utils/audio_player_utilities.dart';
+import '../../../utils/constants/audio_player_translation_constants.dart';
 
 class SeekBar extends StatefulWidget {
 
   final NeomAudioHandler? audioHandler;
   final Duration duration;
   final Duration position;
-  ///DEPRECATED final Duration bufferedPosition;
   final bool offline;
   final bool isAdmin;
-  ///DEPRECATED final double width;
-  ///DEPRECATED final double height;
   final ValueChanged<Duration>? onChanged;
   final ValueChanged<Duration>? onChangeEnd;
 
@@ -26,9 +23,6 @@ class SeekBar extends StatefulWidget {
     required this.position,
     required this.offline,
     required this.audioHandler,
-    ///DEPRECATED required this.width,
-    ///DEPRECATED required this.height,
-    ///DEPRECATED this.bufferedPosition = Duration.zero,
     this.isAdmin = false,
     this.onChanged,
     this.onChangeEnd,
@@ -98,7 +92,7 @@ class SeekBarState extends State<SeekBar> {
                       onTap: () {
                         AudioPlayerUtilities.showSpeedSliderDialog(
                           context: context,
-                          title: PlayerTranslationConstants.adjustSpeed.tr,
+                          title: AudioPlayerTranslationConstants.adjustSpeed.tr,
                           divisions: 25,
                           min: 0.5,
                           max: 3.0,
@@ -120,7 +114,7 @@ class SeekBarState extends State<SeekBar> {
               children: [
                 SliderTheme(
                   data: _sliderThemeData.copyWith(
-                    inactiveTrackColor: Theme.of(context).iconTheme.color!.withOpacity(0.3),
+                    inactiveTrackColor: Theme.of(context).iconTheme.color!.withAlpha(78),
                     activeTrackColor: Theme.of(context).iconTheme.color,
                     thumbColor: Theme.of(context).iconTheme.color,
                     thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8.0,),

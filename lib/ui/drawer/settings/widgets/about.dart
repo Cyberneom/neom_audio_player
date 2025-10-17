@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:neom_commons/ui/theme/app_color.dart';
 import 'package:neom_commons/ui/widgets/appbar_child.dart';
-import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
+import 'package:neom_commons/utils/constants/translations/app_translation_constants.dart';
+import 'package:neom_commons/utils/constants/translations/common_translation_constants.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:get/get.dart';
 
 class AboutPage extends StatefulWidget {
   const AboutPage({super.key});
@@ -33,7 +34,7 @@ class _AboutPageState extends State<AboutPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: AppColor.main50,
-        appBar: AppBarChild(title: PlayerTranslationConstants.about.tr,),
+        appBar: AppBarChild(title: AppTranslationConstants.about.tr,),
         body: CustomScrollView(
           physics: const BouncingScrollPhysics(),
           slivers: [
@@ -63,7 +64,7 @@ class _AboutPageState extends State<AboutPage> {
                       padding: const EdgeInsets.fromLTRB(5, 30, 5, 20),
                       child: Center(
                         child: Text(
-                          PlayerTranslationConstants.madeBy.tr,
+                          CommonTranslationConstants.madeBy.tr,
                           textAlign: TextAlign.center,
                           style: const TextStyle(fontSize: 12),
                         ),

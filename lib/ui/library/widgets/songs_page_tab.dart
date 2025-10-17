@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:neom_core/domain/model/app_media_item.dart';
 
-import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
+import '../../../utils/constants/audio_player_translation_constants.dart';
 import '../../home/widgets/search_page.dart';
 import '../../widgets/audio_player_widgets.dart';
 import '../../widgets/empty_screen.dart';
@@ -33,9 +33,9 @@ class SongsPageTab extends StatelessWidget {
         ),
       ),
       child: emptyScreen(context, 3,
-        PlayerTranslationConstants.nothingTo.tr, 15.0,
-        PlayerTranslationConstants.showHere.tr, 50,
-        PlayerTranslationConstants.addSomething.tr, 23.0,),)
+        AudioPlayerTranslationConstants.nothingTo.tr, 15.0,
+        AudioPlayerTranslationConstants.showHere.tr, 50,
+        AudioPlayerTranslationConstants.addSomething.tr, 23.0,),)
         : Column(
       children: [
         PlaylistHead(songsList: appMediaItems,),

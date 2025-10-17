@@ -1,6 +1,5 @@
 import 'dart:math';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'package:hive/hive.dart';
@@ -221,7 +220,7 @@ class _MusicSearchBarState extends State<MusicSearchBar> {
                                   itemCount: suggestedList.length,
                                   itemBuilder: (context, index) {
                                     return ListTile(
-                                      leading: const Icon(CupertinoIcons.search),
+                                      leading: const Icon(Icons.search),
                                       title: Text(
                                         suggestedList[index].toString(),
                                         overflow: TextOverflow.ellipsis,

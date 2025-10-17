@@ -1,9 +1,9 @@
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
-import 'package:neom_commons/utils/constants/app_translation_constants.dart';
 import 'package:neom_core/app_config.dart';
 
-import '../../../domain/entities/media_lyrics.dart';
+import '../../../domain/models/media_lyrics.dart';
+import '../../../utils/constants/audio_player_translation_constants.dart';
 import '../../../utils/enums/lyrics_source.dart';
 
 
@@ -13,54 +13,12 @@ class Lyrics {
   static Future<MediaLyrics> getLyrics({required String id, required String title, required String artist}) async {
     MediaLyrics mediaLyrics = MediaLyrics(mediaId: id);
     AppConfig.logger.i('Getting Synced Lyrics');
-    ///DEPRECATED mediaLyrics = await getSpotifyLyricsFromId(id);
     if (mediaLyrics.lyrics.isEmpty) {
       //TODO Implement to get lyrics from gigmeout blog entries
-
-      ///DEPRECATED
-      /// AppConfig.logger.d('Lyrics not found on Spotify, searching on Google');
-      /// mediaLyrics = await getGoogleLyrics(title: title, artist: artist);
-      /// if (mediaLyrics.lyrics.isEmpty) {
-      ///   AppConfig.logger.d('Lyrics not available on Google, finding on Musixmatch');
-      ///   mediaLyrics = await getMusixMatchLyrics(title: title, artist: artist);
-      /// }
     }
 
     return mediaLyrics;
   }
-
-  // static Future<MediaLyrics> getSpotifyLyricsFromId(String trackId) async {
-  //
-  //   MediaLyrics mediaLyrics = MediaLyrics(mediaId: trackId, source: LyricsSource.spotify);
-  //
-  //   try {
-  //     String urlPath = 'spotify-lyric-api-984e7b4face0.herokuapp.com';
-  //     final Uri lyricsUrl = Uri.https(urlPath, '/', {
-  //       'trackid': trackId,
-  //       'format': 'lrc',
-  //     });
-  //     final http.Response res = await http.get(lyricsUrl, headers: {'Accept': 'application/json'});
-  //
-  //     if (res.statusCode == 200) {
-  //       final Map lyricsData = await json.decode(res.body) as Map;
-  //       if (lyricsData['error'] == false) {
-  //         final List lines = await lyricsData['lines'] as List;
-  //         if (lyricsData['syncType'] == 'LINE_SYNCED') {
-  //           mediaLyrics.lyrics = lines.map((e) => '[${e["timeTag"]}]${e["words"]}').toList().join('\n');
-  //           mediaLyrics.type = LyricsType.lrc;
-  //         } else {
-  //           mediaLyrics.lyrics = lines.map((e) => e['words']).toList().join('\n');
-  //         }
-  //       }
-  //     } else {
-  //       AppConfig.logger.w('getSpotifyLyricsFromId returned ${res.statusCode}');
-  //     }
-  //     return mediaLyrics;
-  //   } catch (e) {
-  //     AppConfig.logger.e('Error in getSpotifyLyrics ${e.toString()}');
-  //     return mediaLyrics;
-  //   }
-  // }
 
   static Future<MediaLyrics> getGoogleLyrics({required String title, required String artist,}) async {
 
@@ -110,7 +68,7 @@ class Lyrics {
   static Future<String> getOffLyrics(String path) async {
     try {
       //TODO
-      return AppTranslationConstants.noLyricsAvailable.tr;
+      return AudioPlayerTranslationConstants.noLyricsAvailable.tr;
     } catch (e) {
       return '';
     }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:neom_commons/ui/theme/app_color.dart';
-import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
+import 'package:neom_commons/utils/constants/translations/app_translation_constants.dart';
 
 class TextInputDialog extends StatelessWidget {
   final String title;
@@ -56,7 +56,7 @@ class TextInputDialog extends StatelessWidget {
           onPressed: () {
             Navigator.pop(context);
           },
-          child: Text(PlayerTranslationConstants.cancel.tr),
+          child: Text(AppTranslationConstants.cancel.tr),
         ),
         TextButton(
           style: TextButton.styleFrom(
@@ -66,7 +66,7 @@ class TextInputDialog extends StatelessWidget {
             onSubmitted(controller.text.trim(), context);
           },
           child: Text(
-            PlayerTranslationConstants.ok.tr.toUpperCase(),
+            AppTranslationConstants.ok.tr.toUpperCase(),
           ),
         ),
         const SizedBox(

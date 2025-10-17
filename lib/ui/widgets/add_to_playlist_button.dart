@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:neom_commons/utils/app_utilities.dart';
+import 'package:neom_commons/utils/constants/translations/common_translation_constants.dart';
 import 'package:neom_core/app_config.dart';
 import 'package:neom_core/data/firestore/itemlist_firestore.dart';
-import 'package:neom_core/data/implementations/user_controller.dart';
 import 'package:neom_core/domain/model/app_media_item.dart';
 import 'package:neom_core/domain/model/item_list.dart';
-import 'package:neom_media_player/utils/constants/player_translation_constants.dart';
+import 'package:neom_core/domain/use_cases/user_service.dart';
 import '../player/widgets/add_to_playlist.dart';
 
 class AddToPlaylistButton extends StatefulWidget {
@@ -64,7 +64,7 @@ class AddToPlaylistButtonState extends State<AddToPlaylistButton> {
               //TODO Remove from profile.itemlists list item
               if(await ItemlistFirestore().deleteItem(itemlistId: widget.currentPlaylist!.id, appMediaItem: widget.appMediaItem!)){
                 widget.currentPlaylist?.appMediaItems?.removeWhere((item) => item.id == widget.appMediaItem?.id);
-                Get.find<UserController>().user.profiles.first.itemlists?[widget.currentPlaylist!.id] = widget.currentPlaylist!;
+                Get.find<UserService>().user.profiles.first.itemlists?[widget.currentPlaylist!.id] = widget.currentPlaylist!;
               }
 
               setState(() {
@@ -73,7 +73,7 @@ class AddToPlaylistButtonState extends State<AddToPlaylistButton> {
 
               AppUtilities.showSnackBar(
                   title: '${widget.appMediaItem?.name}',
-                  message: "${inPlaylist ? PlayerTranslationConstants.addedTo.tr : PlayerTranslationConstants.removedFrom.tr} ${widget.currentPlaylist?.name}"
+                  message: "${inPlaylist ? CommonTranslationConstants.addedTo.tr : CommonTranslationConstants.removedFrom.tr} ${widget.currentPlaylist?.name}"
               );
             } else if(widget.appMediaItem != null) {
               if(await AddToPlaylist().addToPlaylist(context, widget.appMediaItem!, playlists: widget.playlists, goHome: false)) {                //TODO Add to profile.itemlists list item

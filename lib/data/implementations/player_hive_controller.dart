@@ -9,11 +9,13 @@ import 'package:neom_core/domain/model/item_list.dart';
 import 'package:neom_core/utils/constants/app_hive_constants.dart';
 import 'package:neom_core/utils/enums/app_hive_box.dart';
 
-class PlayerHiveController {
+import '../../domain/use_cases/player_hive_service.dart';
+
+class PlayerHiveController implements PlayerHiveService {
 
   static final PlayerHiveController _instance = PlayerHiveController._internal();
   factory PlayerHiveController() {
-    _instance._init();
+    _instance.init();
     return _instance;
   }
 
@@ -53,7 +55,8 @@ class PlayerHiveController {
   Map<String, AppReleaseItem> releaseItems = {};
   Map<String, Itemlist> releaseItemlists = {};
 
-  Future<void> _init() async {
+  @override
+  Future<void> init() async {
     if (_isInitialized) return;
     _isInitialized = true;
     try {
@@ -66,7 +69,7 @@ class PlayerHiveController {
 
   }
 
-
+  @override
   Future<void> fetchCachedData() async {
     AppConfig.logger.t('Fetch Cache Data');
     final playerBox = await AppHiveController().getBox(AppHiveBox.player.name);
@@ -74,9 +77,9 @@ class PlayerHiveController {
     lastQueueList = playerBox.get(AppHiveConstants.lastQueue, defaultValue: [])?.toList() as List;
     lastIndex = playerBox.get(AppHiveConstants.lastIndex, defaultValue: 0) as int;
     lastPos = playerBox.get(AppHiveConstants.lastPos, defaultValue: 0) as int;
-    // await playerBox.close();
   }
 
+  @override
   Future<int> fetchLastPos(String itemId) async {
     final playerBox = await AppHiveController().getBox(AppHiveBox.player.name);
     lastPos =  await playerBox.get('${AppHiveConstants.lastPos}_$itemId', defaultValue: 0) as int;
@@ -85,12 +88,14 @@ class PlayerHiveController {
     return lastPos;
   }
 
+  @override
   Future<void> updateItemLastPos(String itemId, int position) async {
     final playerBox = await AppHiveController().getBox(AppHiveBox.player.name);
     await playerBox.put('${AppHiveConstants.lastPos}_$itemId', position);
     // await playerBox.close();
   }
 
+  @override
   Future<void> fetchSettingsData() async {
     AppConfig.logger.t('Fetch Settings Data');
 
@@ -113,22 +118,21 @@ class PlayerHiveController {
     getLyricsOnline = settingsBox.get(AppHiveConstants.getLyricsOnline, defaultValue: false) as bool;
     enableGesture = settingsBox.get(AppHiveConstants.enableGesture, defaultValue: true) as bool;
     preferredLanguage = settingsBox.get(AppHiveConstants.preferredLanguage, defaultValue: ['Español']) as List;
-    // await settingsBox.close();
   }
 
+  @override
   Future<void> updateRepeatMode(AudioServiceRepeatMode mode) async {
     final settingsBox = await AppHiveController().getBox(AppHiveBox.settings.name);
     await settingsBox.put(AppHiveConstants.repeatMode, mode.name);
-    // await settingsBox.close();
-
   }
 
+  @override
   Future<void> setSearchQueries(List searchQueries) async {
     final settingsBox = await AppHiveController().getBox(AppHiveBox.settings.name);
     await settingsBox.put(AppHiveConstants.searchQueries, searchQueries);
-    // await settingsBox.close();
   }
 
+  @override
   Future<void> addQuery(String query) async {
     final settingsBox = await AppHiveController().getBox(AppHiveBox.settings.name);
 
@@ -139,31 +143,29 @@ class PlayerHiveController {
     searchQueries.insert(0, query);
     if (searchQueries.length > 10) searchQueries = searchQueries.sublist(0, 10);
     await settingsBox.put(AppHiveConstants.search, searchQueries);
-    // await settingsBox.close();
-
   }
 
+  @override
   Future<List<String>> getPreferredMiniButtons() async {
     final settingsBox = await AppHiveController().getBox(AppHiveBox.settings.name);
 
     List preferredButtons = settingsBox.get(AppHiveConstants.preferredMiniButtons,
       defaultValue: ['Like', 'Play/Pause', 'Next'],)?.toList() as List<dynamic>;
-    // await settingsBox.close();
 
     return preferredButtons.map((e) => e.toString()).toList();
   }
 
+  @override
   Future<void> setLastQueue(List<Map<dynamic,dynamic>> lastQueue) async {
     final playerBox = await AppHiveController().getBox(AppHiveBox.player.name);
     await playerBox.put(AppHiveConstants.lastQueue, lastQueue);
-    // await playerBox.close();
   }
 
+  @override
   Future<void> setLastIndexAndPos(int? lastIndex, int lastPos) async {
     final playerBox = await AppHiveController().getBox(AppHiveBox.player.name);
     await playerBox.put(AppHiveConstants.lastIndex, lastIndex);
     await playerBox.put(AppHiveConstants.lastPos, lastPos);
-    // await playerBox.close();
   }
 
 }

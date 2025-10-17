@@ -7,18 +7,21 @@ import 'package:neom_commons/ui/theme/app_theme.dart';
 import 'package:neom_commons/utils/app_utilities.dart';
 import 'package:neom_commons/utils/constants/app_assets.dart';
 import 'package:neom_commons/utils/constants/app_constants.dart';
-import 'package:neom_commons/utils/constants/app_translation_constants.dart';
-import 'package:neom_commons/utils/constants/message_translation_constants.dart';
+import 'package:neom_commons/utils/constants/translations/app_translation_constants.dart';
+import 'package:neom_commons/utils/constants/translations/common_translation_constants.dart';
+import 'package:neom_commons/utils/constants/translations/message_translation_constants.dart';
 import 'package:neom_core/app_config.dart';
-import 'package:neom_core/data/implementations/user_controller.dart';
 import 'package:neom_core/domain/model/app_media_item.dart';
 import 'package:neom_core/domain/model/item_list.dart';
 import 'package:neom_core/domain/use_cases/itemlist_service.dart';
+import 'package:neom_core/domain/use_cases/user_service.dart';
 import 'package:neom_core/utils/core_utilities.dart';
 import 'package:neom_core/utils/enums/app_item_state.dart';
 import 'package:neom_core/utils/enums/itemlist_type.dart';
 import 'package:neom_core/utils/enums/profile_type.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
+
+import '../../../utils/constants/audio_player_translation_constants.dart';
 
 class AddToPlaylist {
 
@@ -39,7 +42,7 @@ class AddToPlaylist {
       }
 
       itemlistServiceImpl.setSelectedItemlist(itemlists.first.id);
-      type = Get.find<UserController>().profile.type;
+      type = Get.find<UserService>().profile.type;
       itemlistServiceImpl.setAppMediaItem(appMediaItem);
 
       itemlists.length > 1 ? Alert(
@@ -48,8 +51,8 @@ class AddToPlaylist {
           backgroundColor: AppColor.main75,
           titleStyle: const TextStyle(color: Colors.white),
         ),
-        title: type == ProfileType.appArtist ? AppTranslationConstants.appItemPrefs.tr
-            : AppTranslationConstants.playlistToChoose.tr,
+        title: type == ProfileType.appArtist ? CommonTranslationConstants.appItemPrefs.tr
+            : AudioPlayerTranslationConstants.playlistToChoose.tr,
         content: Column(
           children: <Widget>[
             if(type == ProfileType.appArtist) Obx(()=>
@@ -150,7 +153,7 @@ class AddToPlaylist {
                 itemlistServiceImpl.getItemState() > 0
                     ? await itemlistServiceImpl.addItemlistItem(context, goHome: goHome)
                     : AppUtilities.showSnackBar(
-                      title: AppTranslationConstants.appItemPrefs.tr,
+                      title: CommonTranslationConstants.appItemPrefs.tr,
                       message: MessageTranslationConstants.selectItemStateMsg.tr
                     )
               else

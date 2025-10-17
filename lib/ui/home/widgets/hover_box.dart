@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 class HoverBox extends StatefulWidget {
+
   final Widget? child;
   final Widget Function({
     required BuildContext context,
