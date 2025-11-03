@@ -39,13 +39,13 @@ class HorizontalAlbumsList extends StatelessWidget {
     } else if (type == ItemlistType.playlist || type == ItemlistType.radioStation) {
       return formatString(item.name);
     } else if (type == ItemlistType.single) {
-      return formatString(item.artist);
+      return formatString(item.ownerName);
     } else {
       if (item.album.isNotEmpty) {
         return formatString(item.imgUrl);
       }
-      String artist = item.artist;
-      return formatString(artist);
+      String ownerName = item.ownerName;
+      return formatString(ownerName);
     }
   }
 

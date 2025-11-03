@@ -62,7 +62,7 @@ class AddToPlaylistButtonState extends State<AddToPlaylistButton> {
             if(inPlaylist && widget.currentPlaylist != null) {
               //TODO remove from itemlist in database
               //TODO Remove from profile.itemlists list item
-              if(await ItemlistFirestore().deleteItem(itemlistId: widget.currentPlaylist!.id, appMediaItem: widget.appMediaItem!)){
+              if(await ItemlistFirestore().deleteMediaItem(itemlistId: widget.currentPlaylist!.id, itemId: widget.appMediaItem!.id)){
                 widget.currentPlaylist?.appMediaItems?.removeWhere((item) => item.id == widget.appMediaItem?.id);
                 Get.find<UserService>().user.profiles.first.itemlists?[widget.currentPlaylist!.id] = widget.currentPlaylist!;
               }

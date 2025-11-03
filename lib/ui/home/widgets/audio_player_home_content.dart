@@ -190,8 +190,8 @@ class AudioPlayerHomeContent extends StatelessWidget {
                                             fontWeight: FontWeight.w500,
                                           ),
                                         ),
-                                        if (item.artist.isNotEmpty)
-                                          Text(item.artist,
+                                        if (item.ownerName.isNotEmpty)
+                                          Text(item.ownerName,
                                             textAlign: TextAlign.center,
                                             softWrap: false,
                                             overflow: TextOverflow.ellipsis,
@@ -321,9 +321,14 @@ class AudioPlayerHomeContent extends StatelessWidget {
               itemCount: playlists.length,
               itemBuilder: (context, index) {
                 Itemlist itemlist = playlists.elementAt(index);
-                final String name = itemlist.name;
-                final String? subtitle = itemlist.getTotalItems() == 0 ? null :
-                '${itemlist.getTotalItems()} ${AudioPlayerTranslationConstants.mediaItems.tr}';
+                String name = itemlist.name;
+                int totalItems = itemlist.getTotalItems();
+                String? subtitle;
+                if(totalItems == 1) {
+                  subtitle = '$totalItems ${AudioPlayerTranslationConstants.mediaItem.tr}';
+                } else if(totalItems > 1) {
+                  subtitle = '$totalItems ${AudioPlayerTranslationConstants.mediaItems.tr}';
+                }
                 return GestureDetector(
                   child: SizedBox(
                     width: boxSize - 20,
@@ -374,7 +379,7 @@ class AudioPlayerHomeContent extends StatelessWidget {
                                     style: const TextStyle(
                                       fontWeight: FontWeight.w500,),
                                   ),
-                                  if (subtitle != null && subtitle.isNotEmpty)
+                                  if(subtitle != null && subtitle.isNotEmpty)
                                     Text(subtitle,
                                       textAlign: TextAlign.center,
                                       softWrap: false,
@@ -394,12 +399,16 @@ class AudioPlayerHomeContent extends StatelessWidget {
                     ),
                   ),
                   onTap: () async {
-                    ///DEPRECATED
-                    // await Hive.openBox(name);
-                    Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => PlaylistPlayerPage(itemlist: itemlist,),
-                      ),
-                    );
+                    if(totalItems == 1) {
+                      List<AppMediaItem> singleItemList = AppMediaItemMapper.mapItemsFromItemlist(itemlist);
+                      AppMediaItem singleItem = singleItemList.first;
+                      Get.toNamed(AppRouteConstants.audioPlayerMedia, arguments: [singleItem]);
+                    } else if(totalItems > 1) {
+                      Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => PlaylistPlayerPage(itemlist: itemlist,),
+                        ),
+                      );
+                    }
                   },
                 );
               },
@@ -441,12 +450,12 @@ class AudioPlayerHomeContent extends StatelessWidget {
             itemCount: controller.favoriteItems.length,
             itemBuilder: (context, index) {
               AppMediaItem favoriteItem = controller.favoriteItems.elementAt(index);
-              final String subtitle = favoriteItem.artist;
+              final String subtitle = favoriteItem.ownerName;
               return favoriteItem.mediaSource == AppMediaSource.internal ? GestureDetector(
                 child: SizedBox(
                   width: boxSize - 20,
                   child: HoverBox(
-                    child: (favoriteItem.imgUrl.isEmpty && (favoriteItem.allImgs == null || (favoriteItem.allImgs?.isEmpty ?? true)))
+                    child: (favoriteItem.imgUrl.isEmpty && (favoriteItem.galleryUrls?.isEmpty ?? true))
                         ? Card(
                       elevation: 5,
                       color: Colors.black,
@@ -457,7 +466,7 @@ class AudioPlayerHomeContent extends StatelessWidget {
                       child: const Image(image: AssetImage(AppAssets.audioPlayerCover,),),
                     ) : Collage(
                       borderRadius: 10.0,
-                      imageList: favoriteItem.imgUrl.isNotEmpty ? [favoriteItem.imgUrl] : favoriteItem.allImgs ?? [],
+                      imageList: favoriteItem.imgUrl.isNotEmpty ? [favoriteItem.imgUrl] : favoriteItem.galleryUrls ?? [],
                       showGrid: true,
                       placeholderImage: AppAssets.audioPlayerCover,
                     ),

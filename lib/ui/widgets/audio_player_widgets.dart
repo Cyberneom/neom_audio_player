@@ -43,7 +43,7 @@ ListTile createCoolMediaItemTile(BuildContext context, AppMediaItem appMediaItem
       style: const TextStyle(fontWeight: FontWeight.w500,),
       overflow: TextOverflow.ellipsis,
     ),
-    subtitle: Text(TextUtilities.getArtistName(appMediaItem.artist),
+    subtitle: Text(TextUtilities.getArtistName(appMediaItem.ownerName),
       overflow: TextOverflow.ellipsis,
     ),
     isThreeLine: false,

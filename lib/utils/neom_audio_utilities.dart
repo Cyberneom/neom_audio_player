@@ -29,7 +29,7 @@ class NeomAudioUtilities {
       case 2:
         appMediaItems.sort((a, b) => a.album.toUpperCase().compareTo(b.album.toUpperCase()),);
       case 3:
-        appMediaItems.sort((a, b) => a.artist.toUpperCase().compareTo(b.artist.toUpperCase()),);
+        appMediaItems.sort((a, b) => a.ownerName.toUpperCase().compareTo(b.ownerName.toUpperCase()),);
       case 4:
         appMediaItems.sort((a, b) => a.duration.toString().toUpperCase().compareTo(b.duration.toString().toUpperCase()),);
       default:

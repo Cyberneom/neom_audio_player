@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
+import 'package:neom_commons/app_flavour.dart';
 import 'package:neom_commons/ui/theme/app_color.dart';
 import 'package:neom_commons/ui/theme/app_theme.dart';
 import 'package:neom_commons/ui/widgets/app_circular_progress_indicator.dart';
@@ -112,7 +113,7 @@ class PlaylistPlayerPageState extends State<PlaylistPlayerPage>
   Widget build(BuildContext context) {
     String releaseName = TextUtilities.getMediaName(widget.itemlist?.name ?? '');
     return Scaffold(
-      backgroundColor: AppColor.main50,
+      backgroundColor: AppFlavour.getBackgroundColor(),
       appBar: AppBarChild(
         title: widget.itemlist != null ? (releaseName.length > AppConstants.maxAppBarTitleLength ?
         '${releaseName.capitalizeFirst.substring(0,AppConstants.maxAppBarTitleLength)}...'

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:neom_commons/ui/theme/app_color.dart';
+import 'package:neom_commons/app_flavour.dart';
 import 'package:neom_commons/ui/theme/app_theme.dart';
 import 'package:neom_commons/ui/widgets/appbar_child.dart';
 import 'package:neom_commons/utils/constants/translations/app_translation_constants.dart';
@@ -35,9 +35,8 @@ class _AudioPlayerSettingsPageState extends State<AudioPlayerSettingsPage> {
   Widget build(BuildContext context) {
 
     return Scaffold(
-        backgroundColor: AppColor.main50,
+        backgroundColor: AppFlavour.getBackgroundColor(),
         resizeToAvoidBottomInset: false,
-
         appBar: AppBarChild(title: AppTranslationConstants.settings.tr,),
         body: Container(
           decoration: AppTheme.appBoxDecoration,

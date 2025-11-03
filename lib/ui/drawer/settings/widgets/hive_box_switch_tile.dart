@@ -39,7 +39,7 @@ class HiveBoxSwitchTile extends StatelessWidget {
           value: box.get(keyName, defaultValue: defaultValue) as bool? ??
               defaultValue,
           onChanged: (val) {
-            AppConfig.logger.d("Changing status for setting on $key with value as: $val");
+            AppConfig.logger.d("Changing status for setting on $keyName with value as: $val");
             box.put(keyName, val);
             onChanged?.call(val: val, box: box);
           },

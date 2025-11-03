@@ -9,6 +9,7 @@ import 'package:neom_core/domain/use_cases/miniplayer_service.dart';
 import 'package:neom_core/domain/use_cases/user_service.dart';
 import 'package:neom_core/utils/constants/app_route_constants.dart';
 import 'package:neom_core/utils/enums/app_media_source.dart';
+import 'package:neom_core/utils/enums/external_media_source.dart';
 
 import '../../audio_player_invoker.dart';
 import '../../neom_audio_handler.dart';
@@ -26,6 +27,7 @@ class MiniPlayerController extends GetxController implements MiniPlayerService {
   bool showInTimeline = true;
   NeomAudioHandler? audioHandler;
   AppMediaSource source = AppMediaSource.internal;
+  ExternalSource? externalSource;
   bool isInternal = true;
   Duration? itemDuration;
   bool audioHandlerRegistered = false;

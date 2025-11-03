@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
+import 'package:neom_commons/app_flavour.dart';
 import 'package:neom_commons/ui/theme/app_color.dart';
 import 'package:neom_commons/ui/theme/app_theme.dart';
 import 'package:neom_commons/ui/widgets/appbar_child.dart';
@@ -32,7 +33,7 @@ class _MusicPlaybackSettingsPageState extends State<MusicPlaybackSettingsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: AppColor.main50,
+      backgroundColor: AppFlavour.getBackgroundColor(),
         appBar: AppBarChild(title: AudioPlayerTranslationConstants.musicPlayback.tr,),
         body: Container(
           decoration: AppTheme.appBoxDecoration,

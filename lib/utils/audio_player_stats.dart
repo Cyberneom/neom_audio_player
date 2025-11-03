@@ -22,7 +22,7 @@ class AudioPlayerStats {
       songStats[AppHiveConstants.lastPlayed] = DateTime.now().millisecondsSinceEpoch;
       songStats[AppHiveConstants.playCount] = songStats[AppHiveConstants.playCount] == null ? 1 : songStats[AppHiveConstants.playCount] + 1;
       songStats[AppHiveConstants.title] = appMediaItem.name;
-      songStats[AppHiveConstants.artist] = appMediaItem.artist;
+      songStats[AppHiveConstants.artist] = appMediaItem.ownerName;
       songStats[AppHiveConstants.album] = appMediaItem.album;
       songStats[AppHiveConstants.id] = appMediaItem.id;
       statsBox.put(appMediaItem.id, songStats);

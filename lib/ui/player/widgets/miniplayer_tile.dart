@@ -9,7 +9,7 @@ import 'package:neom_commons/ui/widgets/images/neom_image_card.dart';
 import 'package:neom_commons/utils/text_utilities.dart';
 import 'package:neom_core/app_properties.dart';
 import 'package:neom_core/utils/constants/app_route_constants.dart';
-import 'package:neom_core/utils/enums/app_media_source.dart';
+import 'package:neom_core/utils/enums/external_media_source.dart';
 
 import '../../../data/implementations/player_hive_controller.dart';
 import '../../../utils/constants/audio_player_constants.dart';
@@ -160,9 +160,10 @@ class _MiniPlayerTileState extends State<MiniPlayerTile> {
         )
         ) : widget.miniPlayerController.audioHandler != null
             ? ControlButtons(widget.miniPlayerController.audioHandler!, miniPlayer: true,
-          buttons: widget.miniPlayerController.source != AppMediaSource.spotify ?
+          buttons: (widget.miniPlayerController.externalSource == null) ?
             (widget.isLocalImage ? AudioPlayerConstants.defaultControlButtons : preferredMiniButtons)
-              : AudioPlayerConstants.defaultSpotifyButtons,
+              : (widget.miniPlayerController.externalSource == ExternalSource.spotify) ? AudioPlayerConstants.defaultSpotifyButtons
+              : AudioPlayerConstants.defaultControlButtons,
           mediaItem: widget.item,
         ) : SizedBox.shrink(),
       ),

@@ -144,8 +144,8 @@ class AudioPlayerInvoker implements AudioPlayerInvokerService {
     if(playTitle.isEmpty && appMediaItem.album.isNotEmpty) {
       playTitle = appMediaItem.album;
     }
-    String playArtist = appMediaItem.artist;
-    playArtist == '<unknown>' ? playArtist = 'Unknown' : playArtist = appMediaItem.artist;
+    String playArtist = appMediaItem.ownerName;
+    playArtist == '<unknown>' ? playArtist = 'Unknown' : playArtist = appMediaItem.ownerName;
 
     String playAlbum = appMediaItem.album;
     int playDuration = appMediaItem.duration;
@@ -157,7 +157,7 @@ class AudioPlayerInvoker implements AudioPlayerInvokerService {
       duration: Duration(milliseconds: playDuration),
       title: playTitle.split('(')[0],
       artist: playArtist,
-      genre: appMediaItem.genres?.isNotEmpty ?? false ? appMediaItem.genres?.first : null,
+      genre: appMediaItem.categories?.isNotEmpty ?? false ? appMediaItem.categories?.first : null,
       artUri: Uri.file(imagePath),
       extras: {
         'url': appMediaItem.url,

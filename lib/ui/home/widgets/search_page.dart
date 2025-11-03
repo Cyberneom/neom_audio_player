@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
-import 'package:neom_commons/ui/theme/app_color.dart';
+import 'package:neom_commons/app_flavour.dart';
 import 'package:neom_commons/utils/constants/translations/app_translation_constants.dart';
 import 'package:neom_commons/utils/mappers/app_media_item_mapper.dart';
 import 'package:neom_core/app_config.dart';
@@ -113,7 +113,7 @@ class SearchPageState extends State<SearchPage> {
         appMediaItems = await AppMediaItemFirestore().fetchAll();
         appMediaItems.removeWhere((key, value) =>
         !(value.name.toLowerCase().contains(searchParam.toLowerCase()) ||
-            value.artist.toLowerCase().contains(searchParam.toLowerCase()))
+            value.ownerName.toLowerCase().contains(searchParam.toLowerCase()))
         );
 
 
@@ -157,7 +157,7 @@ class SearchPageState extends State<SearchPage> {
     return SafeArea(
         child: Scaffold(
           resizeToAvoidBottomInset: false,
-          backgroundColor: AppColor.main50,
+          backgroundColor: AppFlavour.getBackgroundColor(),
           body: searchbar.MusicSearchBar(
             controller: controller,
             liveSearch: liveSearch,

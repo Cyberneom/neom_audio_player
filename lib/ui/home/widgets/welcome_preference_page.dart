@@ -31,7 +31,7 @@ class WelcomePreferencePageState extends State<WelcomePreferencePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: AppColor.main50,
+      backgroundColor: AppFlavour.getBackgroundColor(),
         body: Container(
           decoration: AppTheme.appBoxDecoration,
           child: Stack(

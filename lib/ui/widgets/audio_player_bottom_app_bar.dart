@@ -52,7 +52,6 @@ class AudioPlayerBottomAppBarState extends State<AudioPlayerBottomAppBar> {
       );
     });
 
-
     return BottomAppBar(
       height: widget.height,
       shape: widget.notchedShape,

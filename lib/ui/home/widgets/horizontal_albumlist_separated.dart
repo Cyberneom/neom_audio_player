@@ -35,19 +35,19 @@ class HorizontalAlbumsListSeparated extends StatelessWidget {
   //   } else if (type == 'playlist' || type == 'radio_station') {
   //     return formatString(item['subtitle']?.toString());
   //   } else if (type == 'song') {
-  //     return formatString(item['artist']?.toString());
+  //     return formatString(item['ownerName']?.toString());
   //   } else {
   //     if (item['subtitle'] != null) {
   //       return formatString(item['subtitle']?.toString());
   //     }
   //     final artists = item['more_info']?['artistMap']?['artists']
-  //         .map((artist) => artist['name'])
+  //         .map((ownerName) => ownerName['name'])
   //         .toList();
   //     if (artists != null) {
   //       return formatString(artists?.join(', ')?.toString());
   //     }
-  //     if (item['artist'] != null) {
-  //       return formatString(item['artist']?.toString());
+  //     if (item['ownerName'] != null) {
+  //       return formatString(item['ownerName']?.toString());
   //     }
   //     return '';
   //   }
@@ -87,7 +87,7 @@ class HorizontalAlbumsListSeparated extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                     subtitle: Text(
-                      item.artist,
+                      item.ownerName,
                       overflow: TextOverflow.ellipsis,
                     ),
                     leading: NeomImageCard(
@@ -95,7 +95,7 @@ class HorizontalAlbumsListSeparated extends StatelessWidget {
                       placeholderImage: (itemlist?.type == ItemlistType.playlist ||
                               itemlist?.type == ItemlistType.album)
                           ? const AssetImage(AppAssets.audioPlayerAlbum,)
-                          : item.artist.isNotEmpty ? const AssetImage(AppAssets.audioPlayerArtist,)
+                          : item.ownerName.isNotEmpty ? const AssetImage(AppAssets.audioPlayerArtist,)
                               : const AssetImage(AppAssets.audioPlayerCover,),
                     ),
                     trailing: SongTileTrailingMenu(

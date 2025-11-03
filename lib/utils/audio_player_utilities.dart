@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:neom_commons/ui/theme/app_color.dart';
 import 'package:neom_core/app_properties.dart';
 import 'package:neom_core/domain/model/app_media_item.dart';
-import 'package:neom_core/domain/model/app_release_item.dart';
 import 'package:neom_core/domain/model/item_list.dart';
 import 'package:neom_core/utils/enums/app_media_source.dart';
 
@@ -150,25 +149,6 @@ class AudioPlayerUtilities {
           categorizedItems[tag] = [];
         }
         categorizedItems[tag]!.add(item);
-      }
-    }
-
-    return categorizedItems;
-  }
-
-  static Map<String, List<AppReleaseItem>> categorizeReleaseItems(List<AppReleaseItem> releaseItems, {
-        bool byTags = false,
-        List<String> forbiddenList = const ['emxi lecturas', 'libro digital', 'libro físico']
-      }) {
-    final Map<String, List<AppReleaseItem>> categorizedItems = {};
-
-    for (final item in releaseItems) {
-      // Selecciona la lista de claves según el modo: tags o categorías
-      final List<String> keys = byTags ? (item.tags ?? []) : (item.categories);
-      for (final key in keys) {
-        if (forbiddenList.contains(key.toLowerCase())) continue;
-        categorizedItems.putIfAbsent(key, () => []);
-        categorizedItems[key]!.add(item);
       }
     }
 

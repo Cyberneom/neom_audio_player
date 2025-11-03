@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
-import 'package:neom_commons/ui/theme/app_color.dart';
+import 'package:neom_commons/app_flavour.dart';
 import 'package:neom_commons/ui/theme/app_theme.dart';
 import 'package:neom_commons/ui/widgets/appbar_child.dart';
 import 'package:neom_commons/utils/constants/translations/app_translation_constants.dart';
@@ -33,7 +33,7 @@ class _OthersPageState extends State<OthersPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: AppColor.main50,
+      backgroundColor: AppFlavour.getBackgroundColor(),
         appBar: AppBarChild(title: AppTranslationConstants.others.tr,),
         body: Container(
           decoration: AppTheme.appBoxDecoration,

@@ -68,6 +68,7 @@ class AudioPlayerTranslationConstants {
   static const String playSomething = 'playSomething';
   static const String mediaItemsPlayed = 'mediaItemsPlayed';
   static const String mostPlayedMediaItem = 'mostPlayedMediaItem';
+  static const String mediaItem = 'mediaItem';
   static const String mediaItems = 'mediaItems';
 
   static const String shuffle = 'shuffle';

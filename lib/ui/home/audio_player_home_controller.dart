@@ -30,7 +30,7 @@ class AudioPlayerHomeController extends GetxController {
   List preferredLanguage = [];
   Map<String, Itemlist> itemLists = {};
 
-  List recentSongs = Hive.box(AppHiveBox.player.name).get(AppHiveConstants.recentSongs, defaultValue: []) as List;
+  List? recentSongs;
   Map<String, AppMediaItem> recentList = {};
   Map<String, Itemlist> myItemLists = {};
   Map<String, Itemlist> publicItemlists = {};
@@ -65,6 +65,7 @@ class AudioPlayerHomeController extends GetxController {
   void onReady() {
     super.onReady();
     try {
+      recentSongs = Hive.box(AppHiveBox.player.name).get(AppHiveConstants.recentSongs, defaultValue: []) as List;
       initializeAudioPlayerHome();
     } catch (e) {
       AppConfig.logger.e(e.toString());
@@ -75,9 +76,9 @@ class AudioPlayerHomeController extends GetxController {
   }
 
   Future<void> initializeAudioPlayerHome() async {
-    if(recentSongs.isNotEmpty) {
+    if(recentSongs?.isNotEmpty ?? false) {
       AppConfig.logger.d('Retrieving recent songs from Hive.');
-      for (final element in recentSongs) {
+      for (final element in recentSongs ?? []) {
         AppMediaItem recentMediaItem = AppMediaItem.fromJSON(element);
         recentList[recentMediaItem.id] = recentMediaItem;
         AppConfig.logger.d('Recent song: ${recentMediaItem.name}');

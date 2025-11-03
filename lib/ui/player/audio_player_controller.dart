@@ -103,9 +103,9 @@ class AudioPlayerController extends GetxController implements AudioPlayerService
   @override
   void initReleaseItem(AppReleaseItem item) {
     appMediaItem.value = AppMediaItemMapper.fromAppReleaseItem(item);
-    if(appMediaItem.value.artist.contains(' - ')) {
-      appMediaItem.value.album = TextUtilities.getMediaName(appMediaItem.value.artist);
-      appMediaItem.value.artist = TextUtilities.getArtistName(appMediaItem.value.artist);
+    if(appMediaItem.value.ownerName.contains(' - ')) {
+      appMediaItem.value.album = TextUtilities.getMediaName(appMediaItem.value.ownerName);
+      appMediaItem.value.ownerName = TextUtilities.getArtistName(appMediaItem.value.ownerName);
     }
     updateMediaItemValues();
   }
@@ -206,11 +206,11 @@ class AudioPlayerController extends GetxController implements AudioPlayerService
   @override
   void updateMediaItemValues() {
     mediaItemTitle.value = appMediaItem.value.name;
-    mediaItemArtist.value = appMediaItem.value.artist;
+    mediaItemArtist.value = appMediaItem.value.ownerName;
     mediaItemAlbum.value = appMediaItem.value.album;
     if(mediaItemTitle.contains(' - ')) {
       mediaItemTitle.value = TextUtilities.getMediaName(appMediaItem.value.name);
-      if(appMediaItem.value.artist.isEmpty) {
+      if(appMediaItem.value.ownerName.isEmpty) {
         mediaItemArtist.value = TextUtilities.getArtistName(appMediaItem.value.name);
       }
     }
@@ -279,7 +279,7 @@ class AudioPlayerController extends GetxController implements AudioPlayerService
       mediaLyrics.mediaId = appMediaItem.value.id;
     } else {
       mediaLyrics = await Lyrics.getLyrics(id: appMediaItem.value.id,
-        title: appMediaItem.value.name, artist: appMediaItem.value.artist.toString(),);
+        title: appMediaItem.value.name, artist: appMediaItem.value.ownerName.toString(),);
     }
 
     lyricsSource.value = mediaLyrics.source.name;
@@ -289,9 +289,9 @@ class AudioPlayerController extends GetxController implements AudioPlayerService
 
   @override
   void goToOwnerProfile() async {
-    AppConfig.logger.i('goToOwnerProfile for ${appMediaItem.value.artistId}');
+    AppConfig.logger.i('goToOwnerProfile for ${appMediaItem.value.ownerId}');
 
-    String ownerId = appMediaItem.value.artistId ?? '';
+    String ownerId = appMediaItem.value.ownerId ?? '';
 
     try {
       if(profile.id == ownerId || user.email == ownerId) {

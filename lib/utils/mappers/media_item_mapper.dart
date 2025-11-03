@@ -79,11 +79,11 @@ class MediaItemMapper  {
     return MediaItem(
       id: appMediaItem.id,
       album: appMediaItem.album,
-      artist: appMediaItem.artist,
+      artist: appMediaItem.ownerName,
       duration: Duration(seconds: appMediaItem.duration),
       title: appMediaItem.name,
       artUri: Uri.parse(appMediaItem.imgUrl),
-      genre: appMediaItem.genres?.isNotEmpty ?? false ? appMediaItem.genres?.first : null,
+      genre: appMediaItem.categories?.isNotEmpty ?? false ? appMediaItem.categories?.first : null,
       extras: {
         'url': appMediaItem.url,
         'allUrl': [],
@@ -102,7 +102,7 @@ class MediaItemMapper  {
         'source': appMediaItem.mediaSource.name,
         'description': appMediaItem.description,
         'lyrics': appMediaItem.lyrics,
-        'artistId': appMediaItem.artistId,
+        'artistId': appMediaItem.ownerId,
       },
     );
   }
@@ -111,17 +111,17 @@ class MediaItemMapper  {
     return AppMediaItem(
       id: mediaItem.id,
       album: mediaItem.album ?? '',
-      artist: mediaItem.artist ?? TextUtilities.getArtistName(mediaItem.title),
+      ownerName: mediaItem.artist ?? TextUtilities.getArtistName(mediaItem.title),
       duration: mediaItem.duration?.inSeconds ?? 0,
       name: TextUtilities.getMediaName(mediaItem.title),
       imgUrl: mediaItem.artUri?.toString() ?? '',
-      genres: mediaItem.genre != null ? [mediaItem.genre!] : [],
+      categories: mediaItem.genre != null ? [mediaItem.genre!] : [],
       url: mediaItem.extras?['url'].toString() ?? '',
       description: mediaItem.extras?['description'].toString() ?? '',
       lyrics: mediaItem.extras?['lyrics'].toString() ?? '',
-      artistId: mediaItem.extras?['artistId'].toString() ?? '',
+      ownerId: mediaItem.extras?['artistId'].toString() ?? '',
       permaUrl: mediaItem.extras?['perma_url'].toString() ?? '',
-      mediaSource: CoreUtilities.isInternal(mediaItem.extras?['url'].toString() ?? '') ? AppMediaSource.internal : AppMediaSource.spotify,
+      mediaSource: CoreUtilities.isInternal(mediaItem.extras?['url'].toString() ?? '') ? AppMediaSource.internal : AppMediaSource.external,
     );
   }
 

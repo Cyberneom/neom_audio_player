@@ -89,7 +89,7 @@ class NameNControls extends StatelessWidget {
                               textAlign: TextAlign.center,
                               maxLines: 2,
                             ),
-                            onTap: () => (controller.appMediaItem.value.artistId?.isEmpty ?? true) ? {}
+                            onTap: () => (controller.appMediaItem.value.ownerId?.isEmpty ?? true) ? {}
                                 : controller.goToOwnerProfile(),
                           ),
                           if(controller.mediaItemAlbum.isNotEmpty) TextButton(
@@ -258,7 +258,6 @@ class NameNControls extends StatelessWidget {
                                 appMediaItem: controller.appMediaItem.value,
                                 playlists: CoreUtilities.filterItemlists(controller.profile.itemlists?.values.toList() ?? [], ItemlistType.playlist,),
                                 currentPlaylist: controller.personalPlaylist,)
-                              // controller.createPopMenuOption(context, controller.appMediaItem.value),
                             ],
                           ),
                         ],
