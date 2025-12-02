@@ -31,10 +31,10 @@ class AudioPlayerHomeController extends GetxController {
   Map<String, Itemlist> itemLists = {};
 
   List? recentSongs;
-  Map<String, AppMediaItem> recentList = {};
-  Map<String, Itemlist> myItemLists = {};
-  Map<String, Itemlist> publicItemlists = {};
-  Map<String, Itemlist> releaseItemlists = {};
+  RxMap<String, AppMediaItem> recentList = <String, AppMediaItem>{}.obs;
+  RxMap<String, Itemlist> myItemLists = <String, Itemlist>{}.obs;
+  RxMap<String, Itemlist> publicItemlists = <String, Itemlist>{}.obs;
+  RxMap<String, Itemlist> releaseItemlists = <String, Itemlist>{}.obs;
 
   int recentIndex = 0;
   int myPlaylistsIndex = 1;
@@ -43,8 +43,8 @@ class AudioPlayerHomeController extends GetxController {
   int previousIndex = 4;
 
   AppProfile profile = AppProfile();
-  Map<String, AppMediaItem> globalMediaItems = {};
-  List<AppMediaItem> favoriteItems = [];
+  RxMap<String, AppMediaItem> globalMediaItems = <String, AppMediaItem>{}.obs;
+  RxList<AppMediaItem> favoriteItems = <AppMediaItem>[].obs;
   Box? settingsBox;
 
   @override
@@ -53,9 +53,10 @@ class AudioPlayerHomeController extends GetxController {
     AppConfig.logger.t('Music Player Home Controller Init');
     try {
       profile = userServiceImpl.profile;
-      releaseItemlists =  AppConfig.instance.releaseItemlists;
+      releaseItemlists.value =  AppConfig.instance.releaseItemlists;
       scrollController.addListener(_scrollListener);
-      getHomePageData();
+      AppConfig.instance.defaultItemlistType = ItemlistType.playlist;
+      initializeAudioPlayerHome();
     } catch (e) {
       AppConfig.logger.e(e.toString());
     }
@@ -65,39 +66,49 @@ class AudioPlayerHomeController extends GetxController {
   void onReady() {
     super.onReady();
     try {
-      recentSongs = Hive.box(AppHiveBox.player.name).get(AppHiveConstants.recentSongs, defaultValue: []) as List;
-      initializeAudioPlayerHome();
+      getPublicItemlists();
     } catch (e) {
       AppConfig.logger.e(e.toString());
     }
-
-    AppConfig.instance.defaultItemlistType = ItemlistType.playlist;
-    isLoading.value = false;
   }
 
   Future<void> initializeAudioPlayerHome() async {
-    if(recentSongs?.isNotEmpty ?? false) {
-      AppConfig.logger.d('Retrieving recent songs from Hive.');
-      for (final element in recentSongs ?? []) {
-        AppMediaItem recentMediaItem = AppMediaItem.fromJSON(element);
-        recentList[recentMediaItem.id] = recentMediaItem;
-        AppConfig.logger.d('Recent song: ${recentMediaItem.name}');
+    AppConfig.logger.d('Initializing Audio Player Home Controller...');
+
+    try {
+      myItemLists.value = profile.itemlists ?? {};
+      myItemLists.removeWhere((key, publicList) => publicList.type == ItemlistType.readlist);
+      myItemLists.removeWhere((key, publicList) => publicList.type == ItemlistType.giglist);
+
+      recentSongs = Hive.box(AppHiveBox.player.name).get(AppHiveConstants.recentSongs, defaultValue: []) as List;
+
+      if(recentSongs?.isNotEmpty ?? false) {
+        AppConfig.logger.d('Retrieving recent songs from Hive.');
+        for (final element in recentSongs ?? []) {
+          AppMediaItem recentMediaItem = AppMediaItem.fromJSON(element);
+          recentList[recentMediaItem.id] = recentMediaItem;
+          AppConfig.logger.t('Recent song: ${recentMediaItem.name}');
+        }
       }
+
+      globalMediaItems.value = await AppMediaItemFirestore().fetchAll(
+          excludeTypes: [MediaItemType.pdf, MediaItemType.neomPreset]
+      );
+
+      profile.favoriteItems?.forEach((favItem) {
+        if(globalMediaItems.containsKey(favItem)) {
+          AppMediaItem globalItem = globalMediaItems.values.firstWhere((item) => favItem == item.id);
+          favoriteItems.add(globalItem);
+        }
+      });
+
+      preferredLanguage = PlayerHiveController().preferredLanguage;
+      settingsBox = await AppHiveController().getBox(AppHiveBox.settings.name);
+    } catch(e) {
+      AppConfig.logger.e(e.toString());
     }
 
-    globalMediaItems = await AppMediaItemFirestore().fetchAll(
-      excludeTypes: [MediaItemType.pdf, MediaItemType.neomPreset]
-    );
-
-    profile.favoriteItems?.forEach((favItem) {
-      if(globalMediaItems.containsKey(favItem)) {
-        AppMediaItem globalItem = globalMediaItems.values.firstWhere((item) => favItem == item.id);
-        favoriteItems.add(globalItem);
-      }
-    });
-
-    preferredLanguage = PlayerHiveController().preferredLanguage;
-    settingsBox = await AppHiveController().getBox(AppHiveBox.settings.name);
+    isLoading.value = false;
   }
 
   @override
@@ -107,14 +118,11 @@ class AudioPlayerHomeController extends GetxController {
     super.dispose();
   }
 
-  Future<void> getHomePageData() async {
-    AppConfig.logger.d('Fetching home page data...');
-    try {
-      myItemLists = profile.itemlists ?? {};
-      myItemLists.removeWhere((key, publicList) => publicList.type == ItemlistType.readlist);
-      myItemLists.removeWhere((key, publicList) => publicList.type == ItemlistType.giglist);
+  Future<void> getPublicItemlists() async {
+    AppConfig.logger.d('Fetching public itemlists...');
 
-      publicItemlists = await ItemlistFirestore().fetchAll(
+    try {
+      publicItemlists.value = await ItemlistFirestore().fetchAll(
           excludeFromProfileId: profile.id,
           itemlistType: ItemlistType.playlist
       );
@@ -124,7 +132,6 @@ class AudioPlayerHomeController extends GetxController {
     } catch(e) {
       AppConfig.logger.e(e.toString());
     }
-
     List<Itemlist> sortedList = publicItemlists.values.toList();
     sortedList.sort((a, b) => b.getTotalItems().compareTo(a.getTotalItems()));
     publicItemlists.clear();

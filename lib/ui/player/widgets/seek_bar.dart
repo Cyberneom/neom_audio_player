@@ -60,7 +60,7 @@ class SeekBarState extends State<SeekBar> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0),
+            padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -107,8 +107,8 @@ class SeekBarState extends State<SeekBar> {
           ),
           Padding(
             padding: const EdgeInsets.symmetric(
-              horizontal: 10.0,
-              vertical: 2.0,
+              horizontal: 10,
+              vertical: 2,
             ),
             child: Stack(
               children: [
@@ -140,7 +140,7 @@ class SeekBarState extends State<SeekBar> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0),
+            padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [

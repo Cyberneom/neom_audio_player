@@ -1,33 +1,33 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:neom_commons/utils/text_utilities.dart';
 import 'package:neom_core/domain/model/app_media_item.dart';
+import 'package:neom_core/domain/model/app_release_item.dart';
 import 'package:neom_core/utils/core_utilities.dart';
 import 'package:neom_core/utils/enums/app_media_source.dart';
 
 class MediaItemMapper  {
 
-  static Map toJSON(MediaItem mediaItem) {
+  static Map toJSON(MediaItem item) {
     return {
-      'id': mediaItem.id,
-      'album': mediaItem.album.toString(),
-      'album_id': mediaItem.extras?['album_id'],
-      'artist': mediaItem.artist.toString(),
-      'duration': mediaItem.duration?.inSeconds.toString(),
-      'genre': mediaItem.genre.toString(),
-      'has_lyrics': mediaItem.extras!['has_lyrics'],
-      'image': mediaItem.artUri.toString(),
-      'language': mediaItem.extras?['language'].toString(),
-      'release_date': mediaItem.extras?['release_date'],
-      'subtitle': mediaItem.extras?['subtitle'],
-      'title': mediaItem.title,
-      'url': mediaItem.extras!['url'].toString(),
-      'lowUrl': mediaItem.extras!['lowUrl']?.toString(),
-      'highUrl': mediaItem.extras!['highUrl']?.toString(),
-      'year': mediaItem.extras?['year'].toString(),
-      '320kbps': mediaItem.extras?['320kbps'],
-      'quality': mediaItem.extras?['quality'],
-      'perma_url': mediaItem.extras?['perma_url'],
-      'expire_at': mediaItem.extras?['expire_at'],
+      'id': item.id,
+      'album': item.album.toString(),
+      'metaId': item.extras?['metaId'],
+      'artist': item.artist.toString(),
+      'duration': item.duration?.inSeconds.toString(),
+      'genre': item.genre.toString(),
+      'hasLyrics': item.extras!['hasLyrics'],
+      'image': item.artUri.toString(),
+      'language': item.extras?['language'].toString(),
+      'createdTime': item.extras?['createdTime'],
+      'subtitle': item.extras?['subtitle'],
+      'title': item.title,
+      'url': item.extras!['url'].toString(),
+      'lowUrl': item.extras!['lowUrl']?.toString(),
+      'highUrl': item.extras!['highUrl']?.toString(),
+      'publishedYear': item.extras?['publishedYear'].toString(),
+      '320kbps': item.extras?['320kbps'],
+      'quality': item.extras?['quality'],
+      'expire_at': item.extras?['expire_at'],
     };
   }
 
@@ -56,15 +56,14 @@ class MediaItemMapper  {
         'url': song['url'],
         'lowUrl': song['lowUrl'],
         'highUrl': song['highUrl'],
-        'year': song['year'],
+        'publishedYear': song['publishedYear'],
         'language': song['language'],
         '320kbps': song['320kbps'],
         'quality': song['quality'],
-        'has_lyrics': song['has_lyrics'],
-        'release_date': song['release_date'],
-        'album_id': song['album_id'],
+        'hasLyrics': song['hasLyrics'],
+        'createdTime': song['createdTime'],
+        'metaId': song['metaId'],
         'subtitle': song['subtitle'],
-        'perma_url': song['perma_url'],
         'expire_at': song['expire_at'],
         'addedByAutoplay': addedByAutoplay,
         'autoplay': autoplay,
@@ -73,57 +72,87 @@ class MediaItemMapper  {
     );
   }
 
-  static MediaItem fromAppMediaItem({required AppMediaItem appMediaItem,
+  static MediaItem fromAppMediaItem({required AppMediaItem item,
     bool addedByAutoplay = false, bool autoplay = true, String? playlistBox,
   }) {
     return MediaItem(
-      id: appMediaItem.id,
-      album: appMediaItem.album,
-      artist: appMediaItem.ownerName,
-      duration: Duration(seconds: appMediaItem.duration),
-      title: appMediaItem.name,
-      artUri: Uri.parse(appMediaItem.imgUrl),
-      genre: appMediaItem.categories?.isNotEmpty ?? false ? appMediaItem.categories?.first : null,
+      id: item.id,
+      album: item.album,
+      artist: item.ownerName,
+      duration: Duration(seconds: item.duration),
+      title: item.name,
+      artUri: Uri.parse(item.imgUrl),
+      genre: item.categories?.isNotEmpty ?? false ? item.categories?.first : null,
       extras: {
-        'url': appMediaItem.url,
+        'url': item.url,
         'allUrl': [],
-        'year': appMediaItem.publishedYear,
-        'language': appMediaItem.language,
-        '320kbps': appMediaItem.is320Kbps,
+        'publishedYear': item.publishedYear,
+        'language': item.language,
+        '320kbps': item.is320Kbps,
         'quality': 0,
-        'has_lyrics': appMediaItem.lyrics.isNotEmpty,
-        'release_date': appMediaItem.releaseDate,
-        'album_id': appMediaItem.albumId,
-        'subtitle': appMediaItem.name,
-        'perma_url': appMediaItem.permaUrl,
+        'hasLyrics': item.lyrics.isNotEmpty,
+        'createdTime': item.releaseDate,
+        'metaId': item.albumId,
+        'subtitle': item.name,
         'addedByAutoplay': addedByAutoplay,
         'autoplay': autoplay,
         'playlistBox': playlistBox,
-        'source': appMediaItem.mediaSource.name,
-        'description': appMediaItem.description,
-        'lyrics': appMediaItem.lyrics,
-        'artistId': appMediaItem.ownerId,
+        'source': item.mediaSource.name,
+        'description': item.description,
+        'lyrics': item.lyrics,
+        'ownerEmail': item.ownerId,
       },
     );
   }
 
-  static AppMediaItem toAppMediaItem(MediaItem mediaItem) {
+  static AppMediaItem toAppMediaItem(MediaItem item) {
     return AppMediaItem(
-      id: mediaItem.id,
-      album: mediaItem.album ?? '',
-      ownerName: mediaItem.artist ?? TextUtilities.getArtistName(mediaItem.title),
-      duration: mediaItem.duration?.inSeconds ?? 0,
-      name: TextUtilities.getMediaName(mediaItem.title),
-      imgUrl: mediaItem.artUri?.toString() ?? '',
-      categories: mediaItem.genre != null ? [mediaItem.genre!] : [],
-      url: mediaItem.extras?['url'].toString() ?? '',
-      description: mediaItem.extras?['description'].toString() ?? '',
-      lyrics: mediaItem.extras?['lyrics'].toString() ?? '',
-      ownerId: mediaItem.extras?['artistId'].toString() ?? '',
-      permaUrl: mediaItem.extras?['perma_url'].toString() ?? '',
-      mediaSource: CoreUtilities.isInternal(mediaItem.extras?['url'].toString() ?? '') ? AppMediaSource.internal : AppMediaSource.external,
+      id: item.id,
+      album: item.album ?? '',
+      ownerName: item.artist ?? TextUtilities.getArtistName(item.title),
+      duration: item.duration?.inSeconds ?? 0,
+      name: TextUtilities.getMediaName(item.title),
+      imgUrl: item.artUri?.toString() ?? '',
+      categories: item.genre != null ? [item.genre!] : [],
+      url: item.extras?['url'].toString() ?? '',
+      description: item.extras?['description'].toString() ?? '',
+      lyrics: item.extras?['lyrics'].toString() ?? '',
+      ownerId: item.extras?['ownerEmail'].toString() ?? '',
+      mediaSource: CoreUtilities.isInternal(item.extras?['url'].toString() ?? '') ? AppMediaSource.internal : AppMediaSource.external,
     );
   }
 
+  static MediaItem fromAppReleaseItem({required AppReleaseItem item,
+    bool addedByAutoplay = false, bool autoplay = true, String? playlistBox,
+  }) {
+    return MediaItem(
+      id: item.id,
+      album: item.metaName,
+      artist: item.ownerName,
+      duration: Duration(seconds: item.duration),
+      title: item.name,
+      artUri: Uri.parse(item.imgUrl),
+      genre: item.categories.isNotEmpty ? item.categories.first : null,
+      extras: {
+        'url': item.previewUrl,
+        'allUrl': [],
+        'publishedYear': item.publishedYear,
+        'language': item.language,
+        '320kbps': true,
+        'quality': 0,
+        'hasLyrics': item.lyrics?.isNotEmpty,
+        'createdTime': item.createdTime,
+        'metaId': item.metaId,
+        'subtitle': item.name,
+        'addedByAutoplay': addedByAutoplay,
+        'autoplay': autoplay,
+        'playlistBox': playlistBox,
+        'source': AppMediaSource.internal,
+        'description': item.description,
+        'lyrics': item.lyrics,
+        'ownerEmail': item.ownerEmail,
+      },
+    );
+  }
 
 }

@@ -37,7 +37,7 @@ class PlaylistHead extends StatelessWidget {
           TextButton.icon(
             onPressed: () {
               Get.find<AudioPlayerInvoker>().init(
-                appMediaItems: songsList,
+                mediaItems: songsList,
                 index: 0,
                 isOffline: offline,
                 fromDownloads: fromDownloads,
@@ -54,7 +54,7 @@ class PlaylistHead extends StatelessWidget {
           IconButton(
             onPressed: () {
               Get.find<AudioPlayerInvoker>().init(
-                appMediaItems: songsList,
+                mediaItems: songsList,
                 index: 0,
                 isOffline: offline,
                 fromDownloads: fromDownloads,

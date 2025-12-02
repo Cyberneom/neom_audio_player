@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:neom_commons/app_flavour.dart';
 import 'package:neom_commons/ui/theme/app_theme.dart';
 import 'package:neom_commons/ui/widgets/app_circular_progress_indicator.dart';
+import 'package:neom_commons/utils/auth_guard.dart';
 import 'package:neom_commons/utils/constants/app_page_id_constants.dart';
 
 import 'package:neom_commons/utils/constants/translations/app_translation_constants.dart';
@@ -31,7 +32,7 @@ class AudioPlayerPage extends StatelessWidget {
           elevation: 0,
           backgroundColor: AppFlavour.getBackgroundColor(),
           centerTitle: true,
-          actions: (controller.appMediaItem.value.id.isNotEmpty) ? [
+          actions: (controller.mediaItem.value?.id.isNotEmpty ?? false) ? [
             IconButton(
               icon: const Icon(Icons.lyrics_rounded),
               tooltip: AudioPlayerTranslationConstants.lyrics.tr,
@@ -42,7 +43,9 @@ class AudioPlayerPage extends StatelessWidget {
                 icon: const Icon(Icons.share_rounded),
                 tooltip: AppTranslationConstants.toShare.tr,
                 onPressed: () {
-                   controller.sharePopUp();
+                  AuthGuard.protect(context, () {
+                    controller.sharePopUp();
+                  });
                 },
               ),
           ] : null,
@@ -50,19 +53,19 @@ class AudioPlayerPage extends StatelessWidget {
         body: Container(
           decoration: AppTheme.appBoxDecoration,
           child: controller.isLoading.value ? AppCircularProgressIndicator()
-              : controller.appMediaItem.value.id.isNotEmpty ? Column(
+              : controller.isValidItem ? Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               ArtWorkWidget(
                 mediaPlayerController: controller,
                 cardKey: controller.onlineCardKey,
-                height: AppTheme.fullHeight(context)*0.425,
+                height: AppTheme.fullHeight(context)*0.4,
                 width: AppTheme.fullWidth(context),
                 offline: controller.isOffline(), getLyricsOnline: controller.getLyricsOnline,
               ),
               NameNControls(
                 audioPlayerController: controller,
-                height: AppTheme.fullHeight(context)*0.45,
+                height: AppTheme.fullHeight(context)*0.49,
                 width: AppTheme.fullWidth(context),
                 isLoading: controller.isLoadingAudio.value,
               ),

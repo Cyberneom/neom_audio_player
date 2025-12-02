@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:neom_commons/utils/app_utilities.dart';
+import 'package:neom_commons/utils/auth_guard.dart';
 import 'package:neom_commons/utils/constants/translations/app_translation_constants.dart';
 import 'package:neom_commons/utils/constants/translations/common_translation_constants.dart';
 import 'package:neom_core/app_config.dart';
 import 'package:neom_core/data/firestore/profile_firestore.dart';
-import 'package:neom_core/domain/model/app_media_item.dart';
 import 'package:neom_core/domain/model/app_profile.dart';
 
 import '../../data/implementations/playlist_hive_controller.dart';
@@ -14,13 +14,15 @@ class LikeButton extends StatefulWidget {
 
   final double size;
   final EdgeInsets? padding;
-  final AppMediaItem? appMediaItem;
+  final String? itemId;
+  final String? itemName;
 
   const LikeButton({
     super.key,
     this.size = 25,
     this.padding,
-    this.appMediaItem,
+    this.itemId,
+    this.itemName,
   });
 
   @override
@@ -69,7 +71,7 @@ class LikeButtonState extends State<LikeButton>
   Widget build(BuildContext context) {
     AppProfile profile = playlistHiveController.userServiceImpl.profile;
     try {
-      liked = profile.favoriteItems?.contains(widget.appMediaItem?.id) ?? false;
+      liked = profile.favoriteItems?.contains(widget.itemId) ?? false;
     } catch (e) {
       AppConfig.logger.e('Error in likeButton: $e');
     }
@@ -83,35 +85,37 @@ class LikeButtonState extends State<LikeButton>
         ),
         iconSize: widget.size,
         tooltip: liked ? AppTranslationConstants.unlike.tr : AppTranslationConstants.like.tr,
-        onPressed: () async {
-          String itemId = widget.appMediaItem?.id ?? '';
+        onPressed: () {
+          AuthGuard.protect(context, () {
+            String itemId = widget.itemId ?? '';
 
-          if(itemId.isEmpty) return;
+            if(itemId.isEmpty) return;
 
-          try {
-            if(liked) {
-              profile.favoriteItems?.remove(itemId);
-              ProfileFirestore().removeFavoriteItem(profile.id, itemId);
-            } else {
-              profile.favoriteItems?.add(itemId);
-              ProfileFirestore().addFavoriteItem(profile.id, itemId);
+            try {
+              if(liked) {
+                profile.favoriteItems?.remove(itemId);
+                ProfileFirestore().removeFavoriteItem(profile.id, itemId);
+              } else {
+                profile.favoriteItems?.add(itemId);
+                ProfileFirestore().addFavoriteItem(profile.id, itemId);
+              }
+            } catch(e) {
+              AppConfig.logger.e(e.toString());
             }
-          } catch(e) {
-            AppConfig.logger.e(e.toString());
-          }
 
-          if (!liked) {
-            _controller.forward();
-          } else {
-            _controller.reverse();
-          }
-          setState(() {
-            liked = !liked;
+            if (!liked) {
+              _controller.forward();
+            } else {
+              _controller.reverse();
+            }
+            setState(() {
+              liked = !liked;
+            });
+            AppUtilities.showSnackBar(
+                title: '${widget.itemName}',
+                message: liked ? CommonTranslationConstants.addedToFav.tr : CommonTranslationConstants.removedFromFav.tr
+            );
           });
-          AppUtilities.showSnackBar(
-            title: '${widget.appMediaItem?.name}',
-            message: liked ? CommonTranslationConstants.addedToFav.tr : CommonTranslationConstants.removedFromFav.tr
-          );
         },
       ),
     );

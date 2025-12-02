@@ -42,12 +42,12 @@ class AudioPlayerDrawer extends StatelessWidget {
                     children: <Widget>[
                       _menuHeader(context, controller),
                       const Divider(),
-                      // drawerRowOption(AudioPlayerDrawerMenu.nowPlaying,  const Icon(Icons.queue_music_rounded,), context),
+                      /// drawerRowOption(AudioPlayerDrawerMenu.nowPlaying,  const Icon(Icons.queue_music_rounded,), context),
                       drawerRowOption(AudioPlayerDrawerMenu.lastSession, const Icon(Icons.history_rounded), context),
                       drawerRowOption(AudioPlayerDrawerMenu.favorites, const Icon(Icons.favorite_rounded), context),
                       drawerRowOption(AudioPlayerDrawerMenu.stats, const Icon(Icons.download_done_rounded,), context),
-                      // drawerRowOption(MusicPlayerDrawerMenu.myMusic, const Icon(MdiIcons.folderMusic,), context),
-                      // drawerRowOption(MusicPlayerDrawerMenu.downloads, const Icon(Icons.download_done_rounded,), context),
+                      /// drawerRowOption(MusicPlayerDrawerMenu.myMusic, const Icon(MdiIcons.folderMusic,), context),
+                      /// drawerRowOption(MusicPlayerDrawerMenu.downloads, const Icon(Icons.download_done_rounded,), context),
                       drawerRowOption(AudioPlayerDrawerMenu.settings, const Icon(Icons.playlist_play_rounded,), context),
                       if(AppConfig.instance.appInUse == AppInUse.e && controller.user?.userRole != UserRole.subscriber)
                       Column(

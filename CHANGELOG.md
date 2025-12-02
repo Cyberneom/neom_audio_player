@@ -1,4 +1,6 @@
 ### 1.5.0 - Decoupling & Major Architectural Evolution
+- Updating a lot of stuff and cleaning up the codebase
+### 1.5.0 - Decoupling & Major Architectural Evolution
 This release represents a monumental evolution and the complete un-forking of neom_audio_player. Two years ago, this project began as a fork of the VN0/BlackHole repository, but the codebase has since been so profoundly transformed and refactored that its architecture, vision, and functionalities no longer hold significant equivalence to the original project. Therefore, with this version, neom_audio_player is established as a fully autonomous module within the Open Neom ecosystem.
 
 Key Architectural & Feature Improvements:

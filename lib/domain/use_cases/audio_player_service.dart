@@ -15,6 +15,7 @@ abstract class AudioPlayerService {
   Future<void> getItemPlaylist();
   void gotoPlaylistPlayer();
   void setMediaItem({MediaItem? item, AppMediaItem? appItem});
+  void updateReleaseItemValues();
   void updateMediaItemValues();
   void toggleLyricsCard();
   void setFlipped(bool value);

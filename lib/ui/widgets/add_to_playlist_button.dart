@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:neom_commons/utils/app_utilities.dart';
+import 'package:neom_commons/utils/auth_guard.dart';
 import 'package:neom_commons/utils/constants/translations/common_translation_constants.dart';
 import 'package:neom_core/app_config.dart';
 import 'package:neom_core/data/firestore/itemlist_firestore.dart';
@@ -54,37 +55,37 @@ class AddToPlaylistButtonState extends State<AddToPlaylistButton> {
         ),
         iconSize: widget.size,
         onPressed: () async {
-          String itemId = widget.appMediaItem?.id ?? '';
+          AuthGuard.protect(context, () async {
+            String itemId = widget.appMediaItem?.id ?? '';
 
-          if(itemId.isEmpty) return;
+            if(itemId.isEmpty) return;
+            try {
+              if(inPlaylist && widget.currentPlaylist != null) {
+                //TODO remove from itemlist in database
+                //TODO Remove from profile.itemlists list item
+                if(await ItemlistFirestore().deleteMediaItem(itemlistId: widget.currentPlaylist!.id, itemId: widget.appMediaItem!.id)){
+                  widget.currentPlaylist?.appMediaItems?.removeWhere((item) => item.id == widget.appMediaItem?.id);
+                  Get.find<UserService>().user.profiles.first.itemlists?[widget.currentPlaylist!.id] = widget.currentPlaylist!;
+                }
 
-          try {
-            if(inPlaylist && widget.currentPlaylist != null) {
-              //TODO remove from itemlist in database
-              //TODO Remove from profile.itemlists list item
-              if(await ItemlistFirestore().deleteMediaItem(itemlistId: widget.currentPlaylist!.id, itemId: widget.appMediaItem!.id)){
-                widget.currentPlaylist?.appMediaItems?.removeWhere((item) => item.id == widget.appMediaItem?.id);
-                Get.find<UserService>().user.profiles.first.itemlists?[widget.currentPlaylist!.id] = widget.currentPlaylist!;
-              }
-
-              setState(() {
-                inPlaylist = false;
-              });
-
-              AppUtilities.showSnackBar(
-                  title: '${widget.appMediaItem?.name}',
-                  message: "${inPlaylist ? CommonTranslationConstants.addedTo.tr : CommonTranslationConstants.removedFrom.tr} ${widget.currentPlaylist?.name}"
-              );
-            } else if(widget.appMediaItem != null) {
-              if(await AddToPlaylist().addToPlaylist(context, widget.appMediaItem!, playlists: widget.playlists, goHome: false)) {                //TODO Add to profile.itemlists list item
                 setState(() {
-                  inPlaylist = true;
+                  inPlaylist = false;
                 });
+                AppUtilities.showSnackBar(
+                    title: '${widget.appMediaItem?.name}',
+                    message: "${inPlaylist ? CommonTranslationConstants.addedTo.tr : CommonTranslationConstants.removedFrom.tr} ${widget.currentPlaylist?.name}"
+                );
+              } else if(widget.appMediaItem != null) {
+                if(await AddToPlaylist().addToPlaylist(context, widget.appMediaItem!, playlists: widget.playlists, goHome: false)) {                //TODO Add to profile.itemlists list item
+                  setState(() {
+                    inPlaylist = true;
+                  });
+                }
               }
+            } catch(e) {
+              AppConfig.logger.e(e.toString());
             }
-          } catch(e) {
-            AppConfig.logger.e(e.toString());
-          }
+          });
         },
     );
   }

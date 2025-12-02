@@ -7,9 +7,12 @@ import 'package:neom_commons/utils/app_utilities.dart';
 import 'package:neom_commons/utils/constants/app_assets.dart';
 import 'package:neom_commons/utils/constants/translations/common_translation_constants.dart';
 import 'package:neom_commons/utils/constants/translations/message_translation_constants.dart';
+import 'package:neom_commons/utils/mappers/app_media_item_mapper.dart';
 import 'package:neom_core/app_config.dart';
 import 'package:neom_core/data/firestore/app_media_item_firestore.dart';
+import 'package:neom_core/data/firestore/app_release_item_firestore.dart';
 import 'package:neom_core/domain/model/app_media_item.dart';
+import 'package:neom_core/domain/model/app_release_item.dart';
 import 'package:neom_core/domain/use_cases/audio_player_invoker_service.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -22,26 +25,49 @@ import 'utils/mappers/media_item_mapper.dart';
 class AudioPlayerInvoker implements AudioPlayerInvokerService {
 
   NeomAudioHandler? audioHandler;
+  List<AppMediaItem> currentMediaItems = [];
+  List<AppReleaseItem> currentReleaseItems = [];
 
   @override
-  Future<void> init({required List<AppMediaItem> appMediaItems, required int index,
+  Future<void> init({List<AppReleaseItem>? releaseItems, List<AppMediaItem>? mediaItems, int index = 0,
     bool fromMiniPlayer = false, bool isOffline = false, bool recommend = true,
     bool fromDownloads = false, bool shuffle = false, String? playlistBox, bool playItem = true,}) async {
 
 
     try {
+
       audioHandler = await getOrInitAudioHandler();
 
+      if(releaseItems == null && mediaItems == null) {
+        AppConfig.logger.e('No media items provided to play.');
+        return;
+      }
+
+      if(releaseItems != null) {
+        currentReleaseItems = releaseItems;
+        currentMediaItems = [];
+        for (var item in currentReleaseItems) {
+          currentMediaItems.add(AppMediaItemMapper.fromAppReleaseItem(item));
+        }
+      }
+
+      if(mediaItems != null) {
+        currentMediaItems = [];
+        for (var item in mediaItems) {
+          currentMediaItems.add(item);
+        }
+      }
+
       final int globalIndex = index < 0 ? 0 : index;
-      if(shuffle) appMediaItems.shuffle();
+      if(shuffle) currentMediaItems.shuffle();
 
       if (!fromMiniPlayer) {
         if (Platform.isIOS) audioHandler?.stop();
 
         if (isOffline) {
-          await updateNowPlaying(appMediaItems, index, fromDownloads: fromDownloads, isOffline: isOffline);
+          await updateNowPlaying(index: index, fromDownloads: fromDownloads, isOffline: isOffline);
         } else {
-          setValues(appMediaItems, globalIndex, recommend: recommend, playItem: playItem);
+          setValues(globalIndex, recommend: recommend, playItem: playItem);
         }
       } else {
         AppConfig.logger.d('Item is free - Session is not active.');
@@ -55,29 +81,34 @@ class AudioPlayerInvoker implements AudioPlayerInvokerService {
   }
 
   @override
-  Future<void> setValues(List<AppMediaItem> appMediaItems, int index, {bool recommend = true, bool playItem = false}) async {
+  Future<void> setValues(int index, {bool recommend = true, bool playItem = false}) async {
     AppConfig.logger.t('Settings Values for index $index');
 
     try {
-      // final List<MediaItem> queue = [];
-      AppMediaItem appMediaItem = appMediaItems[index];
-      AppConfig.logger.t('Loading media ${appMediaItem.name} for music player with index $index');
-      AppMediaItemFirestore().existsOrInsert(appMediaItem);
+      if(currentReleaseItems.isNotEmpty) {
+        AppReleaseItemFirestore().existsOrInsert(currentReleaseItems[index]);
+      } else {
+        AppMediaItemFirestore().existsOrInsert(currentMediaItems[index]);
+      }
 
-      await updateNowPlaying(appMediaItems, index, recommend: recommend, playItem: playItem);
+      await updateNowPlaying(index: index, recommend: recommend, playItem: playItem);
     } catch(e) {
       AppConfig.logger.e(e.toString());
     }
   }
 
   @override
-  Future<void> updateNowPlaying(List<AppMediaItem> appMediaItems, int index,
-      {bool recommend = true, bool playItem = true, bool fromDownloads = false, bool isOffline = false}) async {
+  Future<void> updateNowPlaying({List<AppMediaItem>? items, int index = 0, bool recommend = true,
+    bool playItem = true, bool fromDownloads = false, bool isOffline = false}) async {
 
     bool nowPlaying = audioHandler?.playbackState.value.playing ?? false;
     AppConfig.logger.d('Updating Now Playing info. Now Playing: $nowPlaying');
 
     List<MediaItem> queue = [];
+
+    if(items?.isNotEmpty ?? false) {
+      currentMediaItems = items!;
+    }
 
     try {
       if(isOffline) {
@@ -90,13 +121,13 @@ class AudioPlayerInvoker implements AudioPlayerInvokerService {
                   .asUint8List(byteData.offsetInBytes, byteData.lengthInBytes),
             );
           }
-          for (int i = 0; i < appMediaItems.length; i++) {
-            queue.add(await setTags(appMediaItems[i], tempDir),);
+          for (int i = 0; i < currentMediaItems.length; i++) {
+            queue.add(await setTags(currentMediaItems[i], tempDir),);
           }
         });
       } else {
-        queue = appMediaItems.map((item) => MediaItemMapper.fromAppMediaItem(
-          appMediaItem: item,
+        queue = currentMediaItems.map((item) => MediaItemMapper.fromAppMediaItem(
+          item: item,
           autoplay: recommend,
         ),).toList();
       }
@@ -161,9 +192,8 @@ class AudioPlayerInvoker implements AudioPlayerInvokerService {
       artUri: Uri.file(imagePath),
       extras: {
         'url': appMediaItem.url,
-        'date_added': appMediaItem.publishedYear,
-        'date_modified': appMediaItem.releaseDate,
-        'year': appMediaItem.publishedYear,
+        'publishedYear': appMediaItem.publishedYear,
+        'releaseDate': appMediaItem.releaseDate,
       },
     );
     return tempDict;

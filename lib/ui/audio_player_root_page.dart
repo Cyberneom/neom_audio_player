@@ -4,6 +4,7 @@ import 'package:neom_commons/app_flavour.dart';
 import 'package:neom_commons/ui/theme/app_color.dart';
 import 'package:neom_commons/ui/theme/app_theme.dart';
 import 'package:neom_commons/ui/widgets/app_circular_progress_indicator.dart';
+import 'package:neom_commons/utils/auth_guard.dart';
 import 'package:neom_commons/utils/constants/translations/app_translation_constants.dart';
 import 'package:neom_core/app_config.dart';
 
@@ -51,7 +52,7 @@ class AudioPlayerRootPageState extends State<AudioPlayerRootPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppFlavour.getBackgroundColor(),
-      drawer: const AudioPlayerDrawer(),
+      drawer: AppConfig.instance.isGuestMode ? null : const AudioPlayerDrawer(),
       body: isLoading ? const AppCircularProgressIndicator() :
         Stack(
           children: [
@@ -87,20 +88,24 @@ class AudioPlayerRootPageState extends State<AudioPlayerRootPage> {
     );
   }
 
-  void selectPageView(int index, {BuildContext? context}) async {
+  void selectPageView(int index, {required BuildContext context}) async {
     AppConfig.logger.t("Changing page view to index: $index");
 
-    try {
-      if(pageController.hasClients) {
-        pageController.jumpToPage(index);
-        currentIndex = index;
-      }
+    if(index > 0) {
+      AuthGuard.protect(context, () {
+        try {
 
-    } catch (e) {
-      AppConfig.logger.e(e.toString());
+          if(pageController.hasClients) {
+            pageController.jumpToPage(index);
+            currentIndex = index;
+          }
+
+        } catch (e) {
+          AppConfig.logger.e(e.toString());
+        }
+        setState(() {});
+      });
     }
-
-    setState(() {});
   }
 
 }

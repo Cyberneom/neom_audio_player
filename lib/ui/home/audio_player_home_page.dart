@@ -42,7 +42,7 @@ class AudioPlayerHomePage extends StatelessWidget {
                       headerSliverBuilder: (BuildContext context, bool innerBoxScrolled,) {
                         return [
                           SliverAppBar(
-                            leading: homeDrawer(context: context,),
+                            leading: audioPlayerHomeDrawer(context: context,),
                             title: Text(
                               (controller.userServiceImpl.userSubscription?.status == SubscriptionStatus.active)
                                   ? CommonTranslationConstants.activeSubscription.tr : '',
@@ -58,7 +58,7 @@ class AudioPlayerHomePage extends StatelessWidget {
                             toolbarHeight: 45,
                           ),
                           SliverAppBar(
-                            leading: controller.showSearchBarLeading.value ? homeDrawer(context: context,) : null,
+                            leading: controller.showSearchBarLeading.value ? audioPlayerHomeDrawer(context: context,) : null,
                             automaticallyImplyLeading: false,
                             pinned: true,
                             backgroundColor: AppColor.getMain(),

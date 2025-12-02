@@ -70,7 +70,8 @@ class ControlButtons extends StatelessWidget {
                 child: LikeButton(
                   padding: EdgeInsets.zero,
                   size: 22.0,
-                  appMediaItem: appMediaItem,
+                  itemId: appMediaItem?.id,
+                  itemName: appMediaItem?.name,
                 ),
               );
             case 'Previous':

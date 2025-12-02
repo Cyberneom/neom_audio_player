@@ -1,9 +1,11 @@
 class AudioPlayerConstants {
 
-  static const int minDuration = 30;
-  static const int maxDurationTrial = 7200;
+  static const int minCaseteSeconds = 5; // Minimum duration for casete session.
+  static const int guestTrialDuration = 300; // 5 minutes in seconds
+  static const int trialDuration = 3000; // 50 minutes in seconds
   static const int rewindSeconds = 5;
   static const int externalDuration = 30;
+
   static const List<String> musicLanguages = [
     'English',
     'Español',

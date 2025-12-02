@@ -1,27 +1,39 @@
 
+import 'package:enum_to_string/enum_to_string.dart';
+import 'package:neom_core/utils/enums/subscription_level.dart';
+
 class CaseteSession {
 
   String id; ///createdTime in milisecondsSinceEpoch as id
-  String itemId; /// Id of audio
-  String itemName; /// Título del libro
-  String ownerId; ///EMAIL OF OWNER
-  String listenerId; ///email OF Listener
+  String itemId;
+  String itemName;
+  String ownerEmail; ///EMAIL OF OWNER
+  String listenerEmail; ///EMAIL OF READER
+
   int casete; ///REAL Number of seconds listened
+  int totalDuration; ///TOTAL DURATION OF THE ITEM IN SECONDS
   int createdTime; ///CREATED SESSION TIME IN MILISECONDSSINCEEPOCH
+
+
+  SubscriptionLevel? subscriptionLevel;
+  bool isTest;
 
   @override
   String toString() {
-    return 'CaseteSession{id: $id, itemId: $itemId, itemName: $itemName, ownerId: $ownerId, listenerId: $listenerId, casete: $casete, createdTime: $createdTime}';
+    return 'CaseteSession{id: $id, itemId: $itemId, itemName: $itemName, ownerEmail: $ownerEmail, listenerEmail: $listenerEmail, casete: $casete, createdTime: $createdTime, subscriptionLevel: $subscriptionLevel, isTest: $isTest}';
   }
 
   CaseteSession({
     this.id = '',
     this.itemId = '',
     this.itemName = '',
-    this.ownerId = '',
-    this.listenerId = '',
+    this.ownerEmail = '',
+    this.listenerEmail = '',
     this.casete = 0,
+    this.totalDuration = 0,
     this.createdTime = 0,
+    this.subscriptionLevel,
+    this.isTest = false,
   });
 
   /// Convert the CaseteSession object to a JSON map.
@@ -30,10 +42,13 @@ class CaseteSession {
       'id': id,
       'itemId': itemId,
       'itemName': itemName,
-      'ownerId': ownerId,
-      'listenerId': listenerId,
+      'ownerEmail': ownerEmail,
+      'listenerEmail': listenerEmail,
       'casete': casete,
+      'totalDuration': totalDuration,
       'createdTime': createdTime,
+      'subscriptionLevel': subscriptionLevel?.name,
+      'isTest': isTest,
     };
   }
 
@@ -43,10 +58,13 @@ class CaseteSession {
       id: json['id'] ?? '',
       itemId: json['itemId'] ?? '',
       itemName: json['itemName'] ?? '',
-      ownerId: json['ownerId'] ?? '',
-      listenerId: json['listenerId'] ?? '',
+      ownerEmail: json['ownerEmail'] ?? json['ownerId'] ?? '',
+      listenerEmail: json['listenerEmail'] ?? json['readerId'] ?? '',
       casete: json['casete'] ?? 0,
+      totalDuration: json['totalDuration'] ?? 0,
       createdTime: json['createdTime'] ?? 0,
+      subscriptionLevel: EnumToString.fromString(SubscriptionLevel.values, json["subscriptionLevel"].toString()),
+      isTest: json['isTest'] ?? false,
     );
   }
 

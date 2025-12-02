@@ -68,7 +68,7 @@ class MiniPlayerController extends GetxController implements MiniPlayerService {
     AppConfig.logger.d('Setting new mediaitem ${appMediaItem.name}');
     audioHandler ??= await Get.find<AudioPlayerInvoker>().getOrInitAudioHandler();
     audioHandlerRegistered = true;
-    mediaItem.value = MediaItemMapper.fromAppMediaItem(appMediaItem: appMediaItem);
+    mediaItem.value = MediaItemMapper.fromAppMediaItem(item: appMediaItem);
     source = EnumToString.fromString(AppMediaSource.values, mediaItem.value?.extras?["source"] ?? AppMediaSource.internal.name) ?? AppMediaSource.internal;
     isInternal = source == AppMediaSource.internal || source == AppMediaSource.offline;
 
@@ -144,7 +144,7 @@ class MiniPlayerController extends GetxController implements MiniPlayerService {
   @override
   void goToMusicPlayerHome() {
     isTimeline = false;
-    Get.toNamed(AppRouteConstants.audioPlayerHome);
+    Get.toNamed(AppRouteConstants.audioPlayer);
     update([AppPageIdConstants.home, AppPageIdConstants.audioPlayerHome, AppPageIdConstants.miniPlayer]);
   }
 

@@ -45,13 +45,12 @@ class ArtWorkWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     AudioPlayerController controller = mediaPlayerController;
     double flipCardWidth = width * 0.75;
+    String artworkUrl = controller.mediaItem.value?.artUri.toString() ?? '';
     final bool enabled = PlayerHiveController().enableGesture;
     return SizedBox(
       height: height,
       width: flipCardWidth,
-      child: Hero(
-        tag: 'currentArtwork_',
-        child: FlipCard(
+      child: FlipCard(
           key: cardKey,
           flipOnTouch: false,
           onFlipDone: (value) {
@@ -142,9 +141,9 @@ class ArtWorkWidget extends StatelessWidget {
                   alignment: Alignment.bottomRight,
                   child: Card(
                     elevation: 10.0,
-                    margin: const EdgeInsets.symmetric(vertical: 20.0),
+                    margin: const EdgeInsets.symmetric(vertical: 10),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10.0),
+                      borderRadius: BorderRadius.circular(20),
                     ),
                     color: AppColor.main75,
                     clipBehavior: Clip.antiAlias,
@@ -169,7 +168,6 @@ class ArtWorkWidget extends StatelessWidget {
               final queueState = snapshot.data ?? QueueState.empty;
               return GestureDetector(
                 onTap: !enabled ? null : () {
-                  // AddToPlaylist().addToPlaylist(context, controller.appMediaItem.value,);
                   ///TODO WHEN ADDING MORE FUNCTIONS
                   // tapped.value = true;
                   // Future.delayed(const Duration(seconds: 2), () async {
@@ -215,7 +213,6 @@ class ArtWorkWidget extends StatelessWidget {
                 onLongPress: !enabled ? null : () {
                   if (!controller.offline) {
                     Feedback.forLongPress(context);
-                    // AddToPlaylist().addToPlaylist(context, MediaItemMapper.appMediaItemToMediaItem(appMediaItem: controller.appMediaItem));
                   }
                 },
                 onVerticalDragStart: !enabled ? null : (details) {
@@ -242,12 +239,13 @@ class ArtWorkWidget extends StatelessWidget {
                   alignment: Alignment.center,
                   children: [
                     Card(
+                      margin: EdgeInsets.zero,
                       elevation: 10.0,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15.0),
                       ),
                       clipBehavior: Clip.antiAlias,
-                      child: controller.appMediaItem.value.imgUrl.startsWith('file')
+                      child: artworkUrl.startsWith('file')
                           ? Image(
                         fit: BoxFit.contain,
                         width: flipCardWidth,
@@ -257,7 +255,7 @@ class ArtWorkWidget extends StatelessWidget {
                             image: AssetImage(AppAssets.audioPlayerCover),
                           );
                         },
-                        image: FileImage(File(controller.appMediaItem.value.imgUrl,),),
+                        image: FileImage(File(artworkUrl,),),
                       ) : CachedNetworkImage(
                         fit: BoxFit.contain,
                         errorWidget: (BuildContext context, _, __) =>
@@ -268,7 +266,7 @@ class ArtWorkWidget extends StatelessWidget {
                         const Image(fit: BoxFit.cover,
                           image: AssetImage(AppAssets.audioPlayerCover),
                         ),
-                        imageUrl: controller.appMediaItem.value.imgUrl,
+                        imageUrl: artworkUrl,
                         width: flipCardWidth,
                       ),
                     ),
@@ -392,7 +390,6 @@ class ArtWorkWidget extends StatelessWidget {
               );
             },
           ),
-        ),
       ),
     );
   }

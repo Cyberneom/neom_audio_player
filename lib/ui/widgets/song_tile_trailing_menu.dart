@@ -2,6 +2,7 @@ import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:neom_commons/ui/theme/app_color.dart';
+import 'package:neom_commons/utils/auth_guard.dart';
 import 'package:neom_commons/utils/constants/translations/app_translation_constants.dart';
 import 'package:neom_commons/utils/share_utilities.dart';
 import 'package:neom_core/domain/model/app_media_item.dart';
@@ -37,7 +38,7 @@ class SongTileTrailingMenuState extends State<SongTileTrailingMenu> {
 
   @override
   Widget build(BuildContext context) {
-    final MediaItem mediaItem = MediaItemMapper.fromAppMediaItem(appMediaItem: widget.appMediaItem);
+    final MediaItem mediaItem = MediaItemMapper.fromAppMediaItem(item: widget.appMediaItem);
     return PopupMenuButton(
       color: AppColor.getMain(),
       icon: Icon(
@@ -117,33 +118,35 @@ class SongTileTrailingMenuState extends State<SongTileTrailingMenu> {
           ),
       ],
       onSelected: (value) {
-        switch (value) {
-          case 0:
-            AddToPlaylist().addToPlaylist(context, widget.appMediaItem);
-          case 1:
-            addToNowPlaying(context: context, mediaItem: mediaItem);
-          case 2:
-            playNext(mediaItem, context);
-          case 3:
-            ShareUtilities.shareAppWithMediaItem(widget.appMediaItem);
-          case 4:
-            widget.deleteLiked!(widget.appMediaItem);
-          case 5:
-            if(widget.itemlist != null) {
-              Navigator.push(
-                context,
-                PageRouteBuilder(
-                  opaque: false,
-                  pageBuilder: (_, __, ___) => PlaylistPlayerPage(
-                    itemlist: widget.itemlist!,
+        AuthGuard.protect(context, () {
+          switch (value) {
+            case 0:
+              AddToPlaylist().addToPlaylist(context, widget.appMediaItem);
+            case 1:
+              addToNowPlaying(context: context, mediaItem: mediaItem);
+            case 2:
+              playNext(mediaItem, context);
+            case 3:
+              ShareUtilities.shareAppWithMediaItem(widget.appMediaItem);
+            case 4:
+              widget.deleteLiked!(widget.appMediaItem);
+            case 5:
+              if(widget.itemlist != null) {
+                Navigator.push(
+                  context,
+                  PageRouteBuilder(
+                    opaque: false,
+                    pageBuilder: (_, __, ___) => PlaylistPlayerPage(
+                      itemlist: widget.itemlist!,
+                    ),
                   ),
-                ),
-              );
-            }
+                );
+              }
 
-          default:
-            break;
-        }
+            default:
+              break;
+          }
+        });
       },
     );
   }

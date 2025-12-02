@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:neom_commons/ui/theme/app_theme.dart';
 import 'package:neom_commons/ui/widgets/images/neom_image_card.dart';
+import 'package:neom_commons/utils/auth_guard.dart';
 import 'package:neom_commons/utils/constants/app_assets.dart';
 import 'package:neom_commons/utils/text_utilities.dart';
 import 'package:neom_core/domain/model/app_media_item.dart';
@@ -15,7 +16,7 @@ import '../player/audio_player_controller.dart';
 import 'like_button.dart';
 import 'song_tile_trailing_menu.dart';
 
-Widget homeDrawer({required BuildContext context, EdgeInsetsGeometry padding = EdgeInsets.zero,}) {
+Widget audioPlayerHomeDrawer({required BuildContext context, EdgeInsetsGeometry padding = EdgeInsets.zero,}) {
   return Padding(
     padding: padding,
     child: Transform.rotate(
@@ -25,7 +26,11 @@ Widget homeDrawer({required BuildContext context, EdgeInsetsGeometry padding = E
           Icons.horizontal_split_rounded,
         ),
         // color: Theme.of(context).iconTheme.color,
-        onPressed: () => Scaffold.of(context).openDrawer(),
+        onPressed: () {
+          AuthGuard.protect(context, () {
+            Scaffold.of(context).openDrawer();
+          });
+        },
         tooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
       ),
     ),
@@ -54,7 +59,7 @@ ListTile createCoolMediaItemTile(BuildContext context, AppMediaItem appMediaItem
     trailing: Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        isInternal ? LikeButton(appMediaItem: appMediaItem,)
+        isInternal ? LikeButton(itemId: appMediaItem.id, itemName: appMediaItem.name,)
             : const SizedBox.shrink(),
         ///TO IMPLEMENT WHEN ADDING neom_downloads as dependency
         // if(downloadAllowed) DownloadButton(mediaItem: appMediaItem,),
@@ -77,9 +82,9 @@ ListTile createCoolMediaItemTile(BuildContext context, AppMediaItem appMediaItem
         } else {
           Get.put(AudioPlayerController()).setMediaItem(appItem: appMediaItem);
         }
-        await Get.find<AudioPlayerInvoker>().updateNowPlaying([appMediaItem], 0);
+        await Get.find<AudioPlayerInvoker>().updateNowPlaying(items: [appMediaItem], index: 0);
       } else {
-        await Get.find<AudioPlayerInvoker>().updateNowPlaying([appMediaItem], 0);
+        await Get.find<AudioPlayerInvoker>().updateNowPlaying(items: [appMediaItem], index: 0);
       }
 
       // Get.toNamed(AppRouteConstants.audioPlayerMedia, arguments: [appMediaItem]);

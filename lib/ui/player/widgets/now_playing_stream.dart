@@ -13,7 +13,6 @@ import 'package:sliding_up_panel/sliding_up_panel.dart';
 import '../../../domain/models/queue_state.dart';
 import '../../../neom_audio_handler.dart';
 import '../../../utils/constants/audio_player_translation_constants.dart';
-import '../../../utils/mappers/media_item_mapper.dart';
 import '../../widgets/like_button.dart';
 
 class NowPlayingStream extends StatelessWidget {
@@ -114,7 +113,10 @@ class NowPlayingStream extends StatelessWidget {
                       ),
                     ] : [
                       if(item.extras!['url'].toString().startsWith('http')) ...[
-                        if(showLikeButton) LikeButton(appMediaItem: MediaItemMapper.toAppMediaItem(queue[index]),),
+                        if(showLikeButton) LikeButton(
+                          itemId: queue[index].id,
+                          itemName: queue[index].title,
+                        ),
                         ///TO IMPLEMENT WHEN ADDING neom_downloads as dependency
                         // if(downloadAllowed) DownloadButton(mediaItem: MediaItemMapper.toAppMediaItem(queue[index]),),
                       ],

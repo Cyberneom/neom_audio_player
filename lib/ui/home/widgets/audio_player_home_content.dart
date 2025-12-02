@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:neom_commons/ui/widgets/images/neom_image_card.dart';
+import 'package:neom_commons/utils/auth_guard.dart';
 import 'package:neom_commons/utils/constants/app_assets.dart';
 import 'package:neom_commons/utils/constants/app_page_id_constants.dart';
 import 'package:neom_commons/utils/constants/translations/app_translation_constants.dart';
@@ -39,9 +40,11 @@ class AudioPlayerHomeContent extends StatelessWidget {
 
     return GetBuilder<AudioPlayerHomeController>(
       id: AppPageIdConstants.audioPlayerHome,
-      builder: (controller) => controller.isLoading.value ? const Center(child: CircularProgressIndicator(),)
-        : (controller.myItemLists.isEmpty && controller.favoriteItems.isEmpty && controller.recentList.isEmpty
-          && controller.publicItemlists.isEmpty && controller.releaseItemlists.isEmpty)
+      builder: (controller) => Obx(()=> controller.isLoading.value
+          ? const Center(child: CircularProgressIndicator(),)
+        : (controller.myItemLists.isEmpty && controller.favoriteItems.isEmpty
+          && controller.recentList.isEmpty && controller.publicItemlists.isEmpty
+          && controller.releaseItemlists.isEmpty)
         ? TextButton(
           onPressed: ()=> Navigator.push(context, MaterialPageRoute(
             builder: (context) => const SearchPage(
@@ -53,199 +56,194 @@ class AudioPlayerHomeContent extends StatelessWidget {
         AudioPlayerTranslationConstants.nothingTo.tr, 15.0,
         AudioPlayerTranslationConstants.showHere.tr, 50,
         AudioPlayerTranslationConstants.startSearch.tr, 23.0,),
-      ) : ListView.builder(
+      ) : CustomScrollView(
         physics: const BouncingScrollPhysics(),
-        shrinkWrap: true,
-        padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
-        itemCount: controller.publicItemlists.isEmpty ? controller.previousIndex : (controller.publicItemlists.length + controller.previousIndex),
-        itemBuilder: (context, idx) {
-          AppConfig.logger.t('Building AudioPlayerHome Index $idx');
+        slivers: [
+          if(!AppConfig.instance.isGuestMode && controller.recentList.isNotEmpty)
+            SliverToBoxAdapter(child: buildLastSessionContainer(context, controller)),
+          if(controller.favoriteItems.isNotEmpty)
+            SliverToBoxAdapter(child: buildFavoriteItemsContainer(controller, context, boxSize)),
+          if(controller.releaseItemlists.isNotEmpty)
+            SliverToBoxAdapter(child: buildCategorizedPlaylists(controller.releaseItemlists.values.toList(), boxSize, context)),
+          if(controller.publicItemlists.isNotEmpty) SliverList(
+            delegate: SliverChildBuilderDelegate((context, index) {
+                Itemlist publicList = Itemlist();
+                publicList = controller.publicItemlists.values.elementAt(index);
+                bool containsExternalItems = publicList.externalItems?.isNotEmpty ?? true;
+                if (publicList.id.isEmpty || publicList.getTotalItems() == 0 || containsExternalItems) {
+                  return const SizedBox.shrink();
+                } else if (publicList.name == 'likedArtists') {
+                  return buildLikedArtistContainer(publicList, context);
+                }
 
-          if (idx == controller.recentIndex && controller.recentList.isNotEmpty) return buildLastSessionContainer(context, controller);
-
-          if (idx == controller.favoriteItemsIndex && controller.favoriteItems.isNotEmpty) return buildFavoriteItemsContainer(controller, context, boxSize);
-
-          if (idx == controller.lastReleasesIndex && controller.releaseItemlists.isNotEmpty) return buildCategorizedPlaylists(controller, boxSize, context);
-
-          Itemlist publicList = Itemlist();
-          if(controller.publicItemlists.isNotEmpty) {
-            int publicIndex = idx-controller.previousIndex < 0 ? 0 : idx-controller.previousIndex;
-            publicList = controller.publicItemlists.values.elementAt(publicIndex);
-            bool containsExternalItems = publicList.appMediaItems?.where(
-                    (item) => item.mediaSource != AppMediaSource.internal || item.mediaSource != AppMediaSource.offline).isNotEmpty ?? true;
-            if (publicList.getTotalItems() == 0 || containsExternalItems) {
-              return const SizedBox.shrink();
-            } else if (publicList.name == 'likedArtists') {
-              return buildLikedArtistContainer(publicList, context);
-            }
-          }
-
-          if(publicList.id.isEmpty) return SizedBox.shrink();
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(15, 10, 15, 5),
-                child: Text(publicList.name.capitalizeFirst,
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.secondary,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              SizedBox(
-                height: boxSize + 15,
-                child: ListView.builder(
-                  physics: const BouncingScrollPhysics(),
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  itemCount: publicList.getTotalItems(),
-                  ///TRY TO MAKE ALLIANCE WITH RADIO STATIONS ONLINE
-                  itemBuilder: (context, index) {
-                    List<AppMediaItem> itemsOnLists = AppMediaItemMapper.mapItemsFromItemlist(publicList);
-                    if (publicList.id.isEmpty || itemsOnLists.isEmpty) return const SizedBox.shrink();
-                    AppMediaItem item = itemsOnLists.elementAt(index);
-                    return GestureDetector(
-                      child: SizedBox(
-                        width: boxSize - 30,
-                        child: HoverBox(
-                          child: NeomImageCard(
-                            margin: const EdgeInsets.all(4.0),
-                            borderRadius: 10,
-                            // item['type'] == 'radio_station' ? 1000.0 : 10.0,
-                            imageUrl: publicList.getImgUrls()
-                                .length > index ? publicList.getImgUrls()
-                                .elementAt(index) : publicList
-                                .getImgUrls().last,
-                            placeholderImage: const AssetImage(AppAssets.audioPlayerAlbum),
-                          ),
-                          builder: ({
-                            required BuildContext context,
-                            required bool isHover,
-                            Widget? child,
-                          }) {
-                            return Card(
-                              color: isHover ? null : Colors.transparent,
-                              elevation: 0,
-                              margin: EdgeInsets.zero,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10.0,),),
-                              clipBehavior: Clip.antiAlias,
-                              child: Column(
-                                children: [
-                                  Stack(
-                                    children: [
-                                      SizedBox.square(
-                                        dimension: isHover ? boxSize - 25 : boxSize - 30,
-                                        child: child,
-                                      ),
-                                      if (isHover)
-                                        Positioned.fill(
-                                          child: Container(
-                                            margin: const EdgeInsets.all(4.0,),
-                                            decoration: BoxDecoration(
-                                              color: Colors.black54,
-                                              borderRadius: BorderRadius.circular(10,),
-                                            ),
-                                            child: Center(
-                                              child: DecoratedBox(
-                                                decoration: BoxDecoration(
-                                                  color: Colors.black87,
-                                                  borderRadius: BorderRadius.circular(1000.0,),
-                                                ),
-                                                child: const Icon(
-                                                  Icons.play_arrow_rounded,
-                                                  size: 50.0,
-                                                  color: Colors.white,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      if (publicList.getTotalItems() > 0)
-                                        Align(
-                                          alignment: Alignment.topRight,
-                                          child: Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              SongTileTrailingMenu(
-                                                appMediaItem: item,
-                                                itemlist: publicList,
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                    ],
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 10,),
-                                    child: Column(
-                                      children: [
-                                        Text(item.name,
-                                          textAlign: TextAlign.center,
-                                          softWrap: false,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                        ),
-                                        if (item.ownerName.isNotEmpty)
-                                          Text(item.ownerName,
-                                            textAlign: TextAlign.center,
-                                            softWrap: false,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: TextStyle(
-                                              fontSize: 11,
-                                              color: Theme.of(context).textTheme.bodySmall!.color,
-                                            ),
-                                          ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                      onTap: () {
-                        Navigator.push(context,
-                          MaterialPageRoute(
-                            builder: (context) => PlaylistPlayerPage(itemlist: publicList,),
-                          ),
-                        );
-                      },
-                    );
-                  },
-                ),
-              ),
-            ],
-          );
-        },),
+                return buildPublicListColumn(publicList, context, boxSize);
+              },
+              childCount: controller.publicItemlists.length,
+            ),
+          ),
+        ]),
+      ),
     );
   }
 
-  Widget buildCategorizedPlaylists(AudioPlayerHomeController controller, double boxSize, BuildContext context) {
-    Map<String, List<Itemlist>> categorized = AudioPlayerUtilities.categorizePlaylistsByTags(controller.releaseItemlists.values.toList());
+  Column buildPublicListColumn(Itemlist publicList, BuildContext context, double boxSize) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(15, 10, 15, 5),
+          child: Text(publicList.name.capitalizeFirst,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.secondary,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        SizedBox(
+          height: boxSize + 15,
+          child: ListView.builder(
+            physics: const BouncingScrollPhysics(),
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            itemCount: publicList.getTotalItems(),
+            ///TRY TO MAKE ALLIANCE WITH RADIO STATIONS ONLINE
+            itemBuilder: (context, index) {
+              List<AppMediaItem> itemsOnLists = AppMediaItemMapper.mapItemsFromItemlist(publicList);
+              if (publicList.id.isEmpty || itemsOnLists.isEmpty) return const SizedBox.shrink();
+              AppMediaItem item = itemsOnLists.elementAt(index);
+              return GestureDetector(
+                child: SizedBox(
+                  width: boxSize - 30,
+                  child: HoverBox(
+                    child: NeomImageCard(
+                      margin: const EdgeInsets.all(4.0),
+                      borderRadius: 10,
+                      // item['type'] == 'radio_station' ? 1000.0 : 10.0,
+                      imageUrl: publicList.getImgUrls().length > index ? publicList.getImgUrls()
+                          .elementAt(index) : publicList.getImgUrls().last,
+                      placeholderImage: const AssetImage(AppAssets.audioPlayerAlbum),
+                    ),
+                    builder: ({required BuildContext context, required bool isHover, Widget? child,}) {
+                      return Card(
+                        color: isHover ? null : Colors.transparent,
+                        elevation: 0,
+                        margin: EdgeInsets.zero,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0,),),
+                        clipBehavior: Clip.antiAlias,
+                        child: Column(
+                          children: [
+                            Stack(
+                              children: [
+                                SizedBox.square(
+                                  dimension: isHover ? boxSize - 25 : boxSize - 30,
+                                  child: child,
+                                ),
+                                if (isHover)
+                                  Positioned.fill(
+                                    child: Container(
+                                      margin: const EdgeInsets.all(4.0,),
+                                      decoration: BoxDecoration(
+                                        color: Colors.black54,
+                                        borderRadius: BorderRadius.circular(10,),
+                                      ),
+                                      child: Center(
+                                        child: DecoratedBox(
+                                          decoration: BoxDecoration(
+                                            color: Colors.black87,
+                                            borderRadius: BorderRadius.circular(1000.0,),
+                                          ),
+                                          child: const Icon(
+                                            Icons.play_arrow_rounded,
+                                            size: 50.0,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                if(publicList.getTotalItems() > 0)
+                                  Align(
+                                    alignment: Alignment.topRight,
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        SongTileTrailingMenu(
+                                          appMediaItem: item,
+                                          itemlist: publicList,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                              ],
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 10,),
+                              child: Column(
+                                children: [
+                                  Text(item.name,
+                                    textAlign: TextAlign.center,
+                                    softWrap: false,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(fontWeight: FontWeight.w500,),
+                                  ),
+                                  if (item.ownerName.isNotEmpty)
+                                    Text(item.ownerName,
+                                      textAlign: TextAlign.center,
+                                      softWrap: false,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        color: Theme.of(context).textTheme.bodySmall!.color,
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                      },
+                  ),
+                ),
+                onTap: () {
+                  Navigator.push(context,
+                    MaterialPageRoute(
+                      builder: (context) => PlaylistPlayerPage(itemlist: publicList,),
+                    ),
+                  );
+                  },
+              );
+              },
+          ),
+        ),
+      ],
+    );
+  }
 
+  Widget buildCategorizedPlaylists(List<Itemlist> lists, double boxSize, BuildContext context, {bool shuffle = true}) {
+    if(lists.isEmpty) const SizedBox.shrink();
+
+    lists.shuffle();
     Set<Itemlist> shownPlaylists = {};
-    if(categorized.isNotEmpty) {
+    Map<String, List<Itemlist>> categorizedItemlists = AudioPlayerUtilities.categorizePlaylistsByTags(lists);
+
+    if(categorizedItemlists.isNotEmpty) {
       return ListView.builder(
         shrinkWrap: true,
         physics: ClampingScrollPhysics(),
-        itemCount: categorized.length,
+        itemCount: categorizedItemlists.length,
         itemBuilder: (context, index) {
-          String tag = categorized.keys.elementAt(index);
-          List<Itemlist> items = categorized.values.elementAt(index);
+          String tag = categorizedItemlists.keys.elementAt(index);
+          List<Itemlist> items = categorizedItemlists.values.elementAt(index);
           /// items.where((item) => !shownPlaylists.contains(item)).toList();
           shownPlaylists.addAll(items);
           return buildPlaylistsContainer(items, context, tag.tr.toUpperCase(), boxSize);
         },
       );
     } else {
-      return controller.releaseItemlists.isNotEmpty ? buildPlaylistsContainer(controller.releaseItemlists.values.toList(), context,
-          CommonTranslationConstants.recentReleases.tr, boxSize) : const SizedBox.shrink();
+      return buildPlaylistsContainer(lists, context, CommonTranslationConstants.recentReleases.tr, boxSize);
     }
   }
 
@@ -277,7 +275,7 @@ class AudioPlayerHomeContent extends StatelessWidget {
             songsList: controller.recentList.values.where((item)=> item.mediaSource == AppMediaSource.internal).toList(),
             onTap: (int idx) {
               Get.find<AudioPlayerInvoker>().init(
-                appMediaItems: controller.recentList.values.toList(),
+                mediaItems: controller.recentList.values.toList(),
                 index: idx,
               );
             },
@@ -310,7 +308,11 @@ class AudioPlayerHomeContent extends StatelessWidget {
                 ),
               ],
             ),
-            onTap: () => Get.toNamed(AppRouteConstants.lists),
+            onTap: () {
+              AuthGuard.protect(context, () {
+                Get.toNamed(AppRouteConstants.lists);
+              });
+            }
           ),
           SizedBox(
             height: boxSize + 15,

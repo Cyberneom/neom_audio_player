@@ -1,22 +1,31 @@
+import 'package:audio_service/audio_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:neom_commons/ui/theme/app_color.dart';
 import 'package:neom_core/app_properties.dart';
-import 'package:neom_core/domain/model/app_media_item.dart';
 import 'package:neom_core/domain/model/item_list.dart';
-import 'package:neom_core/utils/enums/app_media_source.dart';
 
 import '../neom_audio_handler.dart';
 
 class AudioPlayerUtilities {
 
-  static bool isOwnMediaItem(AppMediaItem appMediaItem) {
-    final bool isOwnMediaItem = appMediaItem.url.contains(AppProperties.getHubName())
-        || appMediaItem.url.contains(AppProperties.getStorageServerName())
-        || appMediaItem.mediaSource == AppMediaSource.internal;
+  static bool isOwnMediaItem(MediaItem appMediaItem) {
+
+    String url = appMediaItem.extras?['url'] ?? '';
+    final bool isOwnMediaItem = url.contains(AppProperties.getHubName())
+        || url.contains(AppProperties.getStorageServerName());
 
     return isOwnMediaItem;
   }
+
+  ///DEPRECATED
+  // static bool isOwnMediaItem(AppMediaItem appMediaItem) {
+  //   final bool isOwnMediaItem = appMediaItem.url.contains(AppProperties.getHubName())
+  //       || appMediaItem.url.contains(AppProperties.getStorageServerName())
+  //       || appMediaItem.mediaSource == AppMediaSource.internal;
+  //
+  //   return isOwnMediaItem;
+  // }
 
   static void showSpeedSliderDialog({
     required BuildContext context,

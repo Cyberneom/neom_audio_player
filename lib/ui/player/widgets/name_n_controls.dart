@@ -1,22 +1,18 @@
 import 'dart:math';
 
-import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:neom_commons/app_flavour.dart';
-import 'package:neom_commons/ui/theme/app_color.dart';
 import 'package:neom_commons/ui/theme/app_theme.dart';
+import 'package:neom_commons/utils/auth_guard.dart';
 import 'package:neom_commons/utils/constants/translations/app_translation_constants.dart';
-import 'package:neom_core/app_config.dart';
 import 'package:neom_core/utils/constants/app_hive_constants.dart';
 import 'package:neom_core/utils/core_utilities.dart';
 import 'package:neom_core/utils/enums/app_hive_box.dart';
-import 'package:neom_core/utils/enums/app_in_use.dart';
 import 'package:neom_core/utils/enums/itemlist_type.dart';
 import 'package:neom_core/utils/enums/user_role.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../../../utils/audio_player_utilities.dart';
 import '../../../utils/constants/audio_player_constants.dart';
@@ -49,9 +45,9 @@ class NameNControls extends StatelessWidget {
     AudioPlayerController controller = audioPlayerController;
 
     final double titleBoxHeight = height * 0.3;
-    final double seekBoxHeight = height * 0.18;
+    final double seekBoxHeight = height * 0.15;
     final double controlBoxHeight = controller.offline ? height * 0.2
-        : (height < 350 ? height * 0.4 : height > 500 ? height * 0.2 : height * 0.38);
+        : (height < 350 ? height * 0.4 : height > 500 ? height * 0.2 : height * 0.3);
 
     final double nowPlayingBoxHeight = min(70, height * 0.15);
 
@@ -72,7 +68,7 @@ class NameNControls extends StatelessWidget {
                         children: [
                           Text(controller.mediaItemTitle.value,
                             style: TextStyle(
-                              fontSize: titleBoxHeight/3.2,
+                              fontSize: titleBoxHeight/3.5,
                               fontWeight: FontWeight.bold,
                             ),
                             textAlign: TextAlign.center,
@@ -83,13 +79,13 @@ class NameNControls extends StatelessWidget {
                             child: Text(
                               controller.mediaItemArtist.isNotEmpty ? controller.mediaItemArtist.value : AppTranslationConstants.unknown.tr.capitalizeFirst,
                               style: TextStyle(
-                                fontSize: titleBoxHeight / 6,
+                                fontSize: titleBoxHeight/6,
                                 fontWeight: FontWeight.w600,
                               ),
                               textAlign: TextAlign.center,
                               maxLines: 2,
                             ),
-                            onTap: () => (controller.appMediaItem.value.ownerId?.isEmpty ?? true) ? {}
+                            onTap: () => (controller.mediaItem.value?.extras!['ownerEmail']?.isEmpty ?? true) ? {}
                                 : controller.goToOwnerProfile(),
                           ),
                           if(controller.mediaItemAlbum.isNotEmpty) TextButton(
@@ -115,21 +111,22 @@ class NameNControls extends StatelessWidget {
                             ),
 
                           ),
-                          if(!AudioPlayerUtilities.isOwnMediaItem(controller.appMediaItem.value) && AppConfig.instance.appInUse == AppInUse.g)
-                            Padding(
-                              padding: const EdgeInsets.only(top: 5),
-                              child: AnimatedTextKit(
-                                repeatForever: true,
-                                animatedTexts: [
-                                  FlickerAnimatedText('(${AudioPlayerTranslationConstants.releasePreview.tr})', textStyle: const TextStyle(fontSize: 12)),
-                                ],
-                                onTap: () async {
-                                  await launchUrl(Uri.parse(controller.appMediaItem.value.permaUrl),
-                                    mode: LaunchMode.externalApplication,
-                                  );
-                                },
-                              ),
-                            ),
+                          ///DEPRECATED EXTERNAL PREVIEW
+                          // if(!AudioPlayerUtilities.isOwnMediaItem(controller.appMediaItem.value) && AppConfig.instance.appInUse == AppInUse.g)
+                          //   Padding(
+                          //     padding: const EdgeInsets.only(top: 5),
+                          //     child: AnimatedTextKit(
+                          //       repeatForever: true,
+                          //       animatedTexts: [
+                          //         FlickerAnimatedText('(${AudioPlayerTranslationConstants.releasePreview.tr})', textStyle: const TextStyle(fontSize: 12)),
+                          //       ],
+                          //       onTap: () async {
+                          //         await launchUrl(Uri.parse(controller.appMediaItem.value.permaUrl),
+                          //           mode: LaunchMode.externalApplication,
+                          //         );
+                          //       },
+                          //     ),
+                          //   ),
                         ],
                       ),
                     ),
@@ -145,7 +142,7 @@ class NameNControls extends StatelessWidget {
                       Duration position  = snapshot.data ?? Duration.zero;
                       Duration duration = controller.audioHandler?.player.duration ?? Duration.zero;
 
-                      if(AppFlavour.addAudioLimitation() && !AudioPlayerUtilities.isOwnMediaItem(controller.appMediaItem.value)) {
+                      if(AppFlavour.addAudioLimitation() && !AudioPlayerUtilities.isOwnMediaItem(controller.mediaItem.value!)) {
                         duration = const Duration(seconds: AudioPlayerConstants.externalDuration);
                       }
 
@@ -164,7 +161,7 @@ class NameNControls extends StatelessWidget {
                 isLoading ? CircularProgressIndicator() : SizedBox(
                   height: controlBoxHeight,
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 5.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 5),
                     child: Center(
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -184,41 +181,43 @@ class NameNControls extends StatelessWidget {
                                         : Icon(Icons.shuffle_rounded, color: Theme.of(context).disabledColor,),
                                     tooltip: AudioPlayerTranslationConstants.shuffle.tr,
                                     onPressed: () async {
-                                      final enable = !shuffleModeEnabled;
-                                      await controller.audioHandler?.setShuffleMode(enable
-                                          ? AudioServiceShuffleMode.all : AudioServiceShuffleMode.none,
-                                      );
+                                      AuthGuard.protect(context, () async {
+                                        final enable = !shuffleModeEnabled;
+                                        await controller.audioHandler?.setShuffleMode(enable
+                                            ? AudioServiceShuffleMode.all : AudioServiceShuffleMode.none,
+                                        );
+                                      });
                                     },
                                   );
                                 },
                               ),
-                              if (!controller.offline) LikeButton(appMediaItem: controller.appMediaItem.value),
-                            ],
+                              if (!controller.offline) LikeButton(itemId: controller.mediaItem.value?.id, itemName: controller.mediaItem.value?.title,),],
                           ),
                           Column(
                             mainAxisSize: MainAxisSize.min,
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               ControlButtons(controller.audioHandler, mediaItem: controller.mediaItem.value,),
-                              if(!AudioPlayerUtilities.isOwnMediaItem(controller.appMediaItem.value) && AppConfig.instance.appInUse == AppInUse.g)
-                                ElevatedButton(
-                                  onPressed: () async {
-                                    await launchUrl(Uri.parse(controller.appMediaItem.value.permaUrl),
-                                    mode: LaunchMode.externalApplication,
-                                    );
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    foregroundColor: Colors.white, backgroundColor: AppColor.bondiBlue, // Text color
-                                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(30),
-                                    ),
-                                    elevation: 10
-                                  ),
-                                  child: Text(AudioPlayerTranslationConstants.playOnSpotify.tr,
-                                    style: const TextStyle(fontSize: 15),
-                                  ),
-                                ),
+                              ///DEPRECATED SYNC WITH SPOTIFY BUTTON
+                              // if(!AudioPlayerUtilities.isOwnMediaItem(controller.appMediaItem.value) && AppConfig.instance.appInUse == AppInUse.g)
+                              //   ElevatedButton(
+                              //     onPressed: () async {
+                              //       await launchUrl(Uri.parse(controller.appMediaItem.value.permaUrl),
+                              //       mode: LaunchMode.externalApplication,
+                              //       );
+                              //     },
+                              //     style: ElevatedButton.styleFrom(
+                              //       foregroundColor: Colors.white, backgroundColor: AppColor.bondiBlue, // Text color
+                              //       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                              //       shape: RoundedRectangleBorder(
+                              //         borderRadius: BorderRadius.circular(30),
+                              //       ),
+                              //       elevation: 10
+                              //     ),
+                              //     child: Text(AudioPlayerTranslationConstants.playOnSpotify.tr,
+                              //       style: const TextStyle(fontSize: 15),
+                              //     ),
+                              //   ),
                             ],
                           ),
                           Column(
@@ -244,10 +243,11 @@ class NameNControls extends StatelessWidget {
                                   return IconButton(
                                     icon: icons[index],
                                     tooltip: 'Repeat ${texts[(index + 1) % texts.length]}',
-                                    onPressed: () async {
-                                      await Hive.box(AppHiveBox.settings.name).put(AppHiveConstants.repeatMode, texts[(index + 1) % texts.length],);
-                                      await controller.audioHandler?.setRepeatMode(cycleModes[(cycleModes.indexOf(repeatMode) + 1) % cycleModes.length],
-                                      );
+                                    onPressed: () {
+                                      AuthGuard.protect(context, () {
+                                        Hive.box(AppHiveBox.settings.name).put(AppHiveConstants.repeatMode, texts[(index + 1) % texts.length],);
+                                        controller.audioHandler?.setRepeatMode(cycleModes[(cycleModes.indexOf(repeatMode) + 1) % cycleModes.length],);
+                                      });
                                     },
                                   );
                                 },
@@ -265,7 +265,7 @@ class NameNControls extends StatelessWidget {
                     ),
                   ),
                 ),
-                SizedBox(height: nowPlayingBoxHeight,),
+                ///DEPRECATED SizedBox(height: nowPlayingBoxHeight,),
               ],
             ),
           ),

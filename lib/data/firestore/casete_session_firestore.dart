@@ -3,17 +3,19 @@ import 'package:neom_core/app_config.dart';
 import 'package:neom_core/data/firestore/constants/app_firestore_collection_constants.dart';
 
 import '../../domain/models/casete/casete_session.dart';
+import '../../domain/repository/casete_session_repository.dart';
 
-class CaseteSessionFirestore {
+class CaseteSessionFirestore implements CaseteSessionRepository {
 
   final caseteSessionsReference = FirebaseFirestore.instance.collection(AppFirestoreCollectionConstants.caseteSessions);
   final authorsCaseteSessionsReference = FirebaseFirestore.instance.collection(AppFirestoreCollectionConstants.authorsCaseteSessions);
 
-  Future<String> insert(CaseteSession session, {bool isAuthor = false}) async {
+  @override
+  Future<String> insert(CaseteSession session, {bool isOwner = false}) async {
     AppConfig.logger.d("Inserting session ${session.id}");
 
     try {
-      CollectionReference sessionReference = isAuthor ? authorsCaseteSessionsReference : caseteSessionsReference;
+      CollectionReference sessionReference = isOwner ? authorsCaseteSessionsReference : caseteSessionsReference;
 
       if(session.id.isNotEmpty) {
         await sessionReference.doc(session.id).set(session.toJSON());
@@ -30,12 +32,13 @@ class CaseteSessionFirestore {
 
   }
 
-  Future<bool> remove(CaseteSession session) async {
-    AppConfig.logger.d("Removing product ${session.id}");
+  @override
+  Future<bool> remove(String sessionId) async {
+    AppConfig.logger.d("Removing product $sessionId");
 
     try {
-      await caseteSessionsReference.doc(session.id).delete();
-      AppConfig.logger.d("session ${session.id} was removed");
+      await caseteSessionsReference.doc(sessionId).delete();
+      AppConfig.logger.d("session $sessionId was removed");
       return true;
 
     } catch (e) {
@@ -44,6 +47,7 @@ class CaseteSessionFirestore {
     return false;
   }
 
+  @override
   Future<CaseteSession> retrieveSession(String orderId) async {
     AppConfig.logger.d("Retrieving session for id $orderId");
     CaseteSession session = CaseteSession();
@@ -68,6 +72,7 @@ class CaseteSessionFirestore {
     return session;
   }
 
+  @override
   Future<Map<String, CaseteSession>> retrieveFromList(List<String> sessionIds) async {
     AppConfig.logger.d("Getting sessions from list");
 
@@ -83,6 +88,39 @@ class CaseteSessionFirestore {
             CaseteSession session = CaseteSession.fromJSON(documentSnapshot.data());
             session.id = documentSnapshot.id;
             AppConfig.logger.d("session ${session.id} was retrieved with details");
+            sessions[session.id] = session;
+          }
+        }
+      }
+
+      AppConfig.logger.d("${sessions.length} sessions were retrieved");
+    } catch (e) {
+      AppConfig.logger.e(e);
+    }
+    return sessions;
+  }
+
+  @override
+  Future<Map<String, CaseteSession>> fetchAll({String? itemId, bool skipTest = true}) async {
+    AppConfig.logger.d("Getting sessions from list");
+
+    Map<String, CaseteSession> sessions = {};
+
+    try {
+      QuerySnapshot querySnapshot = await caseteSessionsReference.get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        AppConfig.logger.d("QuerySnapshot is not empty");
+        for (var documentSnapshot in querySnapshot.docs) {
+
+          if(itemId == null || itemId == documentSnapshot.id){
+            CaseteSession session = CaseteSession.fromJSON(documentSnapshot.data());
+            if(skipTest && session.isTest) {
+              AppConfig.logger.d("session ${session.id} is a test session");
+              continue;
+            }
+            session.id = documentSnapshot.id;
+            AppConfig.logger.t("session ${session.id} was retrieved with details");
             sessions[session.id] = session;
           }
         }

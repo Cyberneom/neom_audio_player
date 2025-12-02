@@ -11,7 +11,6 @@ import 'package:get/get.dart';
 import 'package:neom_commons/utils/app_utilities.dart';
 import 'package:neom_commons/utils/constants/app_page_id_constants.dart';
 import 'package:neom_commons/utils/constants/translations/common_translation_constants.dart';
-import 'package:neom_commons/utils/mappers/app_media_item_mapper.dart';
 import 'package:neom_commons/utils/share_utilities.dart';
 import 'package:neom_commons/utils/text_utilities.dart';
 import 'package:neom_core/app_config.dart';
@@ -47,6 +46,8 @@ class AudioPlayerController extends GetxController implements AudioPlayerService
 
   Rxn<MediaItem> mediaItem = Rxn<MediaItem>();
   Rx<AppMediaItem> appMediaItem = AppMediaItem().obs;
+  Rx<AppReleaseItem> appReleaseItem = AppReleaseItem().obs;
+  bool isValidItem = false;
 
   RxString mediaItemTitle = ''.obs;
   RxString mediaItemArtist = ''.obs;
@@ -102,16 +103,18 @@ class AudioPlayerController extends GetxController implements AudioPlayerService
 
   @override
   void initReleaseItem(AppReleaseItem item) {
-    appMediaItem.value = AppMediaItemMapper.fromAppReleaseItem(item);
-    if(appMediaItem.value.ownerName.contains(' - ')) {
-      appMediaItem.value.album = TextUtilities.getMediaName(appMediaItem.value.ownerName);
-      appMediaItem.value.ownerName = TextUtilities.getArtistName(appMediaItem.value.ownerName);
+    AppConfig.logger.i('Initializing release item ${item.name}');
+    appReleaseItem.value = item;
+    if(appReleaseItem.value.ownerName.contains(' - ')) {
+      appReleaseItem.value.name = TextUtilities.getMediaName(appReleaseItem.value.ownerName);
+      appReleaseItem.value.ownerName = TextUtilities.getArtistName(appReleaseItem.value.ownerName);
     }
-    updateMediaItemValues();
+    updateReleaseItemValues();
   }
 
   @override
   void initAppMediaItem(AppMediaItem item) {
+    AppConfig.logger.i('Initializing release item ${item.name}');
     appMediaItem.value = item;
     updateMediaItemValues();
   }
@@ -124,10 +127,17 @@ class AudioPlayerController extends GetxController implements AudioPlayerService
       try {
         Get.find<AudioPlayerInvoker>().getOrInitAudioHandler().then((NeomAudioHandler? handler) async {
           audioHandler = handler;
-          bool alreadyPlaying = audioHandler?.currentMediaItem?.id == appMediaItem.value.id;
+          bool alreadyPlaying = false;
+          if(appReleaseItem.value.id.isNotEmpty) {
+            alreadyPlaying = audioHandler?.currentMediaItem?.id == appReleaseItem.value.id;
+          } else {
+            alreadyPlaying = audioHandler?.currentMediaItem?.id == appMediaItem.value.id;
+          }
+
           if(reproduceItem && !alreadyPlaying) {
             await Get.find<AudioPlayerInvokerService>().init(
-              appMediaItems: [appMediaItem.value],
+              releaseItems: appReleaseItem.value.id.isNotEmpty ? [appReleaseItem.value] : null,
+              mediaItems: appMediaItem.value.id.isNotEmpty ? [appMediaItem.value] : null,
               index: 0,
             );
           }
@@ -195,12 +205,31 @@ class AudioPlayerController extends GetxController implements AudioPlayerService
       mediaItem.value = item;
       appMediaItem.value = appItem ?? MediaItemMapper.toAppMediaItem(item);
     } else if(appItem != null) {
-      mediaItem.value= MediaItemMapper.fromAppMediaItem(appMediaItem:appItem);
+      mediaItem.value= MediaItemMapper.fromAppMediaItem(item:appItem);
       appMediaItem.value = appItem;
     }
 
     updateMediaItemValues();
     update();
+  }
+
+  @override
+  void updateReleaseItemValues() {
+    mediaItemTitle.value = appReleaseItem.value.name;
+    mediaItemArtist.value = appReleaseItem.value.ownerName;
+    mediaItemAlbum.value = appReleaseItem.value.metaName ?? '';
+    if(mediaItemTitle.contains(' - ')) {
+      mediaItemTitle.value = TextUtilities.getMediaName(appReleaseItem.value.name);
+      if(appReleaseItem.value.ownerName.isEmpty) {
+        mediaItemArtist.value = TextUtilities.getArtistName(appReleaseItem.value.name);
+      }
+    }
+
+    if(mediaItem.value == null) {
+      mediaItem.value= MediaItemMapper.fromAppReleaseItem(item:appReleaseItem.value);
+    }
+
+    isValidItem = mediaItem.value != null;
   }
 
   @override
@@ -216,8 +245,10 @@ class AudioPlayerController extends GetxController implements AudioPlayerService
     }
 
     if(mediaItem.value == null) {
-      mediaItem.value= MediaItemMapper.fromAppMediaItem(appMediaItem:appMediaItem.value);
+      mediaItem.value= MediaItemMapper.fromAppMediaItem(item:appMediaItem.value);
     }
+
+    isValidItem = mediaItem.value != null;
   }
 
   @override

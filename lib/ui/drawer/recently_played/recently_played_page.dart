@@ -27,7 +27,7 @@ class RecentlyPlayedPageState extends State<RecentlyPlayedPage> {
   bool added = false;
 
   Future<void> getSongs() async {
-    List recentSongs = await Hive.box(AppHiveBox.player.name).get('recentSongs', defaultValue: []) as List;
+    List recentSongs = await Hive.box(AppHiveBox.player.name).get(AppHiveConstants.recentSongs, defaultValue: []) as List;
     if(recentSongs.isNotEmpty) {
       for (final element in recentSongs) {
         AppMediaItem recentMediaItem = AppMediaItem.fromJSON(element);
@@ -109,7 +109,7 @@ class RecentlyPlayedPageState extends State<RecentlyPlayedPage> {
                   //   data: _songs[index] as Map,
                   //   icon: 'download',
                   // ),
-                  LikeButton(appMediaItem: item,),
+                  LikeButton(itemId: item.id, itemName: item.name),
                 ],
               ),
               title: Text(item.name,
@@ -120,7 +120,7 @@ class RecentlyPlayedPageState extends State<RecentlyPlayedPage> {
               ),
               onTap: () {
                 Get.find<AudioPlayerInvoker>().init(
-                  appMediaItems: _songs.values.toList(),
+                  mediaItems: _songs.values.toList(),
                   index: index,
                 );
                 },

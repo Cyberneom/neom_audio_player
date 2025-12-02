@@ -30,7 +30,7 @@ class StatsPage extends StatelessWidget {
               mostPlayed = snapshot.data?.get('mostPlayed', defaultValue: {}) as Map;
             }
             return Container(
-            decoration: AppTheme.boxDecoration,
+            decoration: AppTheme.appBoxDecoration,
             width: AppTheme.fullWidth(context),
             padding: const EdgeInsets.all(10.0),
             child: Column(
