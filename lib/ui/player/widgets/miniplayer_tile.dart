@@ -96,7 +96,7 @@ class _MiniPlayerTileState extends State<MiniPlayerTile> {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      tileColor: AppColor.getMain(),
+      tileColor: AppColor.appBar,
       contentPadding: const EdgeInsets.symmetric(horizontal: 10),
       onTap: () {
         if(widget.item != null && widget.miniPlayerController.isInternal) {

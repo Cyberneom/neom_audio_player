@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:neom_commons/app_flavour.dart';
+import 'package:neom_commons/ui/theme/app_color.dart';
 import 'package:neom_commons/ui/theme/app_theme.dart';
 import 'package:neom_commons/ui/widgets/app_circular_progress_indicator.dart';
 import 'package:neom_commons/utils/auth_guard.dart';
@@ -30,7 +31,7 @@ class AudioPlayerPage extends StatelessWidget {
         backgroundColor: AppFlavour.getBackgroundColor(),
         appBar: AppBar(
           elevation: 0,
-          backgroundColor: AppFlavour.getBackgroundColor(),
+          backgroundColor: AppColor.appBar,
           centerTitle: true,
           actions: (controller.mediaItem.value?.id.isNotEmpty ?? false) ? [
             IconButton(
