@@ -10,24 +10,26 @@ class MediaItemMapper  {
   static Map toJSON(MediaItem item) {
     return {
       'id': item.id,
+      'name': item.title,
+      'description': item.extras?['description'],
+      'ownerName': item.artist.toString(),
+      'ownerId': item.extras?['ownerId'],
       'album': item.album.toString(),
-      'metaId': item.extras?['metaId'],
-      'artist': item.artist.toString(),
       'duration': item.duration?.inSeconds.toString(),
-      'genre': item.genre.toString(),
+
+      'categories': [item.genre.toString()],
       'hasLyrics': item.extras!['hasLyrics'],
-      'image': item.artUri.toString(),
       'language': item.extras?['language'].toString(),
-      'createdTime': item.extras?['createdTime'],
-      'subtitle': item.extras?['subtitle'],
-      'title': item.title,
+
+      'imgUrl': item.artUri.toString(),
+
+      'publishedYear': int.tryParse((item.extras?['publishedYear'] ?? '0').toString()),
+      'releaseDate': int.tryParse((item.extras?['createdTime'] ?? '0').toString()),
+
       'url': item.extras!['url'].toString(),
-      'lowUrl': item.extras!['lowUrl']?.toString(),
-      'highUrl': item.extras!['highUrl']?.toString(),
-      'publishedYear': item.extras?['publishedYear'].toString(),
-      '320kbps': item.extras?['320kbps'],
+      'permaUrl': item.extras!['permaUrl']?.toString(),
       'quality': item.extras?['quality'],
-      'expire_at': item.extras?['expire_at'],
+      'is320kbps': item.extras?['is320kbps'],
     };
   }
 
@@ -40,7 +42,8 @@ class MediaItemMapper  {
     return MediaItem(
       id: song['id'].toString(),
       album: song['album'].toString(),
-      artist: song['artist'].toString(),
+      artist: song['ownerName'] != null
+          ? song['ownerName'].toString() : song['artist'].toString(),
       duration: Duration(
         seconds: int.parse(
           (song['duration'] == null ||
@@ -53,21 +56,21 @@ class MediaItemMapper  {
       artUri: Uri.parse(song['image'].toString()),
       genre: song['language'].toString(),
       extras: {
+        'ownerId': song['ownerId'] ?? '',
         'url': song['url'],
-        'lowUrl': song['lowUrl'],
-        'highUrl': song['highUrl'],
         'publishedYear': song['publishedYear'],
         'language': song['language'],
-        '320kbps': song['320kbps'],
+        'is320Kbps': song['is320Kbps'],
         'quality': song['quality'],
-        'hasLyrics': song['hasLyrics'],
+        'lyrics': song['lyrics'],
         'createdTime': song['createdTime'],
         'metaId': song['metaId'],
-        'subtitle': song['subtitle'],
-        'expire_at': song['expire_at'],
+        'description': song['description'],
         'addedByAutoplay': addedByAutoplay,
         'autoplay': autoplay,
         'playlistBox': playlistBox,
+        'source': song['source'],
+
       },
     );
   }
@@ -84,13 +87,12 @@ class MediaItemMapper  {
       artUri: Uri.parse(item.imgUrl),
       genre: item.categories?.isNotEmpty ?? false ? item.categories?.first : null,
       extras: {
+        'ownerId': item.ownerId,
         'url': item.url,
-        'allUrl': [],
         'publishedYear': item.publishedYear,
         'language': item.language,
-        '320kbps': item.is320Kbps,
-        'quality': 0,
-        'hasLyrics': item.lyrics.isNotEmpty,
+        'is320Kbps': item.is320Kbps,
+        'lyrics': item.lyrics,
         'createdTime': item.releaseDate,
         'metaId': item.albumId,
         'subtitle': item.name,
@@ -99,8 +101,6 @@ class MediaItemMapper  {
         'playlistBox': playlistBox,
         'source': item.mediaSource.name,
         'description': item.description,
-        'lyrics': item.lyrics,
-        'ownerEmail': item.ownerId,
       },
     );
   }
@@ -109,6 +109,7 @@ class MediaItemMapper  {
     return AppMediaItem(
       id: item.id,
       album: item.album ?? '',
+      albumId: item.extras?['metaId'].toString() ?? '',
       ownerName: item.artist ?? TextUtilities.getArtistName(item.title),
       duration: item.duration?.inSeconds ?? 0,
       name: TextUtilities.getMediaName(item.title),
@@ -117,7 +118,7 @@ class MediaItemMapper  {
       url: item.extras?['url'].toString() ?? '',
       description: item.extras?['description'].toString() ?? '',
       lyrics: item.extras?['lyrics'].toString() ?? '',
-      ownerId: item.extras?['ownerEmail'].toString() ?? '',
+      ownerId: item.extras?['ownerId'].toString() ?? '',
       mediaSource: CoreUtilities.isInternal(item.extras?['url'].toString() ?? '') ? AppMediaSource.internal : AppMediaSource.external,
     );
   }
@@ -138,18 +139,16 @@ class MediaItemMapper  {
         'allUrl': [],
         'publishedYear': item.publishedYear,
         'language': item.language,
-        '320kbps': true,
+        'is320Kbps': true,
         'quality': 0,
-        'hasLyrics': item.lyrics?.isNotEmpty,
+        'lyrics': item.lyrics ?? '',
         'createdTime': item.createdTime,
         'metaId': item.metaId,
-        'subtitle': item.name,
+        'description': item.description,
         'addedByAutoplay': addedByAutoplay,
         'autoplay': autoplay,
         'playlistBox': playlistBox,
         'source': AppMediaSource.internal,
-        'description': item.description,
-        'lyrics': item.lyrics,
         'ownerEmail': item.ownerEmail,
       },
     );

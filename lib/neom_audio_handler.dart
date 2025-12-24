@@ -9,6 +9,8 @@ import 'package:neom_commons/utils/constants/translations/app_translation_consta
 import 'package:neom_core/app_config.dart';
 import 'package:neom_core/data/implementations/app_hive_controller.dart';
 import 'package:neom_core/data/implementations/neom_stopwatch.dart';
+import 'package:neom_core/domain/model/casete/casete_session.dart';
+import 'package:neom_core/domain/repository/casete_session_repository.dart';
 import 'package:neom_core/domain/use_cases/audio_handler_service.dart';
 import 'package:neom_core/domain/use_cases/user_service.dart';
 import 'package:neom_core/utils/constants/core_constants.dart';
@@ -17,11 +19,9 @@ import 'package:neom_core/utils/enums/app_hive_box.dart';
 import 'package:neom_core/utils/enums/subscription_level.dart';
 import 'package:neom_core/utils/enums/user_role.dart';
 import 'package:rxdart/rxdart.dart' as rx;
-import 'data/firestore/casete_session_firestore.dart';
 import 'data/implementations/casete_hive_controller.dart';
 import 'data/implementations/player_hive_controller.dart';
 import 'data/implementations/playlist_hive_controller.dart';
-import 'domain/models/casete/casete_session.dart';
 import 'domain/models/queue_state.dart';
 import 'ui/player/audio_player_controller.dart';
 import 'ui/player/miniplayer_controller.dart';
@@ -581,8 +581,8 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
 
         setItemInMediaPlayers();
         Get.find<AudioPlayerController>().setIsLoadingAudio(false);
-        await player.play();
         neomStopwatch.start(ref: currentMediaItem!.id);
+        await player.play();
       }
     } catch (e) {
       AppConfig.logger.e(e.toString());
@@ -593,8 +593,8 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
   @override
   Future<void> pause() async {
     AppConfig.logger.d('Pause');
-
     await player.pause();
+    await trackCaseteSession();
     if(currentMediaItem != null) {
       neomStopwatch.pause(ref: currentMediaItem!.id);
     }
@@ -773,13 +773,20 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
   Future<void> trackCaseteSession() async {
     AppConfig.logger.t("CASETE ALG: Tracking casete session.");
 
+    // 1. Validación de Elegibilidad
+    String itemId = currentMediaItem?.id ?? mediaItem.value?.id ?? '';
+    if (itemId.isEmpty) return;
+
+    bool isOwner = (userServiceImpl.user.email == itemId)
+        || (userServiceImpl.user.releaseItemIds?.contains(itemId) ?? false);
+
+    if(isOwner || !isCaseteElegible) {
+      AppConfig.logger.w("CASETE ALG: Owner or not eligible. Session not saved.");
+      return;
+    }
+
     int secondsListened = neomStopwatch.elapsed();
     AppConfig.logger.d("CASETE ALG: Checking session. Listened: ${secondsListened}s");
-    neomStopwatch.reset(); // Resetear inmediatamente para evitar doble conteo
-
-    String itemId = currentMediaItem?.id ?? mediaItem.value?.id ?? '';
-
-    if (itemId.isEmpty) return;
 
     // 1. Validación de Tiempo Mínimo (El "Tiempo Sensato")
     if (secondsListened < AudioPlayerConstants.minCaseteSeconds) {
@@ -787,21 +794,18 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
       return;
     }
 
-    bool isOwner = (userServiceImpl.user.email == itemId)
-        || (userServiceImpl.user.releaseItemIds?.contains(itemId) ?? false);
-
-    // 2. Validación de Elegibilidad
-    if(isOwner || !isCaseteElegible) {
-      AppConfig.logger.d("CASETE ALG: Owner or not eligible. Session not saved.");
-      return;
-    }
+    neomStopwatch.reset(); // Resetear inmediatamente para evitar doble conteo
 
     String itemName = currentMediaItem?.title ?? mediaItem.value?.title ?? '';
-    String ownerId = currentMediaItem?.artist ?? ''; // Asumiendo que artist es el ID o Email del dueño en tu lógica
+    String ownerId = currentMediaItem?.extras?['ownerId'] ?? mediaItem.value?.extras?['ownerId'] ?? ''; //
+
+    int createdTime = DateTime.now().millisecondsSinceEpoch;
+    String sessionId = '${itemId}_$createdTime';
 
     // 3. Creación de la Sesión
     CaseteSession caseteSession = CaseteSession(
-      createdTime: DateTime.now().millisecondsSinceEpoch,
+      id: sessionId,
+      createdTime: createdTime,
       itemId: itemId,
       itemName: itemName,
       ownerEmail: ownerId,
@@ -813,7 +817,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
 
     try {
       // 4. Guardado en Firestore
-      await CaseteSessionFirestore().insert(caseteSession, isOwner: isOwner);
+      await Get.find<CaseteSessionRepository>().insert(caseteSession, isOwner: isOwner);
       AppConfig.logger.i("CASETE ALG: Session saved! $secondsListened seconds for $itemName");
     } catch (e) {
       AppConfig.logger.e("CASETE ALG: Error saving session: $e");

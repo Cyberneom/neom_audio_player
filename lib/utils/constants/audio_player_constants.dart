@@ -1,6 +1,6 @@
 class AudioPlayerConstants {
 
-  static const int minCaseteSeconds = 5; // Minimum duration for casete session.
+  static const int minCaseteSeconds = 8; // Minimum duration for casete session.
   static const int guestTrialDuration = 300; // 5 minutes in seconds
   static const int trialDuration = 3000; // 50 minutes in seconds
   static const int rewindSeconds = 5;
