@@ -66,9 +66,12 @@ class NameNControls extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 10),
                       child: Column(
                         children: [
-                          Text(controller.mediaItemTitle.value,
+                          Text(
+
+                            controller.mediaItemTitle.value == 'null' ? controller.mediaItemAlbum.value
+                                : '',
                             style: TextStyle(
-                              fontSize: titleBoxHeight/3.5,
+                              fontSize: titleBoxHeight/4,
                               fontWeight: FontWeight.bold,
                             ),
                             textAlign: TextAlign.center,

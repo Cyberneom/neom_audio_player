@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:neom_commons/ui/widgets/images/neom_image_card.dart';
-import 'package:neom_commons/utils/auth_guard.dart';
 import 'package:neom_commons/utils/constants/app_assets.dart';
 import 'package:neom_commons/utils/constants/app_page_id_constants.dart';
 import 'package:neom_commons/utils/constants/translations/app_translation_constants.dart';
@@ -309,9 +308,9 @@ class AudioPlayerHomeContent extends StatelessWidget {
               ],
             ),
             onTap: () {
-              AuthGuard.protect(context, () {
-                Get.toNamed(AppRouteConstants.lists);
-              });
+              // AuthGuard.protect(context, () {
+              //   Get.toNamed(AppRouteConstants.lists);
+              // });
             }
           ),
           SizedBox(

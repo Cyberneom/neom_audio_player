@@ -21,7 +21,7 @@ class MediaItemMapper  {
       'hasLyrics': item.extras!['hasLyrics'],
       'language': item.extras?['language'].toString(),
 
-      'imgUrl': item.artUri.toString(),
+      'imgUrl': item.artUri?.path,
 
       'publishedYear': int.tryParse((item.extras?['publishedYear'] ?? '0').toString()),
       'releaseDate': int.tryParse((item.extras?['createdTime'] ?? '0').toString()),

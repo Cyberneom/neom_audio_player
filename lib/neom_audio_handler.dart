@@ -749,15 +749,15 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
     }
   }
 
-  void setItemInMediaPlayers() {
+  Future<void> setItemInMediaPlayers() async {
     //TODO Agregar stopwatch CASETE
     AppConfig.logger.w('StopWatch started for item ${currentMediaItem?.title}');
 
     if (currentMediaItem != null) {
       if (Get.isRegistered<MiniPlayerController>()) {
-        Get.find<MiniPlayerController>().setMediaItem(currentMediaItem!);
+        await Get.find<MiniPlayerController>().setMediaItem(currentMediaItem!);
       } else {
-        Get.put(MiniPlayerController()).setMediaItem(currentMediaItem!);
+        await Get.put(MiniPlayerController()).setMediaItem(currentMediaItem!);
       }
 
       if (Get.isRegistered<AudioPlayerController>()) {
@@ -767,7 +767,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
       }
     }
 
-    AudioPlayerStats.addRecentlyPlayed(currentMediaItem!);
+    await AudioPlayerStats.addRecentlyPlayed(currentMediaItem!);
   }
 
   Future<void> trackCaseteSession() async {

@@ -52,8 +52,16 @@ class _MiniPlayerTileState extends State<MiniPlayerTile> {
     super.initState();
 
 
-    titleText = widget.item?.title ?? '';
-    subtitleText = widget.item?.artist ?? '';
+    if(widget.item != null) {
+      if(widget.item!.title != 'null') {
+        titleText = widget.item!.title;
+      } else if(widget.item!.album != null) {
+        titleText = widget.item!.album ?? '';
+      }
+      subtitleText = widget.item!.artist ?? '';
+    }
+
+
 
     if(titleText.contains(' - ')) {
       titleText = TextUtilities.getMediaName(titleText);
