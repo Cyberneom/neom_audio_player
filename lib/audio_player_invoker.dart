@@ -2,7 +2,8 @@ import 'dart:io';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/services.dart' show rootBundle;
-import 'package:get/get.dart' as getx;
+import 'package:neom_commons/utils/text_utilities.dart';
+import 'package:sint/sint.dart';
 import 'package:neom_commons/utils/app_utilities.dart';
 import 'package:neom_commons/utils/constants/app_assets.dart';
 import 'package:neom_commons/utils/constants/translations/common_translation_constants.dart';
@@ -154,7 +155,7 @@ class AudioPlayerInvoker implements AudioPlayerInvokerService {
         if(playItem || nowPlaying) {
           AppConfig.logger.d("Starting stream for ${queue[index].artist ?? ''} - ${queue[index].title} and URL ${queue[index].extras!['url'].toString()}");
           await audioHandler?.play();
-          getx.Get.find<MiniPlayerController>().setMediaItem(queue.elementAt(index));
+          Sint.find<MiniPlayerController>().setMediaItem(queue.elementAt(index));
         }
 
         enforceRepeat();
@@ -180,7 +181,7 @@ class AudioPlayerInvoker implements AudioPlayerInvokerService {
 
     String playAlbum = appMediaItem.album;
     int playDuration = appMediaItem.duration;
-    String imagePath = '${tempDir.path}/${appMediaItem.name.removeAllWhitespace}.png';
+    String imagePath = '${tempDir.path}/${TextUtilities.removeAllWhitespace(appMediaItem.name)}.png';
 
     MediaItem tempDict = MediaItem(
       id: appMediaItem.id.toString(),
@@ -227,7 +228,7 @@ class AudioPlayerInvoker implements AudioPlayerInvokerService {
     NeomAudioHandler? handler;
 
     try {
-      if (!getx.Get.isRegistered<NeomAudioHandler>()) {
+      if (!Sint.isRegistered<NeomAudioHandler>()) {
         AppConfig.logger.d("NeomAudioHandler not registered, getting and registering...");
 
         // Obtener la instancia del AudioHandler de forma asíncrona
@@ -235,11 +236,11 @@ class AudioPlayerInvoker implements AudioPlayerInvokerService {
         handler = await NeomAudioProvider().getAudioHandler();
 
         // Registrar la instancia obtenida como un singleton en GetX
-        getx.Get.put<NeomAudioHandler>(handler);
+        Sint.put<NeomAudioHandler>(handler);
         AppConfig.logger.i("NeomAudioHandler registered successfully with GetX.");
       } else {
         AppConfig.logger.d("NeomAudioHandler is already registered with GetX.");
-        handler = getx.Get.find<NeomAudioHandler>();
+        handler = Sint.find<NeomAudioHandler>();
       }
     } catch (e) {
       AppConfig.logger.e(e.toString());
@@ -253,7 +254,7 @@ class AudioPlayerInvoker implements AudioPlayerInvokerService {
     NeomAudioHandler? handler;
 
     try {
-      if (!getx.Get.isRegistered<NeomAudioHandler>()) {
+      if (!Sint.isRegistered<NeomAudioHandler>()) {
         AppConfig.logger.d("NeomAudioHandler not registered, getting and registering...");
 
         // Obtener la instancia del AudioHandler de forma asíncrona
@@ -261,11 +262,11 @@ class AudioPlayerInvoker implements AudioPlayerInvokerService {
         handler = await NeomAudioProvider().getAudioHandler();
 
         // Registrar la instancia obtenida como un singleton en GetX
-        getx.Get.put<NeomAudioHandler>(handler);
+        Sint.put<NeomAudioHandler>(handler);
         AppConfig.logger.i("NeomAudioHandler registered successfully with GetX.");
       } else {
         AppConfig.logger.d("NeomAudioHandler is already registered with GetX.");
-        handler = getx.Get.find<NeomAudioHandler>();
+        handler = Sint.find<NeomAudioHandler>();
       }
     } catch (e) {
       AppConfig.logger.e(e.toString());

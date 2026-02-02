@@ -6,7 +6,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flip_card/flip_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_lyric/lyrics_reader.dart';
-import 'package:get/get.dart';
+import 'package:sint/sint.dart';
 import 'package:neom_commons/ui/theme/app_color.dart';
 import 'package:neom_commons/utils/constants/app_assets.dart';
 import 'package:neom_commons/utils/constants/translations/app_translation_constants.dart';

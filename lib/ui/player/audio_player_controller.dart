@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_lyric/lyric_ui/ui_netease.dart';
 import 'package:flutter_lyric/lyrics_model_builder.dart';
 import 'package:flutter_lyric/lyrics_reader_model.dart';
-import 'package:get/get.dart';
+import 'package:sint/sint.dart';
 import 'package:neom_commons/utils/app_utilities.dart';
 import 'package:neom_commons/utils/constants/app_page_id_constants.dart';
 import 'package:neom_commons/utils/constants/translations/common_translation_constants.dart';
@@ -36,9 +36,9 @@ import '../../utils/mappers/media_item_mapper.dart';
 import '../library/playlist_player_page.dart';
 import 'lyrics/lyrics.dart';
 
-class AudioPlayerController extends GetxController implements AudioPlayerService {
+class AudioPlayerController extends SintController implements AudioPlayerService {
 
-  final userServiceImpl = Get.find<UserService>();
+  final userServiceImpl = Sint.find<UserService>();
   NeomAudioHandler? audioHandler;
 
   AppUser user = AppUser();
@@ -79,18 +79,18 @@ class AudioPlayerController extends GetxController implements AudioPlayerService
       user = userServiceImpl.user;
       profile = userServiceImpl.profile;
 
-      if(Get.arguments != null && Get.arguments.isNotEmpty) {
-        if (Get.arguments[0] is AppReleaseItem) {
-          initReleaseItem(Get.arguments[0]);
-        } else if (Get.arguments[0] is AppMediaItem) {
-          initAppMediaItem(Get.arguments[0]);
-        } else if (Get.arguments[0] is String) {
+      if(Sint.arguments != null && Sint.arguments.isNotEmpty) {
+        if (Sint.arguments[0] is AppReleaseItem) {
+          initReleaseItem(Sint.arguments[0]);
+        } else if (Sint.arguments[0] is AppMediaItem) {
+          initAppMediaItem(Sint.arguments[0]);
+        } else if (Sint.arguments[0] is String) {
           ///VERIFY IF USEFUL
           ///appMediaItemId = arguments[0];???
         }
 
-        if(Get.arguments.length > 1) {
-          reproduceItem = Get.arguments[1] as bool;
+        if(Sint.arguments.length > 1) {
+          reproduceItem = Sint.arguments[1] as bool;
         }
       }
 
@@ -125,7 +125,7 @@ class AudioPlayerController extends GetxController implements AudioPlayerService
     isLoading.value = false;
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       try {
-        Get.find<AudioPlayerInvoker>().getOrInitAudioHandler().then((NeomAudioHandler? handler) async {
+        Sint.find<AudioPlayerInvoker>().getOrInitAudioHandler().then((NeomAudioHandler? handler) async {
           audioHandler = handler;
           bool alreadyPlaying = false;
           if(appReleaseItem.value.id.isNotEmpty) {
@@ -135,7 +135,7 @@ class AudioPlayerController extends GetxController implements AudioPlayerService
           }
 
           if(reproduceItem && !alreadyPlaying) {
-            await Get.find<AudioPlayerInvokerService>().init(
+            await Sint.find<AudioPlayerInvokerService>().init(
               releaseItems: appReleaseItem.value.id.isNotEmpty ? [appReleaseItem.value] : null,
               mediaItems: appMediaItem.value.id.isNotEmpty ? [appMediaItem.value] : null,
               index: 0,
@@ -195,7 +195,7 @@ class AudioPlayerController extends GetxController implements AudioPlayerService
   @override
   void gotoPlaylistPlayer() {
     getItemPlaylist();
-    Get.to(() => PlaylistPlayerPage(itemlist: releaseItemlist));
+    Sint.to(() => PlaylistPlayerPage(itemlist: releaseItemlist));
   }
 
   @override
@@ -283,7 +283,7 @@ class AudioPlayerController extends GetxController implements AudioPlayerService
 
   @override
   void goToTimeline(BuildContext context) {
-    Get.back();
+    Sint.back();
     update();
   }
 
@@ -326,7 +326,7 @@ class AudioPlayerController extends GetxController implements AudioPlayerService
 
     try {
       if(profile.id == ownerId || user.email == ownerId) {
-        Get.toNamed(AppRouteConstants.profile);
+        Sint.toNamed(AppRouteConstants.profile);
       } else {
 
         bool isEmail = Validator.isEmail(ownerId);
@@ -338,7 +338,7 @@ class AudioPlayerController extends GetxController implements AudioPlayerService
         }
 
         if(ownerId.isNotEmpty && ownerId.length > 5) {
-          Get.toNamed(AppRouteConstants.mateDetails, arguments: ownerId);
+          Sint.toNamed(AppRouteConstants.mateDetails, arguments: ownerId);
         } else {
           AppUtilities.showSnackBar(message: CommonTranslationConstants.noItemOwnerFound.tr);
         }

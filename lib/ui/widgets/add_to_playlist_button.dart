@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:sint/sint.dart';
 import 'package:neom_commons/utils/app_utilities.dart';
 import 'package:neom_commons/utils/auth_guard.dart';
 import 'package:neom_commons/utils/constants/translations/common_translation_constants.dart';
@@ -65,7 +65,7 @@ class AddToPlaylistButtonState extends State<AddToPlaylistButton> {
                 //TODO Remove from profile.itemlists list item
                 if(await ItemlistFirestore().deleteMediaItem(itemlistId: widget.currentPlaylist!.id, itemId: widget.appMediaItem!.id)){
                   widget.currentPlaylist?.appMediaItems?.removeWhere((item) => item.id == widget.appMediaItem?.id);
-                  Get.find<UserService>().user.profiles.first.itemlists?[widget.currentPlaylist!.id] = widget.currentPlaylist!;
+                  Sint.find<UserService>().user.profiles.first.itemlists?[widget.currentPlaylist!.id] = widget.currentPlaylist!;
                 }
 
                 setState(() {

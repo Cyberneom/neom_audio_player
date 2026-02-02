@@ -1,4 +1,4 @@
-import 'package:get/get.dart';
+import 'package:sint/sint.dart';
 import 'package:neom_core/utils/constants/app_route_constants.dart';
 
 import 'ui/drawer/recently_played/recently_played_page.dart';
@@ -11,39 +11,39 @@ import 'utils/constants/audio_player_route_constants.dart';
 
 class AudioPlayerRoutes {
 
-  static final List<GetPage<dynamic>> routes = [
+  static final List<SintPage<dynamic>> routes = [
     ///UNCOMMENT THIS IN ORDER TO ENABLE AUDIO PLAYER HOME PAGE
-    // GetPage(
+    // SintPage(
     //     name: AppRouteConstants.audioPlayer,
     //     page: () => const AudioPlayerRootPage(),
     //     transition: Transition.rightToLeftWithFade,
     // ),
-    GetPage(
+    SintPage(
       name: AppRouteConstants.audioPlayerMedia,
       page: () => const AudioPlayerPage(),
       transition: Transition.leftToRight,
     ),
-    GetPage(
+    SintPage(
       name: AppRouteConstants.audioPlayerMini,
       page: () => const MiniPlayer(),
       transition: Transition.leftToRight,
     ),
-    GetPage(
+    SintPage(
       name: AudioPlayerRouteConstants.welcomePref,
       page: () => const WelcomePreferencePage(),
       transition: Transition.leftToRight,
     ),
-    GetPage(
+    SintPage(
       name: AudioPlayerRouteConstants.setting,
       page: () => const AudioPlayerSettingsPage(),
       transition: Transition.leftToRight,
     ),
-    GetPage(
+    SintPage(
       name: AudioPlayerRouteConstants.recent,
       page: () => const RecentlyPlayedPage(),
       transition: Transition.leftToRight,
     ),
-    GetPage(
+    SintPage(
       name: AudioPlayerRouteConstants.stats,
       page: () => const StatsPage(),
       transition: Transition.leftToRight,

@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:sint/sint.dart';
 import 'package:neom_commons/utils/constants/translations/app_translation_constants.dart';
 
 import '../../../neom_audio_handler.dart';

@@ -1,6 +1,6 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:get/get.dart';
+import 'package:sint/sint.dart';
 import 'package:hive/hive.dart';
 import 'package:neom_commons/utils/constants/app_page_id_constants.dart';
 import 'package:neom_core/app_config.dart';
@@ -18,9 +18,9 @@ import 'package:neom_core/utils/enums/media_item_type.dart';
 
 import '../../data/implementations/player_hive_controller.dart';
 
-class AudioPlayerHomeController extends GetxController {
+class AudioPlayerHomeController extends SintController {
 
-  final userServiceImpl = Get.find<UserService>();
+  final userServiceImpl = Sint.find<UserService>();
   final ScrollController scrollController = ScrollController();
 
   final Rxn<MediaItem> mediaItem = Rxn<MediaItem>();

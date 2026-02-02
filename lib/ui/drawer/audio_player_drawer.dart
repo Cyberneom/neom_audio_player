@@ -1,6 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:sint/sint.dart';
 import 'package:neom_commons/ui/app_drawer_controller.dart';
 import 'package:neom_commons/ui/theme/app_color.dart';
 import 'package:neom_commons/ui/theme/app_theme.dart';
@@ -25,7 +25,7 @@ class AudioPlayerDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<AppDrawerController>(
+    return SintBuilder<AppDrawerController>(
     id: AppPageIdConstants.appDrawer,
     init: AppDrawerController(),
     builder: (controller) {
@@ -85,14 +85,14 @@ class AudioPlayerDrawer extends StatelessWidget {
           children: <Widget>[
             ListTile(
               onTap: () {
-                Get.toNamed(AppRouteConstants.profile);
+                Sint.toNamed(AppRouteConstants.profile);
               },
               leading: IconButton(
                   constraints: const BoxConstraints(),
                   icon: const Icon(Icons.arrow_back_ios),
                   onPressed: () {
-                    Get.find<MiniPlayerController>().setIsTimeline(true);
-                    Get.offAllNamed(AppRouteConstants.home);
+                    Sint.find<MiniPlayerController>().setIsTimeline(true);
+                    Sint.offAllNamed(AppRouteConstants.home);
                   },
               ),
               title: Row(
@@ -114,7 +114,7 @@ class AudioPlayerDrawer extends StatelessWidget {
                             ),
                           ),
                         ),
-                        onTap: ()=> Get.toNamed(AppRouteConstants.profile),
+                        onTap: ()=> Sint.toNamed(AppRouteConstants.profile),
                       ),
                       Text((controller.appProfile.value?.name.length ?? 0) > AppConstants.maxArtistNameLength
                           ? '${controller.appProfile.value!.name.substring(0,AppConstants.maxArtistNameLength)}...' : controller.appProfile.value?.name ?? '',
@@ -138,19 +138,19 @@ class AudioPlayerDrawer extends StatelessWidget {
             // case AudioPlayerDrawerMenu.nowPlaying:
             //   Navigator.pushNamed(context, AudioPlayerRouteConstants.nowPlaying);
             case AudioPlayerDrawerMenu.lastSession:
-              Get.toNamed(AudioPlayerRouteConstants.recent);
+              Sint.toNamed(AudioPlayerRouteConstants.recent);
             case AudioPlayerDrawerMenu.favorites:
-              Get.to(()=>PlaylistPlayerPage(
+              Sint.to(()=>PlaylistPlayerPage(
                     alternativeName: AppTranslationConstants.favoriteItems.tr,),
               );
             case AudioPlayerDrawerMenu.downloads:
-              Get.toNamed(AudioPlayerRouteConstants.downloads);
+              Sint.toNamed(AudioPlayerRouteConstants.downloads);
             case AudioPlayerDrawerMenu.playlists:
-              Get.toNamed(AppRouteConstants.lists);
+              Sint.toNamed(AppRouteConstants.lists);
             case AudioPlayerDrawerMenu.stats:
-              Get.toNamed(AudioPlayerRouteConstants.stats);
+              Sint.toNamed(AudioPlayerRouteConstants.stats);
             case AudioPlayerDrawerMenu.settings:
-              Get.toNamed(AudioPlayerRouteConstants.setting);
+              Sint.toNamed(AudioPlayerRouteConstants.setting);
             default:
               break;
           }

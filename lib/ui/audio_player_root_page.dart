@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:sint/sint.dart';
 import 'package:neom_commons/app_flavour.dart';
 import 'package:neom_commons/ui/theme/app_color.dart';
 import 'package:neom_commons/ui/theme/app_theme.dart';
@@ -35,10 +35,10 @@ class AudioPlayerRootPageState extends State<AudioPlayerRootPage> {
   @override
   void initState() {
     super.initState();
-    if (Get.isRegistered<MiniPlayerController>()) {
-      Get.find<MiniPlayerController>().setIsTimeline(false);
+    if (Sint.isRegistered<MiniPlayerController>()) {
+      Sint.find<MiniPlayerController>().setIsTimeline(false);
     } else {
-      Get.put(MiniPlayerController()).setIsTimeline(false);
+      Sint.put(MiniPlayerController()).setIsTimeline(false);
     }
   }
 

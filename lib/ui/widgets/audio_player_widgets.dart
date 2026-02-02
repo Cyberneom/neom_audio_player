@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:sint/sint.dart';
 import 'package:neom_commons/ui/theme/app_theme.dart';
 import 'package:neom_commons/ui/widgets/images/neom_image_card.dart';
 import 'package:neom_commons/utils/auth_guard.dart';
@@ -71,23 +71,23 @@ ListTile createCoolMediaItemTile(BuildContext context, AppMediaItem appMediaItem
     ),
     onLongPress: () {
       // CoreUtilities.copyToClipboard(text: appMediaItem.permaUrl,);
-      Get.toNamed(AppRouteConstants.audioPlayerMedia, arguments: [appMediaItem]);
+      Sint.toNamed(AppRouteConstants.audioPlayerMedia, arguments: [appMediaItem]);
     },
     onTap: () async {
       PlayerHiveController().addQuery(appMediaItem.name);
 
       if(appMediaItem.mediaSource == AppMediaSource.internal || appMediaItem.mediaSource == AppMediaSource.offline) {
-        if (Get.isRegistered<AudioPlayerController>()) {
-          Get.find<AudioPlayerController>().setMediaItem(appItem: appMediaItem);
+        if (Sint.isRegistered<AudioPlayerController>()) {
+          Sint.find<AudioPlayerController>().setMediaItem(appItem: appMediaItem);
         } else {
-          Get.put(AudioPlayerController()).setMediaItem(appItem: appMediaItem);
+          Sint.put(AudioPlayerController()).setMediaItem(appItem: appMediaItem);
         }
-        await Get.find<AudioPlayerInvoker>().updateNowPlaying(items: [appMediaItem], index: 0);
+        await Sint.find<AudioPlayerInvoker>().updateNowPlaying(items: [appMediaItem], index: 0);
       } else {
-        await Get.find<AudioPlayerInvoker>().updateNowPlaying(items: [appMediaItem], index: 0);
+        await Sint.find<AudioPlayerInvoker>().updateNowPlaying(items: [appMediaItem], index: 0);
       }
 
-      // Get.toNamed(AppRouteConstants.audioPlayerMedia, arguments: [appMediaItem]);
+      // Sint.toNamed(AppRouteConstants.audioPlayerMedia, arguments: [appMediaItem]);
     },
   );
 }

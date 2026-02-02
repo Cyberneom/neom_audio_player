@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:sint/sint.dart';
 import 'package:hive/hive.dart';
 import 'package:neom_commons/app_flavour.dart';
 import 'package:neom_commons/ui/theme/app_theme.dart';
@@ -119,7 +119,7 @@ class RecentlyPlayedPageState extends State<RecentlyPlayedPage> {
                 overflow: TextOverflow.ellipsis,
               ),
               onTap: () {
-                Get.find<AudioPlayerInvoker>().init(
+                Sint.find<AudioPlayerInvoker>().init(
                   mediaItems: _songs.values.toList(),
                   index: index,
                 );

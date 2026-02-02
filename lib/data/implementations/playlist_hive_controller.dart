@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:audio_service/audio_service.dart';
-import 'package:get/get.dart';
+import 'package:sint/sint.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:neom_core/app_config.dart';
@@ -29,9 +29,9 @@ class PlaylistHiveController implements PlaylistHiveService {
 
   bool _isInitialized = false;
 
-  final userServiceImpl = Get.find<UserService>();
+  final userServiceImpl = Sint.find<UserService>();
   final playerHiveController = PlayerHiveController();
-  final appHiveServiceImpl = Get.find<AppHiveService>();
+  final appHiveServiceImpl = Sint.find<AppHiveService>();
   Map<String, AppMediaItem> globalMediaItems = {};
   late SharedPreferences prefs;
 

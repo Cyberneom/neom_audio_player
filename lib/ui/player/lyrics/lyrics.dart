@@ -1,4 +1,4 @@
-import 'package:get/get.dart';
+import 'package:sint/sint.dart';
 import 'package:http/http.dart' as http;
 import 'package:neom_core/app_config.dart';
 

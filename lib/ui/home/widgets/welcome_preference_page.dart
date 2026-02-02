@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:sint/sint.dart';
 import 'package:hive/hive.dart';
 import 'package:neom_commons/app_flavour.dart';
 import 'package:neom_commons/ui/theme/app_color.dart';
@@ -24,7 +24,7 @@ class WelcomePreferencePage extends StatefulWidget {
 
 class WelcomePreferencePageState extends State<WelcomePreferencePage> {
 
-  UserService userServiceImpl = Get.find<UserService>();
+  UserService userServiceImpl = Sint.find<UserService>();
   List preferredLanguage = Hive.box(AppHiveBox.settings.name).get(AppHiveConstants.preferredLanguage, defaultValue: ['Español'])?.toList() as List;
   String region = Hive.box(AppHiveBox.settings.name).get(AppHiveConstants.region, defaultValue: 'México') as String;
 

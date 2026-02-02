@@ -1,7 +1,7 @@
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
-import 'package:get/get.dart';
+import 'package:sint/sint.dart';
 import 'package:neom_commons/ui/theme/app_color.dart';
 import 'package:neom_commons/ui/theme/app_theme.dart';
 import 'package:neom_commons/utils/app_utilities.dart';
@@ -32,7 +32,7 @@ class AddToPlaylist {
     ItemlistService itemlistServiceImpl;
 
     try {
-      itemlistServiceImpl = Get.find<ItemlistService>();
+      itemlistServiceImpl = Sint.find<ItemlistService>();
 
       itemlists = CoreUtilities.filterItemlists(itemlistServiceImpl.getItemlists(), ItemlistType.playlist);
       itemlists.removeWhere((element) => !element.isModifiable);
@@ -42,7 +42,7 @@ class AddToPlaylist {
       }
 
       itemlistServiceImpl.setSelectedItemlist(itemlists.first.id);
-      type = Get.find<UserService>().profile.type;
+      type = Sint.find<UserService>().profile.type;
       itemlistServiceImpl.setAppMediaItem(appMediaItem);
 
       itemlists.length > 1 ? Alert(

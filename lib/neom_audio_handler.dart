@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/foundation.dart';
-import 'package:get/get.dart';
+import 'package:sint/sint.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:neom_commons/utils/app_utilities.dart';
 import 'package:neom_commons/utils/auth_guard.dart';
@@ -50,7 +50,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
   final rx.BehaviorSubject<List<MediaItem>> _recentSubject = rx.BehaviorSubject
       .seeded(<MediaItem>[]);
 
-  final userServiceImpl = Get.find<UserService>();
+  final userServiceImpl = Sint.find<UserService>();
   final neomStopwatch =  NeomStopwatch();
 
   int caseteSessionDuration = 0; //Seconds per session
@@ -567,8 +567,8 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
     try {
 
       if(!allowFullAccess && !allowFreeTrial && AppConfig.instance.isGuestMode) {
-        if(Get.context != null) {
-          AuthGuard.showGuestModal(Get.context!);
+        if(Sint.context != null) {
+          AuthGuard.showGuestModal(Sint.context!);
         }
         return;
       }
@@ -580,7 +580,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
         }
 
         setItemInMediaPlayers();
-        Get.find<AudioPlayerController>().setIsLoadingAudio(false);
+        Sint.find<AudioPlayerController>().setIsLoadingAudio(false);
         neomStopwatch.start(ref: currentMediaItem!.id);
         await player.play();
       }
@@ -754,16 +754,16 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
     AppConfig.logger.w('StopWatch started for item ${currentMediaItem?.title}');
 
     if (currentMediaItem != null) {
-      if (Get.isRegistered<MiniPlayerController>()) {
-        await Get.find<MiniPlayerController>().setMediaItem(currentMediaItem!);
+      if (Sint.isRegistered<MiniPlayerController>()) {
+        await Sint.find<MiniPlayerController>().setMediaItem(currentMediaItem!);
       } else {
-        await Get.put(MiniPlayerController()).setMediaItem(currentMediaItem!);
+        await Sint.put(MiniPlayerController()).setMediaItem(currentMediaItem!);
       }
 
-      if (Get.isRegistered<AudioPlayerController>()) {
-        Get.find<AudioPlayerController>().setMediaItem(item: currentMediaItem!);
+      if (Sint.isRegistered<AudioPlayerController>()) {
+        Sint.find<AudioPlayerController>().setMediaItem(item: currentMediaItem!);
       } else {
-        Get.put(AudioPlayerController()).setMediaItem(item: currentMediaItem!);
+        Sint.put(AudioPlayerController()).setMediaItem(item: currentMediaItem!);
       }
     }
 
@@ -817,7 +817,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
 
     try {
       // 4. Guardado en Firestore
-      await Get.find<CaseteSessionRepository>().insert(caseteSession, isOwner: isOwner);
+      await Sint.find<CaseteSessionRepository>().insert(caseteSession, isOwner: isOwner);
       AppConfig.logger.i("CASETE ALG: Session saved! $secondsListened seconds for $itemName");
     } catch (e) {
       AppConfig.logger.e("CASETE ALG: Error saving session: $e");
@@ -837,8 +837,8 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
               pause();
               timer.cancel(); // <--- AQUÍ SE DETIENE EL TIMER
               _timer = null;  // Opcional: Limpiamos la referencia global
-              if(Get.context != null) {
-                AuthGuard.showGuestModal(Get.context!);
+              if(Sint.context != null) {
+                AuthGuard.showGuestModal(Sint.context!);
               }
             }
           } else if(dailyTrialUsage >= AudioPlayerConstants.trialDuration) {

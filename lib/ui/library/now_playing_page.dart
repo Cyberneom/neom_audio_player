@@ -1,7 +1,7 @@
 //VERIFY USAGE
 // import 'package:audio_service/audio_service.dart';
 // import 'package:flutter/material.dart';
-// import 'package:get/get.dart';
+// import 'package:sint/sint.dart';
 // import 'package:neom_commons/core/ui/widgets/appbar_child.dart';
 // import 'package:neom_commons/core/utils/app_color.dart';
 //

@@ -4,7 +4,7 @@ import 'package:neom_commons/ui/widgets/appbar_child.dart';
 import 'package:neom_commons/utils/constants/translations/app_translation_constants.dart';
 import 'package:neom_commons/utils/constants/translations/common_translation_constants.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:get/get.dart';
+import 'package:sint/sint.dart';
 
 class AboutPage extends StatefulWidget {
   const AboutPage({super.key});

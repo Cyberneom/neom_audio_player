@@ -1,6 +1,6 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:sint/sint.dart';
 import 'package:neom_commons/utils/constants/translations/app_translation_constants.dart';
 import 'package:neom_commons/utils/constants/translations/common_translation_constants.dart';
 import 'package:neom_core/domain/model/app_media_item.dart';

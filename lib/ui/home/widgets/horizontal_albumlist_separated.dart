@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:sint/sint.dart';
 import 'package:neom_commons/ui/widgets/images/neom_image_card.dart';
 import 'package:neom_commons/utils/constants/app_assets.dart';
 import 'package:neom_core/domain/model/app_media_item.dart';
@@ -105,11 +105,11 @@ class HorizontalAlbumsListSeparated extends StatelessWidget {
                     ),
                     onTap: () => onTap(songsList.indexOf(item)),
                     onLongPress: () {
-                      if (Get.isRegistered<AudioPlayerController>()) {
-                        Get.delete<AudioPlayerController>();
-                        Get.toNamed(AppRouteConstants.audioPlayerMedia, arguments: [item]);
+                      if (Sint.isRegistered<AudioPlayerController>()) {
+                        Sint.delete<AudioPlayerController>();
+                        Sint.toNamed(AppRouteConstants.audioPlayerMedia, arguments: [item]);
                       } else {
-                        Get.toNamed(AppRouteConstants.audioPlayerMedia, arguments: [item]);
+                        Sint.toNamed(AppRouteConstants.audioPlayerMedia, arguments: [item]);
                       }
                     },
                   );

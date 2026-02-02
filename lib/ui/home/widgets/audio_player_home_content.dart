@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:sint/sint.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:neom_commons/ui/widgets/images/neom_image_card.dart';
 import 'package:neom_commons/utils/constants/app_assets.dart';
@@ -37,7 +37,7 @@ class AudioPlayerHomeContent extends StatelessWidget {
         ? MediaQuery.of(context).size.width / 2 : MediaQuery.of(context).size.height / 2.5;
     if (boxSize > 250) boxSize = 250;
 
-    return GetBuilder<AudioPlayerHomeController>(
+    return SintBuilder<AudioPlayerHomeController>(
       id: AppPageIdConstants.audioPlayerHome,
       builder: (controller) => Obx(()=> controller.isLoading.value
           ? const Center(child: CircularProgressIndicator(),)
@@ -273,7 +273,7 @@ class AudioPlayerHomeContent extends StatelessWidget {
           HorizontalAlbumsListSeparated(
             songsList: controller.recentList.values.where((item)=> item.mediaSource == AppMediaSource.internal).toList(),
             onTap: (int idx) {
-              Get.find<AudioPlayerInvoker>().init(
+              Sint.find<AudioPlayerInvoker>().init(
                 mediaItems: controller.recentList.values.toList(),
                 index: idx,
               );
@@ -309,7 +309,7 @@ class AudioPlayerHomeContent extends StatelessWidget {
             ),
             onTap: () {
               // AuthGuard.protect(context, () {
-              //   Get.toNamed(AppRouteConstants.lists);
+              //   Sint.toNamed(AppRouteConstants.lists);
               // });
             }
           ),
@@ -403,7 +403,7 @@ class AudioPlayerHomeContent extends StatelessWidget {
                     if(totalItems == 1) {
                       List<AppMediaItem> singleItemList = AppMediaItemMapper.mapItemsFromItemlist(itemlist);
                       AppMediaItem singleItem = singleItemList.first;
-                      Get.toNamed(AppRouteConstants.audioPlayerMedia, arguments: [singleItem]);
+                      Sint.toNamed(AppRouteConstants.audioPlayerMedia, arguments: [singleItem]);
                     } else if(totalItems > 1) {
                       Navigator.push(context,
                         MaterialPageRoute(builder: (context) => PlaylistPlayerPage(itemlist: itemlist,),
@@ -522,7 +522,7 @@ class AudioPlayerHomeContent extends StatelessWidget {
                   ),
                 ),
                 onTap: () async {
-                  Get.toNamed(AppRouteConstants.audioPlayerMedia, arguments: [favoriteItem]);
+                  Sint.toNamed(AppRouteConstants.audioPlayerMedia, arguments: [favoriteItem]);
                 },
               ) : SizedBox.shrink();
             },

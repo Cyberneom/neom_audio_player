@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:sint/sint.dart';
 import 'package:neom_commons/utils/constants/app_page_id_constants.dart';
 import 'package:neom_core/utils/constants/app_route_constants.dart';
 
@@ -15,7 +15,7 @@ class MiniPlayer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<MiniPlayerController>(
+    return SintBuilder<MiniPlayerController>(
       id: AppPageIdConstants.miniPlayer,
       builder: (controller) {
         if(controller.isLoading || (controller.isTimeline && !controller.showInTimeline)) return const SizedBox.shrink();
@@ -29,7 +29,7 @@ class MiniPlayer extends StatelessWidget {
                   if (direction == DismissDirection.down || direction == DismissDirection.horizontal) {
                     controller.audioHandler?.stop();
                   } else {
-                    Get.toNamed(AppRouteConstants.audioPlayerMedia, arguments: [MediaItemMapper.toAppMediaItem(controller.mediaItem.value!), false]);
+                    Sint.toNamed(AppRouteConstants.audioPlayerMedia, arguments: [MediaItemMapper.toAppMediaItem(controller.mediaItem.value!), false]);
                     // Navigator.push(context, MaterialPageRoute(builder: (context) => MediaPlayerPage(appMediaItem: MediaItemMapper.toAppMediaItem(controller.mediaItem!), reproduceItem: false),),);
                   }
                 }

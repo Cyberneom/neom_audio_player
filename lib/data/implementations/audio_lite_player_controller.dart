@@ -1,11 +1,11 @@
-import 'package:get/get.dart';
+import 'package:sint/sint.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:neom_core/domain/use_cases/audio_lite_player_service.dart';
 import 'package:neom_core/domain/use_cases/user_service.dart';
 
-class AudioLitePlayerController extends GetxController implements AudioLitePlayerService {
+class AudioLitePlayerController extends SintController implements AudioLitePlayerService {
 
-  final userServiceImpl = Get.find<UserService>();
+  final userServiceImpl = Sint.find<UserService>();
   AudioPlayer audioPlayer = AudioPlayer();
 
   @override

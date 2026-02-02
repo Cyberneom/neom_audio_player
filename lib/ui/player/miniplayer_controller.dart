@@ -1,7 +1,7 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:sint/sint.dart';
 import 'package:neom_commons/utils/constants/app_page_id_constants.dart';
 import 'package:neom_core/app_config.dart';
 import 'package:neom_core/domain/model/app_media_item.dart';
@@ -15,9 +15,9 @@ import '../../audio_player_invoker.dart';
 import '../../neom_audio_handler.dart';
 import '../../utils/mappers/media_item_mapper.dart';
 
-class MiniPlayerController extends GetxController implements MiniPlayerService {
+class MiniPlayerController extends SintController implements MiniPlayerService {
 
-  final userServiceImpl = Get.find<UserService>();
+  final userServiceImpl = Sint.find<UserService>();
 
   AppMediaItem appMediaItem = AppMediaItem();
   Rxn<MediaItem> mediaItem = Rxn<MediaItem>();
@@ -66,7 +66,7 @@ class MiniPlayerController extends GetxController implements MiniPlayerService {
   @override
   Future<void> setAppMediaItem(AppMediaItem appMediaItem) async {
     AppConfig.logger.d('Setting new mediaitem ${appMediaItem.name}');
-    audioHandler ??= await Get.find<AudioPlayerInvoker>().getOrInitAudioHandler();
+    audioHandler ??= await Sint.find<AudioPlayerInvoker>().getOrInitAudioHandler();
     audioHandlerRegistered = true;
     mediaItem.value = MediaItemMapper.fromAppMediaItem(item: appMediaItem);
     source = EnumToString.fromString(AppMediaSource.values, mediaItem.value?.extras?["source"] ?? AppMediaSource.internal.name) ?? AppMediaSource.internal;
@@ -77,7 +77,7 @@ class MiniPlayerController extends GetxController implements MiniPlayerService {
 
   Future<void> setMediaItem(MediaItem item) async {
     AppConfig.logger.d('Setting new mediaitem ${item.title}');
-    audioHandler ??= await Get.find<AudioPlayerInvoker>().getOrInitAudioHandler();
+    audioHandler ??= await Sint.find<AudioPlayerInvoker>().getOrInitAudioHandler();
     audioHandlerRegistered = true;
     mediaItem.value = item;
     source = EnumToString.fromString(AppMediaSource.values, mediaItem.value?.extras?["source"] ?? AppMediaSource.internal.name) ?? AppMediaSource.internal;
@@ -144,7 +144,7 @@ class MiniPlayerController extends GetxController implements MiniPlayerService {
   @override
   void goToMusicPlayerHome() {
     isTimeline = false;
-    Get.toNamed(AppRouteConstants.audioPlayer);
+    Sint.toNamed(AppRouteConstants.audioPlayer);
     update([AppPageIdConstants.home, AppPageIdConstants.audioPlayerHome, AppPageIdConstants.miniPlayer]);
   }
 
@@ -153,7 +153,7 @@ class MiniPlayerController extends GetxController implements MiniPlayerService {
     isTimeline = true;
     showInTimeline = mediaItem.value != null;
 
-    Get.back();
+    Sint.back();
     update([AppPageIdConstants.home, AppPageIdConstants.audioPlayerHome, AppPageIdConstants.miniPlayer]);
   }
 
