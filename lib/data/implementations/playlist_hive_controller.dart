@@ -49,12 +49,9 @@ class PlaylistHiveController implements PlaylistHiveService {
   }
 
   @override
-  bool checkPlaylist(String name, String key) {
-    appHiveServiceImpl.getBox(name).then((value) {
-      return Hive.box(name).containsKey(key);
-    });
-
-    return false;
+  Future<bool> checkPlaylist(String name, String key) async {
+    await appHiveServiceImpl.getBox(name);
+    return Hive.box(name).containsKey(key);
   }
 
   @override

@@ -200,8 +200,8 @@ class AudioPlayerController extends SintController implements AudioPlayerService
 
   @override
   void setMediaItem({MediaItem? item, AppMediaItem? appItem}) {
-    AppConfig.logger.i('Setting new mediaitem ${item?.title}');
-    if(item != null) {
+    AppConfig.logger.i('Setting new mediaitem ${item?.title} or ${appItem?.name}');
+    if(item != null && item.title != 'null') {
       mediaItem.value = item;
       appMediaItem.value = appItem ?? MediaItemMapper.toAppMediaItem(item);
     } else if(appItem != null) {
@@ -218,7 +218,7 @@ class AudioPlayerController extends SintController implements AudioPlayerService
     mediaItemTitle.value = appReleaseItem.value.name;
     mediaItemArtist.value = appReleaseItem.value.ownerName;
     mediaItemAlbum.value = appReleaseItem.value.metaName ?? '';
-    if(mediaItemTitle.contains(' - ')) {
+    if(mediaItemTitle.value.contains(' - ')) {
       mediaItemTitle.value = TextUtilities.getMediaName(appReleaseItem.value.name);
       if(appReleaseItem.value.ownerName.isEmpty) {
         mediaItemArtist.value = TextUtilities.getArtistName(appReleaseItem.value.name);
@@ -237,7 +237,7 @@ class AudioPlayerController extends SintController implements AudioPlayerService
     mediaItemTitle.value = appMediaItem.value.name;
     mediaItemArtist.value = appMediaItem.value.ownerName;
     mediaItemAlbum.value = appMediaItem.value.album;
-    if(mediaItemTitle.contains(' - ')) {
+    if(mediaItemTitle.value.contains(' - ')) {
       mediaItemTitle.value = TextUtilities.getMediaName(appMediaItem.value.name);
       if(appMediaItem.value.ownerName.isEmpty) {
         mediaItemArtist.value = TextUtilities.getArtistName(appMediaItem.value.name);
@@ -253,7 +253,7 @@ class AudioPlayerController extends SintController implements AudioPlayerService
 
   @override
   void toggleLyricsCard() {
-    onlineCardKey.currentState!.toggleCard();
+    onlineCardKey.currentState?.toggleCard();
     setFlipped(!flipped);
     update([AppPageIdConstants.mediaPlayer]);
   }

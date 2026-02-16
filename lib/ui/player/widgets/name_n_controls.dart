@@ -54,7 +54,7 @@ class NameNControls extends StatelessWidget {
     return SizedBox(
       width: width,
       height: height,
-      child: Obx(()=>Stack(
+      child: Stack(
         children: [
           SingleChildScrollView(
             child: Column(
@@ -66,8 +66,7 @@ class NameNControls extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 10),
                       child: Column(
                         children: [
-                          Text(
-
+                          Obx(() => Text(
                             controller.mediaItemTitle.value == 'null' ? controller.mediaItemAlbum.value
                                 : '',
                             style: TextStyle(
@@ -76,10 +75,10 @@ class NameNControls extends StatelessWidget {
                             ),
                             textAlign: TextAlign.center,
                             maxLines: 2,
-                          ),
+                          )),
                           AppTheme.heightSpace5,
                           GestureDetector(
-                            child: Text(
+                            child: Obx(() => Text(
                               controller.mediaItemArtist.isNotEmpty ? controller.mediaItemArtist.value : AppTranslationConstants.unknown.tr.capitalizeFirst,
                               style: TextStyle(
                                 fontSize: titleBoxHeight/6,
@@ -87,11 +86,11 @@ class NameNControls extends StatelessWidget {
                               ),
                               textAlign: TextAlign.center,
                               maxLines: 2,
-                            ),
+                            )),
                             onTap: () => (controller.mediaItem.value?.extras!['ownerEmail']?.isEmpty ?? true) ? {}
                                 : controller.goToOwnerProfile(),
                           ),
-                          if(controller.mediaItemAlbum.isNotEmpty) TextButton(
+                          Obx(() => controller.mediaItemAlbum.isNotEmpty ? TextButton(
                             onPressed: () {
                               controller.gotoPlaylistPlayer();
                             },
@@ -112,8 +111,7 @@ class NameNControls extends StatelessWidget {
                                   color: Colors.white70
                               ),
                             ),
-
-                          ),
+                          ) : const SizedBox.shrink()),
                           ///DEPRECATED EXTERNAL PREVIEW
                           // if(!AudioPlayerUtilities.isOwnMediaItem(controller.appMediaItem.value) && AppConfig.instance.appInUse == AppInUse.g)
                           //   Padding(
@@ -278,7 +276,7 @@ class NameNControls extends StatelessWidget {
             minHeight: nowPlayingBoxHeight,
           ),
         ],
-      ),),
+      ),
     );
   }
 }

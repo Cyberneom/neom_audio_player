@@ -18,7 +18,15 @@ class MiniPlayer extends StatelessWidget {
     return SintBuilder<MiniPlayerController>(
       id: AppPageIdConstants.miniPlayer,
       builder: (controller) {
-        if(controller.isLoading || (controller.isTimeline && !controller.showInTimeline)) return const SizedBox.shrink();
+        // Hide mini player when:
+        // - Still loading
+        // - Hidden in timeline (user dismissed it)
+        // - Nothing is playing (no mediaItem)
+        if(controller.isLoading
+            || (controller.isTimeline && !controller.showInTimeline)
+            || controller.mediaItem.value == null) {
+          return const SizedBox.shrink();
+        }
 
         return SizedBox(
           child: Dismissible(

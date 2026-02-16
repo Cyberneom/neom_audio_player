@@ -93,7 +93,6 @@ class _MiniPlayerTileState extends State<MiniPlayerTile> {
   void startSubtitleToggle() {
     timer = Timer.periodic(Duration(seconds: 2), (timer) {
       setState(() {
-        // Toggle between item?.artist and "Vista Previa"
         subtitleText = subtitleText == (widget.item?.artist ?? '')
             ? AudioPlayerTranslationConstants.releasePreview.tr
             : widget.item?.artist ?? '';
@@ -103,6 +102,8 @@ class _MiniPlayerTileState extends State<MiniPlayerTile> {
 
   @override
   Widget build(BuildContext context) {
+    final textAlign = widget.isTimeline || widget.item != null ? TextAlign.left : TextAlign.right;
+
     return ListTile(
       tileColor: AppColor.appBar,
       contentPadding: const EdgeInsets.symmetric(horizontal: 10),
@@ -135,22 +136,18 @@ class _MiniPlayerTileState extends State<MiniPlayerTile> {
             ),
         ],
       ),
-      title: SizedBox(
-       child: Text(titleText.isNotEmpty ? titleText : (widget.isTimeline ? AudioPlayerTranslationConstants.lookingForNewMusic.tr : AudioPlayerTranslationConstants.lookingForInspiration.tr),
-         maxLines: 1,
-         overflow: TextOverflow.ellipsis,
-         textAlign: widget.isTimeline || widget.item != null ? TextAlign.left : TextAlign.right,
-         style: const TextStyle(letterSpacing: -0.5, fontWeight: FontWeight.bold),
-       ),
+      title: Text(titleText.isNotEmpty ? titleText : (widget.isTimeline ? AudioPlayerTranslationConstants.lookingForNewMusic.tr : AudioPlayerTranslationConstants.lookingForInspiration.tr),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        textAlign: textAlign,
+        style: const TextStyle(letterSpacing: -0.5, fontWeight: FontWeight.bold),
       ),
-      subtitle: SizedBox(
-        child: Text(
-          subtitleText,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          textAlign: widget.isTimeline || widget.item != null ? TextAlign.left : TextAlign.right,
-          style: const TextStyle(letterSpacing: -0.5),
-        ),
+      subtitle: Text(
+        subtitleText,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        textAlign: textAlign,
+        style: const TextStyle(letterSpacing: -0.5),
       ),
       trailing: SizedBox(
         width: MediaQuery.of(context).size.width/(widget.item == null ?(widget.isTimeline ? 12 : 6) : 3.6),

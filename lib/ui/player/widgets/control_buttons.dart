@@ -185,9 +185,14 @@ class ControlButtons extends StatelessWidget {
               return !isOnline ? const SizedBox.shrink() : SizedBox(
                   height: miniPlayer ? AudioPlayerConstants.miniPlayerHeight : AudioPlayerConstants.audioPlayerHeight,
                   width: miniPlayer ? AudioPlayerConstants.miniPlayerWidth : AudioPlayerConstants.audioPlayerWidth,
-                  child: SizedBox.shrink()
-                  ///TODO To implement when adding neom_downloads as dependency
-                  ///child: DownloadButton(size: 20.0, mediaItem: MediaItemMapper.toAppMediaItem(mediaItem!),),
+                  child: IconButton(
+                    icon: Icon(Icons.download_rounded,
+                      color: Theme.of(context).disabledColor,
+                    ),
+                    iconSize: miniPlayer ? 24.0 : 30.0,
+                    tooltip: 'Coming soon',
+                    onPressed: null,
+                  ),
               );
             default:
               break;

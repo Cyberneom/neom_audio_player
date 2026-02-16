@@ -1,5 +1,20 @@
-### 1.5.0 - Decoupling & Major Architectural Evolution
-- Updating a lot of stuff and cleaning up the codebase
+### 2.0.0 - Enhanced playback, smart queue & listening stats
+- Enhanced NeomAudioHandler with improved queue management and error handling
+- Smart queue system with intelligent track ordering
+- Listening stats tracking with ListeningStatsController
+- Jam session support for collaborative listening
+- Radio station integration with seed-based recommendations
+- Car mode player for hands-free experience
+- Sleep timer sheet for timed playback stop
+- Player options menu with playback modes
+- Enhanced playback controller with crossfade support
+- Improved miniplayer tile with better controls
+- Now playing page redesigned with smoother transitions
+- Expanded translation constants for full localization
+- Hive-based data persistence layer
+- New enums: PlaybackMode, JamSessionType, RadioSeedType
+- Updated dependencies and pubspec
+
 ### 1.5.0 - Decoupling & Major Architectural Evolution
 This release represents a monumental evolution and the complete un-forking of neom_audio_player. Two years ago, this project began as a fork of the VN0/BlackHole repository, but the codebase has since been so profoundly transformed and refactored that its architecture, vision, and functionalities no longer hold significant equivalence to the original project. Therefore, with this version, neom_audio_player is established as a fully autonomous module within the Open Neom ecosystem.
 

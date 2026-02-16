@@ -263,9 +263,9 @@ class AudioPlayerInvoker implements AudioPlayerInvokerService {
 
         // Registrar la instancia obtenida como un singleton en GetX
         Sint.put<NeomAudioHandler>(handler);
-        AppConfig.logger.i("NeomAudioHandler registered successfully with GetX.");
+        AppConfig.logger.i("NeomAudioHandler registered successfully with SINT.");
       } else {
-        AppConfig.logger.d("NeomAudioHandler is already registered with GetX.");
+        AppConfig.logger.d("NeomAudioHandler is already registered with SINT.");
         handler = Sint.find<NeomAudioHandler>();
       }
     } catch (e) {

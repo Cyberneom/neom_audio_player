@@ -268,6 +268,8 @@ class ArtWorkWidget extends StatelessWidget {
                         ),
                         imageUrl: artworkUrl,
                         width: flipCardWidth,
+                        memCacheWidth: flipCardWidth.toInt() * 2,
+                        memCacheHeight: flipCardWidth.toInt() * 2,
                       ),
                     ),
                     ValueListenableBuilder(

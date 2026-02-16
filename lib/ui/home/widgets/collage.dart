@@ -54,7 +54,7 @@ class Collage extends StatelessWidget {
               )
             : CachedNetworkImage(
                 fit: BoxFit.cover,
-                errorWidget: (context, _, __) => Image(
+                errorWidget: (context, _, _) => Image(
                   fit: BoxFit.cover,
                   image: AssetImage(placeholderImage),
                 ),
@@ -130,7 +130,7 @@ class OfflineCollage extends StatelessWidget {
                         imageList[0]['image'].toString(),
                       ),
                     ),
-                    errorBuilder: (context, _, __) => Image(
+                    errorBuilder: (context, _, _) => Image(
                       fit: BoxFit.cover,
                       image: AssetImage(placeholderImage),
                     ),

@@ -16,6 +16,7 @@ import 'package:neom_core/utils/enums/app_hive_box.dart';
 import 'package:neom_core/utils/enums/itemlist_type.dart';
 import 'package:neom_core/utils/enums/media_item_type.dart';
 
+import '../../data/hive/catalog_cache_controller.dart';
 import '../../data/implementations/player_hive_controller.dart';
 
 class AudioPlayerHomeController extends SintController {
@@ -47,6 +48,10 @@ class AudioPlayerHomeController extends SintController {
   RxList<AppMediaItem> favoriteItems = <AppMediaItem>[].obs;
   Box? settingsBox;
 
+  // Offline support
+  final CatalogCacheController _catalogCache = CatalogCacheController();
+  RxBool isOfflineMode = false.obs;
+
   @override
   void onInit() {
     super.onInit();
@@ -66,7 +71,10 @@ class AudioPlayerHomeController extends SintController {
   void onReady() {
     super.onReady();
     try {
-      getPublicItemlists();
+      // OPTIMIZATION: Defer public itemlists loading to after UI is ready
+      Future.delayed(const Duration(milliseconds: 800), () {
+        getPublicItemlists();
+      });
     } catch (e) {
       AppConfig.logger.e(e.toString());
     }
@@ -91,9 +99,11 @@ class AudioPlayerHomeController extends SintController {
         }
       }
 
-      globalMediaItems.value = await AppMediaItemFirestore().fetchAll(
-          excludeTypes: [MediaItemType.pdf, MediaItemType.neomPreset]
-      );
+      // Load cached data first for instant UI
+      await _loadCachedCatalog();
+
+      // Try to fetch fresh data
+      await _fetchGlobalMediaItems();
 
       profile.favoriteItems?.forEach((favItem) {
         if(globalMediaItems.containsKey(favItem)) {
@@ -111,6 +121,57 @@ class AudioPlayerHomeController extends SintController {
     isLoading.value = false;
   }
 
+  /// Load cached catalog data for instant UI.
+  Future<void> _loadCachedCatalog() async {
+    try {
+      // Load cached media items
+      final cachedMediaItems = await _catalogCache.getCachedMediaItems();
+      if (cachedMediaItems.isNotEmpty && globalMediaItems.isEmpty) {
+        globalMediaItems.value = cachedMediaItems;
+        AppConfig.logger.d('Loaded ${cachedMediaItems.length} cached media items');
+      }
+
+      // Load cached release itemlists
+      final cachedReleases = await _catalogCache.getCachedReleaseItemlists();
+      if (cachedReleases.isNotEmpty && releaseItemlists.isEmpty) {
+        releaseItemlists.value = cachedReleases;
+        AppConfig.logger.d('Loaded ${cachedReleases.length} cached release itemlists');
+      }
+    } catch (e) {
+      AppConfig.logger.e('Error loading cached catalog: $e');
+    }
+  }
+
+  /// OPTIMIZED: Fetch global media items with pagination and offline fallback.
+  /// Only loads first batch initially, more can be loaded on demand.
+  Future<void> _fetchGlobalMediaItems({int limit = 50}) async {
+    try {
+      final isOnline = await _catalogCache.isOnline();
+
+      if (!isOnline) {
+        AppConfig.logger.d('Offline mode - using cached media items');
+        isOfflineMode.value = true;
+        return;
+      }
+
+      isOfflineMode.value = false;
+
+      // OPTIMIZATION: Only load first 50 items instead of ALL
+      globalMediaItems.value = await AppMediaItemFirestore().fetchAll(
+          excludeTypes: [MediaItemType.pdf, MediaItemType.neomPreset],
+          limit: limit,
+      );
+
+      // Cache for offline access
+      await _catalogCache.cacheMediaItems(globalMediaItems.value);
+
+      AppConfig.logger.d('Fetched and cached ${globalMediaItems.length} media items (limit: $limit)');
+    } catch (e) {
+      AppConfig.logger.e('Error fetching media items: $e');
+      isOfflineMode.value = true;
+    }
+  }
+
   @override
   void dispose() {
     scrollController.dispose();
@@ -122,6 +183,23 @@ class AudioPlayerHomeController extends SintController {
     AppConfig.logger.d('Fetching public itemlists...');
 
     try {
+      // Load cached public itemlists first
+      final cachedItemlists = await _catalogCache.getCachedPublicItemlists();
+      if (cachedItemlists.isNotEmpty && publicItemlists.isEmpty) {
+        publicItemlists.value = cachedItemlists;
+        AppConfig.logger.d('Loaded ${cachedItemlists.length} cached public itemlists');
+      }
+
+      // Check if online
+      final isOnline = await _catalogCache.isOnline();
+      if (!isOnline) {
+        AppConfig.logger.d('Offline mode - using cached public itemlists');
+        isOfflineMode.value = true;
+        return;
+      }
+
+      isOfflineMode.value = false;
+
       publicItemlists.value = await ItemlistFirestore().fetchAll(
           excludeFromProfileId: profile.id,
           itemlistType: ItemlistType.playlist
@@ -129,18 +207,24 @@ class AudioPlayerHomeController extends SintController {
 
       publicItemlists.removeWhere((key, publicList) => publicList.type == ItemlistType.readlist
           || publicList.type == ItemlistType.giglist);
+
+      // Sort by total items
+      List<Itemlist> sortedList = publicItemlists.values.toList();
+      sortedList.sort((a, b) => b.getTotalItems().compareTo(a.getTotalItems()));
+      publicItemlists.clear();
+
+      for (var sortedItem in sortedList) {
+        publicItemlists[sortedItem.id] = sortedItem;
+      }
+
+      // Cache for offline access
+      await _catalogCache.cachePublicItemlists(publicItemlists.value);
+
+      AppConfig.logger.d('Fetched and cached ${publicItemlists.length} public itemlists');
     } catch(e) {
       AppConfig.logger.e(e.toString());
+      isOfflineMode.value = true;
     }
-    List<Itemlist> sortedList = publicItemlists.values.toList();
-    sortedList.sort((a, b) => b.getTotalItems().compareTo(a.getTotalItems()));
-    publicItemlists.clear();
-
-    for (var sortedItem in sortedList) {
-      publicItemlists[sortedItem.id] = sortedItem;
-    }
-
-    AppConfig.logger.d('${publicItemlists.length} public itemlists fetched.');
   }
 
   void clear() {
