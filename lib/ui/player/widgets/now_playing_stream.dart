@@ -188,7 +188,7 @@ class NowPlayingStream extends StatelessWidget {
                               fit: BoxFit.cover,
                           ) : CachedNetworkImage(
                             fit: BoxFit.cover,
-                            errorWidget: (BuildContext context, _, __) =>
+                            errorWidget: (BuildContext context, _, _) =>
                             const Image(
                               fit: BoxFit.cover,
                               image: AssetImage(AppAssets.audioPlayerCover,),

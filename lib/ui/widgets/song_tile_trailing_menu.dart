@@ -136,7 +136,7 @@ class SongTileTrailingMenuState extends State<SongTileTrailingMenu> {
                   context,
                   PageRouteBuilder(
                     opaque: false,
-                    pageBuilder: (_, __, ___) => PlaylistPlayerPage(
+                    pageBuilder: (_, _, _) => PlaylistPlayerPage(
                       itemlist: widget.itemlist!,
                     ),
                   ),

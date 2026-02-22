@@ -3,7 +3,7 @@
 /// Provides audio playback, queue management, radio stations, collaborative
 /// listening (Jam Sessions), and advanced playback features comparable to
 /// Spotify and YouTube Music.
-library neom_audio_player;
+library;
 
 // ============ Core Audio Handler ============
 export 'neom_audio_handler.dart';

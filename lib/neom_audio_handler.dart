@@ -18,7 +18,10 @@ import 'package:neom_core/utils/core_utilities.dart';
 import 'package:neom_core/utils/enums/app_hive_box.dart';
 import 'package:neom_core/utils/enums/subscription_level.dart';
 import 'package:neom_core/utils/enums/user_role.dart';
+import 'package:neom_sound/data/implementations/equalizer_controller.dart';
+import 'package:neom_sound/domain/use_cases/equalizer_service.dart';
 import 'package:rxdart/rxdart.dart' as rx;
+import 'data/implementations/android_equalizer_bridge.dart';
 import 'data/implementations/casete_hive_controller.dart';
 import 'data/implementations/player_hive_controller.dart';
 import 'data/implementations/playlist_hive_controller.dart';
@@ -36,7 +39,8 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
   Timer? _sleepTimer;
   final Rxn<DateTime> sleepTimerEndTime = Rxn<DateTime>();
 
-  AudioPlayer player = AudioPlayer();
+  AndroidEqualizer? _androidEqualizer;
+  late final AudioPlayer player;
   MediaItem? currentMediaItem;
 
   String connectionType = AppTranslationConstants.wifi;
@@ -106,6 +110,13 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
       );
 
   NeomAudioHandler() {
+    if (!kIsWeb) {
+      _androidEqualizer = AndroidEqualizer();
+      final pipeline = AudioPipeline(androidAudioEffects: [_androidEqualizer!]);
+      player = AudioPlayer(audioPipeline: pipeline);
+    } else {
+      player = AudioPlayer();
+    }
     _init();
   }
 
@@ -117,10 +128,28 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
       allowFullAccess = userServiceImpl.subscriptionLevel.value > SubscriptionLevel.freemium.value;
       if(!isFree && !allowFullAccess) startFreeTrialTimer();
 
+      // Connect the EqualizerController to the native AndroidEqualizer
+      if (!kIsWeb) {
+        _connectEqualizer();
+      }
     } catch (e) {
       AppConfig.logger.e('Error while loading last queue $e');
     }
 
+  }
+
+  /// Bridge the EqualizerController to the native AndroidEqualizer.
+  void _connectEqualizer() {
+    if (_androidEqualizer == null) return;
+    try {
+      final eqController = Sint.find<EqualizerService>();
+      if (eqController is EqualizerController) {
+        eqController.attachBridge(AndroidEqualizerBridge(_androidEqualizer!));
+        AppConfig.logger.d('EqualizerController attached to native AndroidEqualizer');
+      }
+    } catch (e) {
+      AppConfig.logger.w('EqualizerController not registered yet, EQ bridge skipped');
+    }
   }
 
   Future<void> setListeners() async {

@@ -8,6 +8,7 @@ import 'package:uuid/uuid.dart';
 import '../../domain/models/jam_session.dart';
 import '../../domain/use_cases/jam_session_service.dart';
 import '../../utils/enums/jam_session_type.dart';
+import '../firestore/jam_session_firestore.dart';
 
 /// Controller implementation for Jam Session (collaborative listening)
 class JamSessionController extends SintController implements JamSessionService {
@@ -19,6 +20,9 @@ class JamSessionController extends SintController implements JamSessionService {
 
   final _uuid = const Uuid();
   final _random = Random();
+  final _jamFirestore = JamSessionFirestore();
+  StreamSubscription? _sessionStreamSub;
+  StreamSubscription? _chatStreamSub;
 
   // Current user info (would come from auth service)
   String? _currentUserId;
@@ -100,13 +104,15 @@ class JamSessionController extends SintController implements JamSessionService {
         allowVoting: allowVoting,
       );
 
-      _session.value = session;
-      _sessionStreamController.add(session);
+      // Persist to Firestore
+      final sessionId = await _jamFirestore.createSession(session);
+      final persistedSession = session.copyWith(id: sessionId.isNotEmpty ? sessionId : session.id);
 
-      // In production, this would sync to a realtime database (Firebase, etc.)
-      await _syncSessionToServer(session);
+      _session.value = persistedSession;
+      _sessionStreamController.add(persistedSession);
+      _startSessionListener(persistedSession.id);
 
-      return session;
+      return persistedSession;
     } finally {
       _isLoading.value = false;
     }
@@ -143,6 +149,7 @@ class JamSessionController extends SintController implements JamSessionService {
       _sessionStreamController.add(updatedSession);
 
       await _syncSessionToServer(updatedSession);
+      _startSessionListener(updatedSession.id);
       await syncPlayback();
 
       // Send join message
@@ -636,8 +643,9 @@ class JamSessionController extends SintController implements JamSessionService {
 
   @override
   Future<List<JamChatMessage>> getRecentMessages({int limit = 50}) async {
-    // In production, fetch from server
-    return [];
+    final sessionId = _session.value?.id;
+    if (sessionId == null) return [];
+    return _jamFirestore.getRecentMessages(sessionId, limit: limit);
   }
 
   Future<void> _sendSystemMessage(String message) async {
@@ -704,29 +712,43 @@ class JamSessionController extends SintController implements JamSessionService {
     String? genre,
     bool? hasOpenSlots,
   }) async {
-    // In production, fetch from server
-    return [];
+    final sessions = await _jamFirestore.getActiveSessions(limit: limit, genre: genre);
+    if (hasOpenSlots == true) {
+      return sessions.where((s) => !s.isFull).toList();
+    }
+    return sessions;
   }
 
   @override
   Future<List<JamSession>> getFriendsSessions() async {
-    // In production, fetch from server
-    return [];
+    // Query all active sessions and filter by participants containing friends
+    // For now, return all open sessions as a starting point
+    return _jamFirestore.getActiveSessions(limit: 10);
   }
 
   @override
   Future<List<JamSession>> getSessionHistory({int limit = 20}) async {
-    // In production, fetch from local storage or server
-    return [];
+    if (_currentUserId == null) return [];
+    return _jamFirestore.getSessionsByHost(_currentUserId!, limit: limit);
   }
 
   // ============ Sync ============
 
   @override
   Future<void> syncPlayback() async {
-    // In production, this would sync with the host's playback position
-    // and calculate the sync delay
-    _syncDelayMs.value = 0;
+    final session = _session.value;
+    if (session == null) return;
+
+    // Refresh session state from Firestore
+    final latest = await _jamFirestore.getSession(session.id);
+    if (latest != null) {
+      _session.value = latest;
+      _sessionStreamController.add(latest);
+
+      // Calculate sync delay based on playback position difference
+      final positionDiff = (latest.playbackPositionMs - session.playbackPositionMs).abs();
+      _syncDelayMs.value = positionDiff;
+    }
   }
 
   // ============ Private Helpers ============
@@ -760,27 +782,47 @@ class JamSessionController extends SintController implements JamSessionService {
     }
   }
 
-  // Server sync placeholders
+  // Server sync
   Future<void> _syncSessionToServer(JamSession session) async {
-    // In production, sync to realtime database
+    await _jamFirestore.updateSession(session);
   }
 
   Future<void> _syncChatMessage(JamChatMessage message) async {
-    // In production, sync to realtime database
+    final sessionId = _session.value?.id;
+    if (sessionId == null) return;
+    await _jamFirestore.addChatMessage(sessionId, message);
   }
 
   Future<JamSession?> _fetchSessionByCode(String code) async {
-    // In production, fetch from server
-    return null;
+    return _jamFirestore.getSessionByCode(code);
   }
 
   Future<JamSession?> _fetchSessionById(String id) async {
-    // In production, fetch from server
-    return null;
+    return _jamFirestore.getSession(id);
+  }
+
+  /// Start listening to real-time session updates
+  void _startSessionListener(String sessionId) {
+    _sessionStreamSub?.cancel();
+    _sessionStreamSub = _jamFirestore.sessionStream(sessionId).listen((session) {
+      if (session != null) {
+        _session.value = session;
+        _sessionStreamController.add(session);
+      }
+    });
+
+    _chatStreamSub?.cancel();
+    _chatStreamSub = _jamFirestore.chatStream(sessionId).listen((messages) {
+      for (final msg in messages) {
+        _chatStreamController.add(msg);
+      }
+    });
   }
 
   @override
   void onClose() {
+    _sessionStreamSub?.cancel();
+    _chatStreamSub?.cancel();
     _sessionStreamController.close();
     _chatStreamController.close();
     super.onClose();

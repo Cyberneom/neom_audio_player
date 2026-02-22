@@ -1,4 +1,4 @@
-import 'package:neom_audio_player/utils/constants/audio_player_translation_constants.dart';
+import '../../utils/constants/audio_player_translation_constants.dart';
 
 class AudioPlayerEsTranslations {
 

@@ -48,7 +48,7 @@ class BouncyImageSliverScrollView extends StatelessWidget {
               )
             : CachedNetworkImage(
                 fit: BoxFit.cover,
-                errorWidget: (context, _, __) => Image(
+                errorWidget: (context, _, _) => Image(
                   fit: BoxFit.cover,
                   image: AssetImage(placeholderImage),
                 ),

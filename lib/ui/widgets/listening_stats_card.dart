@@ -106,7 +106,7 @@ class ListeningStatsCard extends StatelessWidget {
                                 child: Image.network(
                                   stats.topArtists.first.imageUrl!,
                                   fit: BoxFit.cover,
-                                  errorBuilder: (_, __, ___) =>
+                                  errorBuilder: (_, _, _) =>
                                       Icon(Icons.person, color: accent),
                                 ),
                               )

@@ -38,7 +38,7 @@ class PlaylistItem {
     };
   }
 
-  PlaylistItem.fromJSON(data) :
+  PlaylistItem.fromJSON(dynamic data) :
         id = data['playlistId'].toString(),
         title = data['title'].toString(),
         subtitle = data['subtitle'].toString(),

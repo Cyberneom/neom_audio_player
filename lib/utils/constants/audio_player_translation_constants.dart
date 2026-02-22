@@ -133,8 +133,6 @@ class AudioPlayerTranslationConstants {
   static const String autoplaySub = 'autoplaySub';
   static const String backNRest = 'backNRest';
   static const String backupSuccess = 'backupSuccess';
-  static const String blacklistedHomeSections = 'blacklistedHomeSections';
-  static const String blacklistedHomeSectionsSub = 'blacklistedHomeSectionsSub';
   static const String bottomGrad = 'bottomGrad';
   static const String bottomGradSub = 'bottomGradSub';
   static const String cache = 'cache';
@@ -295,7 +293,6 @@ class AudioPlayerTranslationConstants {
   static const String showTopCharts = 'showTopCharts';
   static const String mostPlayedSong = 'mostPlayedSong';
   static const String songsPlayed = 'songsPlayed';
-  static const String blacklistHomeSectionsConfirm = 'blacklistHomeSectionsConfirm';
   static const String noFileSelected = 'noFileSelected';
   static const String minFourRequired = 'minFourRequired';
   static const String navTabs = 'navTabs';

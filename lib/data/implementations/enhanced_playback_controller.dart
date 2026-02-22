@@ -1,9 +1,11 @@
 import 'dart:async';
 
 import 'package:hive/hive.dart';
+import 'package:neom_core/app_config.dart';
 import 'package:sint/sint.dart';
 
 import '../../domain/use_cases/enhanced_playback_service.dart';
+import '../../neom_audio_handler.dart';
 import '../../utils/enums/playback_mode.dart';
 
 /// Controller implementation for enhanced playback features
@@ -28,10 +30,17 @@ class EnhancedPlaybackController extends SintController
   // Volume for fade out
   double _originalVolume = 1.0;
 
+  NeomAudioHandler? _audioHandler;
+
   @override
   void onInit() {
     super.onInit();
     _initHive();
+    try {
+      _audioHandler = Sint.find<NeomAudioHandler>();
+    } catch (e) {
+      AppConfig.logger.w('NeomAudioHandler not available yet for EnhancedPlaybackController');
+    }
   }
 
   Future<void> _initHive() async {
@@ -199,8 +208,7 @@ class EnhancedPlaybackController extends SintController
     final progress = remaining.inMilliseconds / sleepTimerFadeOutDuration.inMilliseconds;
     final targetVolume = _originalVolume * progress;
 
-    // Would call audio handler to set volume
-    // audioHandler.setVolume(targetVolume);
+    _audioHandler?.setVolume(targetVolume);
   }
 
   void _onSleepTimerComplete() {
@@ -209,11 +217,8 @@ class EnhancedPlaybackController extends SintController
     _activeSleepTimerPreset.value = null;
     _sleepTimerRemaining.value = Duration.zero;
 
-    // Would call audio handler to pause
-    // audioHandler.pause();
-
-    // Restore volume
-    // audioHandler.setVolume(_originalVolume);
+    _audioHandler?.pause();
+    _audioHandler?.setVolume(_originalVolume);
   }
 
   @override
@@ -285,8 +290,7 @@ class EnhancedPlaybackController extends SintController
     _settings.value = _settings.value.copyWith(playbackSpeed: clampedSpeed);
     await saveSettings();
 
-    // Would call audio handler to set speed
-    // audioHandler.setSpeed(clampedSpeed);
+    _audioHandler?.setSpeed(clampedSpeed);
   }
 
   @override

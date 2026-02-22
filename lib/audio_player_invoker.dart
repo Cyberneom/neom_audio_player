@@ -1,13 +1,11 @@
 import 'dart:io';
 
 import 'package:audio_service/audio_service.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:neom_commons/utils/text_utilities.dart';
 import 'package:sint/sint.dart';
-import 'package:neom_commons/utils/app_utilities.dart';
 import 'package:neom_commons/utils/constants/app_assets.dart';
-import 'package:neom_commons/utils/constants/translations/common_translation_constants.dart';
-import 'package:neom_commons/utils/constants/translations/message_translation_constants.dart';
 import 'package:neom_commons/utils/mappers/app_media_item_mapper.dart';
 import 'package:neom_core/app_config.dart';
 import 'package:neom_core/data/firestore/app_media_item_firestore.dart';
@@ -63,7 +61,7 @@ class AudioPlayerInvoker implements AudioPlayerInvokerService {
       if(shuffle) currentMediaItems.shuffle();
 
       if (!fromMiniPlayer) {
-        if (Platform.isIOS) audioHandler?.stop();
+        if (!kIsWeb) audioHandler?.stop();
 
         if (isOffline) {
           await updateNowPlaying(index: index, fromDownloads: fromDownloads, isOffline: isOffline);
@@ -112,7 +110,7 @@ class AudioPlayerInvoker implements AudioPlayerInvokerService {
     }
 
     try {
-      if(isOffline) {
+      if(isOffline && !kIsWeb) {
         getTemporaryDirectory().then((tempDir) async {
           final File file = File('${tempDir.path}/cover.jpg');
           if (!await file.exists()) {
@@ -132,40 +130,32 @@ class AudioPlayerInvoker implements AudioPlayerInvokerService {
           autoplay: recommend,
         ),).toList();
       }
-      if(Platform.isAndroid || Platform.isIOS) {
-        await audioHandler?.setShuffleMode(AudioServiceShuffleMode.none);
+      await audioHandler?.setShuffleMode(AudioServiceShuffleMode.none);
 
-        List<MediaItem> orderedQueue = [
-          ...queue.sublist(index),
-          ...queue.sublist(0, index)
-        ];
+      List<MediaItem> orderedQueue = [
+        ...queue.sublist(index),
+        ...queue.sublist(0, index)
+      ];
 
-        await audioHandler?.updateQueue(orderedQueue);
+      await audioHandler?.updateQueue(orderedQueue);
 
-        int nextIndex = 0;
-        if (queue.indexWhere((item) => item.id == queue[index].id) >= 0) {
-          nextIndex = queue.indexWhere((item) => item.id == queue[index].id);
-          AppConfig.logger.d('MediaItem found in Queue with Index $index');
-        }
-
-        await audioHandler?.customAction('skipToMediaItem', {'id': queue[index].id, 'index': nextIndex},);
-
-        audioHandler?.currentMediaItem = queue.elementAt(index);
-
-        if(playItem || nowPlaying) {
-          AppConfig.logger.d("Starting stream for ${queue[index].artist ?? ''} - ${queue[index].title} and URL ${queue[index].extras!['url'].toString()}");
-          await audioHandler?.play();
-          Sint.find<MiniPlayerController>().setMediaItem(queue.elementAt(index));
-        }
-
-        enforceRepeat();
-      } else {
-        AppConfig.logger.i('MusicPlayer not available yet.');
-        AppUtilities.showSnackBar(
-          title: CommonTranslationConstants.underConstruction,
-          message: MessageTranslationConstants.featureAvailableSoon,
-        );
+      int nextIndex = 0;
+      if (queue.indexWhere((item) => item.id == queue[index].id) >= 0) {
+        nextIndex = queue.indexWhere((item) => item.id == queue[index].id);
+        AppConfig.logger.d('MediaItem found in Queue with Index $index');
       }
+
+      await audioHandler?.customAction('skipToMediaItem', {'id': queue[index].id, 'index': nextIndex},);
+
+      audioHandler?.currentMediaItem = queue.elementAt(index);
+
+      if(playItem || nowPlaying) {
+        AppConfig.logger.d("Starting stream for ${queue[index].artist ?? ''} - ${queue[index].title} and URL ${queue[index].extras!['url'].toString()}");
+        await audioHandler?.play();
+        Sint.find<MiniPlayerController>().setMediaItem(queue.elementAt(index));
+      }
+
+      enforceRepeat();
     } catch(e) {
       AppConfig.logger.e(e.toString());
     }

@@ -258,7 +258,7 @@ class ArtWorkWidget extends StatelessWidget {
                         image: FileImage(File(artworkUrl,),),
                       ) : CachedNetworkImage(
                         fit: BoxFit.contain,
-                        errorWidget: (BuildContext context, _, __) =>
+                        errorWidget: (BuildContext context, _, _) =>
                         const Image(fit: BoxFit.cover,
                           image: AssetImage(AppAssets.audioPlayerCover),
                         ),

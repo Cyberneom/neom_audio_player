@@ -8,6 +8,8 @@ import 'package:uuid/uuid.dart';
 import '../../domain/models/radio_station.dart';
 import '../../domain/use_cases/radio_service.dart';
 import '../../utils/enums/radio_seed_type.dart';
+import '../../utils/mappers/media_item_mapper.dart';
+import 'audio_recommendation_engine.dart';
 
 /// Controller implementation for Radio Station feature
 class RadioController extends SintController implements RadioService {
@@ -23,6 +25,7 @@ class RadioController extends SintController implements RadioService {
   Box? _box;
   final _uuid = const Uuid();
   final _random = Random();
+  final _recommendationEngine = AudioRecommendationEngine();
 
   /// Current playing station
   RadioStation? get currentStation => _currentStation.value;
@@ -463,16 +466,17 @@ class RadioController extends SintController implements RadioService {
     }
   }
 
-  // ============ Queue Generation (Placeholder implementations) ============
+  // ============ Queue Generation ============
 
   Future<List<MediaItem>> _generateQueueFromSong(
     String songId,
     int count,
     RadioMood? mood,
   ) async {
-    // In production, this would call a recommendation API
-    // For now, return empty list as placeholder
-    return [];
+    final releases = await _recommendationEngine.recommendFromSong(
+      songId, count: count, mood: mood,
+    );
+    return releases.map((r) => MediaItemMapper.fromAppReleaseItem(item: r)).toList();
   }
 
   Future<List<MediaItem>> _generateQueueFromArtist(
@@ -480,7 +484,10 @@ class RadioController extends SintController implements RadioService {
     int count,
     RadioMood? mood,
   ) async {
-    return [];
+    final releases = await _recommendationEngine.recommendFromArtist(
+      artistId, count: count, mood: mood,
+    );
+    return releases.map((r) => MediaItemMapper.fromAppReleaseItem(item: r)).toList();
   }
 
   Future<List<MediaItem>> _generateQueueFromGenre(
@@ -488,34 +495,61 @@ class RadioController extends SintController implements RadioService {
     int count,
     RadioMood? mood,
   ) async {
-    return [];
+    final releases = await _recommendationEngine.recommendFromGenre(
+      genre, count: count, mood: mood,
+    );
+    return releases.map((r) => MediaItemMapper.fromAppReleaseItem(item: r)).toList();
   }
 
   Future<List<MediaItem>> _generatePersonalMix(
     int count,
     RadioMood? mood,
   ) async {
-    return [];
+    final releases = await _recommendationEngine.personalMix(
+      count: count, mood: mood,
+    );
+    return releases.map((r) => MediaItemMapper.fromAppReleaseItem(item: r)).toList();
   }
 
   Future<List<MediaItem>> _generateDiscoveryQueue(
     int count,
     RadioMood? mood,
   ) async {
-    return [];
+    final releases = await _recommendationEngine.discoveryQueue(
+      count: count, mood: mood,
+    );
+    return releases.map((r) => MediaItemMapper.fromAppReleaseItem(item: r)).toList();
   }
 
   Future<List<MediaItem>> _generateFromLikedSongs(
     int count,
     RadioMood? mood,
   ) async {
-    return [];
+    final releases = await _recommendationEngine.fromLikedSongs(
+      count: count, mood: mood,
+    );
+    return releases.map((r) => MediaItemMapper.fromAppReleaseItem(item: r)).toList();
   }
 
   Future<List<MediaItem>> _generateCustomQueue(
     RadioStationParams params,
   ) async {
-    return [];
+    switch (params.seedType) {
+      case RadioSeedType.song:
+        return _generateQueueFromSong(params.seedValue, params.initialQueueSize, params.mood);
+      case RadioSeedType.artist:
+        return _generateQueueFromArtist(params.seedValue, params.initialQueueSize, params.mood);
+      case RadioSeedType.genre:
+        return _generateQueueFromGenre(params.seedValue, params.initialQueueSize, params.mood);
+      case RadioSeedType.personalMix:
+        return _generatePersonalMix(params.initialQueueSize, params.mood);
+      case RadioSeedType.discovery:
+        return _generateDiscoveryQueue(params.initialQueueSize, params.mood);
+      case RadioSeedType.liked:
+        return _generateFromLikedSongs(params.initialQueueSize, params.mood);
+      default:
+        return _generatePersonalMix(params.initialQueueSize, params.mood);
+    }
   }
 
   Future<List<MediaItem>> _generateMoreSongs(

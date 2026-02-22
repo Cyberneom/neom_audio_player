@@ -50,7 +50,7 @@ class RadioStationCard extends StatelessWidget {
                         child: Image.network(
                           station.imageUrl,
                           fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => _buildIcon(),
+                          errorBuilder: (_, _, _) => _buildIcon(),
                         ),
                       )
                     : _buildIcon(),
@@ -273,7 +273,7 @@ class RadioStationGridCard extends StatelessWidget {
                         ? Image.network(
                             station.imageUrl,
                             fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => const Icon(
+                            errorBuilder: (_, _, _) => const Icon(
                               Icons.radio,
                               size: 48,
                               color: Colors.white54,

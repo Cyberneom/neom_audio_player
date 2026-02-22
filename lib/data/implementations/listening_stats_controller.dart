@@ -362,13 +362,22 @@ class ListeningStatsController extends SintController
 
   @override
   Future<void> recordSkip(String mediaItemId) async {
-    // Track skips for recommendation improvement
-    // Could add a skip counter to song stats
+    if (mediaItemId.isEmpty) return;
+    final skips = Map<String, int>.from(
+      _box?.get('song_skips') as Map? ?? {},
+    );
+    skips[mediaItemId] = (skips[mediaItemId] ?? 0) + 1;
+    await _box?.put('song_skips', skips);
   }
 
   @override
   Future<void> recordComplete(String mediaItemId) async {
-    // Track complete plays for better recommendations
+    if (mediaItemId.isEmpty) return;
+    final completes = Map<String, int>.from(
+      _box?.get('song_completes') as Map? ?? {},
+    );
+    completes[mediaItemId] = (completes[mediaItemId] ?? 0) + 1;
+    await _box?.put('song_completes', completes);
   }
 
   @override
