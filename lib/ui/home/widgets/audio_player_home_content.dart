@@ -14,7 +14,7 @@ import 'package:neom_core/utils/constants/app_route_constants.dart';
 import 'package:neom_core/utils/enums/app_hive_box.dart';
 import 'package:neom_core/utils/enums/app_media_source.dart';
 
-import '../../../audio_player_invoker.dart';
+import 'package:neom_core/domain/use_cases/audio_player_invoker_service.dart';
 import '../../../utils/audio_player_utilities.dart';
 import '../../../utils/constants/audio_player_route_constants.dart';
 import '../../../utils/constants/audio_player_translation_constants.dart';
@@ -24,6 +24,7 @@ import '../../widgets/song_tile_trailing_menu.dart';
 import '../audio_player_home_controller.dart';
 import 'collage.dart';
 import 'horizontal_albumlist_separated.dart';
+import 'book_promo_section.dart';
 import 'hover_box.dart';
 import 'search_page.dart';
 
@@ -58,12 +59,27 @@ class AudioPlayerHomeContent extends StatelessWidget {
       ) : CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
+          // ─── Listen Again ───
           if(!AppConfig.instance.isGuestMode && controller.recentList.isNotEmpty)
             SliverToBoxAdapter(child: buildLastSessionContainer(context, controller)),
+          // ─── New Releases ───
+          if(controller.newReleasesPlaylist.value != null && controller.newReleasesPlaylist.value!.getTotalItems() > 0)
+            SliverToBoxAdapter(child: buildNewReleasesSection(controller, context, boxSize)),
+          // ─── Favorites ───
           if(controller.favoriteItems.isNotEmpty)
             SliverToBoxAdapter(child: buildFavoriteItemsContainer(controller, context, boxSize)),
+          // ─── Top 20 Most Played ───
+          if(controller.topPlayedPlaylist.value != null && controller.topPlayedPlaylist.value!.getTotalItems() > 0)
+            SliverToBoxAdapter(child: buildTopPlayedSection(controller, context, boxSize)),
+          // ─── Book Promo ───
+          SliverToBoxAdapter(child: const BookPromoSection()),
+          // ─── Featured Playlists ───
+          if(controller.featuredPlaylists.isNotEmpty)
+            SliverToBoxAdapter(child: buildFeaturedPlaylistsSection(controller, context, boxSize)),
+          // ─── Categorized Playlists ───
           if(controller.releaseItemlists.isNotEmpty)
             SliverToBoxAdapter(child: buildCategorizedPlaylists(controller.releaseItemlists.values.toList(), boxSize, context)),
+          // ─── Public Itemlists ───
           if(controller.publicItemlists.isNotEmpty) SliverList(
             delegate: SliverChildBuilderDelegate((context, index) {
                 Itemlist publicList = Itemlist();
@@ -258,7 +274,7 @@ class AudioPlayerHomeContent extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.fromLTRB(15, 10, 0, 5),
                   child: Text(
-                    CommonTranslationConstants.lastSession.tr,
+                    AudioPlayerTranslationConstants.listenAgain.tr,
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.secondary,
                       fontSize: 18,
@@ -273,7 +289,7 @@ class AudioPlayerHomeContent extends StatelessWidget {
           HorizontalAlbumsListSeparated(
             songsList: controller.recentList.values.where((item)=> item.mediaSource == AppMediaSource.internal).toList(),
             onTap: (int idx) {
-              Sint.find<AudioPlayerInvoker>().init(
+              Sint.find<AudioPlayerInvokerService>().init(
                 mediaItems: controller.recentList.values.toList(),
                 index: idx,
               );
@@ -529,6 +545,268 @@ class AudioPlayerHomeContent extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+
+  /// New Releases section — horizontal shelf of latest songs.
+  Widget buildNewReleasesSection(AudioPlayerHomeController controller, BuildContext context, double boxSize) {
+    final playlist = controller.newReleasesPlaylist.value!;
+    final items = AppMediaItemMapper.mapItemsFromItemlist(playlist);
+    if (items.isEmpty) return const SizedBox.shrink();
+
+    return Column(
+      children: [
+        GestureDetector(
+          child: Row(
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(15, 10, 15, 5),
+                child: Text(
+                  AudioPlayerTranslationConstants.newReleases.tr,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.secondary,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        SizedBox(
+          height: boxSize + 15,
+          child: ListView.builder(
+            physics: const BouncingScrollPhysics(),
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            itemCount: items.length,
+            itemBuilder: (context, index) {
+              final item = items[index];
+              return GestureDetector(
+                child: SizedBox(
+                  width: boxSize - 20,
+                  child: HoverBox(
+                    child: (item.imgUrl.isEmpty)
+                        ? Card(
+                      elevation: 5,
+                      color: Colors.black,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      clipBehavior: Clip.antiAlias,
+                      child: const Image(image: AssetImage(AppAssets.audioPlayerCover)),
+                    )
+                        : NeomImageCard(
+                      margin: const EdgeInsets.all(4.0),
+                      borderRadius: 10,
+                      imageUrl: item.imgUrl,
+                      placeholderImage: const AssetImage(AppAssets.audioPlayerCover),
+                    ),
+                    builder: ({required BuildContext context, required bool isHover, Widget? child}) {
+                      return Card(
+                        color: isHover ? null : Colors.transparent,
+                        elevation: 0,
+                        margin: EdgeInsets.zero,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        clipBehavior: Clip.antiAlias,
+                        child: Column(
+                          children: [
+                            SizedBox.square(
+                              dimension: isHover ? boxSize - 25 : boxSize - 30,
+                              child: child,
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 10),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(item.name,
+                                    textAlign: TextAlign.center,
+                                    softWrap: false,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(fontWeight: FontWeight.w500),
+                                  ),
+                                  if (item.ownerName.isNotEmpty)
+                                    Text(item.ownerName,
+                                      textAlign: TextAlign.center,
+                                      softWrap: false,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        color: Theme.of(context).textTheme.bodySmall!.color,
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                onTap: () {
+                  Sint.find<AudioPlayerInvokerService>().init(
+                    mediaItems: items,
+                    index: index,
+                    playItem: true,
+                  );
+                },
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Top 20 Most Played section — horizontal shelf with numbered badges.
+  Widget buildTopPlayedSection(AudioPlayerHomeController controller, BuildContext context, double boxSize) {
+    final playlist = controller.topPlayedPlaylist.value!;
+    final items = AppMediaItemMapper.mapItemsFromItemlist(playlist);
+    if (items.isEmpty) return const SizedBox.shrink();
+
+    return Column(
+      children: [
+        Row(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(15, 10, 15, 5),
+              child: Row(
+                children: [
+                  Icon(Icons.trending_up_rounded,
+                    color: Theme.of(context).colorScheme.secondary, size: 20),
+                  const SizedBox(width: 6),
+                  Text(
+                    AudioPlayerTranslationConstants.topMostPlayed.tr,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.secondary,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        SizedBox(
+          height: boxSize + 15,
+          child: ListView.builder(
+            physics: const BouncingScrollPhysics(),
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            itemCount: items.length,
+            itemBuilder: (context, index) {
+              final item = items[index];
+              final rank = index + 1;
+              return GestureDetector(
+                child: SizedBox(
+                  width: boxSize - 20,
+                  child: HoverBox(
+                    child: Stack(
+                      children: [
+                        (item.imgUrl.isEmpty)
+                            ? Card(
+                          elevation: 5,
+                          color: Colors.black,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          clipBehavior: Clip.antiAlias,
+                          child: const Image(image: AssetImage(AppAssets.audioPlayerCover)),
+                        )
+                            : NeomImageCard(
+                          margin: const EdgeInsets.all(4.0),
+                          borderRadius: 10,
+                          imageUrl: item.imgUrl,
+                          placeholderImage: const AssetImage(AppAssets.audioPlayerCover),
+                        ),
+                        // Rank badge
+                        Positioned(
+                          left: 8,
+                          bottom: 8,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: rank <= 3
+                                  ? Theme.of(context).colorScheme.secondary.withAlpha(220)
+                                  : Colors.black.withAlpha(180),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              '#$rank',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    builder: ({required BuildContext context, required bool isHover, Widget? child}) {
+                      return Card(
+                        color: isHover ? null : Colors.transparent,
+                        elevation: 0,
+                        margin: EdgeInsets.zero,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        clipBehavior: Clip.antiAlias,
+                        child: Column(
+                          children: [
+                            SizedBox.square(
+                              dimension: isHover ? boxSize - 25 : boxSize - 30,
+                              child: child,
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 10),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(item.name,
+                                    textAlign: TextAlign.center,
+                                    softWrap: false,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(fontWeight: FontWeight.w500),
+                                  ),
+                                  if (item.ownerName.isNotEmpty)
+                                    Text(item.ownerName,
+                                      textAlign: TextAlign.center,
+                                      softWrap: false,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        color: Theme.of(context).textTheme.bodySmall!.color,
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                onTap: () {
+                  Sint.find<AudioPlayerInvokerService>().init(
+                    mediaItems: items,
+                    index: index,
+                    playItem: true,
+                  );
+                },
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Featured Playlists section — top public playlists by items.
+  Widget buildFeaturedPlaylistsSection(AudioPlayerHomeController controller, BuildContext context, double boxSize) {
+    return buildPlaylistsContainer(
+      controller.featuredPlaylists.toList(),
+      context,
+      AudioPlayerTranslationConstants.featuredPlaylists.tr,
+      boxSize,
     );
   }
 

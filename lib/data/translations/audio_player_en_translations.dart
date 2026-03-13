@@ -267,6 +267,72 @@ class AudioPlayerEnTranslations {
     AudioPlayerTranslationConstants.youTube: "YouTube",
     AudioPlayerTranslationConstants.yourPlaylists: "Your Playlists",
     AudioPlayerTranslationConstants.ytDownQualitySub: "Higher quality uses more storage space",
+    AudioPlayerTranslationConstants.audiobookUpload: 'Upload audiobook',
+    AudioPlayerTranslationConstants.audioQuality: 'Audio quality',
+    AudioPlayerTranslationConstants.goToAlbum: 'Go to album',
+    AudioPlayerTranslationConstants.goToArtist: 'Go to artist',
+    AudioPlayerTranslationConstants.lyricsNotFound: 'Lyrics not found',
+    AudioPlayerTranslationConstants.mediaItemsPlayed: 'Content Played',
+    AudioPlayerTranslationConstants.playOnSpotify: 'Play on Spotify',
+    AudioPlayerTranslationConstants.previewFromSpotify: 'Spotify preview',
+    AudioPlayerTranslationConstants.reportIssue: 'Report',
+    AudioPlayerTranslationConstants.cacheMediaItem: 'Save to cache',
+    AudioPlayerTranslationConstants.cacheMediaItemSub: 'Save content for offline playback',
+    AudioPlayerTranslationConstants.currentArtwork: 'Current artwork',
+    AudioPlayerTranslationConstants.madeBy: 'Made by',
+    AudioPlayerTranslationConstants.mediaItem: 'Content',
+    AudioPlayerTranslationConstants.mediaItems: 'Contents',
+    AudioPlayerTranslationConstants.noLyricsAvailable: 'Lyrics not available',
+    AudioPlayerTranslationConstants.releasePreview: 'Release preview',
+
+    /// Playlist management (Spotify-like)
+    AudioPlayerTranslationConstants.editPlaylist: 'Edit Playlist',
+    AudioPlayerTranslationConstants.deletePlaylist: 'Delete Playlist',
+    AudioPlayerTranslationConstants.sharePlaylist: 'Share Playlist',
+    AudioPlayerTranslationConstants.saveToLibrary: 'Save to Library',
+    AudioPlayerTranslationConstants.removeFromLibrary: 'Remove from Library',
+    AudioPlayerTranslationConstants.savedToLibrary: 'Saved to your Library',
+    AudioPlayerTranslationConstants.removedFromLibrary: 'Removed from Library',
+    AudioPlayerTranslationConstants.linkCopied: 'Link copied to clipboard',
+    AudioPlayerTranslationConstants.addSongs: 'Add Songs',
+    AudioPlayerTranslationConstants.findSomethingToAdd: 'Find something to add',
+    AudioPlayerTranslationConstants.changeCover: 'Change Cover',
+
+    /// Radio
+    AudioPlayerTranslationConstants.startRadio: 'Start Radio',
+    AudioPlayerTranslationConstants.personalMix: 'Your Personal Mix',
+    AudioPlayerTranslationConstants.discoveryRadio: 'Discovery',
+    AudioPlayerTranslationConstants.likedSongsRadio: 'Liked Songs Radio',
+    AudioPlayerTranslationConstants.radioStarted: 'Radio started',
+    AudioPlayerTranslationConstants.radioSection: 'Radio',
+
+    /// Jam Sessions
+    AudioPlayerTranslationConstants.startJam: 'Start Jam',
+    AudioPlayerTranslationConstants.joinJam: 'Join Jam',
+    AudioPlayerTranslationConstants.jamSession: 'Jam Session',
+    AudioPlayerTranslationConstants.sessionName: 'Session name',
+    AudioPlayerTranslationConstants.joinCode: 'Join code',
+    AudioPlayerTranslationConstants.upvote: 'Upvote',
+    AudioPlayerTranslationConstants.downvote: 'Downvote',
+    AudioPlayerTranslationConstants.superVote: 'Super vote',
+    AudioPlayerTranslationConstants.leaveSession: 'Leave Session',
+    AudioPlayerTranslationConstants.endSession: 'End Session',
+    AudioPlayerTranslationConstants.whoCanJoin: 'Who can join?',
+    AudioPlayerTranslationConstants.allowRequests: 'Allow song requests',
+    AudioPlayerTranslationConstants.allowVoting: 'Allow voting',
+    AudioPlayerTranslationConstants.codeCopied: 'Code copied to clipboard',
+    AudioPlayerTranslationConstants.jamStarted: 'Jam started',
+
+    /// Recommended Playlists
+    AudioPlayerTranslationConstants.madeForYou: 'Made for You',
+
+    /// Home Sections
+    AudioPlayerTranslationConstants.listenAgain: 'Listen Again',
+    AudioPlayerTranslationConstants.newReleases: 'New Releases',
+    AudioPlayerTranslationConstants.featuredPlaylists: 'Featured Playlists',
+    AudioPlayerTranslationConstants.topMostPlayed: 'Top 20 Most Played',
+    AudioPlayerTranslationConstants.seeAll: 'See All',
+    AudioPlayerTranslationConstants.basedOnYourHistory: 'Based on your listening',
   };
 
 }

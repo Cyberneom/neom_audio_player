@@ -1,9 +1,10 @@
-import 'dart:io';
 import 'dart:math';
 
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:neom_commons/ui/widgets/images/handled_cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:neom_commons/utils/constants/app_assets.dart';
+
+import '../../../utils/platform_io_helper.dart' as platform_io;
 
 class BouncyImageSliverScrollView extends StatelessWidget {
   final ScrollController scrollController;
@@ -37,26 +38,16 @@ class BouncyImageSliverScrollView extends StatelessWidget {
             fit: BoxFit.cover,
             image: AssetImage(placeholderImage),
           )
-        : localImage
+        : localImage && platform_io.supportsLocalFiles
             ? Image(
-                image: FileImage(
-                  File(
-                    imageUrl!,
-                  ),
-                ),
+                image: platform_io.createFileImage(imageUrl!) ??
+                    AssetImage(placeholderImage),
                 fit: BoxFit.cover,
               )
-            : CachedNetworkImage(
+            : HandledCachedNetworkImage(
+                imageUrl!,
                 fit: BoxFit.cover,
-                errorWidget: (context, _, _) => Image(
-                  fit: BoxFit.cover,
-                  image: AssetImage(placeholderImage),
-                ),
-                imageUrl: imageUrl!,
-                placeholder: (context, url) => Image(
-                  fit: BoxFit.cover,
-                  image: AssetImage(placeholderImage),
-                ),
+                enableFullScreen: false,
               );
     // final bool rotated =
     // MediaQuery.of(context).size.height < MediaQuery.of(context).size.width;

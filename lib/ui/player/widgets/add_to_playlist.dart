@@ -48,7 +48,7 @@ class AddToPlaylist {
       itemlists.length > 1 ? Alert(
         context: context,
         style: AlertStyle(
-          backgroundColor: AppColor.main75,
+          backgroundColor: AppColor.surfaceElevated,
           titleStyle: const TextStyle(color: Colors.white),
         ),
         title: type == ProfileType.appArtist ? CommonTranslationConstants.appItemPrefs.tr
@@ -125,7 +125,7 @@ class AddToPlaylist {
               iconSize: 20,
               elevation: 16,
               style: const TextStyle(color: Colors.white),
-              dropdownColor: AppColor.main75,
+              dropdownColor: AppColor.surfaceElevated,
               underline: Container(
                 height: 1,
                 color: Colors.grey,

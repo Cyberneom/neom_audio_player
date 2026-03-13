@@ -284,6 +284,55 @@ class AudioPlayerEsTranslations {
     AudioPlayerTranslationConstants.mediaItems: 'Contenidos',
     AudioPlayerTranslationConstants.noLyricsAvailable: 'Letra no disponible',
     AudioPlayerTranslationConstants.releasePreview: 'Vista previa del lanzamiento',
+
+    /// Gestión de playlists (estilo Spotify)
+    AudioPlayerTranslationConstants.editPlaylist: 'Editar Playlist',
+    AudioPlayerTranslationConstants.deletePlaylist: 'Eliminar Playlist',
+    AudioPlayerTranslationConstants.sharePlaylist: 'Compartir Playlist',
+    AudioPlayerTranslationConstants.saveToLibrary: 'Guardar en Biblioteca',
+    AudioPlayerTranslationConstants.removeFromLibrary: 'Quitar de Biblioteca',
+    AudioPlayerTranslationConstants.savedToLibrary: 'Guardado en tu Biblioteca',
+    AudioPlayerTranslationConstants.removedFromLibrary: 'Quitado de Biblioteca',
+    AudioPlayerTranslationConstants.linkCopied: 'Enlace copiado al portapapeles',
+    AudioPlayerTranslationConstants.addSongs: 'Agregar Canciones',
+    AudioPlayerTranslationConstants.findSomethingToAdd: 'Busca algo para agregar',
+    AudioPlayerTranslationConstants.changeCover: 'Cambiar Portada',
+
+    /// Radio
+    AudioPlayerTranslationConstants.startRadio: 'Iniciar Radio',
+    AudioPlayerTranslationConstants.personalMix: 'Tu Mix Personal',
+    AudioPlayerTranslationConstants.discoveryRadio: 'Descubrimiento',
+    AudioPlayerTranslationConstants.likedSongsRadio: 'Radio de Favoritas',
+    AudioPlayerTranslationConstants.radioStarted: 'Radio iniciada',
+    AudioPlayerTranslationConstants.radioSection: 'Radio',
+
+    /// Jam Sessions
+    AudioPlayerTranslationConstants.startJam: 'Iniciar Jam',
+    AudioPlayerTranslationConstants.joinJam: 'Unirse a Jam',
+    AudioPlayerTranslationConstants.jamSession: 'Sesión Jam',
+    AudioPlayerTranslationConstants.sessionName: 'Nombre de sesión',
+    AudioPlayerTranslationConstants.joinCode: 'Código de acceso',
+    AudioPlayerTranslationConstants.upvote: 'Votar a favor',
+    AudioPlayerTranslationConstants.downvote: 'Votar en contra',
+    AudioPlayerTranslationConstants.superVote: 'Super voto',
+    AudioPlayerTranslationConstants.leaveSession: 'Salir de Sesión',
+    AudioPlayerTranslationConstants.endSession: 'Terminar Sesión',
+    AudioPlayerTranslationConstants.whoCanJoin: '¿Quién puede unirse?',
+    AudioPlayerTranslationConstants.allowRequests: 'Permitir pedir canciones',
+    AudioPlayerTranslationConstants.allowVoting: 'Permitir votación',
+    AudioPlayerTranslationConstants.codeCopied: 'Código copiado al portapapeles',
+    AudioPlayerTranslationConstants.jamStarted: 'Jam iniciada',
+
+    /// Playlists recomendadas
+    AudioPlayerTranslationConstants.madeForYou: 'Hecho para Ti',
+
+    /// Secciones Home
+    AudioPlayerTranslationConstants.listenAgain: 'Vuelve a escucharlo',
+    AudioPlayerTranslationConstants.newReleases: 'Lanzamientos Recientes',
+    AudioPlayerTranslationConstants.featuredPlaylists: 'Listas Destacadas',
+    AudioPlayerTranslationConstants.topMostPlayed: 'Top 20 M\u00e1s Escuchado',
+    AudioPlayerTranslationConstants.seeAll: 'Ver todo',
+    AudioPlayerTranslationConstants.basedOnYourHistory: 'Basado en lo que escuchas',
   };
 
 }

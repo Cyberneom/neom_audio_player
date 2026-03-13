@@ -67,25 +67,30 @@ class NameNControls extends StatelessWidget {
                       child: Column(
                         children: [
                           Obx(() => Text(
-                            controller.mediaItemTitle.value == 'null' ? controller.mediaItemAlbum.value
-                                : '',
+                            controller.mediaItemTitle.value == 'null'
+                                ? controller.mediaItemAlbum.value
+                                : controller.mediaItemTitle.value,
                             style: TextStyle(
-                              fontSize: titleBoxHeight/4,
+                              fontSize: titleBoxHeight / 4.5,
                               fontWeight: FontWeight.bold,
+                              letterSpacing: -0.3,
                             ),
                             textAlign: TextAlign.center,
                             maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
                           )),
                           AppTheme.heightSpace5,
                           GestureDetector(
                             child: Obx(() => Text(
                               controller.mediaItemArtist.isNotEmpty ? controller.mediaItemArtist.value : AppTranslationConstants.unknown.tr.capitalizeFirst,
                               style: TextStyle(
-                                fontSize: titleBoxHeight/6,
-                                fontWeight: FontWeight.w600,
+                                fontSize: titleBoxHeight / 6.5,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.white70,
                               ),
                               textAlign: TextAlign.center,
-                              maxLines: 2,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             )),
                             onTap: () => (controller.mediaItem.value?.extras!['ownerEmail']?.isEmpty ?? true) ? {}
                                 : controller.goToOwnerProfile(),
@@ -208,7 +213,7 @@ class NameNControls extends StatelessWidget {
                               //       );
                               //     },
                               //     style: ElevatedButton.styleFrom(
-                              //       foregroundColor: Colors.white, backgroundColor: AppColor.bondiBlue, // Text color
+                              //       foregroundColor: AppColor.bondiBlue, backgroundColor: AppColor.bondiBlue, // Text color
                               //       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
                               //       shape: RoundedRectangleBorder(
                               //         borderRadius: BorderRadius.circular(30),

@@ -34,7 +34,7 @@ class UpNextQueue extends StatelessWidget {
           topRight: Radius.circular(15.0),
         ),
         padding: const EdgeInsets.only(right: 10),
-        color: AppColor.main75,
+        color: AppColor.surfaceElevated,
         controller: panelController,
         header: GestureDetector(
           onTap: () {

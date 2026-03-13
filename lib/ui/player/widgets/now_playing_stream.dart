@@ -1,7 +1,5 @@
-import 'dart:io';
-
 import 'package:audio_service/audio_service.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:neom_commons/ui/widgets/images/handled_cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:sint/sint.dart';
 import 'package:neom_commons/ui/theme/app_color.dart';
@@ -9,6 +7,8 @@ import 'package:neom_commons/ui/theme/app_theme.dart';
 import 'package:neom_commons/utils/constants/app_assets.dart';
 import 'package:neom_commons/utils/constants/translations/app_translation_constants.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
+
+import '../../../utils/platform_io_helper.dart' as platform_io;
 
 import '../../../domain/models/queue_state.dart';
 import '../../../neom_audio_handler.dart';
@@ -101,7 +101,7 @@ class NowPlayingStream extends StatelessWidget {
                 child: ListTile(
                   contentPadding: const EdgeInsets.only(left: 16.0, right: 10.0),
                   selected: index == queueState.queueIndex,
-                  tileColor: AppColor.main75,
+                  tileColor: AppColor.surfaceElevated,
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: (index == queueState.queueIndex)
@@ -182,23 +182,15 @@ class NowPlayingStream extends StatelessWidget {
                           child: Image(image: AssetImage(AppAssets.audioPlayerCover),),
                         ) : SizedBox.square(
                           dimension: 50,
-                          child: queue[index].artUri.toString().startsWith('file:')
+                          child: queue[index].artUri.toString().startsWith('file:') && platform_io.supportsLocalFiles
                               ? Image(
-                              image: FileImage(File(item.artUri!.toFilePath(),),),
+                              image: platform_io.createFileImage(item.artUri!.toFilePath()) ??
+                                  const AssetImage(AppAssets.audioPlayerCover),
                               fit: BoxFit.cover,
-                          ) : CachedNetworkImage(
+                          ) : HandledCachedNetworkImage(
+                            item.artUri.toString(),
                             fit: BoxFit.cover,
-                            errorWidget: (BuildContext context, _, _) =>
-                            const Image(
-                              fit: BoxFit.cover,
-                              image: AssetImage(AppAssets.audioPlayerCover,),
-                            ),
-                            placeholder: (BuildContext context, _) =>
-                            const Image(
-                              fit: BoxFit.cover,
-                              image: AssetImage(AppAssets.audioPlayerCover,),
-                            ),
-                            imageUrl: item.artUri.toString(),
+                            enableFullScreen: false,
                           ),
                         ),
                       ),

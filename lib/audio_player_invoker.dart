@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/services.dart' show rootBundle;
@@ -13,13 +11,13 @@ import 'package:neom_core/data/firestore/app_release_item_firestore.dart';
 import 'package:neom_core/domain/model/app_media_item.dart';
 import 'package:neom_core/domain/model/app_release_item.dart';
 import 'package:neom_core/domain/use_cases/audio_player_invoker_service.dart';
-import 'package:path_provider/path_provider.dart';
 
 import 'data/implementations/player_hive_controller.dart';
 import 'data/providers/neom_audio_provider.dart';
 import 'neom_audio_handler.dart';
 import 'ui/player/miniplayer_controller.dart';
 import 'utils/mappers/media_item_mapper.dart';
+import 'utils/platform_io_helper.dart' as platform_io;
 
 class AudioPlayerInvoker implements AudioPlayerInvokerService {
 
@@ -43,7 +41,7 @@ class AudioPlayerInvoker implements AudioPlayerInvokerService {
       }
 
       if(releaseItems != null) {
-        currentReleaseItems = releaseItems;
+        currentReleaseItems = releaseItems.where((item) => item.isAudioContent).toList();
         currentMediaItems = [];
         for (var item in currentReleaseItems) {
           currentMediaItems.add(AppMediaItemMapper.fromAppReleaseItem(item));
@@ -51,22 +49,24 @@ class AudioPlayerInvoker implements AudioPlayerInvokerService {
       }
 
       if(mediaItems != null) {
-        currentMediaItems = [];
-        for (var item in mediaItems) {
-          currentMediaItems.add(item);
-        }
+        currentMediaItems = mediaItems.where((item) => item.isAudioContent).toList();
       }
 
-      final int globalIndex = index < 0 ? 0 : index;
+      if (currentMediaItems.isEmpty) {
+        AppConfig.logger.e('No audio content items to play.');
+        return;
+      }
+
+      final int globalIndex = index.clamp(0, currentMediaItems.length - 1);
       if(shuffle) currentMediaItems.shuffle();
 
       if (!fromMiniPlayer) {
-        if (!kIsWeb) audioHandler?.stop();
+        await audioHandler?.stop();
 
         if (isOffline) {
-          await updateNowPlaying(index: index, fromDownloads: fromDownloads, isOffline: isOffline);
+          await updateNowPlaying(index: globalIndex, fromDownloads: fromDownloads, isOffline: isOffline);
         } else {
-          setValues(globalIndex, recommend: recommend, playItem: playItem);
+          await setValues(globalIndex, recommend: recommend, playItem: playItem);
         }
       } else {
         AppConfig.logger.d('Item is free - Session is not active.');
@@ -84,9 +84,9 @@ class AudioPlayerInvoker implements AudioPlayerInvokerService {
     AppConfig.logger.t('Settings Values for index $index');
 
     try {
-      if(currentReleaseItems.isNotEmpty) {
+      if(currentReleaseItems.isNotEmpty && index < currentReleaseItems.length) {
         AppReleaseItemFirestore().existsOrInsert(currentReleaseItems[index]);
-      } else {
+      } else if(currentMediaItems.isNotEmpty && index < currentMediaItems.length) {
         AppMediaItemFirestore().existsOrInsert(currentMediaItems[index]);
       }
 
@@ -111,19 +111,21 @@ class AudioPlayerInvoker implements AudioPlayerInvokerService {
 
     try {
       if(isOffline && !kIsWeb) {
-        getTemporaryDirectory().then((tempDir) async {
-          final File file = File('${tempDir.path}/cover.jpg');
-          if (!await file.exists()) {
+        final tempDirPath = await platform_io.getTempDirPath();
+        if (tempDirPath != null) {
+          final coverPath = '$tempDirPath/cover.jpg';
+          if (!await platform_io.fileExists(coverPath)) {
             final byteData = await rootBundle.load(AppAssets.audioPlayerCover);
-            await file.writeAsBytes(
+            await platform_io.writeFileBytes(
+              coverPath,
               byteData.buffer
                   .asUint8List(byteData.offsetInBytes, byteData.lengthInBytes),
             );
           }
           for (int i = 0; i < currentMediaItems.length; i++) {
-            queue.add(await setTags(currentMediaItems[i], tempDir),);
+            queue.add(await setTags(currentMediaItems[i], tempDirPath));
           }
-        });
+        }
       } else {
         queue = currentMediaItems.map((item) => MediaItemMapper.fromAppMediaItem(
           item: item,
@@ -132,27 +134,31 @@ class AudioPlayerInvoker implements AudioPlayerInvokerService {
       }
       await audioHandler?.setShuffleMode(AudioServiceShuffleMode.none);
 
+      if (queue.isEmpty) {
+        AppConfig.logger.e('Queue is empty, nothing to play.');
+        return;
+      }
+
+      final safeIndex = index.clamp(0, queue.length - 1);
+
       List<MediaItem> orderedQueue = [
-        ...queue.sublist(index),
-        ...queue.sublist(0, index)
+        ...queue.sublist(safeIndex),
+        ...queue.sublist(0, safeIndex)
       ];
 
       await audioHandler?.updateQueue(orderedQueue);
 
-      int nextIndex = 0;
-      if (queue.indexWhere((item) => item.id == queue[index].id) >= 0) {
-        nextIndex = queue.indexWhere((item) => item.id == queue[index].id);
-        AppConfig.logger.d('MediaItem found in Queue with Index $index');
-      }
+      final selectedItem = queue[safeIndex];
+      // The selected item is always at index 0 in orderedQueue
+      await audioHandler?.customAction('skipToMediaItem', {'id': selectedItem.id, 'index': 0},);
+      AppConfig.logger.d('skipToMediaItem: ${selectedItem.title} at orderedQueue index 0');
 
-      await audioHandler?.customAction('skipToMediaItem', {'id': queue[index].id, 'index': nextIndex},);
-
-      audioHandler?.currentMediaItem = queue.elementAt(index);
+      audioHandler?.currentMediaItem = selectedItem;
 
       if(playItem || nowPlaying) {
-        AppConfig.logger.d("Starting stream for ${queue[index].artist ?? ''} - ${queue[index].title} and URL ${queue[index].extras!['url'].toString()}");
+        AppConfig.logger.d("Starting stream for ${selectedItem.artist ?? ''} - ${selectedItem.title} and URL ${selectedItem.extras!['url'].toString()}");
         await audioHandler?.play();
-        Sint.find<MiniPlayerController>().setMediaItem(queue.elementAt(index));
+        Sint.find<MiniPlayerController>().setMediaItem(selectedItem);
       }
 
       enforceRepeat();
@@ -161,7 +167,7 @@ class AudioPlayerInvoker implements AudioPlayerInvokerService {
     }
   }
 
-  Future<MediaItem> setTags(AppMediaItem appMediaItem, Directory tempDir,) async {
+  Future<MediaItem> setTags(AppMediaItem appMediaItem, String tempDirPath) async {
     String playTitle = appMediaItem.name;
     if(playTitle.isEmpty && appMediaItem.album.isNotEmpty) {
       playTitle = appMediaItem.album;
@@ -171,7 +177,7 @@ class AudioPlayerInvoker implements AudioPlayerInvokerService {
 
     String playAlbum = appMediaItem.album;
     int playDuration = appMediaItem.duration;
-    String imagePath = '${tempDir.path}/${TextUtilities.removeAllWhitespace(appMediaItem.name)}.png';
+    String imagePath = '$tempDirPath/${TextUtilities.removeAllWhitespace(appMediaItem.name)}.png';
 
     MediaItem tempDict = MediaItem(
       id: appMediaItem.id.toString(),
@@ -180,7 +186,7 @@ class AudioPlayerInvoker implements AudioPlayerInvokerService {
       title: playTitle.split('(')[0],
       artist: playArtist,
       genre: appMediaItem.categories?.isNotEmpty ?? false ? appMediaItem.categories?.first : null,
-      artUri: Uri.file(imagePath),
+      artUri: platform_io.fileUri(imagePath),
       extras: {
         'url': appMediaItem.url,
         'publishedYear': appMediaItem.publishedYear,

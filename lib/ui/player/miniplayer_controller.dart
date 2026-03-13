@@ -11,7 +11,7 @@ import 'package:neom_core/utils/constants/app_route_constants.dart';
 import 'package:neom_core/utils/enums/app_media_source.dart';
 import 'package:neom_core/utils/enums/external_media_source.dart';
 
-import '../../audio_player_invoker.dart';
+import 'package:neom_core/domain/use_cases/audio_player_invoker_service.dart';
 import '../../neom_audio_handler.dart';
 import '../../utils/mappers/media_item_mapper.dart';
 
@@ -66,7 +66,7 @@ class MiniPlayerController extends SintController implements MiniPlayerService {
   @override
   Future<void> setAppMediaItem(AppMediaItem appMediaItem) async {
     AppConfig.logger.d('Setting new mediaitem ${appMediaItem.name}');
-    audioHandler ??= await Sint.find<AudioPlayerInvoker>().getOrInitAudioHandler();
+    audioHandler ??= await Sint.find<AudioPlayerInvokerService>().getOrInitAudioHandler() as NeomAudioHandler?;
     audioHandlerRegistered = true;
     mediaItem.value = MediaItemMapper.fromAppMediaItem(item: appMediaItem);
     source = EnumToString.fromString(AppMediaSource.values, mediaItem.value?.extras?["source"] ?? AppMediaSource.internal.name) ?? AppMediaSource.internal;
@@ -77,13 +77,13 @@ class MiniPlayerController extends SintController implements MiniPlayerService {
 
   Future<void> setMediaItem(MediaItem item) async {
     AppConfig.logger.d('Setting new mediaitem ${item.title}');
-    audioHandler ??= await Sint.find<AudioPlayerInvoker>().getOrInitAudioHandler();
+    audioHandler ??= await Sint.find<AudioPlayerInvokerService>().getOrInitAudioHandler() as NeomAudioHandler?;
     audioHandlerRegistered = true;
     mediaItem.value = item;
     source = EnumToString.fromString(AppMediaSource.values, mediaItem.value?.extras?["source"] ?? AppMediaSource.internal.name) ?? AppMediaSource.internal;
     isInternal = source == AppMediaSource.internal || source == AppMediaSource.offline;
 
-    update([AppPageIdConstants.miniPlayer]);
+    update([AppPageIdConstants.miniPlayer, 'web_bottom_player', 'web_now_playing_full']);
   }
 
   @override

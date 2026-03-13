@@ -24,11 +24,25 @@ class MusicPlaybackSettingsPage extends StatefulWidget {
 }
 
 class _MusicPlaybackSettingsPageState extends State<MusicPlaybackSettingsPage> {
-  String streamingMobileQuality = Hive.box(AppHiveBox.settings.name).get('streamingQuality', defaultValue: '96 kbps') as String;
-  String streamingWifiQuality = Hive.box(AppHiveBox.settings.name).get('streamingWifiQuality', defaultValue: '320 kbps') as String;
-  String region = Hive.box(AppHiveBox.settings.name).get('region', defaultValue: 'México') as String;
+  String streamingMobileQuality = '96 kbps';
+  String streamingWifiQuality = '320 kbps';
+  String region = 'México';
+  List preferredLanguage = ['Español'];
 
-  List preferredLanguage = Hive.box(AppHiveBox.settings.name).get('preferredLanguage', defaultValue: ['Español'])?.toList() as List;
+  @override
+  void initState() {
+    super.initState();
+    try {
+      if (Hive.isBoxOpen(AppHiveBox.settings.name)) {
+        streamingMobileQuality = Hive.box(AppHiveBox.settings.name).get('streamingQuality', defaultValue: '96 kbps') as String;
+        streamingWifiQuality = Hive.box(AppHiveBox.settings.name).get('streamingWifiQuality', defaultValue: '320 kbps') as String;
+        region = Hive.box(AppHiveBox.settings.name).get('region', defaultValue: 'México') as String;
+        preferredLanguage = Hive.box(AppHiveBox.settings.name).get('preferredLanguage', defaultValue: ['Español'])?.toList() as List;
+      }
+    } catch (e) {
+      debugPrint("Hive settings box not open: $e");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +70,7 @@ class _MusicPlaybackSettingsPageState extends State<MusicPlaybackSettingsPage> {
                 onTap: () {
                   showModalBottomSheet(
                     isDismissible: true,
-                    backgroundColor: AppColor.getMain(),
+                    backgroundColor: AppColor.scaffold,
                     context: context,
                     builder: (BuildContext context) {
                       final List checked = List.from(preferredLanguage);

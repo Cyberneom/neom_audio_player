@@ -1,8 +1,7 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:audio_service/audio_service.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:neom_commons/ui/widgets/images/handled_cached_network_image.dart';
 import 'package:flip_card/flip_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_lyric/lyrics_reader.dart';
@@ -13,6 +12,8 @@ import 'package:neom_commons/utils/constants/translations/app_translation_consta
 import 'package:neom_commons/utils/constants/translations/common_translation_constants.dart';
 import 'package:neom_commons/utils/device_utilities.dart';
 import 'package:neom_core/app_properties.dart';
+
+import '../../../utils/platform_io_helper.dart' as platform_io;
 
 import '../../../data/implementations/player_hive_controller.dart';
 import '../../../domain/models/queue_state.dart';
@@ -145,7 +146,7 @@ class ArtWorkWidget extends StatelessWidget {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    color: AppColor.main75,
+                    color: AppColor.surfaceElevated,
                     clipBehavior: Clip.antiAlias,
                     child: IconButton(
                       tooltip: AppTranslationConstants.copy.tr,
@@ -245,7 +246,7 @@ class ArtWorkWidget extends StatelessWidget {
                         borderRadius: BorderRadius.circular(15.0),
                       ),
                       clipBehavior: Clip.antiAlias,
-                      child: artworkUrl.startsWith('file')
+                      child: artworkUrl.startsWith('file') && platform_io.supportsLocalFiles
                           ? Image(
                         fit: BoxFit.contain,
                         width: flipCardWidth,
@@ -255,21 +256,12 @@ class ArtWorkWidget extends StatelessWidget {
                             image: AssetImage(AppAssets.audioPlayerCover),
                           );
                         },
-                        image: FileImage(File(artworkUrl,),),
-                      ) : CachedNetworkImage(
+                        image: platform_io.createFileImage(artworkUrl) ??
+                            const AssetImage(AppAssets.audioPlayerCover),
+                      ) : HandledCachedNetworkImage(
+                        artworkUrl,
                         fit: BoxFit.contain,
-                        errorWidget: (BuildContext context, _, _) =>
-                        const Image(fit: BoxFit.cover,
-                          image: AssetImage(AppAssets.audioPlayerCover),
-                        ),
-                        placeholder: (BuildContext context, _) =>
-                        const Image(fit: BoxFit.cover,
-                          image: AssetImage(AppAssets.audioPlayerCover),
-                        ),
-                        imageUrl: artworkUrl,
                         width: flipCardWidth,
-                        memCacheWidth: flipCardWidth.toInt() * 2,
-                        memCacheHeight: flipCardWidth.toInt() * 2,
                       ),
                     ),
                     ValueListenableBuilder(

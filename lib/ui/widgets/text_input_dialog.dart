@@ -23,7 +23,7 @@ class TextInputDialog extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10.0),
       ),
-      backgroundColor: AppColor.getMain(),
+      backgroundColor: AppColor.scaffold,
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [

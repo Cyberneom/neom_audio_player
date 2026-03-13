@@ -76,7 +76,7 @@ class HorizontalAlbumsList extends StatelessWidget {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15.0),
                     ),
-                    backgroundColor: AppColor.main75,
+                    backgroundColor: AppColor.surfaceElevated,
                     contentPadding: EdgeInsets.zero,
                     content: NeomImageCard(
                       borderRadius: 15, //appMediaItem['type'] == 'radio_station' ? 1000.0 : 15.0,

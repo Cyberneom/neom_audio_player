@@ -39,7 +39,7 @@ class AudioPlayerUtilities {
     showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: AppColor.main75,
+        backgroundColor: AppColor.surfaceElevated,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(15.0),
         ),
@@ -112,7 +112,7 @@ class AudioPlayerUtilities {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15.0),
           ),
-          backgroundColor: AppColor.main75,
+          backgroundColor: AppColor.surfaceElevated,
           content: Stack(
             children: [
               GestureDetector(onTap: () => Navigator.pop(context)),

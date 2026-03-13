@@ -92,8 +92,7 @@ class HorizontalAlbumsListSeparated extends StatelessWidget {
                     ),
                     leading: NeomImageCard(
                       imageUrl: item.imgUrl,
-                      placeholderImage: (itemlist?.type == ItemlistType.playlist ||
-                              itemlist?.type == ItemlistType.album)
+                      placeholderImage: (itemlist?.type.isAudio ?? false)
                           ? const AssetImage(AppAssets.audioPlayerAlbum,)
                           : item.ownerName.isNotEmpty ? const AssetImage(AppAssets.audioPlayerArtist,)
                               : const AssetImage(AppAssets.audioPlayerCover,),

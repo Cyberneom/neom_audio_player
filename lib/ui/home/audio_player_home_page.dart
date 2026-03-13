@@ -11,7 +11,6 @@ import 'package:neom_commons/utils/constants/app_page_id_constants.dart';
 import 'package:neom_commons/utils/constants/translations/common_translation_constants.dart';
 import 'package:neom_core/utils/enums/subscription_status.dart';
 
-import '../../utils/constants/audio_player_translation_constants.dart';
 import '../drawer/audio_player_drawer.dart';
 import '../widgets/audio_player_widgets.dart';
 import 'audio_player_home_controller.dart';
@@ -53,7 +52,7 @@ class AudioPlayerHomePage extends StatelessWidget {
                               ),
                             ),
                             actions: const [RightSideCompanyLogo()],
-                            backgroundColor: AppColor.getMain(),
+                            backgroundColor: AppColor.scaffold,
                             elevation: 10,
                             toolbarHeight: 45,
                           ),
@@ -61,7 +60,7 @@ class AudioPlayerHomePage extends StatelessWidget {
                             leading: controller.showSearchBarLeading.value ? audioPlayerHomeDrawer(context: context,) : null,
                             automaticallyImplyLeading: false,
                             pinned: true,
-                            backgroundColor: AppColor.getMain(),
+                            backgroundColor: AppColor.scaffold,
                             elevation: 0,
                             toolbarHeight: 45,
                             title: Align(
@@ -81,7 +80,7 @@ class AudioPlayerHomePage extends StatelessWidget {
                                       padding: const EdgeInsets.symmetric(horizontal: 10),
                                       decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(10.0,),
-                                        color: AppColor.main75,
+                                        color: AppColor.surfaceElevated,
                                         boxShadow: const [
                                           BoxShadow(
                                             color: Colors.black26,
@@ -97,11 +96,15 @@ class AudioPlayerHomePage extends StatelessWidget {
                                             color: Theme.of(context).colorScheme.secondary,
                                           ),
                                           const SizedBox(width: 10.0,),
-                                          Text(
-                                            AudioPlayerTranslationConstants.searchText.tr,
-                                            style: TextStyle(fontSize: 16.0,
-                                              color: Theme.of(context).textTheme.bodySmall!.color,
-                                              fontWeight: FontWeight.normal,
+                                          Expanded(
+                                            child: Text(
+                                              AppFlavour.getAudioSearchHint(),
+                                              style: TextStyle(fontSize: 15.0,
+                                                color: Theme.of(context).textTheme.bodySmall!.color,
+                                                fontWeight: FontWeight.normal,
+                                              ),
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
                                             ),
                                           ),
                                         ],

@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:sint/sint.dart';
 import 'package:hive/hive.dart';
@@ -10,6 +8,8 @@ import 'package:neom_commons/utils/constants/translations/app_translation_consta
 import 'package:neom_core/app_config.dart';
 import 'package:neom_core/utils/enums/app_hive_box.dart';
 import 'package:neom_core/utils/enums/app_in_use.dart';
+
+import '../../../../utils/platform_io_helper.dart' as platform_io;
 
 import '../../../../utils/constants/audio_player_translation_constants.dart';
 import 'hive_box_switch_tile.dart';
@@ -23,12 +23,23 @@ class OthersPage extends StatefulWidget {
 
 class _OthersPageState extends State<OthersPage> {
 
-  final Box settingsBox = Hive.box(AppHiveBox.settings.name);
-  final ValueNotifier<bool> includeOrExclude = ValueNotifier<bool>(
-    Hive.box(AppHiveBox.settings.name).get('includeOrExclude', defaultValue: false) as bool,
-  );
+  late final Box settingsBox;
+  final ValueNotifier<bool> includeOrExclude = ValueNotifier<bool>(false);
+  List includedExcludedPaths = [];
 
-  List includedExcludedPaths = Hive.box(AppHiveBox.settings.name).get('includedExcludedPaths', defaultValue: []) as List;
+  @override
+  void initState() {
+    super.initState();
+    try {
+      if (Hive.isBoxOpen(AppHiveBox.settings.name)) {
+        settingsBox = Hive.box(AppHiveBox.settings.name);
+        includeOrExclude.value = settingsBox.get('includeOrExclude', defaultValue: false) as bool;
+        includedExcludedPaths = settingsBox.get('includedExcludedPaths', defaultValue: []) as List;
+      }
+    } catch (e) {
+      debugPrint("Hive settings box not open: $e");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -73,7 +84,7 @@ class _OthersPageState extends State<OthersPage> {
             //     GlobalKey<AnimatedListState>();
             //     showModalBottomSheet(
             //       isDismissible: true,
-            //       backgroundColor: AppColor.main75,
+            //       backgroundColor: AppColor.surfaceElevated,
             //       context: context,
             //       builder: (BuildContext context) {
             //         return BottomGradientContainer(
@@ -223,15 +234,19 @@ class _OthersPageState extends State<OthersPage> {
                 height: 70.0,
                 width: 70.0,
                 child: Center(
-                  child: FutureBuilder(
-                    future: File(Hive.box(AppHiveBox.player.name).path!).length(),
+                  child: FutureBuilder<int?>(
+                    future: platform_io.supportsLocalFiles
+                        ? platform_io.getFileLength(Hive.box(AppHiveBox.player.name).path!)
+                        : Future.value(null),
                     builder: (
                       BuildContext context,
-                      AsyncSnapshot<int> snapshot,
+                      AsyncSnapshot<int?> snapshot,
                     ) {
                       if (snapshot.connectionState == ConnectionState.done) {
+                        final size = snapshot.data;
+                        if (size == null) return const Text('N/A');
                         return Text(
-                          '${((snapshot.data ?? 0) / (1024 * 1024)).toStringAsFixed(2)} MB',
+                          '${(size / (1024 * 1024)).toStringAsFixed(2)} MB',
                         );
                       }
                       return const Text('');

@@ -162,7 +162,7 @@ class SearchPageState extends State<SearchPage> {
             controller: controller,
             liveSearch: liveSearch,
             autofocus: widget.autofocus,
-            hintText: AudioPlayerTranslationConstants.searchText.tr,
+            hintText: AppFlavour.getAudioSearchHint(),
             leading: IconButton(
               icon: const Icon(Icons.arrow_back_rounded),
               onPressed: () {

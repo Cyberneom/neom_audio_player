@@ -7,7 +7,9 @@ import 'package:hive/hive.dart';
 import 'package:neom_core/app_config.dart';
 import 'package:neom_core/data/firestore/itemlist_firestore.dart';
 import 'package:neom_core/domain/model/item_list.dart';
+import 'package:neom_core/domain/use_cases/user_service.dart';
 import 'package:neom_core/utils/enums/itemlist_type.dart';
+import 'package:neom_core/utils/enums/owner_type.dart';
 import 'package:sint/sint.dart';
 
 import '../../domain/models/smart_queue.dart';
@@ -490,11 +492,15 @@ class SmartQueueController extends SintController implements SmartQueueService {
           .map((i) => MediaItemMapper.toAppMediaItem(i.mediaItem))
           .toList();
 
+      final profile = Sint.find<UserService>().profile;
       final itemlist = Itemlist(
         name: name,
         description: description ?? '',
         type: ItemlistType.playlist,
       );
+      itemlist.ownerId = profile.id;
+      itemlist.ownerName = profile.name;
+      itemlist.ownerType = OwnerType.profile;
       itemlist.appMediaItems = appMediaItems;
 
       await ItemlistFirestore().insert(itemlist);

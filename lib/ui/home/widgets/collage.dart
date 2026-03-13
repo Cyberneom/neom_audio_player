@@ -1,7 +1,22 @@
-import 'dart:io';
-
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:neom_commons/ui/widgets/images/handled_cached_network_image.dart';
+
+import '../../../utils/platform_io_helper.dart' as platform_io;
+
+/// Builds a network image using HandledCachedNetworkImage which
+/// automatically uses native HTML <img> on web (bypasses CanvasKit CORS)
+/// and CachedNetworkImage on mobile.
+Widget _buildNetworkImage(String imageUrl, String placeholderImage) {
+  if (imageUrl.isEmpty) {
+    return Image(fit: BoxFit.cover, image: AssetImage(placeholderImage));
+  }
+  return HandledCachedNetworkImage(
+    imageUrl,
+    fit: BoxFit.cover,
+    enableFullScreen: false,
+    placeholder: Image(fit: BoxFit.cover, image: AssetImage(placeholderImage)),
+  );
+}
 
 class Collage extends StatelessWidget {
   final bool showGrid;
@@ -37,32 +52,16 @@ class Collage extends StatelessWidget {
                 crossAxisCount: imageList.length < 4 ? 1 : 2,
                 children: imageList
                     .map(
-                      (image) => CachedNetworkImage(
-                        fit: BoxFit.cover,
-                        errorWidget: (context, _, _) => Image(
-                          fit: BoxFit.cover,
-                          image: AssetImage(placeholderImage),
-                        ),
-                        imageUrl: image.replaceAll('http:', 'https:'),
-                        placeholder: (context, _) => Image(
-                          fit: BoxFit.cover,
-                          image: AssetImage(placeholderImage),
-                        ),
+                      (image) => _buildNetworkImage(
+                        image.replaceAll('http:', 'https:'),
+                        placeholderImage,
                       ),
                     )
                     .toList(),
               )
-            : CachedNetworkImage(
-                fit: BoxFit.cover,
-                errorWidget: (context, _, _) => Image(
-                  fit: BoxFit.cover,
-                  image: AssetImage(placeholderImage),
-                ),
-                imageUrl: imageList[0].replaceAll('http:', 'https:'),
-                placeholder: (context, _) => Image(
-                  fit: BoxFit.cover,
-                  image: AssetImage(placeholderImage),
-                ),
+            : _buildNetworkImage(
+                imageList[0].replaceAll('http:', 'https:'),
+                placeholderImage,
               ),
       ),
     );
@@ -106,11 +105,10 @@ class OfflineCollage extends StatelessWidget {
                         )
                       : Image(
                           fit: BoxFit.cover,
-                          image: FileImage(
-                            File(
-                              image['image'].toString(),
-                            ),
-                          ),
+                          image: platform_io.createFileImage(
+                                image['image'].toString(),
+                              ) ??
+                              AssetImage(placeholderImage),
                           errorBuilder: (context, _, _) => Image(
                             fit: BoxFit.cover,
                             image: AssetImage(placeholderImage),
@@ -125,11 +123,10 @@ class OfflineCollage extends StatelessWidget {
                   )
                 : Image(
                     fit: BoxFit.cover,
-                    image: FileImage(
-                      File(
-                        imageList[0]['image'].toString(),
-                      ),
-                    ),
+                    image: platform_io.createFileImage(
+                          imageList[0]['image'].toString(),
+                        ) ??
+                        AssetImage(placeholderImage),
                     errorBuilder: (context, _, _) => Image(
                       fit: BoxFit.cover,
                       image: AssetImage(placeholderImage),

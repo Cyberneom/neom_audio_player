@@ -50,9 +50,9 @@ class PlaylistPlayerPageState extends State<PlaylistPlayerPage>
 
   Box? likedBox;
   List<AppMediaItem> _appMediaItems = [];
-  int sortValue = Hive.box(AppHiveBox.settings.name).get(AppHiveConstants.sortValue, defaultValue: 1) as int;
-  int orderValue = Hive.box(AppHiveBox.settings.name).get(AppHiveConstants.orderValue, defaultValue: 1) as int;
-  int albumSortValue =   Hive.box(AppHiveBox.settings.name).get(AppHiveConstants.albumSortValue, defaultValue: 2) as int;
+  int sortValue = 1;
+  int orderValue = 1;
+  int albumSortValue = 2;
   final ScrollController _scrollController = ScrollController();
   final ValueNotifier<bool> _showShuffle = ValueNotifier<bool>(true);
   PlaylistHiveController playlistHiveController = PlaylistHiveController();
@@ -61,6 +61,15 @@ class PlaylistPlayerPageState extends State<PlaylistPlayerPage>
 
   @override
   void initState() {
+    try {
+      if (Hive.isBoxOpen(AppHiveBox.settings.name)) {
+        sortValue = Hive.box(AppHiveBox.settings.name).get(AppHiveConstants.sortValue, defaultValue: 1) as int;
+        orderValue = Hive.box(AppHiveBox.settings.name).get(AppHiveConstants.orderValue, defaultValue: 1) as int;
+        albumSortValue = Hive.box(AppHiveBox.settings.name).get(AppHiveConstants.albumSortValue, defaultValue: 2) as int;
+      }
+    } catch (e) {
+      AppConfig.logger.e("Hive box settings not opened: $e");
+    }
     _scrollController.addListener(() {
       if (_scrollController.position.userScrollDirection ==
           ScrollDirection.reverse) {

@@ -54,9 +54,14 @@ class ControlButtons extends StatelessWidget {
 
     final bool isOnline = url.startsWith(RegExp(r'https?://'));
 
+    final double containerHeight = miniPlayer ? 44 : 80;
+    final double containerWidth = miniPlayer
+        ? (buttons.length * (AudioPlayerConstants.miniPlayerWidth + 8)).toDouble()
+        : double.infinity;
+
     return SizedBox(
-      height: 80,
-      width: miniPlayer ? MediaQuery.of(context).size.width/3 : null,
+      height: containerHeight,
+      width: miniPlayer ? containerWidth : null,
       child: show ? Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: buttons.map((e) {

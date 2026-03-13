@@ -298,4 +298,53 @@ class AudioPlayerTranslationConstants {
   static const String navTabs = 'navTabs';
   static const String navTabsSub = 'navTabsSub';
 
+  /// Playlist management (Spotify-like)
+  static const String editPlaylist = 'editPlaylist';
+  static const String deletePlaylist = 'deletePlaylist';
+  static const String sharePlaylist = 'sharePlaylist';
+  static const String saveToLibrary = 'saveToLibrary';
+  static const String removeFromLibrary = 'removeFromLibrary';
+  static const String savedToLibrary = 'savedToLibrary';
+  static const String removedFromLibrary = 'removedFromLibrary';
+  static const String linkCopied = 'linkCopied';
+  static const String addSongs = 'addSongs';
+  static const String findSomethingToAdd = 'findSomethingToAdd';
+  static const String changeCover = 'changeCover';
+
+  /// Radio
+  static const String startRadio = 'startRadio';
+  static const String personalMix = 'personalMix';
+  static const String discoveryRadio = 'discoveryRadio';
+  static const String likedSongsRadio = 'likedSongsRadio';
+  static const String radioStarted = 'radioStarted';
+  static const String radioSection = 'radioSection';
+
+  /// Jam Sessions
+  static const String startJam = 'startJam';
+  static const String joinJam = 'joinJam';
+  static const String jamSession = 'jamSession';
+  static const String sessionName = 'sessionName';
+  static const String joinCode = 'joinCode';
+  static const String upvote = 'upvote';
+  static const String downvote = 'downvote';
+  static const String superVote = 'superVote';
+  static const String leaveSession = 'leaveSession';
+  static const String endSession = 'endSession';
+  static const String whoCanJoin = 'whoCanJoin';
+  static const String allowRequests = 'allowRequests';
+  static const String allowVoting = 'allowVoting';
+  static const String codeCopied = 'codeCopied';
+  static const String jamStarted = 'jamStarted';
+
+  /// Recommended Playlists
+  static const String madeForYou = 'madeForYou';
+
+  /// Home Sections (YouTube Music-inspired)
+  static const String listenAgain = 'listenAgain';
+  static const String newReleases = 'newReleases';
+  static const String featuredPlaylists = 'featuredPlaylists';
+  static const String topMostPlayed = 'topMostPlayed';
+  static const String seeAll = 'seeAll';
+  static const String basedOnYourHistory = 'basedOnYourHistory';
+
 }

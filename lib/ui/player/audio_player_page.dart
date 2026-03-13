@@ -71,7 +71,7 @@ class AudioPlayerPage extends StatelessWidget {
         backgroundColor: AppFlavour.getBackgroundColor(),
         appBar: AppBar(
           elevation: 0,
-          backgroundColor: AppColor.appBar,
+          backgroundColor: AppColor.surfaceElevated,
           centerTitle: true,
           actions: (controller.mediaItem.value?.id.isNotEmpty ?? false) ? [
             // Equalizer quick access

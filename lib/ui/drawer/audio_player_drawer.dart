@@ -1,5 +1,5 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:neom_commons/ui/widgets/custom_image.dart';
 import 'package:sint/sint.dart';
 import 'package:neom_commons/ui/app_drawer_controller.dart';
 import 'package:neom_commons/ui/theme/app_color.dart';
@@ -31,7 +31,7 @@ class AudioPlayerDrawer extends StatelessWidget {
     builder: (controller) {
       return Drawer(
         child: Container(
-          color: AppColor.drawer,
+          color: AppColor.surfaceCard,
           child: SafeArea(
             child: Stack(
               children: <Widget>[
@@ -108,7 +108,7 @@ class AudioPlayerDrawer extends StatelessWidget {
                             border: Border.all(color: Colors.white, width: 2),
                             borderRadius: BorderRadius.circular(28),
                             image: DecorationImage(
-                              image: CachedNetworkImageProvider(controller.appProfile.value?.photoUrl.isNotEmpty ?? false
+                              image: platformImageProvider(controller.appProfile.value?.photoUrl.isNotEmpty ?? false
                                   ? controller.appProfile.value!.photoUrl : AppProperties.getAppLogoUrl(),),
                               fit: BoxFit.cover,
                             ),

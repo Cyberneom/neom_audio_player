@@ -4,9 +4,12 @@ import 'package:sint/sint.dart';
 import 'package:neom_commons/ui/theme/app_color.dart';
 import 'package:neom_commons/utils/auth_guard.dart';
 import 'package:neom_commons/utils/constants/translations/app_translation_constants.dart';
+import 'package:neom_commons/utils/constants/translations/common_translation_constants.dart';
+import 'package:neom_commons/utils/content_moderation_helper.dart';
 import 'package:neom_commons/utils/share_utilities.dart';
 import 'package:neom_core/domain/model/app_media_item.dart';
 import 'package:neom_core/domain/model/item_list.dart';
+import 'package:neom_core/domain/use_cases/user_service.dart';
 
 import '../../utils/constants/audio_player_translation_constants.dart';
 import '../../utils/helpers/add_mediaitem_to_queue.dart';
@@ -116,6 +119,35 @@ class SongTileTrailingMenuState extends State<SongTileTrailingMenu> {
               ],
             ),
           ),
+        if (ContentModerationHelper.canModerate(Sint.find<UserService>().user.userRole)) ...[
+          PopupMenuItem(
+            value: 10,
+            child: Row(
+              children: [
+                Icon(
+                  widget.appMediaItem.isSuspended ? Icons.play_arrow : Icons.pause_circle_outline,
+                  color: Colors.orange[300],
+                ),
+                const SizedBox(width: 10.0),
+                Text(widget.appMediaItem.isSuspended
+                    ? CommonTranslationConstants.unsuspendContent.tr
+                    : CommonTranslationConstants.suspendContent.tr),
+              ],
+            ),
+          ),
+          PopupMenuItem(
+            value: 11,
+            child: Row(
+              children: [
+                Icon(Icons.delete_forever, color: Colors.red[300]),
+                const SizedBox(width: 10.0),
+                Text(CommonTranslationConstants.deleteContent.tr,
+                  style: TextStyle(color: Colors.red[300]),
+                ),
+              ],
+            ),
+          ),
+        ],
       ],
       onSelected: (value) {
         AuthGuard.protect(context, () {
@@ -142,6 +174,31 @@ class SongTileTrailingMenuState extends State<SongTileTrailingMenu> {
                   ),
                 );
               }
+
+            case 10:
+              if (widget.appMediaItem.isSuspended) {
+                ContentModerationHelper.unsuspendMediaItem(widget.appMediaItem.id);
+              } else {
+                ContentModerationHelper.showSuspendContentDialog(
+                  context,
+                  contentName: widget.appMediaItem.name,
+                  onConfirm: (reason) async {
+                    return await ContentModerationHelper.suspendMediaItem(
+                      widget.appMediaItem.id,
+                      Sint.find<UserService>().profile.id,
+                      reason: reason,
+                    );
+                  },
+                );
+              }
+            case 11:
+              ContentModerationHelper.showDeleteContentDialog(
+                context,
+                contentName: widget.appMediaItem.name,
+                onConfirm: () async {
+                  return await ContentModerationHelper.deleteMediaItem(widget.appMediaItem);
+                },
+              );
 
             default:
               break;

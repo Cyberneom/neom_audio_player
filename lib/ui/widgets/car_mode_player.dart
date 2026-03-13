@@ -97,7 +97,7 @@ class _CarModePlayerState extends State<CarModePlayer> {
     final layout = controller.carModeLayout;
 
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: AppColor.darkBackground,
       body: SafeArea(
         child: layout == CarModeLayout.simple
             ? _buildSimpleLayout(theme)

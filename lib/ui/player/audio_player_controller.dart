@@ -31,7 +31,7 @@ import '../../data/implementations/player_hive_controller.dart';
 import '../../domain/models/media_lyrics.dart';
 import '../../domain/use_cases/audio_player_service.dart';
 import '../../neom_audio_handler.dart';
-import '../../audio_player_invoker.dart';
+import 'package:neom_core/domain/use_cases/audio_player_invoker_service.dart';
 import '../../utils/mappers/media_item_mapper.dart';
 import '../library/playlist_player_page.dart';
 import 'lyrics/lyrics.dart';
@@ -125,8 +125,8 @@ class AudioPlayerController extends SintController implements AudioPlayerService
     isLoading.value = false;
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       try {
-        Sint.find<AudioPlayerInvoker>().getOrInitAudioHandler().then((NeomAudioHandler? handler) async {
-          audioHandler = handler;
+        Sint.find<AudioPlayerInvokerService>().getOrInitAudioHandler().then((handler) async {
+          audioHandler = handler as NeomAudioHandler?;
           bool alreadyPlaying = false;
           if(appReleaseItem.value.id.isNotEmpty) {
             alreadyPlaying = audioHandler?.currentMediaItem?.id == appReleaseItem.value.id;
@@ -338,7 +338,7 @@ class AudioPlayerController extends SintController implements AudioPlayerService
         }
 
         if(ownerId.isNotEmpty && ownerId.length > 5) {
-          Sint.toNamed(AppRouteConstants.mateDetails, arguments: ownerId);
+          Sint.toNamed(AppRouteConstants.matePath(ownerId), arguments: ownerId);
         } else {
           AppUtilities.showSnackBar(message: CommonTranslationConstants.noItemOwnerFound.tr);
         }

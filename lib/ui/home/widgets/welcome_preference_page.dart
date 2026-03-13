@@ -25,8 +25,21 @@ class WelcomePreferencePage extends StatefulWidget {
 class WelcomePreferencePageState extends State<WelcomePreferencePage> {
 
   UserService userServiceImpl = Sint.find<UserService>();
-  List preferredLanguage = Hive.box(AppHiveBox.settings.name).get(AppHiveConstants.preferredLanguage, defaultValue: ['Español'])?.toList() as List;
-  String region = Hive.box(AppHiveBox.settings.name).get(AppHiveConstants.region, defaultValue: 'México') as String;
+  List preferredLanguage = ['Español'];
+  String region = 'México';
+
+  @override
+  void initState() {
+    super.initState();
+    try {
+      if (Hive.isBoxOpen(AppHiveBox.settings.name)) {
+        preferredLanguage = Hive.box(AppHiveBox.settings.name).get(AppHiveConstants.preferredLanguage, defaultValue: ['Español'])?.toList() as List;
+        region = Hive.box(AppHiveBox.settings.name).get(AppHiveConstants.region, defaultValue: 'México') as String;
+      }
+    } catch (e) {
+      debugPrint("Hive settings box not open: $e");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -151,7 +164,7 @@ class WelcomePreferencePageState extends State<WelcomePreferencePage> {
                                   dense: true,
                                   onTap: () {
                                     showModalBottomSheet(
-                                      backgroundColor: AppColor.getMain(),
+                                      backgroundColor: AppColor.scaffold,
                                       context: context,
                                       builder: (BuildContext context) {
                                         final List checked = List.from(preferredLanguage);
@@ -246,7 +259,7 @@ class WelcomePreferencePageState extends State<WelcomePreferencePage> {
                                   onTap: () {
                                     showModalBottomSheet(
                                       isDismissible: true,
-                                      backgroundColor: AppColor.getMain(),
+                                      backgroundColor: AppColor.scaffold,
                                       context: context,
                                       builder: (BuildContext context) {
                                         const Map<String, String> codes = CountryCodes.localChartCodes;

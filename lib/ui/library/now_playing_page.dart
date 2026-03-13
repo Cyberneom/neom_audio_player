@@ -52,7 +52,7 @@ class NowPlayingPageState extends State<NowPlayingPage> {
           final playbackState = snapshot.data;
           final processingState = playbackState?.processingState;
           return Scaffold(
-            backgroundColor: AppColor.main50,
+            backgroundColor: AppColor.scaffold,
             appBar: processingState != AudioProcessingState.idle
                 ? null
                 : AppBarChild(title: AudioPlayerTranslationConstants.nowPlaying.tr,),

@@ -10,7 +10,7 @@ import 'package:neom_core/domain/model/app_media_item.dart';
 import 'package:neom_core/utils/constants/app_hive_constants.dart';
 import 'package:neom_core/utils/enums/app_hive_box.dart';
 
-import '../../../audio_player_invoker.dart';
+import 'package:neom_core/domain/use_cases/audio_player_invoker_service.dart';
 import '../../../utils/constants/audio_player_translation_constants.dart';
 import '../../widgets/empty_screen.dart';
 import '../../widgets/like_button.dart';
@@ -119,7 +119,7 @@ class RecentlyPlayedPageState extends State<RecentlyPlayedPage> {
                 overflow: TextOverflow.ellipsis,
               ),
               onTap: () {
-                Sint.find<AudioPlayerInvoker>().init(
+                Sint.find<AudioPlayerInvokerService>().init(
                   mediaItems: _songs.values.toList(),
                   index: index,
                 );

@@ -446,8 +446,6 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
     if(player.playing) return;
 
     AppConfig.logger.d('Starting AudioPlayer Service');
-    // if (player.playing) player.dispose();
-    player = AudioPlayer();
     await player.setAudioSources([]);
     await loadLastQueue();
     await setListeners();
@@ -511,12 +509,13 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
   }
 
   @override
-  Future<void> updateQueue(List<MediaItem> queue) async {
+  Future<void> updateQueue(List<MediaItem> newQueue) async {
     AppConfig.logger.d(
-        "Updating Music Player Queue with ${queue.length} items");
+        "Updating Music Player Queue with ${newQueue.length} items");
     try {
-      final List<AudioSource> sources = await _itemsToSources(queue);
+      final List<AudioSource> sources = await _itemsToSources(newQueue);
       await player.setAudioSources(sources);
+      this.queue.add(newQueue);
     } catch (e) {
       AppConfig.logger.e(e.toString());
     }

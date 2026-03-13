@@ -7,6 +7,8 @@ import 'package:neom_commons/ui/widgets/app_circular_progress_indicator.dart';
 import 'package:neom_commons/utils/auth_guard.dart';
 import 'package:neom_commons/utils/constants/translations/app_translation_constants.dart';
 import 'package:neom_core/app_config.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'web/audio_player_web_layout.dart';
 
 import 'drawer/audio_player_drawer.dart';
 import 'home/audio_player_home_page.dart';
@@ -50,6 +52,10 @@ class AudioPlayerRootPageState extends State<AudioPlayerRootPage> {
 
   @override
   Widget build(BuildContext context) {
+    if (kIsWeb) {
+      return AudioPlayerWebLayout(secondaryPage: widget.secondaryPage);
+    }
+
     return Scaffold(
       backgroundColor: AppFlavour.getBackgroundColor(),
       drawer: AppConfig.instance.isGuestMode ? null : const AudioPlayerDrawer(),
@@ -74,9 +80,9 @@ class AudioPlayerRootPageState extends State<AudioPlayerRootPage> {
         bottomNavigationBar: Theme(
           data: Theme.of(context).copyWith(canvasColor: Colors.grey[900]),
           child: AudioPlayerBottomAppBar(
-            backgroundColor: AppColor.bottomNavigationBar,
+            backgroundColor: AppColor.surfaceElevated,
             color: Colors.white54,
-            selectedColor: Colors.white.withAlpha(230),
+            selectedColor: AppColor.white80,
             notchedShape: const CircularNotchedRectangle(),
             onTabSelected:(int index) => selectPageView(index, context: context),
             items: [

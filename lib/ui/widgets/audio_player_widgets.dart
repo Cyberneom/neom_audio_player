@@ -11,7 +11,7 @@ import 'package:neom_core/utils/constants/app_route_constants.dart';
 import 'package:neom_core/utils/enums/app_media_source.dart';
 
 import '../../data/implementations/player_hive_controller.dart';
-import '../../audio_player_invoker.dart';
+import 'package:neom_core/domain/use_cases/audio_player_invoker_service.dart';
 import '../player/audio_player_controller.dart';
 import 'like_button.dart';
 import 'song_tile_trailing_menu.dart';
@@ -82,9 +82,9 @@ ListTile createCoolMediaItemTile(BuildContext context, AppMediaItem appMediaItem
         } else {
           Sint.put(AudioPlayerController()).setMediaItem(appItem: appMediaItem);
         }
-        await Sint.find<AudioPlayerInvoker>().updateNowPlaying(items: [appMediaItem], index: 0);
+        await Sint.find<AudioPlayerInvokerService>().updateNowPlaying(items: [appMediaItem], index: 0);
       } else {
-        await Sint.find<AudioPlayerInvoker>().updateNowPlaying(items: [appMediaItem], index: 0);
+        await Sint.find<AudioPlayerInvokerService>().updateNowPlaying(items: [appMediaItem], index: 0);
       }
 
       // Sint.toNamed(AppRouteConstants.audioPlayerMedia, arguments: [appMediaItem]);

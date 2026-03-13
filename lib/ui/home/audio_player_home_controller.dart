@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:sint/sint.dart';
@@ -5,6 +7,8 @@ import 'package:hive/hive.dart';
 import 'package:neom_commons/utils/constants/app_page_id_constants.dart';
 import 'package:neom_core/app_config.dart';
 import 'package:neom_core/data/firestore/app_media_item_firestore.dart';
+import 'package:neom_core/data/firestore/app_release_item_firestore.dart';
+import 'package:neom_core/domain/model/app_release_item.dart';
 import 'package:neom_core/data/firestore/itemlist_firestore.dart';
 import 'package:neom_core/data/implementations/app_hive_controller.dart';
 import 'package:neom_core/domain/model/app_media_item.dart';
@@ -18,6 +22,7 @@ import 'package:neom_core/utils/enums/media_item_type.dart';
 
 import '../../data/hive/catalog_cache_controller.dart';
 import '../../data/implementations/player_hive_controller.dart';
+import '../../data/implementations/playlist_generator_controller.dart';
 
 class AudioPlayerHomeController extends SintController {
 
@@ -46,11 +51,19 @@ class AudioPlayerHomeController extends SintController {
   AppProfile profile = AppProfile();
   RxMap<String, AppMediaItem> globalMediaItems = <String, AppMediaItem>{}.obs;
   RxList<AppMediaItem> favoriteItems = <AppMediaItem>[].obs;
+  RxList<AppReleaseItem> bookReleases = <AppReleaseItem>[].obs;
   Box? settingsBox;
+
+  // Home sections (YouTube Music-inspired)
+  Rxn<Itemlist> topPlayedPlaylist = Rxn<Itemlist>();
+  Rxn<Itemlist> newReleasesPlaylist = Rxn<Itemlist>();
+  RxList<Itemlist> featuredPlaylists = <Itemlist>[].obs;
 
   // Offline support
   final CatalogCacheController _catalogCache = CatalogCacheController();
   RxBool isOfflineMode = false.obs;
+
+  StreamSubscription? _recentSongsSubscription;
 
   @override
   void onInit() {
@@ -58,7 +71,9 @@ class AudioPlayerHomeController extends SintController {
     AppConfig.logger.t('Music Player Home Controller Init');
     try {
       profile = userServiceImpl.profile;
-      releaseItemlists.value =  AppConfig.instance.releaseItemlists;
+      releaseItemlists.value = Map.fromEntries(
+        AppConfig.instance.releaseItemlists.entries.where((e) => e.value.type.isAudio),
+      );
       scrollController.addListener(_scrollListener);
       AppConfig.instance.defaultItemlistType = ItemlistType.playlist;
       initializeAudioPlayerHome();
@@ -75,6 +90,18 @@ class AudioPlayerHomeController extends SintController {
       Future.delayed(const Duration(milliseconds: 800), () {
         getPublicItemlists();
       });
+      // Cross-Promo: Load book releases for cross-module promotion
+      Future.delayed(const Duration(seconds: 2), () {
+        _fetchBookReleases();
+      });
+      // Pre-generate recommended playlists and home sections
+      Future.delayed(const Duration(seconds: 3), () {
+        try {
+          final generator = Sint.find<PlaylistGeneratorController>();
+          generator.generateRecommendedPlaylists();
+          _loadHomeSections(generator);
+        } catch (_) {}
+      });
     } catch (e) {
       AppConfig.logger.e(e.toString());
     }
@@ -85,19 +112,19 @@ class AudioPlayerHomeController extends SintController {
 
     try {
       myItemLists.value = profile.itemlists ?? {};
-      myItemLists.removeWhere((key, publicList) => publicList.type == ItemlistType.readlist);
-      myItemLists.removeWhere((key, publicList) => publicList.type == ItemlistType.giglist);
+      myItemLists.removeWhere((key, list) => !list.type.isAudio);
 
       recentSongs = Hive.box(AppHiveBox.player.name).get(AppHiveConstants.recentSongs, defaultValue: []) as List;
 
-      if(recentSongs?.isNotEmpty ?? false) {
-        AppConfig.logger.d('Retrieving recent songs from Hive.');
-        for (final element in recentSongs ?? []) {
-          AppMediaItem recentMediaItem = AppMediaItem.fromJSON(element);
-          recentList[recentMediaItem.id] = recentMediaItem;
-          AppConfig.logger.t('Recent song: ${recentMediaItem.name}');
-        }
-      }
+      _loadRecentSongsFromHive(recentSongs);
+
+      // Listen for changes to recentSongs (e.g. when a new song is played)
+      final playerBox = Hive.box(AppHiveBox.player.name);
+      _recentSongsSubscription = playerBox.watch(key: AppHiveConstants.recentSongs).listen((event) {
+        AppConfig.logger.d('Recent songs updated in Hive, refreshing...');
+        final updatedList = event.value as List?;
+        _loadRecentSongsFromHive(updatedList);
+      });
 
       // Load cached data first for instant UI
       await _loadCachedCatalog();
@@ -131,10 +158,12 @@ class AudioPlayerHomeController extends SintController {
         AppConfig.logger.d('Loaded ${cachedMediaItems.length} cached media items');
       }
 
-      // Load cached release itemlists
+      // Load cached release itemlists (audio only)
       final cachedReleases = await _catalogCache.getCachedReleaseItemlists();
       if (cachedReleases.isNotEmpty && releaseItemlists.isEmpty) {
-        releaseItemlists.value = cachedReleases;
+        releaseItemlists.value = Map.fromEntries(
+          cachedReleases.entries.where((e) => e.value.type.isAudio),
+        );
         AppConfig.logger.d('Loaded ${cachedReleases.length} cached release itemlists');
       }
     } catch (e) {
@@ -172,10 +201,22 @@ class AudioPlayerHomeController extends SintController {
     }
   }
 
+  void _loadRecentSongsFromHive(List? songs) {
+    recentList.clear();
+    if (songs?.isNotEmpty ?? false) {
+      for (final element in songs!) {
+        AppMediaItem recentMediaItem = AppMediaItem.fromJSON(element);
+        recentList[recentMediaItem.id] = recentMediaItem;
+      }
+      AppConfig.logger.d('Loaded ${recentList.length} recent songs');
+    }
+  }
+
   @override
   void dispose() {
-    scrollController.dispose();
+    _recentSongsSubscription?.cancel();
     scrollController.removeListener(_scrollListener);
+    scrollController.dispose();
     super.dispose();
   }
 
@@ -202,11 +243,9 @@ class AudioPlayerHomeController extends SintController {
 
       publicItemlists.value = await ItemlistFirestore().fetchAll(
           excludeFromProfileId: profile.id,
-          itemlistType: ItemlistType.playlist
       );
 
-      publicItemlists.removeWhere((key, publicList) => publicList.type == ItemlistType.readlist
-          || publicList.type == ItemlistType.giglist);
+      publicItemlists.removeWhere((key, list) => !list.type.isAudio);
 
       // Sort by total items
       List<Itemlist> sortedList = publicItemlists.values.toList();
@@ -224,6 +263,47 @@ class AudioPlayerHomeController extends SintController {
     } catch(e) {
       AppConfig.logger.e(e.toString());
       isOfflineMode.value = true;
+    }
+  }
+
+  /// Fetch book releases for cross-module promotion.
+  Future<void> _fetchBookReleases() async {
+    try {
+      final allReleases = await AppReleaseItemFirestore().retrieveAll();
+      bookReleases.value = allReleases.values.where((item) => item.isBookContent).toList();
+      if (bookReleases.isNotEmpty) {
+        bookReleases.shuffle();
+        update([AppPageIdConstants.audioPlayerHome]);
+      }
+      AppConfig.logger.d('Book releases for promo: ${bookReleases.length}');
+    } catch (e) {
+      AppConfig.logger.e('Error fetching book releases: $e');
+    }
+  }
+
+  /// Loads dedicated home sections: Top Played, New Releases, Featured Playlists.
+  Future<void> _loadHomeSections(PlaylistGeneratorController generator) async {
+    try {
+      await generator.generateHomeSections();
+
+      topPlayedPlaylist.value = generator.topPlayedPlaylist;
+      newReleasesPlaylist.value = generator.newReleasesPlaylist;
+
+      // Featured playlists = top 10 public playlists (already sorted by getTotalItems)
+      if (publicItemlists.isNotEmpty) {
+        featuredPlaylists.value = publicItemlists.values
+            .where((list) => list.id.isNotEmpty && list.getTotalItems() > 0)
+            .take(10)
+            .toList();
+      }
+
+      update([AppPageIdConstants.audioPlayerHome]);
+      AppConfig.logger.d('Home sections loaded: '
+          'Top Played: ${topPlayedPlaylist.value?.getTotalItems() ?? 0}, '
+          'New Releases: ${newReleasesPlaylist.value?.getTotalItems() ?? 0}, '
+          'Featured: ${featuredPlaylists.length}');
+    } catch (e) {
+      AppConfig.logger.e('Error loading home sections: $e');
     }
   }
 

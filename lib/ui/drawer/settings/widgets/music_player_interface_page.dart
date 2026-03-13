@@ -23,18 +23,25 @@ class MusicPlayerInterfacePage extends StatefulWidget {
 
 class _MusicPlayerInterfacePageState extends State<MusicPlayerInterfacePage> {
 
-  final Box settingsBox = Hive.box(AppHiveBox.settings.name);
+  late final Box settingsBox;
+  List miniButtonsOrder = AudioPlayerConstants.defaultMiniButtonsOrder;
+  List preferredMiniButtons = AudioPlayerConstants.defaultControlButtons;
+  List<int> preferredCompactNotificationButtons = AudioPlayerConstants.preferredCompactNotificationButtons;
 
-  List miniButtonsOrder = Hive.box(AppHiveBox.settings.name).get(AppHiveConstants.miniButtonsOrder,
-    defaultValue: AudioPlayerConstants.defaultMiniButtonsOrder,) as List;
-
-  List preferredMiniButtons = Hive.box(AppHiveBox.settings.name).get(AppHiveConstants.preferredMiniButtons,
-    defaultValue: AudioPlayerConstants.defaultControlButtons)?.toList() as List;
-
-  List<int> preferredCompactNotificationButtons = Hive.box(AppHiveBox.settings.name)
-      .get(AppHiveConstants.preferredCompactNotificationButtons,
-      defaultValue: AudioPlayerConstants.preferredCompactNotificationButtons) as List<int>;
-
+  @override
+  void initState() {
+    super.initState();
+    try {
+      if (Hive.isBoxOpen(AppHiveBox.settings.name)) {
+        settingsBox = Hive.box(AppHiveBox.settings.name);
+        miniButtonsOrder = settingsBox.get(AppHiveConstants.miniButtonsOrder, defaultValue: AudioPlayerConstants.defaultMiniButtonsOrder) as List;
+        preferredMiniButtons = settingsBox.get(AppHiveConstants.preferredMiniButtons, defaultValue: AudioPlayerConstants.defaultControlButtons)?.toList() as List;
+        preferredCompactNotificationButtons = settingsBox.get(AppHiveConstants.preferredCompactNotificationButtons, defaultValue: AudioPlayerConstants.preferredCompactNotificationButtons) as List<int>;
+      }
+    } catch (e) {
+      debugPrint("Hive settings box not open: $e");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -67,7 +74,7 @@ class _MusicPlayerInterfacePageState extends State<MusicPlayerInterfacePage> {
                           StateSetter setStt,
                         ) {
                           return AlertDialog(
-                            backgroundColor: AppColor.getMain(),
+                            backgroundColor: AppColor.scaffold,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(15.0,),
                             ),
@@ -208,7 +215,7 @@ class _MusicPlayerInterfacePageState extends State<MusicPlayerInterfacePage> {
                           StateSetter setStt,
                         ) {
                           return AlertDialog(
-                            backgroundColor: AppColor.getMain(),
+                            backgroundColor: AppColor.scaffold,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(
                                 15.0,
