@@ -539,7 +539,7 @@ class _ChatBubble extends StatelessWidget {
           CircleAvatar(
             radius: 12,
             backgroundImage: (message.senderAvatarUrl ?? '').isNotEmpty
-                ? NetworkImage(message.senderAvatarUrl!) : null,
+                ? platformImageProvider(message.senderAvatarUrl!) : null,
             backgroundColor: AppColor.getMain().withOpacity(0.3),
             child: (message.senderAvatarUrl ?? '').isEmpty
                 ? Text(

@@ -1,5 +1,7 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:neom_commons/ui/widgets/custom_image.dart';
 import 'package:sint/sint.dart';
 
 import '../../data/implementations/enhanced_playback_controller.dart';
@@ -164,8 +166,8 @@ class _CarModePlayerState extends State<CarModePlayer> {
               margin: const EdgeInsets.all(24),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(16),
-                image: DecorationImage(
-                  image: NetworkImage(widget.artUrl!),
+                image: kIsWeb ? null : DecorationImage(
+                  image: platformImageProvider(widget.artUrl!),
                   fit: BoxFit.cover,
                 ),
                 boxShadow: [
@@ -176,6 +178,12 @@ class _CarModePlayerState extends State<CarModePlayer> {
                   ),
                 ],
               ),
+              child: kIsWeb
+                ? ClipRRect(
+                    borderRadius: BorderRadius.circular(16),
+                    child: platformNetworkImage(imageUrl: widget.artUrl!, fit: BoxFit.cover),
+                  )
+                : null,
             ),
           )
         else
@@ -320,9 +328,9 @@ class _CarModePlayerState extends State<CarModePlayer> {
           margin: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
-            image: widget.artUrl != null
+            image: widget.artUrl != null && !kIsWeb
                 ? DecorationImage(
-                    image: NetworkImage(widget.artUrl!),
+                    image: platformImageProvider(widget.artUrl!),
                     fit: BoxFit.cover,
                   )
                 : null,
@@ -330,7 +338,12 @@ class _CarModePlayerState extends State<CarModePlayer> {
           ),
           child: widget.artUrl == null
               ? const Icon(Icons.music_note, size: 60, color: Colors.white54)
-              : null,
+              : kIsWeb
+                  ? ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: platformNetworkImage(imageUrl: widget.artUrl!, fit: BoxFit.cover),
+                    )
+                  : null,
         ),
 
         // Main content

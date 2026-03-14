@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:sint/sint.dart';
 
@@ -447,11 +448,9 @@ class _ArtistTile extends StatelessWidget {
 
     return ListTile(
       contentPadding: EdgeInsets.zero,
-      leading: CircleAvatar(
-        backgroundImage:
-            artist.imageUrl != null ? NetworkImage(artist.imageUrl!) : null,
-        child: artist.imageUrl == null ? const Icon(Icons.person) : null,
-      ),
+      leading: artist.imageUrl != null
+          ? platformCircleAvatar(imageUrl: artist.imageUrl!)
+          : const CircleAvatar(child: Icon(Icons.person)),
       title: Text(artist.artistName),
       subtitle: Text('${artist.playCount} plays'),
       trailing: Container(
@@ -492,9 +491,9 @@ class _SongTile extends StatelessWidget {
         height: 48,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8),
-          image: song.imageUrl != null
+          image: song.imageUrl != null && !kIsWeb
               ? DecorationImage(
-                  image: NetworkImage(song.imageUrl!),
+                  image: platformImageProvider(song.imageUrl!),
                   fit: BoxFit.cover,
                 )
               : null,
@@ -502,7 +501,12 @@ class _SongTile extends StatelessWidget {
         ),
         child: song.imageUrl == null
             ? const Icon(Icons.music_note)
-            : null,
+            : kIsWeb
+                ? ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: platformNetworkImage(imageUrl: song.imageUrl!, fit: BoxFit.cover),
+                  )
+                : null,
       ),
       title: Text(
         song.songTitle,

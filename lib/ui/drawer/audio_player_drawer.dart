@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:neom_commons/ui/widgets/custom_image.dart';
 import 'package:sint/sint.dart';
@@ -107,12 +108,22 @@ class AudioPlayerDrawer extends StatelessWidget {
                           decoration: BoxDecoration(
                             border: Border.all(color: Colors.white, width: 2),
                             borderRadius: BorderRadius.circular(28),
-                            image: DecorationImage(
+                            image: kIsWeb ? null : DecorationImage(
                               image: platformImageProvider(controller.appProfile.value?.photoUrl.isNotEmpty ?? false
                                   ? controller.appProfile.value!.photoUrl : AppProperties.getAppLogoUrl(),),
                               fit: BoxFit.cover,
                             ),
                           ),
+                          child: kIsWeb
+                            ? ClipRRect(
+                                borderRadius: BorderRadius.circular(28),
+                                child: platformNetworkImage(
+                                  imageUrl: controller.appProfile.value?.photoUrl.isNotEmpty ?? false
+                                      ? controller.appProfile.value!.photoUrl : AppProperties.getAppLogoUrl(),
+                                  fit: BoxFit.cover,
+                                ),
+                              )
+                            : null,
                         ),
                         onTap: ()=> Sint.toNamed(AppRouteConstants.profile),
                       ),

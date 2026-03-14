@@ -1,5 +1,7 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:neom_commons/ui/widgets/custom_image.dart';
 import 'package:sint/sint.dart';
 
 import '../../data/implementations/jam_session_controller.dart';
@@ -471,9 +473,9 @@ class JamParticipantsStack extends StatelessWidget {
                     color: theme.scaffoldBackgroundColor,
                     width: 2,
                   ),
-                  image: participants[i].avatarUrl != null
+                  image: participants[i].avatarUrl != null && !kIsWeb
                       ? DecorationImage(
-                          image: NetworkImage(participants[i].avatarUrl!),
+                          image: platformImageProvider(participants[i].avatarUrl!),
                           fit: BoxFit.cover,
                         )
                       : null,
@@ -489,7 +491,11 @@ class JamParticipantsStack extends StatelessWidget {
                           ),
                         ),
                       )
-                    : null,
+                    : kIsWeb
+                        ? ClipOval(
+                            child: platformNetworkImage(imageUrl: participants[i].avatarUrl!, fit: BoxFit.cover),
+                          )
+                        : null,
               ),
             ),
           if (overflow > 0)

@@ -149,6 +149,9 @@ class MiniPlayerController extends SintController implements MiniPlayerService {
   }
 
   @override
+  bool get isActive => mediaItem.value != null && showInTimeline;
+
+  @override
   void goToTimeline(BuildContext context) {
     isTimeline = true;
     showInTimeline = mediaItem.value != null;

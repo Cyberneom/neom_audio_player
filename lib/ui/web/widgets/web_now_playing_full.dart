@@ -234,10 +234,9 @@ class _WebNowPlayingFullState extends State<WebNowPlayingFull> {
                                     },
                                     child: Row(
                                       children: [
-                                        CircleAvatar(
+                                        platformCircleAvatar(
+                                          imageUrl: _artistPhotoUrl!,
                                           radius: 14,
-                                          backgroundImage: NetworkImage(_artistPhotoUrl!),
-                                          backgroundColor: Colors.white12,
                                         ),
                                         const SizedBox(width: 8),
                                         Flexible(
