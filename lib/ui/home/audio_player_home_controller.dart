@@ -7,6 +7,7 @@ import 'package:hive/hive.dart';
 import 'package:neom_commons/utils/constants/app_page_id_constants.dart';
 import 'package:neom_core/app_config.dart';
 import 'package:neom_core/data/firestore/app_media_item_firestore.dart';
+import 'package:neom_core/utils/neom_error_logger.dart';
 import 'package:neom_core/data/firestore/app_release_item_firestore.dart';
 import 'package:neom_core/domain/model/app_release_item.dart';
 import 'package:neom_core/data/firestore/itemlist_firestore.dart';
@@ -74,11 +75,12 @@ class AudioPlayerHomeController extends SintController {
       releaseItemlists.value = Map.fromEntries(
         AppConfig.instance.releaseItemlists.entries.where((e) => e.value.type.isAudio),
       );
+      _removeNonAudioItemlists(releaseItemlists);
       scrollController.addListener(_scrollListener);
       AppConfig.instance.defaultItemlistType = ItemlistType.playlist;
       initializeAudioPlayerHome();
-    } catch (e) {
-      AppConfig.logger.e(e.toString());
+    } catch (e, st) {
+      NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: 'onInit');
     }
   }
 
@@ -102,8 +104,8 @@ class AudioPlayerHomeController extends SintController {
           _loadHomeSections(generator);
         } catch (_) {}
       });
-    } catch (e) {
-      AppConfig.logger.e(e.toString());
+    } catch (e, st) {
+      NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: 'onReady');
     }
   }
 
@@ -113,6 +115,7 @@ class AudioPlayerHomeController extends SintController {
     try {
       myItemLists.value = profile.itemlists ?? {};
       myItemLists.removeWhere((key, list) => !list.type.isAudio);
+      _removeNonAudioItemlists(myItemLists);
 
       recentSongs = Hive.box(AppHiveBox.player.name).get(AppHiveConstants.recentSongs, defaultValue: []) as List;
 
@@ -141,8 +144,8 @@ class AudioPlayerHomeController extends SintController {
 
       preferredLanguage = PlayerHiveController().preferredLanguage;
       settingsBox = await AppHiveController().getBox(AppHiveBox.settings.name);
-    } catch(e) {
-      AppConfig.logger.e(e.toString());
+    } catch(e, st) {
+      NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: 'initializeAudioPlayerHome');
     }
 
     isLoading.value = false;
@@ -164,10 +167,11 @@ class AudioPlayerHomeController extends SintController {
         releaseItemlists.value = Map.fromEntries(
           cachedReleases.entries.where((e) => e.value.type.isAudio),
         );
+        _removeNonAudioItemlists(releaseItemlists);
         AppConfig.logger.d('Loaded ${cachedReleases.length} cached release itemlists');
       }
-    } catch (e) {
-      AppConfig.logger.e('Error loading cached catalog: $e');
+    } catch (e, st) {
+      NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: '_loadCachedCatalog');
     }
   }
 
@@ -195,8 +199,8 @@ class AudioPlayerHomeController extends SintController {
       await _catalogCache.cacheMediaItems(globalMediaItems.value);
 
       AppConfig.logger.d('Fetched and cached ${globalMediaItems.length} media items (limit: $limit)');
-    } catch (e) {
-      AppConfig.logger.e('Error fetching media items: $e');
+    } catch (e, st) {
+      NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: '_fetchGlobalMediaItems');
       isOfflineMode.value = true;
     }
   }
@@ -246,6 +250,7 @@ class AudioPlayerHomeController extends SintController {
       );
 
       publicItemlists.removeWhere((key, list) => !list.type.isAudio);
+      _removeNonAudioItemlists(publicItemlists);
 
       // Sort by total items
       List<Itemlist> sortedList = publicItemlists.values.toList();
@@ -260,8 +265,8 @@ class AudioPlayerHomeController extends SintController {
       await _catalogCache.cachePublicItemlists(publicItemlists.value);
 
       AppConfig.logger.d('Fetched and cached ${publicItemlists.length} public itemlists');
-    } catch(e) {
-      AppConfig.logger.e(e.toString());
+    } catch(e, st) {
+      NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: 'getPublicItemlists');
       isOfflineMode.value = true;
     }
   }
@@ -276,8 +281,8 @@ class AudioPlayerHomeController extends SintController {
         update([AppPageIdConstants.audioPlayerHome]);
       }
       AppConfig.logger.d('Book releases for promo: ${bookReleases.length}');
-    } catch (e) {
-      AppConfig.logger.e('Error fetching book releases: $e');
+    } catch (e, st) {
+      NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: '_fetchBookReleases');
     }
   }
 
@@ -302,9 +307,20 @@ class AudioPlayerHomeController extends SintController {
           'Top Played: ${topPlayedPlaylist.value?.getTotalItems() ?? 0}, '
           'New Releases: ${newReleasesPlaylist.value?.getTotalItems() ?? 0}, '
           'Featured: ${featuredPlaylists.length}');
-    } catch (e) {
-      AppConfig.logger.e('Error loading home sections: $e');
+    } catch (e, st) {
+      NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: '_loadHomeSections');
     }
+  }
+
+  /// Removes Itemlists that contain only non-audio content (e.g. books, PDFs).
+  /// A playlist typed as "playlist" can still hold book items — this filters those out.
+  void _removeNonAudioItemlists(RxMap<String, Itemlist> lists) {
+    lists.removeWhere((key, list) {
+      final items = list.appReleaseItems;
+      if (items == null || items.isEmpty) return false;
+      // If ALL release items are non-audio (books/PDFs), remove this list
+      return items.every((item) => !item.isAudioContent);
+    });
   }
 
   void clear() {

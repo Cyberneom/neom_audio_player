@@ -1,7 +1,7 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:sint/sint.dart';
-import 'package:neom_commons/ui/widgets/appbar_child.dart';
+// sint already imported above
 import 'package:neom_commons/ui/theme/app_color.dart';
 
 import '../../data/providers/neom_audio_provider.dart';
@@ -55,7 +55,7 @@ class NowPlayingPageState extends State<NowPlayingPage> {
             backgroundColor: AppColor.scaffold,
             appBar: processingState != AudioProcessingState.idle
                 ? null
-                : AppBarChild(title: AudioPlayerTranslationConstants.nowPlaying.tr,),
+                : SintAppBar(title: AudioPlayerTranslationConstants.nowPlaying.tr),
             body: processingState == AudioProcessingState.idle
                 ? TextButton(onPressed: () => Navigator.pushNamed(context, AudioPlayerRouteConstants.home),
               child: emptyScreen(

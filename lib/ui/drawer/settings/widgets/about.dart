@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:neom_commons/app_flavour.dart';
-import 'package:neom_commons/ui/widgets/appbar_child.dart';
 import 'package:neom_commons/utils/constants/translations/app_translation_constants.dart';
 import 'package:neom_commons/utils/constants/translations/common_translation_constants.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -34,7 +33,7 @@ class _AboutPageState extends State<AboutPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppFlavour.getBackgroundColor(),
-        appBar: AppBarChild(title: AppTranslationConstants.about.tr,),
+        appBar: SintAppBar(title: AppTranslationConstants.about.tr,),
         body: CustomScrollView(
           physics: const BouncingScrollPhysics(),
           slivers: [

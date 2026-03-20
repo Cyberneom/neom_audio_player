@@ -6,6 +6,7 @@ import 'package:neom_commons/utils/constants/translations/app_translation_consta
 import 'package:neom_commons/utils/constants/translations/common_translation_constants.dart';
 import 'package:neom_core/app_config.dart';
 import 'package:neom_core/data/firestore/profile_firestore.dart';
+import 'package:neom_core/utils/neom_error_logger.dart';
 import 'package:neom_core/domain/model/app_profile.dart';
 
 import '../../data/implementations/playlist_hive_controller.dart';
@@ -72,8 +73,8 @@ class LikeButtonState extends State<LikeButton>
     AppProfile profile = playlistHiveController.userServiceImpl.profile;
     try {
       liked = profile.favoriteItems?.contains(widget.itemId) ?? false;
-    } catch (e) {
-      AppConfig.logger.e('Error in likeButton: $e');
+    } catch (e, st) {
+      NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: 'LikeButton.build');
     }
     return ScaleTransition(
       scale: _scale,
@@ -99,8 +100,8 @@ class LikeButtonState extends State<LikeButton>
                 profile.favoriteItems?.add(itemId);
                 ProfileFirestore().addFavoriteItem(profile.id, itemId);
               }
-            } catch(e) {
-              AppConfig.logger.e(e.toString());
+            } catch(e, st) {
+              NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: 'LikeButton.onPressed');
             }
 
             if (!liked) {

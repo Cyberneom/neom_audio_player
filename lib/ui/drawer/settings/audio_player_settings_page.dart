@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:sint/sint.dart';
 import 'package:neom_commons/app_flavour.dart';
 import 'package:neom_commons/ui/theme/app_theme.dart';
-import 'package:neom_commons/ui/widgets/appbar_child.dart';
 import 'package:neom_commons/utils/constants/translations/app_translation_constants.dart';
 import 'package:neom_core/app_config.dart';
 import 'package:neom_core/utils/enums/app_in_use.dart';
@@ -37,7 +36,7 @@ class _AudioPlayerSettingsPageState extends State<AudioPlayerSettingsPage> {
     return Scaffold(
         backgroundColor: AppFlavour.getBackgroundColor(),
         resizeToAvoidBottomInset: false,
-        appBar: AppBarChild(title: AppTranslationConstants.settings.tr,),
+        appBar: SintAppBar(title: AppTranslationConstants.settings.tr,),
         body: Container(
           decoration: AppTheme.appBoxDecoration,
           child: Column(

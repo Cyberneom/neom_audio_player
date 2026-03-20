@@ -5,6 +5,7 @@ import 'package:neom_commons/utils/auth_guard.dart';
 import 'package:neom_commons/utils/constants/translations/common_translation_constants.dart';
 import 'package:neom_core/app_config.dart';
 import 'package:neom_core/data/firestore/itemlist_firestore.dart';
+import 'package:neom_core/utils/neom_error_logger.dart';
 import 'package:neom_core/domain/model/app_media_item.dart';
 import 'package:neom_core/domain/model/item_list.dart';
 import 'package:neom_core/domain/use_cases/user_service.dart';
@@ -44,8 +45,8 @@ class AddToPlaylistButtonState extends State<AddToPlaylistButton> {
   @override
   Widget build(BuildContext context) {
     try {
-    } catch (e) {
-      AppConfig.logger.e('Error in likeButton: $e');
+    } catch (e, st) {
+      NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: 'AddToPlaylistButton.build');
     }
     return IconButton(
         padding: widget.padding,
@@ -82,8 +83,8 @@ class AddToPlaylistButtonState extends State<AddToPlaylistButton> {
                   });
                 }
               }
-            } catch(e) {
-              AppConfig.logger.e(e.toString());
+            } catch(e, st) {
+              NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: 'AddToPlaylistButton.onPressed');
             }
           });
         },

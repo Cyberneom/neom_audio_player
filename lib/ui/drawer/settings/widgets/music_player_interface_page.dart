@@ -4,7 +4,6 @@ import 'package:hive/hive.dart';
 import 'package:neom_commons/app_flavour.dart';
 import 'package:neom_commons/ui/theme/app_color.dart';
 import 'package:neom_commons/ui/theme/app_theme.dart';
-import 'package:neom_commons/ui/widgets/appbar_child.dart';
 import 'package:neom_commons/utils/constants/translations/app_translation_constants.dart';
 import 'package:neom_core/utils/constants/app_hive_constants.dart';
 import 'package:neom_core/utils/enums/app_hive_box.dart';
@@ -47,7 +46,7 @@ class _MusicPlayerInterfacePageState extends State<MusicPlayerInterfacePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppFlavour.getBackgroundColor(),
-        appBar: AppBarChild(title: AudioPlayerTranslationConstants.ui.tr,),
+        appBar: SintAppBar(title: AudioPlayerTranslationConstants.ui.tr,),
         body: Container(
           decoration: AppTheme.appBoxDecoration,
           child: ListView(

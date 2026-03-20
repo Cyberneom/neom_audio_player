@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:neom_commons/utils/mappers/app_media_item_mapper.dart';
 import 'package:neom_core/app_config.dart';
 import 'package:neom_core/data/firestore/app_release_item_firestore.dart';
+import 'package:neom_core/utils/neom_error_logger.dart';
 import 'package:neom_core/domain/model/app_release_item.dart';
 import 'package:neom_core/domain/model/item_list.dart';
 import 'package:neom_core/domain/repository/casete_session_repository.dart';
@@ -156,7 +157,7 @@ class PlaylistGeneratorController extends SintController implements PlaylistGene
   @override
   Future<Itemlist> generateTrendingPlaylist({int songCount = 30}) async {
     final allItems = await AppReleaseItemFirestore().retrieveAll();
-    final items = allItems.values.toList();
+    final items = allItems.values.where((item) => item.isAudioContent).toList();
 
     // Sort by popularity (likedProfiles count)
     items.sort((a, b) =>
@@ -181,7 +182,7 @@ class PlaylistGeneratorController extends SintController implements PlaylistGene
   @override
   Future<Itemlist> generateNewReleases({int songCount = 20}) async {
     final allItems = await AppReleaseItemFirestore().retrieveAll();
-    final items = allItems.values.toList();
+    final items = allItems.values.where((item) => item.isAudioContent).toList();
 
     // Sort by creation time (most recent first)
     items.sort((a, b) => (b.createdTime ?? 0).compareTo(a.createdTime ?? 0));
@@ -224,10 +225,10 @@ class PlaylistGeneratorController extends SintController implements PlaylistGene
         ..sort((a, b) => b.value.compareTo(a.value));
       final topItemIds = sortedEntries.take(songCount).map((e) => e.key).toList();
 
-      // 4. Fetch catalog and cross-reference
+      // 4. Fetch catalog and cross-reference (audio only)
       final allItems = await AppReleaseItemFirestore().retrieveAll();
       final selected = topItemIds
-          .where((id) => allItems.containsKey(id))
+          .where((id) => allItems.containsKey(id) && allItems[id]!.isAudioContent)
           .map((id) => allItems[id]!)
           .toList();
 
@@ -243,8 +244,8 @@ class PlaylistGeneratorController extends SintController implements PlaylistGene
         appReleaseItems: selected,
         createdTime: DateTime.now().millisecondsSinceEpoch,
       );
-    } catch (e) {
-      AppConfig.logger.e('PlaylistGenerator.generateTopPlayed error: $e');
+    } catch (e, st) {
+      NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: 'generateTopPlayed');
       // Fallback to trending by likes if CaseteSession fails
       return generateTrendingPlaylist(songCount: songCount);
     }
@@ -268,8 +269,8 @@ class PlaylistGeneratorController extends SintController implements PlaylistGene
       AppConfig.logger.d('PlaylistGenerator: Home sections generated — '
           'Top Played: ${results[0].getTotalItems()}, '
           'New Releases: ${results[1].getTotalItems()}');
-    } catch (e) {
-      AppConfig.logger.e('PlaylistGenerator.generateHomeSections error: $e');
+    } catch (e, st) {
+      NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: 'generateHomeSections');
     }
   }
 

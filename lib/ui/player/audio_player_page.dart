@@ -69,7 +69,7 @@ class AudioPlayerPage extends StatelessWidget {
       builder: (controller) => Obx(() => Scaffold(
         resizeToAvoidBottomInset: false,
         backgroundColor: AppFlavour.getBackgroundColor(),
-        appBar: AppBar(
+        appBar: SintAppBar(
           elevation: 0,
           backgroundColor: AppColor.surfaceElevated,
           centerTitle: true,

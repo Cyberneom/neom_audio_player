@@ -6,6 +6,7 @@ import 'package:neom_core/app_config.dart';
 import 'package:neom_core/domain/model/app_media_item.dart';
 import 'package:neom_core/domain/model/item_list.dart';
 import 'package:neom_core/utils/enums/app_hive_box.dart';
+import 'package:neom_core/utils/neom_error_logger.dart';
 
 /// Controller for managing catalog offline cache using Hive.
 /// Caches public itemlists, releases, and media items for offline access.
@@ -53,8 +54,8 @@ class CatalogCacheController {
       await _updateTimestamp();
 
       AppConfig.logger.d('Cached ${toCache.length} public itemlists');
-    } catch (e) {
-      AppConfig.logger.e('Error caching public itemlists: $e');
+    } catch (e, st) {
+      NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: 'cachePublicItemlists');
     }
   }
 
@@ -78,8 +79,8 @@ class CatalogCacheController {
       }
 
       return result;
-    } catch (e) {
-      AppConfig.logger.e('Error getting cached public itemlists: $e');
+    } catch (e, st) {
+      NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: 'getCachedPublicItemlists');
       return {};
     }
   }
@@ -102,8 +103,8 @@ class CatalogCacheController {
       await _updateTimestamp();
 
       AppConfig.logger.d('Cached ${toCache.length} release itemlists');
-    } catch (e) {
-      AppConfig.logger.e('Error caching release itemlists: $e');
+    } catch (e, st) {
+      NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: 'cacheReleaseItemlists');
     }
   }
 
@@ -127,8 +128,8 @@ class CatalogCacheController {
       }
 
       return result;
-    } catch (e) {
-      AppConfig.logger.e('Error getting cached release itemlists: $e');
+    } catch (e, st) {
+      NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: 'getCachedReleaseItemlists');
       return {};
     }
   }
@@ -151,8 +152,8 @@ class CatalogCacheController {
       await _updateTimestamp();
 
       AppConfig.logger.d('Cached ${toCache.length} media items');
-    } catch (e) {
-      AppConfig.logger.e('Error caching media items: $e');
+    } catch (e, st) {
+      NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: 'cacheMediaItems');
     }
   }
 
@@ -176,8 +177,8 @@ class CatalogCacheController {
       }
 
       return result;
-    } catch (e) {
-      AppConfig.logger.e('Error getting cached media items: $e');
+    } catch (e, st) {
+      NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: 'getCachedMediaItems');
       return {};
     }
   }
@@ -215,7 +216,8 @@ class CatalogCacheController {
       }
 
       return true;
-    } catch (e) {
+    } catch (e, st) {
+      NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: '_isCacheValid');
       return false;
     }
   }
@@ -226,8 +228,8 @@ class CatalogCacheController {
       final box = await _getBox();
       await box.put(_lastUpdateKey, DateTime.now().millisecondsSinceEpoch);
       await box.put(_cacheVersionKey, _currentCacheVersion);
-    } catch (e) {
-      AppConfig.logger.e('Error updating cache timestamp: $e');
+    } catch (e, st) {
+      NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: 'updateTimestamp');
     }
   }
 
@@ -247,7 +249,8 @@ class CatalogCacheController {
         return '${hours}h ${minutes}m ago';
       }
       return '${minutes}m ago';
-    } catch (e) {
+    } catch (e, st) {
+      NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: 'getCacheAge');
       return 'Unknown';
     }
   }
@@ -258,8 +261,8 @@ class CatalogCacheController {
       final box = await _getBox();
       await box.clear();
       AppConfig.logger.d('Cleared catalog cache');
-    } catch (e) {
-      AppConfig.logger.e('Error clearing catalog cache: $e');
+    } catch (e, st) {
+      NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: 'clearCache');
     }
   }
 
@@ -275,7 +278,8 @@ class CatalogCacheController {
         'releaseItemlists': releaseItemlists.length,
         'mediaItems': mediaItems.length,
       };
-    } catch (e) {
+    } catch (e, st) {
+      NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: 'getCacheStats');
       return {
         'publicItemlists': 0,
         'releaseItemlists': 0,

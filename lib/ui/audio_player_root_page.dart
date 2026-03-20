@@ -7,6 +7,7 @@ import 'package:neom_commons/ui/widgets/app_circular_progress_indicator.dart';
 import 'package:neom_commons/utils/auth_guard.dart';
 import 'package:neom_commons/utils/constants/translations/app_translation_constants.dart';
 import 'package:neom_core/app_config.dart';
+import 'package:neom_core/utils/neom_error_logger.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'web/audio_player_web_layout.dart';
 
@@ -19,7 +20,10 @@ import 'widgets/audio_player_bottom_app_bar.dart';
 class AudioPlayerRootPage extends StatefulWidget {
   final Widget? secondaryPage;
 
-  const AudioPlayerRootPage({super.key, this.secondaryPage});
+  /// Optional navigation sidebar builder for web (e.g. Home's LeftSidebar).
+  final Widget Function({required bool expanded})? navigationSidebar;
+
+  const AudioPlayerRootPage({super.key, this.secondaryPage, this.navigationSidebar});
 
 
   @override
@@ -53,7 +57,10 @@ class AudioPlayerRootPageState extends State<AudioPlayerRootPage> {
   @override
   Widget build(BuildContext context) {
     if (kIsWeb) {
-      return AudioPlayerWebLayout(secondaryPage: widget.secondaryPage);
+      return AudioPlayerWebLayout(
+        secondaryPage: widget.secondaryPage,
+        navigationSidebar: widget.navigationSidebar,
+      );
     }
 
     return Scaffold(
@@ -106,8 +113,8 @@ class AudioPlayerRootPageState extends State<AudioPlayerRootPage> {
             currentIndex = index;
           }
 
-        } catch (e) {
-          AppConfig.logger.e(e.toString());
+        } catch (e, st) {
+          NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: 'selectPageView');
         }
         setState(() {});
       });

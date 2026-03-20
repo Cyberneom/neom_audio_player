@@ -1,6 +1,7 @@
 import 'package:sint/sint.dart';
 import 'package:http/http.dart' as http;
 import 'package:neom_core/app_config.dart';
+import 'package:neom_core/utils/neom_error_logger.dart';
 
 import '../../../domain/models/media_lyrics.dart';
 import '../../../utils/constants/audio_player_translation_constants.dart';
@@ -69,7 +70,8 @@ class Lyrics {
     try {
       //TODO
       return AudioPlayerTranslationConstants.noLyricsAvailable.tr;
-    } catch (e) {
+    } catch (e, st) {
+      NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: 'getOffLyrics');
       return '';
     }
   }
@@ -83,8 +85,8 @@ class Lyrics {
       AppConfig.logger.i('Found Musixmatch Lyrics Link: $link');
       lyrics = await scrapLink(link);
       mediaLyrics.lyrics = lyrics;
-    } catch (e) {
-      AppConfig.logger.e('Error in getMusixMatchLyrics ${e.toString()}');
+    } catch (e, st) {
+      NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: 'getMusixMatchLyrics');
     }
 
     return mediaLyrics;

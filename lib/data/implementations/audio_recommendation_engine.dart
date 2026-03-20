@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:neom_core/app_config.dart';
 import 'package:neom_core/data/firestore/app_release_item_firestore.dart';
+import 'package:neom_core/utils/neom_error_logger.dart';
 import 'package:neom_core/data/implementations/app_hive_controller.dart';
 import 'package:neom_core/domain/model/app_media_item.dart';
 import 'package:neom_core/domain/model/app_release_item.dart';
@@ -60,8 +61,8 @@ class AudioRecommendationEngine {
       // 6. Apply mood filter and return top N
       final filtered = _applyMoodFilter(scored.map((s) => s.item).toList(), mood);
       return filtered.take(count).toList();
-    } catch (e) {
-      AppConfig.logger.e('Error in recommendFromSong: $e');
+    } catch (e, st) {
+      NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: 'recommendFromSong');
       return [];
     }
   }
@@ -100,8 +101,8 @@ class AudioRecommendationEngine {
 
       // 5. Apply mood filter
       return _applyMoodFilter(items, mood).take(count).toList();
-    } catch (e) {
-      AppConfig.logger.e('Error in recommendFromArtist: $e');
+    } catch (e, st) {
+      NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: 'recommendFromArtist');
       return [];
     }
   }
@@ -116,8 +117,8 @@ class AudioRecommendationEngine {
       final byCategory = await _releaseFirestore.retrieveByCategory(genre, limit: count * 2);
       final items = byCategory.values.toList()..shuffle(_random);
       return _applyMoodFilter(items, mood).take(count).toList();
-    } catch (e) {
-      AppConfig.logger.e('Error in recommendFromGenre: $e');
+    } catch (e, st) {
+      NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: 'recommendFromGenre');
       return [];
     }
   }
@@ -178,8 +179,8 @@ class AudioRecommendationEngine {
       items.sort((a, b) => (b.likedProfiles?.length ?? 0).compareTo(a.likedProfiles?.length ?? 0));
 
       return _applyMoodFilter(items, mood).take(count).toList();
-    } catch (e) {
-      AppConfig.logger.e('Error in personalMix: $e');
+    } catch (e, st) {
+      NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: 'personalMix');
       return _fallbackFromCache(count, mood);
     }
   }
@@ -228,8 +229,8 @@ class AudioRecommendationEngine {
       final topItems = items.take(count * 3).toList()..shuffle(_random);
 
       return _applyMoodFilter(topItems, mood).take(count).toList();
-    } catch (e) {
-      AppConfig.logger.e('Error in discoveryQueue: $e');
+    } catch (e, st) {
+      NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: 'discoveryQueue');
       return _fallbackFromCache(count, mood);
     }
   }
@@ -247,8 +248,8 @@ class AudioRecommendationEngine {
       final items = releases.values.toList()..shuffle(_random);
 
       return _applyMoodFilter(items, mood).take(count).toList();
-    } catch (e) {
-      AppConfig.logger.e('Error in fromLikedSongs: $e');
+    } catch (e, st) {
+      NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: 'fromLikedSongs');
       return [];
     }
   }
@@ -344,8 +345,8 @@ class AudioRecommendationEngine {
           .where((item) => item is Map && item['id'] != null)
           .map<String>((item) => item['id'].toString())
           .toSet();
-    } catch (e) {
-      AppConfig.logger.e('Error getting recently played: $e');
+    } catch (e, st) {
+      NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: '_getRecentlyPlayedIds');
       return {};
     }
   }
@@ -355,8 +356,8 @@ class AudioRecommendationEngine {
     try {
       final favBox = await AppHiveController().getBox(AppHiveBox.favoriteItems.name);
       return favBox.keys.cast<String>().toSet();
-    } catch (e) {
-      AppConfig.logger.e('Error getting favorites: $e');
+    } catch (e, st) {
+      NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: '_getFavoriteIds');
       return {};
     }
   }
@@ -371,7 +372,8 @@ class AudioRecommendationEngine {
       final releases = await _releaseFirestore.retrieveFromList(ids);
       final items = releases.values.toList()..shuffle(_random);
       return _applyMoodFilter(items, mood).take(count).toList();
-    } catch (e) {
+    } catch (e, st) {
+      NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: '_fallbackFromCache');
       return [];
     }
   }

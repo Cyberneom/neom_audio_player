@@ -193,8 +193,8 @@ class ListeningStatsPage extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Listening Activity'),
+      appBar: SintAppBar(
+        title: 'Listening Activity',
       ),
       body: Obx(() {
         final stats = controller.stats;

@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:neom_core/app_config.dart';
 import 'package:neom_core/data/firestore/constants/app_firestore_collection_constants.dart';
+import 'package:neom_core/utils/neom_error_logger.dart';
 
 import '../../domain/models/jam_session.dart';
 import '../../utils/enums/jam_session_type.dart';
@@ -22,8 +23,8 @@ class JamSessionFirestore {
         final doc = await _collection.add(session.toJson());
         return doc.id;
       }
-    } catch (e) {
-      AppConfig.logger.e('Error creating jam session: $e');
+    } catch (e, st) {
+      NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: 'createSession');
       return '';
     }
   }
@@ -37,8 +38,8 @@ class JamSessionFirestore {
         data['id'] = doc.id;
         return JamSession.fromJson(data);
       }
-    } catch (e) {
-      AppConfig.logger.e('Error getting session: $e');
+    } catch (e, st) {
+      NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: 'getSession');
     }
     return null;
   }
@@ -58,8 +59,8 @@ class JamSessionFirestore {
         data['id'] = doc.id;
         return JamSession.fromJson(data);
       }
-    } catch (e) {
-      AppConfig.logger.e('Error getting session by code: $e');
+    } catch (e, st) {
+      NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: 'getSessionByCode');
     }
     return null;
   }
@@ -68,8 +69,8 @@ class JamSessionFirestore {
   Future<void> updateSession(JamSession session) async {
     try {
       await _collection.doc(session.id).update(session.toJson());
-    } catch (e) {
-      AppConfig.logger.e('Error updating session: $e');
+    } catch (e, st) {
+      NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: 'updateSession');
     }
   }
 
@@ -77,8 +78,8 @@ class JamSessionFirestore {
   Future<void> deleteSession(String sessionId) async {
     try {
       await _collection.doc(sessionId).delete();
-    } catch (e) {
-      AppConfig.logger.e('Error deleting session: $e');
+    } catch (e, st) {
+      NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: 'deleteSession');
     }
   }
 
@@ -100,8 +101,8 @@ class JamSessionFirestore {
         data['id'] = doc.id;
         return JamSession.fromJson(data);
       }).toList();
-    } catch (e) {
-      AppConfig.logger.e('Error getting active sessions: $e');
+    } catch (e, st) {
+      NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: 'getActiveSessions');
       return [];
     }
   }
@@ -120,8 +121,8 @@ class JamSessionFirestore {
         data['id'] = doc.id;
         return JamSession.fromJson(data);
       }).toList();
-    } catch (e) {
-      AppConfig.logger.e('Error getting sessions by host: $e');
+    } catch (e, st) {
+      NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: 'getSessionsByHost');
       return [];
     }
   }
@@ -145,8 +146,8 @@ class JamSessionFirestore {
           .doc(sessionId)
           .collection('chat')
           .add(message.toJson());
-    } catch (e) {
-      AppConfig.logger.e('Error adding chat message: $e');
+    } catch (e, st) {
+      NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: 'addChatMessage');
     }
   }
 
@@ -182,8 +183,8 @@ class JamSessionFirestore {
         data['id'] = doc.id;
         return JamChatMessage.fromJson(data);
       }).toList().reversed.toList();
-    } catch (e) {
-      AppConfig.logger.e('Error getting recent messages: $e');
+    } catch (e, st) {
+      NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: 'getRecentMessages');
       return [];
     }
   }

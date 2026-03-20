@@ -7,6 +7,7 @@ import 'package:neom_commons/utils/constants/app_assets.dart';
 import 'package:neom_commons/utils/mappers/app_media_item_mapper.dart';
 import 'package:neom_core/app_config.dart';
 import 'package:neom_core/data/firestore/app_media_item_firestore.dart';
+import 'package:neom_core/utils/neom_error_logger.dart';
 import 'package:neom_core/data/firestore/app_release_item_firestore.dart';
 import 'package:neom_core/domain/model/app_media_item.dart';
 import 'package:neom_core/domain/model/app_release_item.dart';
@@ -74,8 +75,8 @@ class AudioPlayerInvoker implements AudioPlayerInvokerService {
 
       ///This would be needed when adding offline mode downloading audio.
       // await MetadataGod.initialize();
-    } catch(e) {
-      AppConfig.logger.e(e.toString());
+    } catch(e, st) {
+      NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: 'init');
     }
   }
 
@@ -91,8 +92,8 @@ class AudioPlayerInvoker implements AudioPlayerInvokerService {
       }
 
       await updateNowPlaying(index: index, recommend: recommend, playItem: playItem);
-    } catch(e) {
-      AppConfig.logger.e(e.toString());
+    } catch(e, st) {
+      NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: 'setValues');
     }
   }
 
@@ -162,8 +163,8 @@ class AudioPlayerInvoker implements AudioPlayerInvokerService {
       }
 
       enforceRepeat();
-    } catch(e) {
-      AppConfig.logger.e(e.toString());
+    } catch(e, st) {
+      NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: 'updateNowPlaying');
     }
   }
 
@@ -238,8 +239,8 @@ class AudioPlayerInvoker implements AudioPlayerInvokerService {
         AppConfig.logger.d("NeomAudioHandler is already registered with GetX.");
         handler = Sint.find<NeomAudioHandler>();
       }
-    } catch (e) {
-      AppConfig.logger.e(e.toString());
+    } catch (e, st) {
+      NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: 'initAudioHandler');
     }
 
     audioHandler = handler;
@@ -264,8 +265,8 @@ class AudioPlayerInvoker implements AudioPlayerInvokerService {
         AppConfig.logger.d("NeomAudioHandler is already registered with SINT.");
         handler = Sint.find<NeomAudioHandler>();
       }
-    } catch (e) {
-      AppConfig.logger.e(e.toString());
+    } catch (e, st) {
+      NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: 'getOrInitAudioHandler');
     }
 
     return handler;

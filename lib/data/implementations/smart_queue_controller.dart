@@ -6,6 +6,7 @@ import 'package:audio_service/audio_service.dart';
 import 'package:hive/hive.dart';
 import 'package:neom_core/app_config.dart';
 import 'package:neom_core/data/firestore/itemlist_firestore.dart';
+import 'package:neom_core/utils/neom_error_logger.dart';
 import 'package:neom_core/domain/model/item_list.dart';
 import 'package:neom_core/domain/use_cases/user_service.dart';
 import 'package:neom_core/utils/enums/itemlist_type.dart';
@@ -42,7 +43,7 @@ class SmartQueueController extends SintController implements SmartQueueService {
     _initHive();
     try {
       _audioHandler = Sint.find<NeomAudioHandler>();
-    } catch (e) {
+    } catch (e, st) {
       AppConfig.logger.w('NeomAudioHandler not available for SmartQueueController');
     }
   }
@@ -372,8 +373,8 @@ class SmartQueueController extends SintController implements SmartQueueService {
           final recs = await _recommendationEngine.recommendFromSong(songId, count: count);
           return recs.map((r) => MediaItemMapper.fromAppReleaseItem(item: r)).toList();
       }
-    } catch (e) {
-      AppConfig.logger.e('Error getting recommendations: $e');
+    } catch (e, st) {
+      NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: 'getRecommendations');
       return [];
     }
   }
@@ -505,8 +506,8 @@ class SmartQueueController extends SintController implements SmartQueueService {
 
       await ItemlistFirestore().insert(itemlist);
       AppConfig.logger.i('Queue saved as playlist: $name');
-    } catch (e) {
-      AppConfig.logger.e('Error saving queue as playlist: $e');
+    } catch (e, st) {
+      NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: 'saveAsPlaylist');
     }
   }
 
@@ -525,8 +526,8 @@ class SmartQueueController extends SintController implements SmartQueueService {
         'autoRecommendations': _autoRecommendations.value,
       };
       await _box?.put(_queueStateKey, jsonEncode(data));
-    } catch (e) {
-      AppConfig.logger.e('Error saving queue state: $e');
+    } catch (e, st) {
+      NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: 'saveQueueState');
     }
   }
 
@@ -563,8 +564,8 @@ class SmartQueueController extends SintController implements SmartQueueService {
         _autoRecommendations.value = (data['autoRecommendations'] as bool?) ?? false;
         _notifyUpdate();
       }
-    } catch (e) {
-      AppConfig.logger.e('Error restoring queue state: $e');
+    } catch (e, st) {
+      NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: 'restoreQueue');
     }
   }
 

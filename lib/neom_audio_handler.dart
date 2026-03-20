@@ -8,6 +8,7 @@ import 'package:neom_commons/utils/auth_guard.dart';
 import 'package:neom_commons/utils/constants/translations/app_translation_constants.dart';
 import 'package:neom_core/app_config.dart';
 import 'package:neom_core/data/implementations/app_hive_controller.dart';
+import 'package:neom_core/utils/neom_error_logger.dart';
 import 'package:neom_core/data/implementations/neom_stopwatch.dart';
 import 'package:neom_core/domain/model/casete/casete_session.dart';
 import 'package:neom_core/domain/repository/casete_session_repository.dart';
@@ -132,8 +133,8 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
       if (!kIsWeb) {
         _connectEqualizer();
       }
-    } catch (e) {
-      AppConfig.logger.e('Error while loading last queue $e');
+    } catch (e, st) {
+      NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: '_init');
     }
 
   }
@@ -147,7 +148,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
         eqController.attachBridge(AndroidEqualizerBridge(_androidEqualizer!));
         AppConfig.logger.d('EqualizerController attached to native AndroidEqualizer');
       }
-    } catch (e) {
+    } catch (e, st) {
       AppConfig.logger.w('EqualizerController not registered yet, EQ bridge skipped');
     }
   }
@@ -240,8 +241,8 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
             List<AudioSource> sources = await _itemsToSources(lastQueue);
             await player.setAudioSources(sources);
             await gotoLastIndexAndPosition();
-          } catch (e) {
-            AppConfig.logger.e('Error while setting last audiosource ${e.toString()}');
+          } catch (e, st) {
+            NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: 'loadLastQueue');
           }
         }
       }
@@ -311,8 +312,8 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
           queueIndex: queueIndex,
         ),
       );
-    } catch (e) {
-      AppConfig.logger.e(e.toString());
+    } catch (e, st) {
+      NeomErrorLogger.recordErrorLight(e, st, module: 'neom_audio_player', operation: '_doBroadcastState');
     }
   }
 
@@ -356,7 +357,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
             }
           }
 
-          if (playerHiveController.cacheSong && CoreUtilities.isInternal(audioUrl)) {
+          if (!kIsWeb && playerHiveController.cacheSong && CoreUtilities.isInternal(audioUrl)) {
             audioSource = LockCachingAudioSource(Uri.parse(audioUrl));
           } else {
             audioSource = AudioSource.uri(Uri.parse(audioUrl));
@@ -369,8 +370,8 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
       } else {
         AppConfig.logger.w('No audio source created for ${mediaItem.title}');
       }
-    } catch (e) {
-      AppConfig.logger.e('Error creating audio source for ${mediaItem.title}: $e');
+    } catch (e, st) {
+      NeomErrorLogger.recordErrorLight(e, st, module: 'neom_audio_player', operation: '_itemToSource');
     }
 
     return audioSource;
@@ -399,8 +400,8 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
         AudioSource? src = await _itemToSource(element);
         if (src != null) sources.add(src);
       }
-    } catch (e) {
-      AppConfig.logger.e(e.toString());
+    } catch (e, st) {
+      NeomErrorLogger.recordErrorLight(e, st, module: 'neom_audio_player', operation: '_itemsToSources');
     }
     return sources;
   }
@@ -516,8 +517,8 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
       final List<AudioSource> sources = await _itemsToSources(newQueue);
       await player.setAudioSources(sources);
       this.queue.add(newQueue);
-    } catch (e) {
-      AppConfig.logger.e(e.toString());
+    } catch (e, st) {
+      NeomErrorLogger.recordErrorLight(e, st, module: 'neom_audio_player', operation: 'updateQueue');
     }
   }
 
@@ -666,8 +667,8 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
         neomStopwatch.start(ref: currentMediaItem!.id);
         await player.play();
       }
-    } catch (e) {
-      AppConfig.logger.e(e.toString());
+    } catch (e, st) {
+      NeomErrorLogger.recordErrorLight(e, st, module: 'neom_audio_player', operation: 'play');
     }
   }
 
@@ -720,8 +721,8 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
           if (newPosition < Duration.zero) newPosition = Duration.zero;
           if (newPosition > player.duration!) newPosition = player.duration!;
           await player.seek(newPosition);
-        } catch (e) {
-          AppConfig.logger.e('Error in fastForward ${e.toString()}');
+        } catch (e, st) {
+          NeomErrorLogger.recordErrorLight(e, st, module: 'neom_audio_player', operation: 'fastForward');
         }
       case 'rewind':
         try {
@@ -731,8 +732,8 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
           if (newPosition < Duration.zero) newPosition = Duration.zero;
           if (newPosition > player.duration!) newPosition = player.duration!;
           await player.seek(newPosition);
-        } catch (e) {
-          AppConfig.logger.e('Error in rewind ${e.toString()}');
+        } catch (e, st) {
+          NeomErrorLogger.recordErrorLight(e, st, module: 'neom_audio_player', operation: 'rewind');
         }
       case 'refreshLink':
         if (extras?['newData'] != null) {
@@ -906,8 +907,8 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
       // 4. Guardado en Firestore
       await Sint.find<CaseteSessionRepository>().insert(caseteSession, isOwner: isOwner);
       AppConfig.logger.i("CASETE ALG: Session saved! $secondsListened seconds for $itemName");
-    } catch (e) {
-      AppConfig.logger.e("CASETE ALG: Error saving session: $e");
+    } catch (e, st) {
+      NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: 'trackCaseteSession');
     }
 
   }

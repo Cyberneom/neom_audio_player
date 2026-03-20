@@ -3,7 +3,6 @@ import 'package:sint/sint.dart';
 import 'package:hive/hive.dart';
 import 'package:neom_commons/app_flavour.dart';
 import 'package:neom_commons/ui/theme/app_theme.dart';
-import 'package:neom_commons/ui/widgets/appbar_child.dart';
 import 'package:neom_commons/ui/widgets/images/neom_image_card.dart';
 import 'package:neom_commons/utils/constants/translations/common_translation_constants.dart';
 import 'package:neom_core/domain/model/app_media_item.dart';
@@ -46,9 +45,9 @@ class RecentlyPlayedPageState extends State<RecentlyPlayedPage> {
 
     return Scaffold(
       backgroundColor: AppFlavour.getBackgroundColor(),
-      appBar: AppBarChild(
+      appBar: SintAppBar(
         title: CommonTranslationConstants.lastSession.tr,
-        actionWidgets: [
+        actions: [
           IconButton(
             onPressed: () {
               Hive.box(AppHiveBox.player.name).put('recentSongs', []);

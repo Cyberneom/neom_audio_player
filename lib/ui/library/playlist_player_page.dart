@@ -6,13 +6,14 @@ import 'package:neom_commons/app_flavour.dart';
 import 'package:neom_commons/ui/theme/app_color.dart';
 import 'package:neom_commons/ui/theme/app_theme.dart';
 import 'package:neom_commons/ui/widgets/app_circular_progress_indicator.dart';
-import 'package:neom_commons/ui/widgets/appbar_child.dart';
+
 import 'package:neom_commons/utils/constants/app_constants.dart';
 import 'package:neom_commons/utils/constants/translations/app_translation_constants.dart';
 import 'package:neom_commons/utils/mappers/app_media_item_mapper.dart';
 import 'package:neom_commons/utils/text_utilities.dart';
 import 'package:neom_core/app_config.dart';
 import 'package:neom_core/data/firestore/app_media_item_firestore.dart';
+import 'package:neom_core/utils/neom_error_logger.dart';
 import 'package:neom_core/domain/model/app_media_item.dart';
 import 'package:neom_core/domain/model/app_profile.dart';
 import 'package:neom_core/domain/model/item_list.dart';
@@ -67,8 +68,8 @@ class PlaylistPlayerPageState extends State<PlaylistPlayerPage>
         orderValue = Hive.box(AppHiveBox.settings.name).get(AppHiveConstants.orderValue, defaultValue: 1) as int;
         albumSortValue = Hive.box(AppHiveBox.settings.name).get(AppHiveConstants.albumSortValue, defaultValue: 2) as int;
       }
-    } catch (e) {
-      AppConfig.logger.e("Hive box settings not opened: $e");
+    } catch (e, st) {
+      NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: 'PlaylistPlayerPage.initState');
     }
     _scrollController.addListener(() {
       if (_scrollController.position.userScrollDirection ==
@@ -123,13 +124,13 @@ class PlaylistPlayerPageState extends State<PlaylistPlayerPage>
     String releaseName = TextUtilities.getMediaName(widget.itemlist?.name ?? '');
     return Scaffold(
       backgroundColor: AppFlavour.getBackgroundColor(),
-      appBar: AppBarChild(
+      appBar: SintAppBar(
         title: widget.itemlist != null ? (releaseName.length > AppConstants.maxAppBarTitleLength ?
         '${releaseName.capitalizeFirst.substring(0,AppConstants.maxAppBarTitleLength)}...'
             : releaseName.capitalizeFirst)
             : widget.alternativeName.isNotEmpty ? (widget.alternativeName.length > AppConstants.maxAppBarTitleLength ?
         '${widget.alternativeName.capitalizeFirst.substring(0,AppConstants.maxAppBarTitleLength)}...' : widget.alternativeName.capitalizeFirst) : '',
-        actionWidgets: [
+        actions: [
           Theme(
             data: Theme.of(context).copyWith(
               popupMenuTheme: PopupMenuThemeData(color: AppColor.getMain(),),

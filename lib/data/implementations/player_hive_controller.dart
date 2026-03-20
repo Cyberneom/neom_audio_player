@@ -4,6 +4,7 @@ import 'package:audio_service/audio_service.dart';
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:neom_core/app_config.dart';
 import 'package:neom_core/data/implementations/app_hive_controller.dart';
+import 'package:neom_core/utils/neom_error_logger.dart';
 import 'package:neom_core/domain/model/app_release_item.dart';
 import 'package:neom_core/domain/model/item_list.dart';
 import 'package:neom_core/utils/constants/app_hive_constants.dart';
@@ -63,8 +64,8 @@ class PlayerHiveController implements PlayerHiveService {
       AppConfig.logger.t('PlayerHive Controller');
       await fetchCachedData();
       await fetchSettingsData();
-    } catch (e) {
-      AppConfig.logger.e(e.toString());
+    } catch (e, st) {
+      NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: 'PlayerHiveController.init');
     }
 
   }

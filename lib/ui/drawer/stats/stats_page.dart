@@ -4,7 +4,6 @@ import 'package:hive/hive.dart';
 import 'package:neom_commons/app_flavour.dart';
 import 'package:neom_commons/ui/theme/app_color.dart';
 import 'package:neom_commons/ui/theme/app_theme.dart';
-import 'package:neom_commons/ui/widgets/appbar_child.dart';
 import 'package:neom_commons/utils/constants/translations/app_translation_constants.dart';
 import 'package:neom_core/data/implementations/app_hive_controller.dart';
 import 'package:neom_core/utils/enums/app_hive_box.dart';
@@ -19,7 +18,7 @@ class StatsPage extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: AppFlavour.getBackgroundColor(),
-        appBar: AppBarChild(title: AppTranslationConstants.stats.tr,),
+        appBar: SintAppBar(title: AppTranslationConstants.stats.tr),
         body: FutureBuilder(
           future: AppHiveController().openHiveBox(AppHiveBox.stats.name),
           builder: (BuildContext context, AsyncSnapshot<Box> snapshot,) {

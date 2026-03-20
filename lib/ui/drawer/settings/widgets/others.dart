@@ -3,7 +3,6 @@ import 'package:sint/sint.dart';
 import 'package:hive/hive.dart';
 import 'package:neom_commons/app_flavour.dart';
 import 'package:neom_commons/ui/theme/app_theme.dart';
-import 'package:neom_commons/ui/widgets/appbar_child.dart';
 import 'package:neom_commons/utils/constants/translations/app_translation_constants.dart';
 import 'package:neom_core/app_config.dart';
 import 'package:neom_core/utils/enums/app_hive_box.dart';
@@ -45,7 +44,7 @@ class _OthersPageState extends State<OthersPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppFlavour.getBackgroundColor(),
-        appBar: AppBarChild(title: AppTranslationConstants.others.tr,),
+        appBar: SintAppBar(title: AppTranslationConstants.others.tr,),
         body: Container(
           decoration: AppTheme.appBoxDecoration,
           child: ListView(

@@ -73,23 +73,28 @@ class _WebSidebarLibraryState extends State<WebSidebarLibrary> {
                   : Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        MouseRegion(
-                          cursor: SystemMouseCursors.click,
-                          child: GestureDetector(
-                            onTap: widget.onLibraryTap,
-                            child: Row(
-                              children: [
-                                Icon(Icons.library_music_outlined, color: Colors.grey[400]),
-                                const SizedBox(width: 10),
-                                Text(
-                                  AppTranslationConstants.playlists.tr,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
+                        Expanded(
+                          child: MouseRegion(
+                            cursor: SystemMouseCursors.click,
+                            child: GestureDetector(
+                              onTap: widget.onLibraryTap,
+                              child: Row(
+                                children: [
+                                  Icon(Icons.library_music_outlined, color: Colors.grey[400]),
+                                  const SizedBox(width: 10),
+                                  Flexible(
+                                    child: Text(
+                                      AppTranslationConstants.playlists.tr,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
                         ),
@@ -102,6 +107,8 @@ class _WebSidebarLibraryState extends State<WebSidebarLibrary> {
                               child: IconButton(
                                 icon: const Icon(Icons.podcasts, color: Colors.white70, size: 20),
                                 onPressed: () => WebJamJoinDialog.show(context),
+                                padding: EdgeInsets.zero,
+                                constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
                               ),
                             ),
                             Tooltip(
@@ -110,6 +117,8 @@ class _WebSidebarLibraryState extends State<WebSidebarLibrary> {
                               child: IconButton(
                                 icon: const Icon(Icons.add, color: Colors.white70, size: 20),
                                 onPressed: () => WebCreatePlaylistDialog.show(context),
+                                padding: EdgeInsets.zero,
+                                constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
                               ),
                             ),
                           ],

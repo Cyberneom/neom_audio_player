@@ -18,7 +18,12 @@ import 'web_keyboard_shortcuts.dart';
 class AudioPlayerWebLayout extends StatefulWidget {
   final Widget? secondaryPage;
 
-  const AudioPlayerWebLayout({Key? key, this.secondaryPage}) : super(key: key);
+  /// Optional navigation sidebar from the host app (e.g. Home's LeftSidebar)
+  /// to maintain consistent navigation across the app.
+  /// If null, uses the built-in audio player sidebar.
+  final Widget Function({required bool expanded})? navigationSidebar;
+
+  const AudioPlayerWebLayout({Key? key, this.secondaryPage, this.navigationSidebar}) : super(key: key);
 
   @override
   State<AudioPlayerWebLayout> createState() => _AudioPlayerWebLayoutState();
@@ -116,7 +121,11 @@ class _AudioPlayerWebLayoutState extends State<AudioPlayerWebLayout> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           // ─── Sidebar ───
-                          AnimatedContainer(
+                          if (widget.navigationSidebar != null)
+                            // Use the host app's navigation sidebar for consistency
+                            widget.navigationSidebar!(expanded: !sidebarCollapsed)
+                          else
+                            AnimatedContainer(
                             duration: const Duration(milliseconds: 200),
                             width: sidebarWidth,
                             margin: const EdgeInsets.only(left: 8.0, top: 8.0, bottom: 8.0),
@@ -172,12 +181,12 @@ class _AudioPlayerWebLayoutState extends State<AudioPlayerWebLayout> {
                             child: Container(
                               margin: const EdgeInsets.all(8.0),
                               decoration: BoxDecoration(
-                                color: AppColor.appBlack,
+                                color: AppColor.surfaceDim,
                                 gradient: _selectedIndex == 0
                                     ? LinearGradient(
                                         begin: Alignment.topLeft,
                                         end: Alignment.bottomRight,
-                                        colors: [AppColor.getMain(), AppColor.appBlack],
+                                        colors: [AppColor.scaffold, AppColor.surfaceDim],
                                       )
                                     : null,
                                 borderRadius: BorderRadius.circular(8),

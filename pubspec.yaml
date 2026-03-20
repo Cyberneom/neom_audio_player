@@ -23,7 +23,7 @@ dependencies:
       url: git@github.com:Cyberneom/neom_sound.git
 
   audio_service: ^0.18.18
-  just_audio: ^0.10.3
+#  just_audio: ^0.10.3
 
   flip_card: ^0.7.0
   sliding_up_panel: ^2.0.0+1

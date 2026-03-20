@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:audio_service/audio_service.dart';
 import 'package:neom_core/app_config.dart';
 import 'package:neom_core/data/implementations/app_hive_controller.dart';
+import 'package:neom_core/utils/neom_error_logger.dart';
 import 'package:neom_core/utils/constants/app_hive_constants.dart';
 import 'package:neom_core/utils/enums/app_hive_box.dart';
 
@@ -44,8 +45,8 @@ class AudioPlayerStats {
         recentList = recentList.sublist(0, 30);
       }
       playerBox.put(AppHiveConstants.recentSongs, recentList);
-    } catch(e) {
-      AppConfig.logger.e(e.toString());
+    } catch(e, st) {
+      NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: 'addRecentlyPlayed');
     }
 
   }

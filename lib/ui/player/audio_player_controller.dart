@@ -15,6 +15,7 @@ import 'package:neom_commons/utils/share_utilities.dart';
 import 'package:neom_commons/utils/text_utilities.dart';
 import 'package:neom_core/app_config.dart';
 import 'package:neom_core/data/firestore/itemlist_firestore.dart';
+import 'package:neom_core/utils/neom_error_logger.dart';
 import 'package:neom_core/data/firestore/profile_firestore.dart';
 import 'package:neom_core/data/firestore/user_firestore.dart';
 import 'package:neom_core/domain/model/app_media_item.dart';
@@ -95,8 +96,8 @@ class AudioPlayerController extends SintController implements AudioPlayerService
       }
 
       getItemPlaylist();
-    } catch (e) {
-      AppConfig.logger.e(e.toString());
+    } catch (e, st) {
+      NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: 'AudioPlayerController.onInit');
     }
 
   }
@@ -145,8 +146,8 @@ class AudioPlayerController extends SintController implements AudioPlayerService
         });
 
         getLyricsOnline = PlayerHiveController().getLyricsOnline;
-      } catch (e) {
-        AppConfig.logger.e(e.toString());
+      } catch (e, st) {
+        NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: 'AudioPlayerController.onReady');
       }
     });
   }
@@ -344,8 +345,8 @@ class AudioPlayerController extends SintController implements AudioPlayerService
         }
 
       }
-    } catch (e) {
-      AppConfig.logger.e(e.toString());
+    } catch (e, st) {
+      NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: 'goToOwnerProfile');
     }
   }
 
