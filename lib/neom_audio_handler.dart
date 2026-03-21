@@ -38,6 +38,8 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
 
   int? count;
   Timer? _sleepTimer;
+  Timer? _caseteBeaconTimer;
+  String? _currentCaseteSessionId;
   final Rxn<DateTime> sleepTimerEndTime = Rxn<DateTime>();
 
   AndroidEqualizer? _androidEqualizer;
@@ -128,6 +130,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
       startService();
       allowFullAccess = userServiceImpl.subscriptionLevel.value > SubscriptionLevel.freemium.value;
       if(!isFree && !allowFullAccess) startFreeTrialTimer();
+      startCaseteBeaconTimer();
 
       // Connect the EqualizerController to the native AndroidEqualizer
       if (!kIsWeb) {
@@ -858,7 +861,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
     }
   }
 
-  Future<void> trackCaseteSession() async {
+  Future<void> trackCaseteSession({bool isPeriodic = false}) async {
     AppConfig.logger.t("CASETE ALG: Tracking casete session.");
 
     // 1. Validación de Elegibilidad
@@ -882,13 +885,18 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
       return;
     }
 
-    neomStopwatch.reset(); // Resetear inmediatamente para evitar doble conteo
+    if (!isPeriodic) {
+      neomStopwatch.reset(); // Solo resetear si es stop/skip para iniciar la siguiente cancion
+    }
 
     String itemName = currentMediaItem?.title ?? mediaItem.value?.title ?? '';
     String ownerId = currentMediaItem?.extras?['ownerId'] ?? mediaItem.value?.extras?['ownerId'] ?? ''; //
 
     int createdTime = DateTime.now().millisecondsSinceEpoch;
-    String sessionId = '${itemId}_$createdTime';
+    if (_currentCaseteSessionId == null) {
+      _currentCaseteSessionId = '${itemId}_$createdTime';
+    }
+    String sessionId = _currentCaseteSessionId!;
 
     // 3. Creación de la Sesión
     CaseteSession caseteSession = CaseteSession(
@@ -911,9 +919,22 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
       NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: 'trackCaseteSession');
     }
 
+    if (!isPeriodic) {
+      _currentCaseteSessionId = null;
+    }
+
   }
 
   Timer? _freeTrialTimer;
+
+  void startCaseteBeaconTimer() {
+    _caseteBeaconTimer?.cancel();
+    _caseteBeaconTimer = Timer.periodic(const Duration(seconds: 15), (timer) async {
+      if (player.playing) {
+        await trackCaseteSession(isPeriodic: true);
+      }
+    });
+  }
 
   Future<void> startFreeTrialTimer() async {
     _freeTrialTimer = Timer.periodic(
