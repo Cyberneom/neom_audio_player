@@ -93,9 +93,10 @@ class AudioPlayerHomeController extends SintController {
         getPublicItemlists();
       });
       // Cross-Promo: Load book releases for cross-module promotion
-      Future.delayed(const Duration(seconds: 2), () {
-        _fetchBookReleases();
-      });
+      // DISABLED: The audioteca should not fetch non-audio items to save reads.
+      // Future.delayed(const Duration(seconds: 2), () {
+      //   _fetchBookReleases();
+      // });
       // Pre-generate recommended playlists and home sections
       Future.delayed(const Duration(seconds: 3), () {
         try {
@@ -189,10 +190,10 @@ class AudioPlayerHomeController extends SintController {
 
       isOfflineMode.value = false;
 
-      // OPTIMIZATION: Only load first 50 items instead of ALL
+      // OPTIMIZATION: Fetch a larger batch so we have enough items after filtering out PDFs
       globalMediaItems.value = await AppMediaItemFirestore().fetchAll(
           excludeTypes: [MediaItemType.pdf, MediaItemType.neomPreset],
-          limit: limit,
+          limit: 150, // Increased limit from firestore to ensure we get enough audio singles
       );
 
       // Cache for offline access
@@ -247,6 +248,7 @@ class AudioPlayerHomeController extends SintController {
 
       publicItemlists.value = await ItemlistFirestore().fetchAll(
           excludeFromProfileId: profile.id,
+          itemlistType: ItemlistType.playlist,
       );
 
       publicItemlists.removeWhere((key, list) => !list.type.isAudio);

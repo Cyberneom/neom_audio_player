@@ -67,7 +67,7 @@ class RecentlyPlayedPageState extends State<RecentlyPlayedPage> {
           AudioPlayerTranslationConstants.showHere.tr, 45.0,
           AudioPlayerTranslationConstants.playSomething.tr, 26.0,
         ),
-        onPressed: ()=> Navigator.pop(context),
+        onPressed: ()=> Sint.back(),
       ) : ListView.builder(
         physics: const BouncingScrollPhysics(),
         padding: const EdgeInsets.only(top: 10, bottom: 10),

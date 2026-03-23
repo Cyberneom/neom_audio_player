@@ -65,7 +65,7 @@ class _WebEditPlaylistDialogState extends State<WebEditPlaylistDialog> {
 
     if (mounted) {
       widget.onUpdated?.call();
-      Navigator.of(context).pop();
+      Sint.back();
     }
   }
 
@@ -175,7 +175,7 @@ class _WebEditPlaylistDialogState extends State<WebEditPlaylistDialog> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
+                  onPressed: () => Sint.back(),
                   child: Text(
                     AppTranslationConstants.cancel.tr,
                     style: TextStyle(color: Colors.grey[400]),

@@ -254,7 +254,7 @@ class PlayerOptionsMenu extends StatelessWidget {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Sint.back(),
             child: Text(AppTranslationConstants.close.tr),
           ),
         ],
@@ -279,7 +279,7 @@ class PlayerOptionsMenu extends StatelessWidget {
               trailing: isSelected ? const Icon(Icons.check, color: Colors.green) : null,
               onTap: () {
                 controller.audioHandler?.player.setSpeed(speed);
-                Navigator.pop(context);
+                Sint.back();
               },
             );
           }).toList(),
@@ -296,12 +296,12 @@ class PlayerOptionsMenu extends StatelessWidget {
         content: Text('${AudioPlayerTranslationConstants.reportIssue.tr}?'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Sint.back(),
             child: Text(AppTranslationConstants.cancel.tr),
           ),
           TextButton(
             onPressed: () {
-              Navigator.pop(context);
+              Sint.back();
               // Would open report form
             },
             child: Text(AppTranslationConstants.report.tr),
@@ -324,7 +324,7 @@ class _SleepTimerChip extends StatelessWidget {
       label: Text(label),
       onPressed: () {
         // Would set sleep timer
-        Navigator.pop(context);
+        Sint.back();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Sleep timer set for $label')),
         );
@@ -351,7 +351,7 @@ class _QualityOption extends StatelessWidget {
       subtitle: Text(subtitle),
       trailing: isSelected ? const Icon(Icons.check, color: Colors.green) : null,
       onTap: () {
-        Navigator.pop(context);
+        Sint.back();
       },
     );
   }

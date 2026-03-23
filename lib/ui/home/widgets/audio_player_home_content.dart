@@ -65,6 +65,10 @@ class AudioPlayerHomeContent extends StatelessWidget {
           // ─── New Releases ───
           if(controller.newReleasesPlaylist.value != null && controller.newReleasesPlaylist.value!.getTotalItems() > 0)
             SliverToBoxAdapter(child: buildNewReleasesSection(controller, context, boxSize)),
+          // ─── Singles / Global Media Items ───
+          if(controller.globalMediaItems.isNotEmpty)
+            SliverToBoxAdapter(child: buildGlobalMediaItemsContainer(controller, context, boxSize)),
+          
           // ─── Favorites ───
           if(controller.favoriteItems.isNotEmpty)
             SliverToBoxAdapter(child: buildFavoriteItemsContainer(controller, context, boxSize)),
@@ -272,7 +276,7 @@ class AudioPlayerHomeContent extends StatelessWidget {
             child: Row(
               children: [
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(15, 10, 0, 5),
+                  padding: const EdgeInsets.fromLTRB(15, 10, 15, 5),
                   child: Text(
                     AudioPlayerTranslationConstants.listenAgain.tr,
                     style: TextStyle(
@@ -352,8 +356,8 @@ class AudioPlayerHomeContent extends StatelessWidget {
                     child: HoverBox(
                       child: (itemlist.getImgUrls().isEmpty || itemlist.getTotalItems() == 0)
                           ? Card(
-                        elevation: 5,
-                        color: Colors.black,
+                        elevation: 0,
+                        color: Theme.of(context).colorScheme.surfaceContainerHighest,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10.0,),
                         ),
@@ -435,6 +439,112 @@ class AudioPlayerHomeContent extends StatelessWidget {
     );
   }
 
+  Widget buildGlobalMediaItemsContainer(AudioPlayerHomeController controller, BuildContext context, double boxSize) {
+    final items = controller.globalMediaItems.values.toList();
+    if (items.isEmpty) return const SizedBox.shrink();
+
+    return Column(
+      children: [
+        Row(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(15, 10, 15, 5),
+              child: Text(
+                'Singles & Songs',
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.secondary,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        ),
+        SizedBox(
+          height: boxSize + 15,
+          child: ListView.builder(
+            physics: const BouncingScrollPhysics(),
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            itemCount: items.length,
+            itemBuilder: (context, index) {
+              final item = items[index];
+              return GestureDetector(
+                child: SizedBox(
+                  width: boxSize - 20,
+                  child: HoverBox(
+                    child: (item.imgUrl.isEmpty)
+                        ? Card(
+                            elevation: 0,
+                            color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            clipBehavior: Clip.antiAlias,
+                            child: const Image(image: AssetImage(AppAssets.audioPlayerCover)),
+                          )
+                        : NeomImageCard(
+                            margin: const EdgeInsets.all(4.0),
+                            borderRadius: 10,
+                            imageUrl: item.imgUrl,
+                            placeholderImage: const AssetImage(AppAssets.audioPlayerCover),
+                          ),
+                    builder: ({required BuildContext context, required bool isHover, Widget? child}) {
+                      return Card(
+                        color: isHover ? null : Colors.transparent,
+                        elevation: 0,
+                        margin: EdgeInsets.zero,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        clipBehavior: Clip.antiAlias,
+                        child: Column(
+                          children: [
+                            SizedBox.square(
+                              dimension: isHover ? boxSize - 25 : boxSize - 30,
+                              child: child,
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 10),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(item.name,
+                                    textAlign: TextAlign.center,
+                                    softWrap: false,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(fontWeight: FontWeight.w500),
+                                  ),
+                                  if (item.ownerName.isNotEmpty)
+                                    Text(item.ownerName,
+                                      textAlign: TextAlign.center,
+                                      softWrap: false,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        color: Theme.of(context).textTheme.bodySmall!.color,
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                onTap: () {
+                  Sint.find<AudioPlayerInvokerService>().init(
+                    mediaItems: items,
+                    index: index,
+                    playItem: true,
+                  );
+                },
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget buildFavoriteItemsContainer(AudioPlayerHomeController controller, BuildContext context, double boxSize) {
     return Column(
       children: [
@@ -474,8 +584,8 @@ class AudioPlayerHomeContent extends StatelessWidget {
                   child: HoverBox(
                     child: (favoriteItem.imgUrl.isEmpty && (favoriteItem.galleryUrls?.isEmpty ?? true))
                         ? Card(
-                      elevation: 5,
-                      color: Colors.black,
+                      elevation: 0,
+                      color: Theme.of(context).colorScheme.surfaceContainerHighest,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10.0,),
                       ),
@@ -588,8 +698,8 @@ class AudioPlayerHomeContent extends StatelessWidget {
                   child: HoverBox(
                     child: (item.imgUrl.isEmpty)
                         ? Card(
-                      elevation: 5,
-                      color: Colors.black,
+                      elevation: 0,
+                      color: Theme.of(context).colorScheme.surfaceContainerHighest,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       clipBehavior: Clip.antiAlias,
                       child: const Image(image: AssetImage(AppAssets.audioPlayerCover)),
@@ -706,8 +816,8 @@ class AudioPlayerHomeContent extends StatelessWidget {
                       children: [
                         (item.imgUrl.isEmpty)
                             ? Card(
-                          elevation: 5,
-                          color: Colors.black,
+                          elevation: 0,
+                          color: Theme.of(context).colorScheme.surfaceContainerHighest,
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                           clipBehavior: Clip.antiAlias,
                           child: const Image(image: AssetImage(AppAssets.audioPlayerCover)),
@@ -820,8 +930,8 @@ class AudioPlayerHomeContent extends StatelessWidget {
           children: [
             Padding(
               padding:
-              const EdgeInsets.fromLTRB(15, 10, 0, 5),
-              child: Text('Liked Artists',
+              const EdgeInsets.fromLTRB(15, 10, 15, 5),
+              child: Text(AudioPlayerTranslationConstants.likedArtists.tr,
                 style: TextStyle(
                   color: Theme.of(context).colorScheme.secondary,
                   fontSize: 18,

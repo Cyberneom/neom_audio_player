@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
@@ -11,11 +12,19 @@ class NeomAudioProvider {
   NeomAudioProvider._internal();
 
   static bool _isInitialized = false;
+  static Completer<void>? _initCompleter;
   static NeomAudioHandler? audioHandler;
 
   Future<NeomAudioHandler> getAudioHandler() async {
     if (!_isInitialized) {
-      await _initialize();
+      if (_initCompleter == null) {
+        _initCompleter = Completer<void>();
+        await _initialize();
+        _isInitialized = true;
+        _initCompleter!.complete();
+      } else {
+        await _initCompleter!.future;
+      }
       if(audioHandler == null) {
         throw Exception("Failed to initialize NeomAudioHandler");
       }
@@ -42,8 +51,6 @@ class NeomAudioProvider {
         ),
       );
     }
-
-    _isInitialized = true;
   }
 
 }

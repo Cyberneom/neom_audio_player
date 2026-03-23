@@ -54,7 +54,7 @@ class TextInputDialog extends StatelessWidget {
             foregroundColor: Colors.white,
           ),
           onPressed: () {
-            Navigator.pop(context);
+            Sint.back();
           },
           child: Text(AppTranslationConstants.cancel.tr),
         ),

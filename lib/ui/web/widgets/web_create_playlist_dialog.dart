@@ -113,7 +113,7 @@ class _WebCreatePlaylistDialogState extends State<WebCreatePlaylistDialog> {
                 TextButton(
                   onPressed: () {
                     controller.clearNewItemlist();
-                    Navigator.of(context).pop();
+                    Sint.back();
                   },
                   child: Text(
                     AppTranslationConstants.cancel.tr,
@@ -125,7 +125,7 @@ class _WebCreatePlaylistDialogState extends State<WebCreatePlaylistDialog> {
                   onPressed: () async {
                     controller.isPublicNewItemlist.value = _isPublic;
                     await controller.createItemlist();
-                    if (context.mounted) Navigator.of(context).pop();
+                    if (context.mounted) Sint.back();
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColor.getMain(),

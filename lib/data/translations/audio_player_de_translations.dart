@@ -333,6 +333,39 @@ class AudioPlayerDeTranslations {
     AudioPlayerTranslationConstants.topMostPlayed: 'Top 20 Meistgeh\u00f6rt',
     AudioPlayerTranslationConstants.seeAll: 'Alle anzeigen',
     AudioPlayerTranslationConstants.basedOnYourHistory: 'Basierend auf Ihrem Verlauf',
+
+    /// Lieblingsk\u00fcnstler
+    AudioPlayerTranslationConstants.likedArtists: 'Lieblingsk\u00fcnstler',
+
+    /// Schlaf-Timer
+    AudioPlayerTranslationConstants.setCustomTime: 'Benutzerdefinierte Zeit einstellen',
+    AudioPlayerTranslationConstants.fadeOut: 'Ausblenden',
+    AudioPlayerTranslationConstants.fadeOutDescription: 'Lautst\u00e4rke vor dem Stoppen schrittweise senken',
+
+    /// H\u00f6rstatistiken
+    AudioPlayerTranslationConstants.yourListening: 'Ihr H\u00f6rverlauf',
+    AudioPlayerTranslationConstants.totalTime: 'Gesamtzeit',
+    AudioPlayerTranslationConstants.dayStreak: 'Tagesserie',
+    AudioPlayerTranslationConstants.topArtist: 'Top-K\u00fcnstler',
+    AudioPlayerTranslationConstants.listeningActivity: 'H\u00f6raktivit\u00e4t',
+    AudioPlayerTranslationConstants.today: 'Heute',
+    AudioPlayerTranslationConstants.thisWeek: 'Diese Woche',
+    AudioPlayerTranslationConstants.thisMonth: 'Diesen Monat',
+    AudioPlayerTranslationConstants.allTime: 'Gesamt',
+    AudioPlayerTranslationConstants.topArtists: 'Top-K\u00fcnstler',
+    AudioPlayerTranslationConstants.topSongs: 'Top-Songs',
+    AudioPlayerTranslationConstants.achievements: 'Erfolge',
+
+    /// Jam Session UI
+    AudioPlayerTranslationConstants.allowRequestsSub: 'Teilnehmer k\u00f6nnen Songs zur Warteschlange hinzuf\u00fcgen',
+    AudioPlayerTranslationConstants.allowVotingSub: 'Teilnehmer k\u00f6nnen \u00fcber Songs abstimmen',
+    AudioPlayerTranslationConstants.enterSessionName: 'Bitte geben Sie einen Sitzungsnamen ein',
+    AudioPlayerTranslationConstants.enterValidCode: 'Bitte geben Sie einen g\u00fcltigen 6-stelligen Code ein',
+    AudioPlayerTranslationConstants.joinCodeCopied: 'Beitrittscode kopiert',
+    AudioPlayerTranslationConstants.enterCodeToJoin: 'Geben Sie den 6-stelligen Code ein um beizutreten',
+    AudioPlayerTranslationConstants.noActiveJamSession: 'Keine aktive Jam-Session',
+    AudioPlayerTranslationConstants.goHome: 'Startseite',
+    AudioPlayerTranslationConstants.endSessionWarning: 'Dies beendet die Sitzung f\u00fcr alle Teilnehmer.',
   };
 
 }

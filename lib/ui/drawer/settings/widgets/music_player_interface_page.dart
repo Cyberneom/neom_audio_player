@@ -132,7 +132,7 @@ class _MusicPlayerInterfacePageState extends State<MusicPlayerInterfacePage> {
                             ),
                             actions: [
                               TextButton(
-                                onPressed: () => Navigator.pop(context),
+                                onPressed: () => Sint.back(),
                                 child: Text(AppTranslationConstants.cancel.tr,),
                               ),
                               TextButton(
@@ -150,7 +150,7 @@ class _MusicPlayerInterfacePageState extends State<MusicPlayerInterfacePage> {
                                       }
                                       preferredMiniButtons = temp;
                                       miniButtonsOrder = order;
-                                      Navigator.pop(context);
+                                      Sint.back();
                                       Hive.box(AppHiveBox.settings.name).put(
                                         'preferredMiniButtons',
                                         preferredMiniButtons,
@@ -271,7 +271,7 @@ class _MusicPlayerInterfacePageState extends State<MusicPlayerInterfacePage> {
                             ),
                             actions: [
                               TextButton(
-                                onPressed: () => Navigator.pop(context),
+                                onPressed: () => Sint.back(),
                                 child: Text(AppTranslationConstants.cancel.tr,),
                               ),
                               TextButton(
@@ -287,7 +287,7 @@ class _MusicPlayerInterfacePageState extends State<MusicPlayerInterfacePage> {
                                         );
                                       }
                                       preferredCompactNotificationButtons = checked.toList()..sort();
-                                      Navigator.pop(context);
+                                      Sint.back();
                                       Hive.box(AppHiveBox.settings.name).put('preferredCompactNotificationButtons', preferredCompactNotificationButtons,
                                       );
                                     },

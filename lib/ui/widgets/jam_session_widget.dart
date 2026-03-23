@@ -6,6 +6,7 @@ import 'package:sint/sint.dart';
 
 import '../../data/implementations/jam_session_controller.dart';
 import '../../domain/models/jam_session.dart';
+import '../../utils/constants/audio_player_translation_constants.dart';
 import '../../utils/enums/jam_session_type.dart';
 
 /// Widget showing current Jam session status
@@ -106,7 +107,7 @@ class JamSessionBanner extends StatelessWidget {
     Clipboard.setData(ClipboardData(text: session.shareUrl));
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Join code copied: ${session.joinCode}'),
+        content: Text('${AudioPlayerTranslationConstants.joinCodeCopied.tr}: ${session.joinCode}'),
         action: SnackBarAction(
           label: 'Share',
           onPressed: () {
@@ -273,15 +274,15 @@ class _CreateJamSessionSheetState extends State<CreateJamSessionSheet> {
 
           // Options
           SwitchListTile(
-            title: const Text('Allow song requests'),
-            subtitle: const Text('Participants can add songs to the queue'),
+            title: Text(AudioPlayerTranslationConstants.allowRequests.tr),
+            subtitle: Text(AudioPlayerTranslationConstants.allowRequestsSub.tr),
             value: _allowRequests,
             onChanged: (value) => setState(() => _allowRequests = value),
             contentPadding: EdgeInsets.zero,
           ),
           SwitchListTile(
-            title: const Text('Allow voting'),
-            subtitle: const Text('Participants can vote on songs'),
+            title: Text(AudioPlayerTranslationConstants.allowVoting.tr),
+            subtitle: Text(AudioPlayerTranslationConstants.allowVotingSub.tr),
             value: _allowVoting,
             onChanged: (value) => setState(() => _allowVoting = value),
             contentPadding: EdgeInsets.zero,
@@ -299,7 +300,7 @@ class _CreateJamSessionSheetState extends State<CreateJamSessionSheet> {
                       height: 20,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
-                  : const Text('Start Jam'),
+                  : Text(AudioPlayerTranslationConstants.startJam.tr),
             ),
           ),
           const SizedBox(height: 20),
@@ -311,7 +312,7 @@ class _CreateJamSessionSheetState extends State<CreateJamSessionSheet> {
   Future<void> _createSession() async {
     if (_nameController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter a session name')),
+        SnackBar(content: Text(AudioPlayerTranslationConstants.enterSessionName.tr)),
       );
       return;
     }
@@ -328,7 +329,7 @@ class _CreateJamSessionSheetState extends State<CreateJamSessionSheet> {
       );
 
       if (mounted) {
-        Navigator.pop(context);
+        Sint.back();
         widget.onCreated?.call();
       }
     } catch (e) {
@@ -368,11 +369,11 @@ class _JoinJamSessionDialogState extends State<JoinJamSessionDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Join a Jam'),
+      title: Text(AudioPlayerTranslationConstants.joinJam.tr),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Text('Enter the 6-character code to join a session'),
+          Text(AudioPlayerTranslationConstants.enterCodeToJoin.tr),
           const SizedBox(height: 16),
           TextField(
             controller: _codeController,
@@ -388,7 +389,7 @@ class _JoinJamSessionDialogState extends State<JoinJamSessionDialog> {
       ),
       actions: [
         TextButton(
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => Sint.back(),
           child: const Text('Cancel'),
         ),
         FilledButton(
@@ -399,7 +400,7 @@ class _JoinJamSessionDialogState extends State<JoinJamSessionDialog> {
                   height: 20,
                   child: CircularProgressIndicator(strokeWidth: 2),
                 )
-              : const Text('Join'),
+              : Text(AudioPlayerTranslationConstants.joinJam.tr),
         ),
       ],
     );
@@ -408,7 +409,7 @@ class _JoinJamSessionDialogState extends State<JoinJamSessionDialog> {
   Future<void> _joinSession() async {
     if (_codeController.text.length != 6) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter a valid 6-character code')),
+        SnackBar(content: Text(AudioPlayerTranslationConstants.enterValidCode.tr)),
       );
       return;
     }
@@ -420,7 +421,7 @@ class _JoinJamSessionDialogState extends State<JoinJamSessionDialog> {
       await controller.joinSession(_codeController.text.toUpperCase());
 
       if (mounted) {
-        Navigator.pop(context);
+        Sint.back();
         widget.onJoined?.call();
       }
     } catch (e) {

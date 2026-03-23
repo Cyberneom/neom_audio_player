@@ -167,7 +167,7 @@ class SearchPageState extends State<SearchPage> {
               icon: const Icon(Icons.arrow_back_rounded),
               onPressed: () {
                 if (fromHome ?? false) {
-                  Navigator.pop(context);
+                  Sint.back();
                 } else {
                   setState(() {
                     fromHome = true;

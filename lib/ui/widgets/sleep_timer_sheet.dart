@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sint/sint.dart';
 
 import '../../data/implementations/enhanced_playback_controller.dart';
+import '../../utils/constants/audio_player_translation_constants.dart';
 import '../../utils/enums/playback_mode.dart';
 
 /// Bottom sheet for setting sleep timer
@@ -154,7 +155,7 @@ class SleepTimerSheet extends StatelessWidget {
           OutlinedButton.icon(
             onPressed: () => _showCustomTimePicker(context, controller),
             icon: const Icon(Icons.schedule),
-            label: const Text('Set custom time'),
+            label: Text(AudioPlayerTranslationConstants.setCustomTime.tr),
             style: OutlinedButton.styleFrom(
               foregroundColor: accent,
               side: BorderSide(color: accent.withValues(alpha: 0.5)),
@@ -165,8 +166,8 @@ class SleepTimerSheet extends StatelessWidget {
 
           // Fade out option
           Obx(() => SwitchListTile(
-                title: const Text('Fade out'),
-                subtitle: const Text('Gradually lower volume before stopping'),
+                title: Text(AudioPlayerTranslationConstants.fadeOut.tr),
+                subtitle: Text(AudioPlayerTranslationConstants.fadeOutDescription.tr),
                 value: controller.sleepTimerFadeOut,
                 onChanged: (value) {
                   // Would update settings

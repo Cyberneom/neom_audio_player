@@ -187,7 +187,7 @@ class _OthersPageState extends State<OthersPage> {
             //                       listKey.currentState!.insertItem(includedExcludedPaths.length,);
             //                     } else {
             //                       if (temp.trim() == '') {
-            //                         Navigator.pop(context);
+            //                         Sint.back();
             //                       }
             //                       AppUtilities.showSnackBar(message: temp.trim() == ''
             //                           ? 'No folder selected' : 'Already added',);

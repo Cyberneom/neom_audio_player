@@ -56,15 +56,15 @@ class _WebJamSessionPanelState extends State<WebJamSessionPanel> {
         backgroundColor: AppColor.surfaceElevated,
         title: Text(AudioPlayerTranslationConstants.endSession.tr,
             style: const TextStyle(color: Colors.white)),
-        content: const Text('This will end the session for all participants.',
+        content: Text(AudioPlayerTranslationConstants.endSessionWarning.tr,
             style: TextStyle(color: Colors.grey)),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context, false),
+            onPressed: () => Sint.back(result: false),
             child: Text(AppTranslationConstants.cancel.tr, style: TextStyle(color: Colors.grey[400])),
           ),
           ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
+            onPressed: () => Sint.back(result: true),
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             child: Text(AudioPlayerTranslationConstants.endSession.tr,
                 style: const TextStyle(color: Colors.white)),
@@ -96,14 +96,14 @@ class _WebJamSessionPanelState extends State<WebJamSessionPanel> {
             children: [
               Icon(Icons.podcasts, size: 64, color: Colors.grey[600]),
               const SizedBox(height: 16),
-              Text('No active Jam Session',
+              Text(AudioPlayerTranslationConstants.noActiveJamSession.tr,
                   style: TextStyle(color: Colors.grey[400], fontSize: 18)),
               const SizedBox(height: 24),
               if (widget.onBack != null)
                 ElevatedButton(
                   onPressed: widget.onBack,
                   style: ElevatedButton.styleFrom(backgroundColor: AppColor.getMain()),
-                  child: const Text('Go Home', style: TextStyle(color: Colors.white)),
+                  child: Text(AudioPlayerTranslationConstants.goHome.tr, style: const TextStyle(color: Colors.white)),
                 ),
             ],
           ),

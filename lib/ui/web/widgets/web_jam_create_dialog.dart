@@ -73,7 +73,7 @@ class _WebJamCreateDialogState extends State<WebJamCreateDialog> {
 
       if (mounted) {
         widget.onSessionCreated?.call();
-        Navigator.of(context).pop();
+        Sint.back();
       }
     } catch (e) {
       if (mounted) {
@@ -179,7 +179,7 @@ class _WebJamCreateDialogState extends State<WebJamCreateDialog> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
+                  onPressed: () => Sint.back(),
                   child: Text(
                     AppTranslationConstants.cancel.tr,
                     style: TextStyle(color: Colors.grey[400]),

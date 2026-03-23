@@ -347,4 +347,37 @@ class AudioPlayerTranslationConstants {
   static const String seeAll = 'seeAll';
   static const String basedOnYourHistory = 'basedOnYourHistory';
 
+  /// Liked Artists
+  static const String likedArtists = 'likedArtists';
+
+  /// Sleep Timer Sheet
+  static const String setCustomTime = 'setCustomTime';
+  static const String fadeOut = 'fadeOut';
+  static const String fadeOutDescription = 'fadeOutDescription';
+
+  /// Listening Stats
+  static const String yourListening = 'yourListening';
+  static const String totalTime = 'totalTime';
+  static const String dayStreak = 'dayStreak';
+  static const String topArtist = 'topArtist';
+  static const String listeningActivity = 'listeningActivity';
+  static const String today = 'today';
+  static const String thisWeek = 'thisWeek';
+  static const String thisMonth = 'thisMonth';
+  static const String allTime = 'allTime';
+  static const String topArtists = 'topArtists';
+  static const String topSongs = 'topSongs';
+  static const String achievements = 'achievements';
+
+  /// Jam Session UI
+  static const String allowRequestsSub = 'allowRequestsSub';
+  static const String allowVotingSub = 'allowVotingSub';
+  static const String enterSessionName = 'enterSessionName';
+  static const String enterValidCode = 'enterValidCode';
+  static const String joinCodeCopied = 'joinCodeCopied';
+  static const String enterCodeToJoin = 'enterCodeToJoin';
+  static const String noActiveJamSession = 'noActiveJamSession';
+  static const String goHome = 'goHome';
+  static const String endSessionWarning = 'endSessionWarning';
+
 }

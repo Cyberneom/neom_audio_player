@@ -333,6 +333,39 @@ class AudioPlayerFrTranslations {
     AudioPlayerTranslationConstants.topMostPlayed: 'Top 20 les plus \u00e9cout\u00e9s',
     AudioPlayerTranslationConstants.seeAll: 'Voir tout',
     AudioPlayerTranslationConstants.basedOnYourHistory: 'Bas\u00e9 sur vos \u00e9coutes',
+
+    /// Artistes aim\u00e9s
+    AudioPlayerTranslationConstants.likedArtists: 'Artistes aim\u00e9s',
+
+    /// Minuterie de sommeil
+    AudioPlayerTranslationConstants.setCustomTime: 'D\u00e9finir un temps personnalis\u00e9',
+    AudioPlayerTranslationConstants.fadeOut: 'Fondu',
+    AudioPlayerTranslationConstants.fadeOutDescription: 'Baisser progressivement le volume avant l\'arr\u00eat',
+
+    /// Stats d\'\u00e9coute
+    AudioPlayerTranslationConstants.yourListening: 'Votre \u00e9coute',
+    AudioPlayerTranslationConstants.totalTime: 'Temps total',
+    AudioPlayerTranslationConstants.dayStreak: 'S\u00e9rie de jours',
+    AudioPlayerTranslationConstants.topArtist: 'Top Artiste',
+    AudioPlayerTranslationConstants.listeningActivity: 'Activit\u00e9 d\'\u00e9coute',
+    AudioPlayerTranslationConstants.today: 'Aujourd\'hui',
+    AudioPlayerTranslationConstants.thisWeek: 'Cette semaine',
+    AudioPlayerTranslationConstants.thisMonth: 'Ce mois',
+    AudioPlayerTranslationConstants.allTime: 'Tout le temps',
+    AudioPlayerTranslationConstants.topArtists: 'Top Artistes',
+    AudioPlayerTranslationConstants.topSongs: 'Top Chansons',
+    AudioPlayerTranslationConstants.achievements: 'R\u00e9alisations',
+
+    /// Session Jam UI
+    AudioPlayerTranslationConstants.allowRequestsSub: 'Les participants peuvent ajouter des chansons',
+    AudioPlayerTranslationConstants.allowVotingSub: 'Les participants peuvent voter',
+    AudioPlayerTranslationConstants.enterSessionName: 'Veuillez entrer un nom de session',
+    AudioPlayerTranslationConstants.enterValidCode: 'Veuillez entrer un code valide de 6 caract\u00e8res',
+    AudioPlayerTranslationConstants.joinCodeCopied: 'Code copi\u00e9',
+    AudioPlayerTranslationConstants.enterCodeToJoin: 'Entrez le code de 6 caract\u00e8res pour rejoindre',
+    AudioPlayerTranslationConstants.noActiveJamSession: 'Pas de Session Jam active',
+    AudioPlayerTranslationConstants.goHome: 'Accueil',
+    AudioPlayerTranslationConstants.endSessionWarning: 'Cela terminera la session pour tous les participants.',
   };
 
 }

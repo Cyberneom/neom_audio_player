@@ -170,13 +170,13 @@ class _WebPlaylistDetailState extends State<WebPlaylistDetail> {
             style: TextStyle(color: Colors.grey[300])),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Sint.back(),
             child: Text(AppTranslationConstants.cancel.tr,
                 style: TextStyle(color: Colors.grey[400])),
           ),
           TextButton(
             onPressed: () async {
-              Navigator.pop(context);
+              Sint.back();
               await ItemlistFirestore().delete(widget.itemlist.id);
               widget.onBack?.call();
             },

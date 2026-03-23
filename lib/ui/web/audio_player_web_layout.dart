@@ -84,6 +84,11 @@ class _AudioPlayerWebLayoutState extends State<AudioPlayerWebLayout> {
           onBack: () => _onMenuSelected(0),
           onLeave: () => _onMenuSelected(0),
         );
+      case 5:
+        child = WebNowPlayingFull(
+          onClose: () => _onMenuSelected(0), // Back to home
+          onToggleQueue: _toggleQueue,
+        );
       default:
         child = WebMainFeed(onPlaylistSelected: _onPlaylistSelected);
     }
@@ -219,18 +224,12 @@ class _AudioPlayerWebLayoutState extends State<AudioPlayerWebLayout> {
                       }
                       return WebBottomPlayer(
                         onQueueToggle: _toggleQueue,
-                        onArtworkTap: () => setState(() => _showFullNowPlaying = true),
+                        onArtworkTap: () => _onMenuSelected(5),
                       );
                     }),
                   ],
                 ),
 
-                // ─── Full-screen Now Playing overlay ───
-                if (_showFullNowPlaying)
-                  WebNowPlayingFull(
-                    onClose: () => setState(() => _showFullNowPlaying = false),
-                    onToggleQueue: _toggleQueue,
-                  ),
               ],
             ),
           ),

@@ -199,7 +199,7 @@ class WelcomePreferencePageState extends State<WelcomePreferencePage> {
                                                         style: TextButton.styleFrom(
                                                           foregroundColor: Theme.of(context,).colorScheme.secondary,
                                                         ),
-                                                        onPressed: () => Navigator.pop(context,),
+                                                        onPressed: () => Sint.back(),
                                                         child: Text(AppTranslationConstants.cancel.tr,),
                                                       ),
                                                       TextButton(
@@ -210,7 +210,7 @@ class WelcomePreferencePageState extends State<WelcomePreferencePage> {
                                                           setState(() {
                                                             preferredLanguage = checked;
                                                             Hive.box(AppHiveBox.settings.name,).put(AppHiveConstants.preferredLanguage, checked,);
-                                                            Navigator.pop(context,);
+                                                            Sint.back();
                                                           });
                                                           if (preferredLanguage.isEmpty) {
                                                             AppUtilities.showSnackBar(
@@ -280,7 +280,7 @@ class WelcomePreferencePageState extends State<WelcomePreferencePage> {
                                                   onTap: () {
                                                     region = countries[idx];
                                                     Hive.box(AppHiveBox.settings.name).put(AppHiveConstants.region, region,);
-                                                    Navigator.pop(context,);
+                                                    Sint.back();
                                                     setState(() {});
                                                   },
                                                 ),

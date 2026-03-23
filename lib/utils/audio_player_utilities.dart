@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:neom_commons/ui/theme/app_color.dart';
 import 'package:neom_core/app_properties.dart';
 import 'package:neom_core/domain/model/item_list.dart';
+import 'package:sint/sint.dart';
 
 import '../neom_audio_handler.dart';
 
@@ -115,7 +116,7 @@ class AudioPlayerUtilities {
           backgroundColor: AppColor.surfaceElevated,
           content: Stack(
             children: [
-              GestureDetector(onTap: () => Navigator.pop(context)),
+              GestureDetector(onTap: () => Sint.back()),
               Padding(
                 padding: const EdgeInsets.all(15.0),
                 child: Card(
@@ -137,7 +138,7 @@ class AudioPlayerUtilities {
                   ),
                   clipBehavior: Clip.antiAlias,
                   child: IconButton(
-                    onPressed: () => Navigator.pop(context),
+                    onPressed: () => Sint.back(),
                     icon: const Icon(Icons.close_rounded),
                   ),
                 ),

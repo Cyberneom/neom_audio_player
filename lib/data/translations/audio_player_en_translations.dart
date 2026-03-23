@@ -333,6 +333,39 @@ class AudioPlayerEnTranslations {
     AudioPlayerTranslationConstants.topMostPlayed: 'Top 20 Most Played',
     AudioPlayerTranslationConstants.seeAll: 'See All',
     AudioPlayerTranslationConstants.basedOnYourHistory: 'Based on your listening',
+
+    /// Liked Artists
+    AudioPlayerTranslationConstants.likedArtists: 'Liked Artists',
+
+    /// Sleep Timer Sheet
+    AudioPlayerTranslationConstants.setCustomTime: 'Set custom time',
+    AudioPlayerTranslationConstants.fadeOut: 'Fade out',
+    AudioPlayerTranslationConstants.fadeOutDescription: 'Gradually lower volume before stopping',
+
+    /// Listening Stats
+    AudioPlayerTranslationConstants.yourListening: 'Your Listening',
+    AudioPlayerTranslationConstants.totalTime: 'Total Time',
+    AudioPlayerTranslationConstants.dayStreak: 'Day Streak',
+    AudioPlayerTranslationConstants.topArtist: 'Top Artist',
+    AudioPlayerTranslationConstants.listeningActivity: 'Listening Activity',
+    AudioPlayerTranslationConstants.today: 'Today',
+    AudioPlayerTranslationConstants.thisWeek: 'This Week',
+    AudioPlayerTranslationConstants.thisMonth: 'This Month',
+    AudioPlayerTranslationConstants.allTime: 'All Time',
+    AudioPlayerTranslationConstants.topArtists: 'Top Artists',
+    AudioPlayerTranslationConstants.topSongs: 'Top Songs',
+    AudioPlayerTranslationConstants.achievements: 'Achievements',
+
+    /// Jam Session UI
+    AudioPlayerTranslationConstants.allowRequestsSub: 'Participants can add songs to the queue',
+    AudioPlayerTranslationConstants.allowVotingSub: 'Participants can vote on songs',
+    AudioPlayerTranslationConstants.enterSessionName: 'Please enter a session name',
+    AudioPlayerTranslationConstants.enterValidCode: 'Please enter a valid 6-character code',
+    AudioPlayerTranslationConstants.joinCodeCopied: 'Join code copied',
+    AudioPlayerTranslationConstants.enterCodeToJoin: 'Enter the 6-character code to join a session',
+    AudioPlayerTranslationConstants.noActiveJamSession: 'No active Jam Session',
+    AudioPlayerTranslationConstants.goHome: 'Go Home',
+    AudioPlayerTranslationConstants.endSessionWarning: 'This will end the session for all participants.',
   };
 
 }

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/services.dart' show rootBundle;
@@ -25,12 +26,18 @@ class AudioPlayerInvoker implements AudioPlayerInvokerService {
   NeomAudioHandler? audioHandler;
   List<AppMediaItem> currentMediaItems = [];
   List<AppReleaseItem> currentReleaseItems = [];
+  bool _isInitProcessing = false;
 
   @override
   Future<void> init({List<AppReleaseItem>? releaseItems, List<AppMediaItem>? mediaItems, int index = 0,
     bool fromMiniPlayer = false, bool isOffline = false, bool recommend = true,
     bool fromDownloads = false, bool shuffle = false, String? playlistBox, bool playItem = true,}) async {
 
+    // Prevent concurrent executions if multiple playlists are tapped rapidly
+    while (_isInitProcessing) {
+      await Future.delayed(const Duration(milliseconds: 100));
+    }
+    _isInitProcessing = true;
 
     try {
 
@@ -77,9 +84,10 @@ class AudioPlayerInvoker implements AudioPlayerInvokerService {
       // await MetadataGod.initialize();
     } catch(e, st) {
       NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: 'init');
+    } finally {
+      _isInitProcessing = false;
     }
   }
-
   @override
   Future<void> setValues(int index, {bool recommend = true, bool playItem = false}) async {
     AppConfig.logger.t('Settings Values for index $index');

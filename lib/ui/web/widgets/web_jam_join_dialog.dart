@@ -52,7 +52,7 @@ class _WebJamJoinDialogState extends State<WebJamJoinDialog> {
 
       if (mounted) {
         widget.onJoined?.call();
-        Navigator.of(context).pop();
+        Sint.back();
       }
     } catch (e) {
       if (mounted) {
@@ -137,7 +137,7 @@ class _WebJamJoinDialogState extends State<WebJamJoinDialog> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
+                  onPressed: () => Sint.back(),
                   child: Text(
                     AppTranslationConstants.cancel.tr,
                     style: TextStyle(color: Colors.grey[400]),

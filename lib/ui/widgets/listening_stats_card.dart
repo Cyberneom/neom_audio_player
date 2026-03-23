@@ -5,6 +5,7 @@ import 'package:sint/sint.dart';
 import '../../data/implementations/listening_stats_controller.dart';
 import '../../domain/models/listening_stats.dart';
 import '../../domain/use_cases/listening_stats_service.dart';
+import '../../utils/constants/audio_player_translation_constants.dart';
 
 /// Card showing listening stats summary
 class ListeningStatsCard extends StatelessWidget {
@@ -53,7 +54,7 @@ class ListeningStatsCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Your Listening',
+                      AudioPlayerTranslationConstants.yourListening.tr,
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
@@ -69,7 +70,7 @@ class ListeningStatsCard extends StatelessWidget {
                   children: [
                     _StatItem(
                       value: stats.formattedTotalTime,
-                      label: 'Total Time',
+                      label: AudioPlayerTranslationConstants.totalTime.tr,
                       icon: Icons.timer,
                       color: accent,
                     ),
@@ -81,7 +82,7 @@ class ListeningStatsCard extends StatelessWidget {
                     ),
                     _StatItem(
                       value: '${stats.currentStreak}',
-                      label: 'Day Streak',
+                      label: AudioPlayerTranslationConstants.dayStreak.tr,
                       icon: Icons.local_fire_department,
                       color: Colors.orange,
                     ),
@@ -119,7 +120,7 @@ class ListeningStatsCard extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Top Artist',
+                              AudioPlayerTranslationConstants.topArtist.tr,
                               style: theme.textTheme.bodySmall,
                             ),
                             Text(
@@ -194,7 +195,7 @@ class ListeningStatsPage extends StatelessWidget {
 
     return Scaffold(
       appBar: SintAppBar(
-        title: 'Listening Activity',
+        title: AudioPlayerTranslationConstants.listeningActivity.tr,
       ),
       body: Obx(() {
         final stats = controller.stats;
@@ -210,7 +211,7 @@ class ListeningStatsPage extends StatelessWidget {
               children: [
                 Expanded(
                   child: _TimeCard(
-                    title: 'Today',
+                    title: AudioPlayerTranslationConstants.today.tr,
                     value: stats.formattedTodayTime,
                     icon: Icons.today,
                   ),
@@ -218,7 +219,7 @@ class ListeningStatsPage extends StatelessWidget {
                 const SizedBox(width: 12),
                 Expanded(
                   child: _TimeCard(
-                    title: 'This Week',
+                    title: AudioPlayerTranslationConstants.thisWeek.tr,
                     value: _formatMs(stats.weekListeningTimeMs),
                     icon: Icons.date_range,
                   ),
@@ -230,7 +231,7 @@ class ListeningStatsPage extends StatelessWidget {
               children: [
                 Expanded(
                   child: _TimeCard(
-                    title: 'This Month',
+                    title: AudioPlayerTranslationConstants.thisMonth.tr,
                     value: _formatMs(stats.monthListeningTimeMs),
                     icon: Icons.calendar_month,
                   ),
@@ -238,7 +239,7 @@ class ListeningStatsPage extends StatelessWidget {
                 const SizedBox(width: 12),
                 Expanded(
                   child: _TimeCard(
-                    title: 'All Time',
+                    title: AudioPlayerTranslationConstants.allTime.tr,
                     value: stats.formattedTotalTime,
                     icon: Icons.all_inclusive,
                   ),
@@ -257,7 +258,7 @@ class ListeningStatsPage extends StatelessWidget {
             // Top Artists
             if (stats.topArtists.isNotEmpty) ...[
               Text(
-                'Top Artists',
+                AudioPlayerTranslationConstants.topArtists.tr,
                 style: theme.textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
@@ -272,7 +273,7 @@ class ListeningStatsPage extends StatelessWidget {
             // Top Songs
             if (stats.topSongs.isNotEmpty) ...[
               Text(
-                'Top Songs',
+                AudioPlayerTranslationConstants.topSongs.tr,
                 style: theme.textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
@@ -290,7 +291,7 @@ class ListeningStatsPage extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Achievements',
+                    AudioPlayerTranslationConstants.achievements.tr,
                     style: theme.textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
@@ -299,7 +300,7 @@ class ListeningStatsPage extends StatelessWidget {
                     onPressed: () {
                       // Navigate to achievements page
                     },
-                    child: const Text('See all'),
+                    child: Text(AudioPlayerTranslationConstants.seeAll.tr),
                   ),
                 ],
               ),
