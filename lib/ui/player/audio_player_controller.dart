@@ -21,6 +21,7 @@ import 'package:neom_core/data/firestore/user_firestore.dart';
 import 'package:neom_core/domain/model/app_media_item.dart';
 import 'package:neom_core/domain/model/app_profile.dart';
 import 'package:neom_core/domain/model/app_release_item.dart';
+import 'package:neom_core/domain/model/playable_item.dart';
 import 'package:neom_core/domain/model/app_user.dart';
 import 'package:neom_core/domain/model/item_list.dart';
 import 'package:neom_core/domain/use_cases/audio_player_invoker_service.dart';
@@ -32,7 +33,6 @@ import '../../data/implementations/player_hive_controller.dart';
 import '../../domain/models/media_lyrics.dart';
 import '../../domain/use_cases/audio_player_service.dart';
 import '../../neom_audio_handler.dart';
-import 'package:neom_core/domain/use_cases/audio_player_invoker_service.dart';
 import '../../utils/mappers/media_item_mapper.dart';
 import '../library/playlist_player_page.dart';
 import 'lyrics/lyrics.dart';
@@ -81,11 +81,10 @@ class AudioPlayerController extends SintController implements AudioPlayerService
       profile = userServiceImpl.profile;
 
       if(Sint.arguments != null && Sint.arguments.isNotEmpty) {
-        if (Sint.arguments[0] is AppReleaseItem) {
-          initReleaseItem(Sint.arguments[0]);
-        } else if (Sint.arguments[0] is AppMediaItem) {
-          initAppMediaItem(Sint.arguments[0]);
-        } else if (Sint.arguments[0] is String) {
+        final arg = Sint.arguments[0];
+        if (arg is PlayableItem) {
+          initPlayableItem(arg);
+        } else if (arg is String) {
           ///VERIFY IF USEFUL
           ///appMediaItemId = arguments[0];???
         }
@@ -100,6 +99,15 @@ class AudioPlayerController extends SintController implements AudioPlayerService
       NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: 'AudioPlayerController.onInit');
     }
 
+  }
+
+  /// Unified initializer: accepts any PlayableItem.
+  void initPlayableItem(PlayableItem item) {
+    if (item is AppReleaseItem) {
+      initReleaseItem(item);
+    } else if (item is AppMediaItem) {
+      initAppMediaItem(item);
+    }
   }
 
   @override

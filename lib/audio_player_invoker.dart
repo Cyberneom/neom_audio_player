@@ -12,6 +12,7 @@ import 'package:neom_core/utils/neom_error_logger.dart';
 import 'package:neom_core/data/firestore/app_release_item_firestore.dart';
 import 'package:neom_core/domain/model/app_media_item.dart';
 import 'package:neom_core/domain/model/app_release_item.dart';
+import 'package:neom_core/domain/model/playable_item.dart';
 import 'package:neom_core/domain/use_cases/audio_player_invoker_service.dart';
 
 import 'data/implementations/player_hive_controller.dart';
@@ -29,7 +30,7 @@ class AudioPlayerInvoker implements AudioPlayerInvokerService {
   bool _isInitProcessing = false;
 
   @override
-  Future<void> init({List<AppReleaseItem>? releaseItems, List<AppMediaItem>? mediaItems, int index = 0,
+  Future<void> init({List<PlayableItem>? items, List<AppReleaseItem>? releaseItems, List<AppMediaItem>? mediaItems, int index = 0,
     bool fromMiniPlayer = false, bool isOffline = false, bool recommend = true,
     bool fromDownloads = false, bool shuffle = false, String? playlistBox, bool playItem = true,}) async {
 
@@ -43,9 +44,23 @@ class AudioPlayerInvoker implements AudioPlayerInvokerService {
 
       audioHandler = await getOrInitAudioHandler();
 
-      if(releaseItems == null && mediaItems == null) {
+      if(items == null && releaseItems == null && mediaItems == null) {
         AppConfig.logger.e('No media items provided to play.');
         return;
+      }
+
+      // Unified PlayableItem path — separate into concrete types
+      if (items != null) {
+        currentReleaseItems = [];
+        currentMediaItems = [];
+        for (final item in items.where((i) => i.isAudioContent)) {
+          if (item is AppReleaseItem) {
+            currentReleaseItems.add(item);
+            currentMediaItems.add(AppMediaItemMapper.fromAppReleaseItem(item));
+          } else if (item is AppMediaItem) {
+            currentMediaItems.add(item);
+          }
+        }
       }
 
       if(releaseItems != null) {

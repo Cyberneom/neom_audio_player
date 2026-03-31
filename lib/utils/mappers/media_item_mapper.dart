@@ -2,6 +2,7 @@ import 'package:audio_service/audio_service.dart';
 import 'package:neom_commons/utils/text_utilities.dart';
 import 'package:neom_core/domain/model/app_media_item.dart';
 import 'package:neom_core/domain/model/app_release_item.dart';
+import 'package:neom_core/domain/model/playable_item.dart';
 import 'package:neom_core/utils/core_utilities.dart';
 import 'package:neom_core/utils/enums/app_media_source.dart';
 
@@ -150,6 +151,39 @@ class MediaItemMapper  {
         'playlistBox': playlistBox,
         'source': AppMediaSource.internal,
         'ownerEmail': item.ownerEmail,
+      },
+    );
+  }
+
+  /// Unified method: accepts any PlayableItem (AppReleaseItem or AppMediaItem).
+  /// Delegates to the specific mapper based on runtime type.
+  static MediaItem fromPlayableItem({required PlayableItem item,
+    bool addedByAutoplay = false, bool autoplay = true, String? playlistBox,
+  }) {
+    if (item is AppReleaseItem) {
+      return fromAppReleaseItem(item: item, addedByAutoplay: addedByAutoplay,
+          autoplay: autoplay, playlistBox: playlistBox);
+    } else if (item is AppMediaItem) {
+      return fromAppMediaItem(item: item, addedByAutoplay: addedByAutoplay,
+          autoplay: autoplay, playlistBox: playlistBox);
+    }
+    // Fallback using interface fields
+    return MediaItem(
+      id: item.id,
+      artist: item.ownerName,
+      duration: Duration(seconds: item.duration),
+      title: item.name,
+      artUri: Uri.parse(item.imgUrl),
+      genre: (item.categories?.isNotEmpty ?? false) ? item.categories!.first : null,
+      extras: {
+        'url': item.streamUrl,
+        'publishedYear': item.publishedYear,
+        'language': item.language,
+        'description': item.description,
+        'addedByAutoplay': addedByAutoplay,
+        'autoplay': autoplay,
+        'playlistBox': playlistBox,
+        'source': item.isInternal ? AppMediaSource.internal.name : AppMediaSource.external.name,
       },
     );
   }
