@@ -303,7 +303,7 @@ class AudioPlayerHomeContent extends StatelessWidget {
       ),
       builder: (BuildContext context, Box box, Widget? child) {
         return (controller.recentList.isEmpty ||
-            !(box.get('showRecent', defaultValue: true) as bool))
+            !((box.get('showRecent') as bool?) ?? true))
             ? const SizedBox.shrink() : child!;
       },
     ):SizedBox.shrink();

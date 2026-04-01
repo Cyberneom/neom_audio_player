@@ -75,15 +75,15 @@ class PlayerHiveController implements PlayerHiveService {
     AppConfig.logger.t('Fetch Cache Data');
     final playerBox = await AppHiveController().getBox(AppHiveBox.player.name);
 
-    lastQueueList = playerBox.get(AppHiveConstants.lastQueue, defaultValue: [])?.toList() as List;
-    lastIndex = playerBox.get(AppHiveConstants.lastIndex, defaultValue: 0) as int;
-    lastPos = playerBox.get(AppHiveConstants.lastPos, defaultValue: 0) as int;
+    lastQueueList = (playerBox.get(AppHiveConstants.lastQueue) ?? []).toList() as List;
+    lastIndex = (playerBox.get(AppHiveConstants.lastIndex) ?? 0) as int;
+    lastPos = (playerBox.get(AppHiveConstants.lastPos) ?? 0) as int;
   }
 
   @override
   Future<int> fetchLastPos(String itemId) async {
     final playerBox = await AppHiveController().getBox(AppHiveBox.player.name);
-    lastPos =  await playerBox.get('${AppHiveConstants.lastPos}_$itemId', defaultValue: 0) as int;
+    lastPos = (playerBox.get('${AppHiveConstants.lastPos}_$itemId') ?? 0) as int;
     // await playerBox.close();
 
     return lastPos;
