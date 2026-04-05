@@ -1,4 +1,4 @@
-
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:sint/sint.dart';
 import 'package:neom_commons/app_flavour.dart';
@@ -12,6 +12,7 @@ import 'package:neom_commons/utils/constants/translations/common_translation_con
 import 'package:neom_sound/neom_sound.dart';
 
 import '../../utils/constants/audio_player_translation_constants.dart';
+import '../web/widgets/web_now_playing_full.dart';
 import 'audio_player_controller.dart';
 import 'widgets/artwork_widget.dart';
 import 'widgets/name_n_controls.dart';
@@ -62,6 +63,13 @@ class AudioPlayerPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // On web, show the Spotify-style full-screen player instead of mobile layout
+    if (kIsWeb) {
+      return WebNowPlayingFull(
+        onClose: () => Navigator.of(context).maybePop(),
+      );
+    }
+
     return SintBuilder<AudioPlayerController>(
       id: AppPageIdConstants.mediaPlayer,
       init: AudioPlayerController(),

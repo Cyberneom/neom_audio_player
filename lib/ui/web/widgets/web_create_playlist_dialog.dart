@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:neom_commons/ui/theme/app_color.dart';
 import 'package:neom_commons/utils/constants/translations/app_translation_constants.dart';
-import 'package:neom_itemlists/ui/itemlist_controller.dart';
+import 'package:neom_core/domain/use_cases/itemlist_service.dart';
 import 'package:sint/sint.dart';
 
 import '../../../utils/constants/audio_player_translation_constants.dart';
@@ -25,7 +25,7 @@ class _WebCreatePlaylistDialogState extends State<WebCreatePlaylistDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Sint.find<ItemlistController>();
+    final controller = Sint.find<ItemlistService>();
 
     return Dialog(
       backgroundColor: AppColor.surfaceElevated,
@@ -99,7 +99,7 @@ class _WebCreatePlaylistDialogState extends State<WebCreatePlaylistDialog> {
                   value: _isPublic,
                   onChanged: (v) {
                     setState(() => _isPublic = v);
-                    controller.isPublicNewItemlist.value = v;
+                    controller.isPublicNewItemlist = v;
                   },
                   activeColor: AppColor.getMain(),
                 ),
@@ -123,7 +123,7 @@ class _WebCreatePlaylistDialogState extends State<WebCreatePlaylistDialog> {
                 const SizedBox(width: 12),
                 ElevatedButton(
                   onPressed: () async {
-                    controller.isPublicNewItemlist.value = _isPublic;
+                    controller.isPublicNewItemlist = _isPublic;
                     await controller.createItemlist();
                     if (context.mounted) Sint.back();
                   },

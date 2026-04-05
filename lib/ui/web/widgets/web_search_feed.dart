@@ -20,7 +20,7 @@ import 'web_context_menu.dart';
 class WebSearchFeed extends StatefulWidget {
   final Function(Itemlist)? onPlaylistSelected;
 
-  const WebSearchFeed({Key? key, this.onPlaylistSelected}) : super(key: key);
+  const WebSearchFeed({super.key, this.onPlaylistSelected});
 
   @override
   State<WebSearchFeed> createState() => _WebSearchFeedState();

@@ -185,7 +185,7 @@ class PlaylistGeneratorController extends SintController implements PlaylistGene
     final items = allItems.values.where((item) => item.isAudioContent).toList();
 
     // Sort by creation time (most recent first)
-    items.sort((a, b) => (b.createdTime ?? 0).compareTo(a.createdTime ?? 0));
+    items.sort((a, b) => (b.createdTime).compareTo(a.createdTime));
 
     final selected = items.take(songCount).toList();
 

@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:hive/hive.dart';
 import 'package:neom_core/app_config.dart';
-import 'package:neom_core/utils/neom_error_logger.dart';
 import 'package:sint/sint.dart';
 
 import '../../domain/use_cases/enhanced_playback_service.dart';

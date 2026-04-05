@@ -19,11 +19,11 @@ class WebSidebarLibrary extends StatefulWidget {
   final bool collapsed;
 
   const WebSidebarLibrary({
-    Key? key,
+    super.key,
     this.onLibraryTap,
     this.onPlaylistSelected,
     this.collapsed = false,
-  }) : super(key: key);
+  });
 
   @override
   State<WebSidebarLibrary> createState() => _WebSidebarLibraryState();

@@ -24,7 +24,6 @@ class RadioController extends SintController implements RadioService {
 
   Box? _box;
   final _uuid = const Uuid();
-  final _random = Random();
   final _recommendationEngine = AudioRecommendationEngine();
 
   /// Current playing station
