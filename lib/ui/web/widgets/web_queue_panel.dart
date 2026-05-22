@@ -2,9 +2,13 @@ import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:sint/sint.dart';
 import 'package:neom_commons/ui/theme/app_color.dart';
-import 'package:neom_commons/ui/widgets/custom_image.dart';
 import '../../../neom_audio_handler.dart';
 import '../../../utils/constants/audio_player_translation_constants.dart';
+import '../../../utils/mappers/media_item_mapper.dart';
+import '../utils/web_color_extractor.dart';
+import '../utils/web_duration_formatter.dart';
+import '../utils/web_image_resolver.dart';
+import 'web_context_menu.dart';
 
 /// Right-side queue panel showing the current playback queue (Spotify-style).
 class WebQueuePanel extends StatelessWidget {
@@ -57,22 +61,28 @@ class WebQueuePanel extends StatelessWidget {
               final currentItem = snapshot.data;
               if (currentItem == null) return const SizedBox.shrink();
 
-              return Container(
+              final tint = WebColorExtractor.cachedOrFallback(currentItem.id);
+              return AnimatedContainer(
+                duration: const Duration(milliseconds: 280),
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                color: AppColor.getMain().withOpacity(0.15),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                    colors: [
+                      tint.withValues(alpha: 0.22),
+                      tint.withValues(alpha: 0.05),
+                    ],
+                  ),
+                ),
                 child: Row(
                   children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(4),
-                      child: currentItem.artUri != null
-                          ? platformNetworkImage(
-                              imageUrl: currentItem.artUri.toString(),
-                              width: 48,
-                              height: 48,
-                              fit: BoxFit.cover,
-                              errorWidget: _artPlaceholder(48),
-                            )
-                          : _artPlaceholder(48),
+                    WebImageResolver.build(
+                      imageUrl: currentItem.artUri?.toString(),
+                      cacheKey: currentItem.id,
+                      width: 48,
+                      height: 48,
+                      borderRadius: 4,
                     ),
                     const SizedBox(width: 12),
                     Expanded(
@@ -82,7 +92,7 @@ class WebQueuePanel extends StatelessWidget {
                           Text(
                             AudioPlayerTranslationConstants.nowPlaying.tr,
                             style: TextStyle(
-                              color: AppColor.getMain(),
+                              color: tint,
                               fontSize: 11,
                               fontWeight: FontWeight.w600,
                             ),
@@ -151,8 +161,70 @@ class WebQueuePanel extends StatelessWidget {
                     }
 
                     final upcomingStartIndex = currentIndex + 1;
+                    final totalRemaining = upcoming.fold<Duration>(
+                      Duration.zero,
+                      (acc, item) => acc + (item.duration ?? Duration.zero),
+                    );
 
-                    return ReorderableListView.builder(
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+                          child: Row(
+                            children: [
+                              Text(
+                                AudioPlayerTranslationConstants.upNext.tr.toUpperCase(),
+                                style: TextStyle(
+                                  color: Colors.grey[400],
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w700,
+                                  letterSpacing: 1.2,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Container(
+                                width: 3,
+                                height: 3,
+                                decoration: const BoxDecoration(
+                                  color: Colors.white24,
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                '${upcoming.length}',
+                                style: TextStyle(
+                                  color: Colors.grey[400],
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              if (totalRemaining > Duration.zero) ...[
+                                const SizedBox(width: 8),
+                                Container(
+                                  width: 3,
+                                  height: 3,
+                                  decoration: const BoxDecoration(
+                                    color: Colors.white24,
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  formatRemainingDuration(totalRemaining),
+                                  style: TextStyle(
+                                    color: Colors.grey[400],
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                        Expanded(
+                          child: ReorderableListView.builder(
                       buildDefaultDragHandles: false,
                       physics: const BouncingScrollPhysics(),
                       padding: const EdgeInsets.only(top: 8, bottom: 20),
@@ -179,6 +251,9 @@ class WebQueuePanel extends StatelessWidget {
                           },
                         );
                       },
+                          ),
+                        ),
+                      ],
                     );
                   },
                 );
@@ -190,17 +265,6 @@ class WebQueuePanel extends StatelessWidget {
     );
   }
 
-  static Widget _artPlaceholder(double size) {
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        color: AppColor.getMain().withOpacity(0.3),
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: const Icon(Icons.music_note_rounded, color: Colors.white54, size: 20),
-    );
-  }
 }
 
 /// Individual queue item row with drag handle.
@@ -235,6 +299,13 @@ class _QueueItemState extends State<_QueueItem> {
       onExit: (_) => setState(() => _isHovered = false),
       child: GestureDetector(
         onTap: widget.onTap,
+        onSecondaryTapDown: (details) {
+          WebContextMenu.show(
+            context,
+            details.globalPosition,
+            MediaItemMapper.toAppMediaItem(item),
+          );
+        },
         child: Container(
           color: _isHovered ? Colors.white.withOpacity(0.06) : Colors.transparent,
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -251,17 +322,12 @@ class _QueueItemState extends State<_QueueItem> {
                 )
               else
                 const SizedBox(width: 20),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(4),
-                child: item.artUri != null
-                    ? platformNetworkImage(
-                        imageUrl: item.artUri.toString(),
-                        width: 40,
-                        height: 40,
-                        fit: BoxFit.cover,
-                        errorWidget: WebQueuePanel._artPlaceholder(40),
-                      )
-                    : WebQueuePanel._artPlaceholder(40),
+              WebImageResolver.build(
+                imageUrl: item.artUri?.toString(),
+                cacheKey: item.id,
+                width: 40,
+                height: 40,
+                borderRadius: 4,
               ),
               const SizedBox(width: 10),
               Expanded(

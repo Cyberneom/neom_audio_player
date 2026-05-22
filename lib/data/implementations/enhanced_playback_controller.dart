@@ -301,6 +301,25 @@ class EnhancedPlaybackController extends SintController
   @override
   List<double> get speedPresets => [0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0];
 
+  // ============ Pitch Control ============
+
+  @override
+  double get pitch => _settings.value.pitch;
+
+  @override
+  Future<void> setPitch(double pitch) async {
+    final clampedPitch = pitch.clamp(0.5, 2.0);
+    _settings.value = _settings.value.copyWith(pitch: clampedPitch);
+    await saveSettings();
+
+    _audioHandler?.player.setPitch(clampedPitch);
+  }
+
+  @override
+  Future<void> resetPitch() async {
+    await setPitch(1.0);
+  }
+
   // ============ Skip Silence ============
 
   @override

@@ -64,7 +64,6 @@ class SeekBarState extends State<SeekBar> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                //TODO Verify
                 widget.offline ?
                 Text(
                   AppTranslationConstants.inDownloads.tr.capitalizeFirst,
@@ -150,10 +149,6 @@ class SeekBarState extends State<SeekBar> {
                 ),
                 Text(RegExp(r'((^0*[1-9]\d*:)?\d{2}:\d{2})\.\d+$')
                     .firstMatch('$_duration')?.group(1) ?? '$_duration',
-                  ///DEPRECATED
-                  // style: Theme.of(context).textTheme.caption!.copyWith(
-                  //       color: Theme.of(context).iconTheme.color,
-                  //     ),
                 ),
               ],
             ),

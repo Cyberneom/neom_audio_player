@@ -48,17 +48,34 @@ class SmartQueue {
   /// Get current item
   SmartQueueItem? get currentItem {
     if (items.isEmpty) return null;
-    final idx = isShuffled ? shuffleIndices[currentIndex] : currentIndex;
-    if (idx >= items.length) return null;
+    if (currentIndex < 0) return null;
+    final int idx;
+    if (isShuffled) {
+      if (currentIndex >= shuffleIndices.length) return null;
+      idx = shuffleIndices[currentIndex];
+    } else {
+      idx = currentIndex;
+    }
+    if (idx < 0 || idx >= items.length) return null;
     return items[idx];
   }
 
   /// Get upcoming items
   List<SmartQueueItem> get upcomingItems {
+    if (items.isEmpty) return [];
+    if (currentIndex < 0) return [];
     if (currentIndex >= items.length - 1) return [];
-    final indices = isShuffled
-        ? shuffleIndices.sublist(currentIndex + 1)
-        : List.generate(items.length - currentIndex - 1, (i) => currentIndex + 1 + i);
+    if (isShuffled) {
+      // Defensive: if shuffleIndices is malformed/short, fall back to []
+      if (currentIndex + 1 > shuffleIndices.length) return [];
+      final tail = shuffleIndices.sublist(currentIndex + 1);
+      return tail
+          .where((i) => i >= 0 && i < items.length)
+          .map((i) => items[i])
+          .toList();
+    }
+    final indices = List.generate(
+        items.length - currentIndex - 1, (i) => currentIndex + 1 + i);
     return indices.map((i) => items[i]).toList();
   }
 

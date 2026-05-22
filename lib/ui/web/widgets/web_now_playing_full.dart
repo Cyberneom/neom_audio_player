@@ -1,22 +1,18 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
 import 'package:neom_commons/ui/theme/app_color.dart';
 import 'package:neom_commons/ui/widgets/custom_image.dart';
-import 'package:neom_commons/utils/auth_guard.dart';
-import 'package:neom_commons/utils/constants/translations/app_translation_constants.dart';
 import 'package:neom_core/data/firestore/profile_firestore.dart';
-import 'package:neom_core/utils/constants/app_hive_constants.dart';
 import 'package:neom_core/utils/constants/app_route_constants.dart';
 import 'package:neom_core/utils/enums/app_hive_box.dart';
 import 'package:sint/sint.dart';
 
 import '../../../data/implementations/playlist_hive_controller.dart';
-import '../../../neom_audio_handler.dart';
-import '../../../utils/constants/audio_player_translation_constants.dart';
-import '../../../utils/mappers/media_item_mapper.dart';
 import '../../player/miniplayer_controller.dart';
+import '../utils/web_color_extractor.dart';
+import '../utils/web_image_resolver.dart';
 import 'web_lyrics_panel.dart';
+import 'web_pseudo_visualizer.dart';
 
 /// Full-screen Now Playing overlay for web (Spotify-style).
 class WebNowPlayingFull extends StatefulWidget {
@@ -34,7 +30,13 @@ class WebNowPlayingFull extends StatefulWidget {
 }
 
 class _WebNowPlayingFullState extends State<WebNowPlayingFull> {
-  bool _showLyrics = false;
+  /// Canvas mode = artwork zooms in slowly (Ken Burns) and ambient gradient
+  /// dominates the screen.
+  bool _canvasMode = false;
+
+  /// Currently extracted dominant color (cached by WebColorExtractor).
+  Color _ambientColor = Colors.transparent;
+  String? _ambientColorKey;
 
   /// Artist profile state
   String? _artistPhotoUrl;
@@ -78,7 +80,23 @@ class _WebNowPlayingFullState extends State<WebNowPlayingFull> {
     }
   }
 
-    @override
+  /// Triggers async palette extraction for [mediaItem]; rebuilds with the
+  /// resolved color when ready. Cached so repeated tracks are free.
+  void _ensureAmbientColor(MediaItem mediaItem) {
+    if (_ambientColorKey == mediaItem.id) return;
+    _ambientColorKey = mediaItem.id;
+    _ambientColor = WebColorExtractor.cachedOrFallback(mediaItem.id);
+    final url = mediaItem.artUri?.toString();
+    if (url == null || url.isEmpty) return;
+    WebColorExtractor.extract(cacheKey: mediaItem.id, imageUrl: url)
+        .then((color) {
+      if (mounted && _ambientColorKey == mediaItem.id) {
+        setState(() => _ambientColor = color);
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return SintBuilder<MiniPlayerController>(
       id: 'web_now_playing_full',
@@ -89,28 +107,46 @@ class _WebNowPlayingFullState extends State<WebNowPlayingFull> {
           return const SizedBox.shrink();
         }
 
+        _ensureAmbientColor(mediaItem);
         final ownerId = mediaItem.extras?['ownerId']?.toString();
         _fetchArtistProfile(ownerId);
         
         final duration = controller.audioHandler?.player.duration ?? mediaItem.duration ?? Duration.zero;
         final year = mediaItem.extras?['publishedYear'] ?? mediaItem.extras?['releaseDate']?.toString().split('-').first ?? '';
 
-        return Scaffold(
-          backgroundColor: Colors.transparent,
-          body: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // ─── Header Section (Spotify Style) ───
-                Container(
-                  padding: const EdgeInsets.only(left: 32, right: 32, top: 48, bottom: 24),
+        return Material(
+          color: const Color(0xFF0B1424),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 600),
+            curve: Curves.easeOutCubic,
+            decoration: BoxDecoration(
+              gradient: RadialGradient(
+                center: const Alignment(-0.4, -0.6),
+                radius: 1.4,
+                colors: [
+                  _ambientColor.withValues(alpha: 0.55),
+                  _ambientColor.withValues(alpha: 0.18),
+                  const Color(0xFF0B1424),
+                ],
+                stops: const [0.0, 0.35, 1.0],
+              ),
+            ),
+            child: Stack(
+            children: [
+              SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // ─── Header Section (Spotify Style) ───
+                    Container(
+                  padding: const EdgeInsets.only(left: 32, right: 32, top: 72, bottom: 24),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
                       colors: [
-                        AppColor.getMain().withOpacity(0.5), // Using main brand color as gradient base
+                        _ambientColor.withValues(alpha: 0.45),
                         Colors.transparent,
                       ],
                     ),
@@ -118,31 +154,10 @@ class _WebNowPlayingFullState extends State<WebNowPlayingFull> {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      // Large Artwork
-                      Container(
-                        decoration: BoxDecoration(
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.5),
-                              blurRadius: 30,
-                              offset: const Offset(0, 10),
-                            ),
-                          ],
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(4),
-                          child: SizedBox(
-                            width: 232,
-                            height: 232,
-                            child: (mediaItem.artUri != null && mediaItem.artUri.toString().isNotEmpty)
-                                ? platformNetworkImage(
-                                    imageUrl: mediaItem.artUri.toString(),
-                                    fit: BoxFit.cover,
-                                    errorWidget: _artworkPlaceholder(),
-                                  )
-                                : _artworkPlaceholder(),
-                          ),
-                        ),
+                      // Large Artwork — Canvas mode applies a slow Ken Burns zoom.
+                      _CanvasArtwork(
+                        mediaItem: mediaItem,
+                        canvasMode: _canvasMode,
                       ),
                       const SizedBox(width: 24),
                       // Text Info
@@ -255,11 +270,53 @@ class _WebNowPlayingFullState extends State<WebNowPlayingFull> {
                       // Add / Like
                       _FullScreenLikeButton(mediaItem: mediaItem),
                       const SizedBox(width: 16),
-                      // Download (Offline)
-                      Icon(Icons.download_for_offline_outlined, color: Colors.white54, size: 32),
+                      // Pseudo visualizer reacting to playback state
+                      StreamBuilder<bool>(
+                        stream: controller.audioHandler?.playbackState
+                            .map((s) => s.playing)
+                            .distinct(),
+                        builder: (_, snap) {
+                          final playing = snap.data ?? false;
+                          return WebPseudoVisualizer(
+                            color: _ambientColor == Colors.transparent
+                                ? AppColor.getMain()
+                                : _ambientColor,
+                            barCount: 12,
+                            width: 96,
+                            height: 36,
+                            playing: playing,
+                          );
+                        },
+                      ),
+                      const Spacer(),
+                      // Canvas mode toggle (Ken Burns + bigger artwork)
+                      MouseRegion(
+                        cursor: SystemMouseCursors.click,
+                        child: GestureDetector(
+                          onTap: () => setState(() => _canvasMode = !_canvasMode),
+                          child: Tooltip(
+                            message: 'Canvas',
+                            waitDuration: const Duration(milliseconds: 500),
+                            child: Padding(
+                              padding: const EdgeInsets.all(8),
+                              child: Icon(
+                                _canvasMode
+                                    ? Icons.fit_screen_rounded
+                                    : Icons.aspect_ratio_rounded,
+                                color: _canvasMode
+                                    ? (_ambientColor == Colors.transparent
+                                        ? AppColor.getMain()
+                                        : _ambientColor)
+                                    : Colors.white54,
+                                size: 28,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
                       const SizedBox(width: 16),
                       // More (Three dots)
-                      Icon(Icons.more_horiz_rounded, color: Colors.white54, size: 32),
+                      const Icon(Icons.more_horiz_rounded, color: Colors.white54, size: 32),
                     ],
                   ),
                 ),
@@ -357,42 +414,109 @@ class _WebNowPlayingFullState extends State<WebNowPlayingFull> {
                 const SizedBox(height: 48), // Bottom padding
               ],
             ),
+              ),
+              // Close button (top-right) — restores ability to dismiss the overlay
+              Positioned(
+                top: 16,
+                right: 16,
+                child: Material(
+                  color: Colors.black.withOpacity(0.45),
+                  shape: const CircleBorder(),
+                  child: IconButton(
+                    icon: const Icon(Icons.close_rounded, color: Colors.white, size: 26),
+                    onPressed: widget.onClose,
+                    tooltip: 'Cerrar',
+                  ),
+                ),
+              ),
+            ],
+          ),
           ),
         );
       },
     );
   }
 
-  Widget _artworkPlaceholder() {
-    return Container(
-      color: AppColor.getMain().withOpacity(0.3),
-      child: const Icon(Icons.music_note_rounded, color: Colors.white54, size: 80),
-    );
-  }
 }
 
-class _FullControlButton extends StatelessWidget {
-  final IconData icon;
-  final double size;
-  final Color color;
-  final VoidCallback? onTap;
+/// Large artwork wrapper. Applies a slow scale animation when [canvasMode]
+/// is enabled (Ken Burns effect) and otherwise renders a static thumbnail.
+class _CanvasArtwork extends StatefulWidget {
+  final MediaItem mediaItem;
+  final bool canvasMode;
 
-  const _FullControlButton({
-    required this.icon,
-    required this.size,
-    this.color = Colors.white,
-    this.onTap,
+  const _CanvasArtwork({
+    required this.mediaItem,
+    required this.canvasMode,
   });
 
   @override
+  State<_CanvasArtwork> createState() => _CanvasArtworkState();
+}
+
+class _CanvasArtworkState extends State<_CanvasArtwork>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 18),
+    );
+    if (widget.canvasMode) _controller.repeat(reverse: true);
+  }
+
+  @override
+  void didUpdateWidget(covariant _CanvasArtwork old) {
+    super.didUpdateWidget(old);
+    if (widget.canvasMode != old.canvasMode) {
+      if (widget.canvasMode) {
+        _controller.repeat(reverse: true);
+      } else {
+        _controller.stop();
+        _controller.value = 0;
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      child: GestureDetector(
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(8),
-          child: Icon(icon, color: color, size: size),
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 400),
+      width: widget.canvasMode ? 320 : 232,
+      height: widget.canvasMode ? 320 : 232,
+      decoration: BoxDecoration(
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.5),
+            blurRadius: 30,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(6),
+        child: AnimatedBuilder(
+          animation: _controller,
+          builder: (_, child) {
+            final scale = widget.canvasMode ? 1.0 + _controller.value * 0.12 : 1.0;
+            return Transform.scale(scale: scale, child: child);
+          },
+          child: WebImageResolver.build(
+            imageUrl: widget.mediaItem.artUri?.toString(),
+            cacheKey: widget.mediaItem.id,
+            width: widget.canvasMode ? 320 : 232,
+            height: widget.canvasMode ? 320 : 232,
+            borderRadius: 6,
+          ),
         ),
       ),
     );

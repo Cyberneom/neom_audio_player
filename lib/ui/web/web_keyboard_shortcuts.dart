@@ -36,6 +36,22 @@ class ToggleQueueIntent extends Intent {
   const ToggleQueueIntent();
 }
 
+class ToggleFullScreenIntent extends Intent {
+  const ToggleFullScreenIntent();
+}
+
+class ToggleMuteIntent extends Intent {
+  const ToggleMuteIntent();
+}
+
+class SeekForwardIntent extends Intent {
+  const SeekForwardIntent();
+}
+
+class SeekBackwardIntent extends Intent {
+  const SeekBackwardIntent();
+}
+
 // ─── Shortcut map ───
 final Map<ShortcutActivator, Intent> webKeyboardShortcuts = {
   const SingleActivator(LogicalKeyboardKey.space): const PlayPauseIntent(),
@@ -43,13 +59,19 @@ final Map<ShortcutActivator, Intent> webKeyboardShortcuts = {
   const SingleActivator(LogicalKeyboardKey.arrowLeft, control: true): const SkipPreviousIntent(),
   const SingleActivator(LogicalKeyboardKey.arrowUp, control: true): const VolumeUpIntent(),
   const SingleActivator(LogicalKeyboardKey.arrowDown, control: true): const VolumeDownIntent(),
+  // Plain arrows (no modifier) seek the current track ±5s.
+  const SingleActivator(LogicalKeyboardKey.arrowRight): const SeekForwardIntent(),
+  const SingleActivator(LogicalKeyboardKey.arrowLeft): const SeekBackwardIntent(),
   const SingleActivator(LogicalKeyboardKey.keyL): const ToggleLikeIntent(),
   const SingleActivator(LogicalKeyboardKey.keyQ): const ToggleQueueIntent(),
+  const SingleActivator(LogicalKeyboardKey.keyF): const ToggleFullScreenIntent(),
+  const SingleActivator(LogicalKeyboardKey.keyM): const ToggleMuteIntent(),
 };
 
 // ─── Actions ───
 Map<Type, Action<Intent>> buildWebKeyboardActions({
   required VoidCallback onToggleQueue,
+  VoidCallback? onToggleFullScreen,
 }) {
   return {
     PlayPauseIntent: CallbackAction<PlayPauseIntent>(
@@ -107,6 +129,39 @@ Map<Type, Action<Intent>> buildWebKeyboardActions({
     ToggleQueueIntent: CallbackAction<ToggleQueueIntent>(
       onInvoke: (_) {
         onToggleQueue();
+        return null;
+      },
+    ),
+    ToggleFullScreenIntent: CallbackAction<ToggleFullScreenIntent>(
+      onInvoke: (_) {
+        onToggleFullScreen?.call();
+        return null;
+      },
+    ),
+    ToggleMuteIntent: CallbackAction<ToggleMuteIntent>(
+      onInvoke: (_) {
+        final handler = Sint.find<NeomAudioHandler>();
+        final current = handler.player.volume;
+        handler.setVolume(current == 0 ? 1.0 : 0.0);
+        return null;
+      },
+    ),
+    SeekForwardIntent: CallbackAction<SeekForwardIntent>(
+      onInvoke: (_) {
+        final handler = Sint.find<NeomAudioHandler>();
+        final pos = handler.player.position;
+        final dur = handler.player.duration ?? Duration.zero;
+        final target = pos + const Duration(seconds: 5);
+        handler.seek(target > dur ? dur : target);
+        return null;
+      },
+    ),
+    SeekBackwardIntent: CallbackAction<SeekBackwardIntent>(
+      onInvoke: (_) {
+        final handler = Sint.find<NeomAudioHandler>();
+        final pos = handler.player.position;
+        final target = pos - const Duration(seconds: 5);
+        handler.seek(target < Duration.zero ? Duration.zero : target);
         return null;
       },
     ),

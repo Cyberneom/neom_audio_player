@@ -60,7 +60,7 @@ class TextInputDialog extends StatelessWidget {
         ),
         TextButton(
           style: TextButton.styleFrom(
-            backgroundColor: AppColor.bondiBlue,
+            backgroundColor: AppColor.getReleaseShelfColor(),
           ),
           onPressed: () {
             onSubmitted(controller.text.trim(), context);

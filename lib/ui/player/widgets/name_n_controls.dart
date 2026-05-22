@@ -117,22 +117,6 @@ class NameNControls extends StatelessWidget {
                               ),
                             ),
                           ) : const SizedBox.shrink()),
-                          ///DEPRECATED EXTERNAL PREVIEW
-                          // if(!AudioPlayerUtilities.isOwnMediaItem(controller.appMediaItem.value) && AppConfig.instance.appInUse == AppInUse.g)
-                          //   Padding(
-                          //     padding: const EdgeInsets.only(top: 5),
-                          //     child: AnimatedTextKit(
-                          //       repeatForever: true,
-                          //       animatedTexts: [
-                          //         FlickerAnimatedText('(${AudioPlayerTranslationConstants.releasePreview.tr})', textStyle: const TextStyle(fontSize: 12)),
-                          //       ],
-                          //       onTap: () async {
-                          //         await launchUrl(Uri.parse(controller.appMediaItem.value.permaUrl),
-                          //           mode: LaunchMode.externalApplication,
-                          //         );
-                          //       },
-                          //     ),
-                          //   ),
                         ],
                       ),
                     ),
@@ -204,26 +188,6 @@ class NameNControls extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               ControlButtons(controller.audioHandler, mediaItem: controller.mediaItem.value,),
-                              ///DEPRECATED SYNC WITH SPOTIFY BUTTON
-                              // if(!AudioPlayerUtilities.isOwnMediaItem(controller.appMediaItem.value) && AppConfig.instance.appInUse == AppInUse.g)
-                              //   ElevatedButton(
-                              //     onPressed: () async {
-                              //       await launchUrl(Uri.parse(controller.appMediaItem.value.permaUrl),
-                              //       mode: LaunchMode.externalApplication,
-                              //       );
-                              //     },
-                              //     style: ElevatedButton.styleFrom(
-                              //       foregroundColor: AppColor.bondiBlue, backgroundColor: AppColor.bondiBlue, // Text color
-                              //       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-                              //       shape: RoundedRectangleBorder(
-                              //         borderRadius: BorderRadius.circular(30),
-                              //       ),
-                              //       elevation: 10
-                              //     ),
-                              //     child: Text(AudioPlayerTranslationConstants.playOnSpotify.tr,
-                              //       style: const TextStyle(fontSize: 15),
-                              //     ),
-                              //   ),
                             ],
                           ),
                           Column(
@@ -258,8 +222,7 @@ class NameNControls extends StatelessWidget {
                                   );
                                 },
                               ),
-                              ///TO IMPLEMENT WHEN ADDING neom_downloads as dependency
-                              // downloadAllowed && controller.mediaItem.value != null ? DownloadButton(mediaItem: MediaItemMapper.toAppMediaItem(controller.mediaItem.value!),): const SizedBox.shrink(),
+                              // ROADMAP: enable DownloadButton when neom_downloads dependency is added.
                               AddToPlaylistButton(
                                 appMediaItem: controller.appMediaItem.value,
                                 playlists: CoreUtilities.filterItemlists(controller.profile.itemlists?.values.toList() ?? [], ItemlistType.playlist,),
@@ -271,7 +234,6 @@ class NameNControls extends StatelessWidget {
                     ),
                   ),
                 ),
-                ///DEPRECATED SizedBox(height: nowPlayingBoxHeight,),
               ],
             ),
           ),

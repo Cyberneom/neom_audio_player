@@ -62,8 +62,6 @@ class AddToPlaylistButtonState extends State<AddToPlaylistButton> {
             if(itemId.isEmpty) return;
             try {
               if(inPlaylist && widget.currentPlaylist != null) {
-                //TODO remove from itemlist in database
-                //TODO Remove from profile.itemlists list item
                 if(await ItemlistFirestore().deleteMediaItem(itemlistId: widget.currentPlaylist!.id, itemId: widget.appMediaItem!.id)){
                   widget.currentPlaylist?.appMediaItems?.removeWhere((item) => item.id == widget.appMediaItem?.id);
                   Sint.find<UserService>().user.profiles.first.itemlists?[widget.currentPlaylist!.id] = widget.currentPlaylist!;
@@ -77,7 +75,7 @@ class AddToPlaylistButtonState extends State<AddToPlaylistButton> {
                     message: "${inPlaylist ? CommonTranslationConstants.addedTo.tr : CommonTranslationConstants.removedFrom.tr} ${widget.currentPlaylist?.name}"
                 );
               } else if(widget.appMediaItem != null) {
-                if(await AddToPlaylist().addToPlaylist(context, widget.appMediaItem!, playlists: widget.playlists, goHome: false)) {                //TODO Add to profile.itemlists list item
+                if(await AddToPlaylist().addToPlaylist(context, widget.appMediaItem!, playlists: widget.playlists, goHome: false)) {
                   setState(() {
                     inPlaylist = true;
                   });

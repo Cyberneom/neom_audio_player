@@ -16,6 +16,14 @@ import '../player/audio_player_controller.dart';
 import 'like_button.dart';
 import 'song_tile_trailing_menu.dart';
 
+/// Shared selection-mode flag for list tiles in songs / playlist tabs.
+///
+/// Top-level so any list tile in the player or platform layer can listen
+/// via [ValueListenableBuilder] without DI plumbing. Originally lived in
+/// `playlist_player_page.dart`; promoted here when that page moved to
+/// `neom_audio_platform`.
+final ValueNotifier<bool> selectMode = ValueNotifier<bool>(false);
+
 Widget audioPlayerHomeDrawer({required BuildContext context, EdgeInsetsGeometry padding = EdgeInsets.zero,}) {
   return Padding(
     padding: padding,

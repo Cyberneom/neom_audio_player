@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:sint/sint.dart';
-import 'package:just_audio/just_audio.dart';
+import 'package:neom_sound/neom_sound.dart';
 import 'package:neom_commons/utils/app_utilities.dart';
 import 'package:neom_commons/utils/auth_guard.dart';
 import 'package:neom_commons/utils/constants/translations/app_translation_constants.dart';
@@ -34,6 +34,28 @@ import 'utils/constants/audio_player_constants.dart';
 import 'utils/mappers/media_item_mapper.dart';
 import 'utils/neom_audio_utilities.dart';
 
+/// Central audio handler for the Open Neom audio module.
+///
+/// Wraps a single [AudioPlayer] (from `just_audio`) under the
+/// [BaseAudioHandler] / [QueueHandler] / [SeekHandler] mixins so that
+/// playback survives the foreground service, the lock-screen notification,
+/// headset buttons, wearables and Android Auto via the `audio_service`
+/// package.
+///
+/// **Single-player invariant.** This class owns exactly one set-once player
+/// instance, constructed in the body of [NeomAudioHandler] (a
+/// mutually-exclusive `kIsWeb` branch picks the appropriate constructor —
+/// with or without [AndroidEqualizer]). Track switches always go through
+/// `setAudioSource(s)` on that single player, which atomically
+/// stops the previous source before the new one starts. The
+/// `single_player_invariant_test.dart` suite enforces this guarantee at
+/// build time so two tracks can never play on top of each other.
+///
+/// Register it as a fenix singleton in your root binding:
+/// ```dart
+/// Bind.lazyPut(() => NeomAudioHandler(), fenix: true);
+/// Bind.lazyPut<AudioHandlerService>(() => Sint.find<NeomAudioHandler>(), fenix: true);
+/// ```
 class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler implements AudioHandlerService {
 
   int? count;
@@ -616,7 +638,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
           currentMediaItem = previousMedia;
           setItemInMediaPlayers();
         }
-        //TODO Agregar stopwatch CASETE
+        // ROADMAP: integrate per-track Casete stopwatch tracking on skipPrevious.
         player.seekToPrevious();
       } else {
         AppConfig.logger.d('Reset currentitem');
@@ -841,7 +863,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
   }
 
   Future<void> setItemInMediaPlayers() async {
-    //TODO Agregar stopwatch CASETE
+    // ROADMAP: integrate per-track Casete stopwatch tracking when item changes.
     AppConfig.logger.w('StopWatch started for item ${currentMediaItem?.title}');
 
     if (currentMediaItem != null && currentMediaItem?.title != 'null') {

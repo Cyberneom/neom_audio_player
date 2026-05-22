@@ -3,5 +3,6 @@ enum LyricsSource {
   spotify,
   google,
   musicMatch,
+  whisper,
   other
 }

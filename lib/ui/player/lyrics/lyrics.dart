@@ -4,21 +4,93 @@ import 'package:neom_core/app_config.dart';
 import 'package:neom_core/utils/neom_error_logger.dart';
 
 import '../../../domain/models/media_lyrics.dart';
+import '../../../domain/use_cases/whisper_lyrics_service.dart';
 import '../../../utils/constants/audio_player_translation_constants.dart';
 import '../../../utils/enums/lyrics_source.dart';
+import '../../../utils/enums/lyrics_type.dart';
+import '../../../utils/helpers/spotify_lyrics_helper.dart';
 
 
 
 class Lyrics {
 
-  static Future<MediaLyrics> getLyrics({required String id, required String title, required String artist}) async {
-    MediaLyrics mediaLyrics = MediaLyrics(mediaId: id);
-    AppConfig.logger.i('Getting Synced Lyrics');
-    if (mediaLyrics.lyrics.isEmpty) {
-      //TODO Implement to get lyrics from gigmeout blog entries
+  /// Resolves lyrics for a given track using a multi-source fallback cascade:
+  ///
+  /// 0. Firestore `lyricsLrc` field (Whisper-generated, highest priority)
+  /// 1. Spotify (synced LRC preferred)
+  /// 2. Musixmatch (web scraping)
+  /// 3. Google (web scraping fallback)
+  /// 4. Whisper on-demand (AI transcription from audio URL)
+  ///
+  /// Returns an empty [MediaLyrics] when no source is available —
+  /// callers fall back to the plain-text view.
+  static Future<MediaLyrics> getLyrics({
+    required String id,
+    required String title,
+    required String artist,
+    String? lyricsLrc,
+    String? audioUrl,
+    String? existingLyrics,
+    String? language,
+  }) async {
+    AppConfig.logger.i('Getting Synced Lyrics for "$title" by "$artist"');
+
+    // 0. Pre-generated Whisper LRC from the release (highest priority).
+    if (lyricsLrc != null && lyricsLrc.isNotEmpty) {
+      return MediaLyrics(
+        mediaId: id,
+        lyrics: lyricsLrc,
+        source: LyricsSource.whisper,
+        type: LyricsType.lrc,
+      );
     }
 
-    return mediaLyrics;
+    // 1. Spotify synced lyrics
+    MediaLyrics result = await SpotifyLyricsHelper.fetchLyrics(
+      title: title,
+      artist: artist,
+    );
+    if (result.lyrics.isNotEmpty) {
+      result.mediaId = id;
+      return result;
+    }
+
+    // 2. Musixmatch
+    result = await getMusixMatchLyrics(title: title, artist: artist);
+    if (result.lyrics.isNotEmpty) {
+      result.mediaId = id;
+      return result;
+    }
+
+    // 3. Google
+    result = await getGoogleLyrics(title: title, artist: artist);
+    if (result.lyrics.isNotEmpty) {
+      result.mediaId = id;
+      return result;
+    }
+
+    // 4. Whisper on-demand transcription (last resort, requires audio URL).
+    //    WhisperLyricsService impl lives in neom_audio_platform — the
+    //    player only depends on the interface. If no impl is registered,
+    //    this step is silently skipped.
+    if (audioUrl != null && audioUrl.isNotEmpty) {
+      try {
+        if (Sint.isRegistered<WhisperLyricsService>()) {
+          final whisper = Sint.find<WhisperLyricsService>();
+          result = await whisper.transcribeAndAlign(
+            audioUrl: audioUrl,
+            existingLyrics: existingLyrics,
+            language: language,
+            mediaId: id,
+          );
+          if (result.lyrics.isNotEmpty) return result;
+        }
+      } catch (e) {
+        AppConfig.logger.w('Whisper on-demand lyrics failed: $e');
+      }
+    }
+
+    return MediaLyrics(mediaId: id);
   }
 
   static Future<MediaLyrics> getGoogleLyrics({required String title, required String artist,}) async {
@@ -66,9 +138,12 @@ class Lyrics {
     return mediaLyrics;
   }
 
+  /// Returns embedded lyrics for an offline media [path].
+  ///
+  /// ROADMAP: read lyrics from on-disk metadata (ID3 USLT, Vorbis LYRICS,
+  /// MP4 ©lyr) once `metadata_god` is wired into the offline cache.
   static Future<String> getOffLyrics(String path) async {
     try {
-      //TODO
       return AudioPlayerTranslationConstants.noLyricsAvailable.tr;
     } catch (e, st) {
       NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: 'getOffLyrics');

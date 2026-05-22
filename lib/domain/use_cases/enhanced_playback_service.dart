@@ -124,6 +124,17 @@ abstract class EnhancedPlaybackService {
   /// Available speed presets
   List<double> get speedPresets;
 
+  // ============ Pitch Control ============
+
+  /// Current pitch value (1.0 = normal, range 0.5–2.0)
+  double get pitch;
+
+  /// Set pitch value
+  Future<void> setPitch(double pitch);
+
+  /// Reset pitch to normal (1.0)
+  Future<void> resetPitch();
+
   // ============ Skip Silence ============
 
   /// Whether skip silence is enabled
@@ -186,6 +197,7 @@ class EnhancedPlaybackSettings {
   final CarModeLayout carModeLayout;
   final bool autoCarMode;
   final double playbackSpeed;
+  final double pitch;
   final bool skipSilence;
   final int skipSilenceThresholdMs;
   final AudioFocusMode audioFocusMode;
@@ -200,6 +212,7 @@ class EnhancedPlaybackSettings {
     this.carModeLayout = CarModeLayout.standard,
     this.autoCarMode = false,
     this.playbackSpeed = 1.0,
+    this.pitch = 1.0,
     this.skipSilence = false,
     this.skipSilenceThresholdMs = 500,
     this.audioFocusMode = AudioFocusMode.duck,
@@ -215,6 +228,7 @@ class EnhancedPlaybackSettings {
     CarModeLayout? carModeLayout,
     bool? autoCarMode,
     double? playbackSpeed,
+    double? pitch,
     bool? skipSilence,
     int? skipSilenceThresholdMs,
     AudioFocusMode? audioFocusMode,
@@ -229,6 +243,7 @@ class EnhancedPlaybackSettings {
       carModeLayout: carModeLayout ?? this.carModeLayout,
       autoCarMode: autoCarMode ?? this.autoCarMode,
       playbackSpeed: playbackSpeed ?? this.playbackSpeed,
+      pitch: pitch ?? this.pitch,
       skipSilence: skipSilence ?? this.skipSilence,
       skipSilenceThresholdMs: skipSilenceThresholdMs ?? this.skipSilenceThresholdMs,
       audioFocusMode: audioFocusMode ?? this.audioFocusMode,
@@ -246,6 +261,7 @@ class EnhancedPlaybackSettings {
       'carModeLayout': carModeLayout.value,
       'autoCarMode': autoCarMode,
       'playbackSpeed': playbackSpeed,
+      'pitch': pitch,
       'skipSilence': skipSilence,
       'skipSilenceThresholdMs': skipSilenceThresholdMs,
       'audioFocusMode': audioFocusMode.value,
@@ -279,6 +295,7 @@ class EnhancedPlaybackSettings {
       ),
       autoCarMode: json['autoCarMode'] as bool? ?? false,
       playbackSpeed: (json['playbackSpeed'] as num?)?.toDouble() ?? 1.0,
+      pitch: (json['pitch'] as num?)?.toDouble() ?? 1.0,
       skipSilence: json['skipSilence'] as bool? ?? false,
       skipSilenceThresholdMs: json['skipSilenceThresholdMs'] as int? ?? 500,
       audioFocusMode: AudioFocusMode.values.firstWhere(

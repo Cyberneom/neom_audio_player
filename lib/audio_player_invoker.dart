@@ -22,6 +22,23 @@ import 'ui/player/miniplayer_controller.dart';
 import 'utils/mappers/media_item_mapper.dart';
 import 'utils/platform_io_helper.dart' as platform_io;
 
+/// Entry-point service that converts arbitrary `PlayableItem`s
+/// (`AppMediaItem`, `AppReleaseItem`, `Itemlist`) into [MediaItem]s and
+/// pushes them into the [NeomAudioHandler] queue.
+///
+/// Use this from outside the module instead of touching the audio handler
+/// directly — it lazy-initialises the handler on first call, hides the
+/// platform branching (web has no offline cache), and applies the host
+/// app's `AppFlavour` rules (audio limitation for non-owners, etc.).
+///
+/// Typical usage from a list tile:
+/// ```dart
+/// Sint.find<AudioPlayerInvokerService>().init(
+///   mediaItems: items,
+///   index: tappedIndex,
+///   playItem: true,
+/// );
+/// ```
 class AudioPlayerInvoker implements AudioPlayerInvokerService {
 
   NeomAudioHandler? audioHandler;

@@ -1,5 +1,5 @@
 import 'package:sint/sint.dart';
-import 'package:just_audio/just_audio.dart';
+import 'package:neom_sound/neom_sound.dart';
 import 'package:neom_core/domain/use_cases/audio_lite_player_service.dart';
 import 'package:neom_core/domain/use_cases/user_service.dart';
 

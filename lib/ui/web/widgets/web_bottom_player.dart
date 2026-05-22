@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:neom_commons/ui/theme/app_color.dart';
-import 'package:neom_commons/ui/widgets/custom_image.dart';
 import 'package:neom_commons/utils/auth_guard.dart';
 import 'package:neom_commons/utils/constants/translations/app_translation_constants.dart';
 import 'package:sint/sint.dart';
@@ -10,23 +9,23 @@ import 'package:audio_service/audio_service.dart';
 import 'package:neom_core/utils/constants/app_hive_constants.dart';
 import 'package:neom_core/utils/enums/app_hive_box.dart';
 
-import '../../../data/implementations/jam_session_controller.dart';
+import '../../../data/implementations/enhanced_playback_controller.dart';
 import '../../../data/implementations/playlist_hive_controller.dart';
-import '../../../data/implementations/radio_controller.dart';
+import '../../../domain/use_cases/jam_session_service.dart';
+import '../../../domain/use_cases/radio_service.dart';
 import '../../../utils/constants/audio_player_translation_constants.dart';
-import '../../../utils/mappers/media_item_mapper.dart';
+import '../../../utils/enums/playback_mode.dart';
+import '../utils/web_color_extractor.dart';
+import '../utils/web_image_resolver.dart';
+import '../utils/web_player_helpers.dart';
+import '../utils/web_track_transition.dart';
+import 'web_pseudo_visualizer.dart';
 
 class WebBottomPlayer extends StatelessWidget {
   final VoidCallback? onQueueToggle;
   final VoidCallback? onArtworkTap;
 
   const WebBottomPlayer({Key? key, this.onQueueToggle, this.onArtworkTap}) : super(key: key);
-
-  static String _formatDuration(Duration d) {
-    final minutes = d.inMinutes;
-    final seconds = (d.inSeconds % 60).toString().padLeft(2, '0');
-    return "$minutes:$seconds";
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -58,34 +57,20 @@ class WebBottomPlayer extends StatelessWidget {
               // ─── Left: Track Info ───
               SizedBox(
                 width: isCompact ? 180 : 280,
-                child: Row(
-                  children: [
-                    // Artwork — tap to open full-screen Now Playing
-                    MouseRegion(
-                      cursor: SystemMouseCursors.click,
-                      child: GestureDetector(
+                child: WebTrackTransition(
+                  trackKey: mediaItem.id,
+                  child: Row(
+                    key: ValueKey('track-info-${mediaItem.id}'),
+                    children: [
+                      // Artwork — tap to open full-screen, hover for preview.
+                      _WebHoverArtwork(
+                        mediaItem: mediaItem,
+                        size: 52,
                         onTap: onArtworkTap,
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(6),
-                          child: (mediaItem.artUri != null && mediaItem.artUri.toString().isNotEmpty)
-                              ? SizedBox(
-                                  width: 52,
-                                  height: 52,
-                                  child: platformNetworkImage(
-                                    imageUrl: mediaItem.artUri.toString(),
-                                    width: 52,
-                                    height: 52,
-                                    fit: BoxFit.cover,
-                                    errorWidget: _artworkPlaceholder(),
-                                  ),
-                                )
-                              : _artworkPlaceholder(),
-                        ),
                       ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -103,6 +88,25 @@ class WebBottomPlayer extends StatelessWidget {
                           const SizedBox(height: 3),
                           Row(
                             children: [
+                              // Mini "now playing" visualizer reacts to playback state.
+                              StreamBuilder<bool>(
+                                stream: controller.audioHandler?.playbackState
+                                    .map((s) => s.playing)
+                                    .distinct(),
+                                builder: (context, snap) {
+                                  final playing = snap.data ?? false;
+                                  return Padding(
+                                    padding: const EdgeInsets.only(right: 6),
+                                    child: WebPseudoVisualizer(
+                                      color: WebColorExtractor.cachedOrFallback(mediaItem.id),
+                                      width: 16,
+                                      height: 12,
+                                      barCount: 4,
+                                      playing: playing,
+                                    ),
+                                  );
+                                },
+                              ),
                               Flexible(
                                 child: Text(
                                   mediaItem.artist ?? '',
@@ -130,8 +134,10 @@ class WebBottomPlayer extends StatelessWidget {
                                   ),
                                 ),
                               ],
-                              // Radio badge
-                              if (Sint.isRegistered<RadioController>() && Sint.find<RadioController>().currentStation != null) ...[
+                              // Radio badge — uses RadioService interface so the
+                              // player has no dependency on the concrete impl
+                              // (which lives in neom_audio_platform).
+                              if (Sint.isRegistered<RadioService>() && Sint.find<RadioService>().currentStation != null) ...[
                                 const SizedBox(width: 6),
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
@@ -145,8 +151,9 @@ class WebBottomPlayer extends StatelessWidget {
                                   ),
                                 ),
                               ],
-                              // Jam Session badge
-                              if (Sint.isRegistered<JamSessionController>() && Sint.find<JamSessionController>().isInSession) ...[
+                              // Jam Session badge — uses JamSessionService
+                              // interface (impl lives in neom_audio_platform).
+                              if (Sint.isRegistered<JamSessionService>() && Sint.find<JamSessionService>().isInSession) ...[
                                 const SizedBox(width: 6),
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
@@ -165,9 +172,10 @@ class WebBottomPlayer extends StatelessWidget {
                         ],
                       ),
                     ),
-                    // ─── Like button ───
-                    _WebLikeButton(mediaItem: mediaItem),
-                  ],
+                      // ─── Like button ───
+                      _WebLikeButton(mediaItem: mediaItem),
+                    ],
+                  ),
                 ),
               ),
 
@@ -232,9 +240,19 @@ class WebBottomPlayer extends StatelessWidget {
                                   shape: BoxShape.circle,
                                 ),
                                 child: isBuffering
-                                    ? const Padding(
-                                        padding: EdgeInsets.all(8),
-                                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black),
+                                    ? Padding(
+                                        padding: const EdgeInsets.all(9),
+                                        child: TweenAnimationBuilder<double>(
+                                          tween: Tween(begin: 0.85, end: 1.0),
+                                          duration: const Duration(milliseconds: 600),
+                                          curve: Curves.easeInOut,
+                                          builder: (_, value, child) =>
+                                              Opacity(opacity: value, child: child),
+                                          child: const CircularProgressIndicator(
+                                            strokeWidth: 1.8,
+                                            color: Colors.black,
+                                          ),
+                                        ),
                                       )
                                     : InkWell(
                                         customBorder: const CircleBorder(),
@@ -299,11 +317,7 @@ class WebBottomPlayer extends StatelessWidget {
                       builder: (context, positionSnapshot) {
                         final position = positionSnapshot.data ?? Duration.zero;
                         final duration = controller.audioHandler?.player.duration ?? Duration.zero;
-
-                        double sliderValue = 0.0;
-                        if (duration.inMilliseconds > 0) {
-                          sliderValue = (position.inMilliseconds / duration.inMilliseconds).clamp(0.0, 1.0);
-                        }
+                        final sliderValue = computeSliderValue(position, duration);
 
                         return ConstrainedBox(
                           constraints: BoxConstraints(maxWidth: isCompact ? 300 : 500),
@@ -312,7 +326,7 @@ class WebBottomPlayer extends StatelessWidget {
                               SizedBox(
                                 width: 36,
                                 child: Text(
-                                  _formatDuration(position),
+                                  formatPlayerDuration(position),
                                   style: TextStyle(color: Colors.grey[400], fontSize: 11),
                                   textAlign: TextAlign.right,
                                 ),
@@ -321,11 +335,9 @@ class WebBottomPlayer extends StatelessWidget {
                               Expanded(
                                 child: _HoverSeekSlider(
                                   value: sliderValue,
-                                  onChanged: (v) {
-                                    final newPosition = Duration(
-                                      milliseconds: (v * duration.inMilliseconds).round(),
-                                    );
-                                    controller.audioHandler?.seek(newPosition);
+                                  duration: duration,
+                                  onSeek: (target) {
+                                    controller.audioHandler?.seek(target);
                                   },
                                 ),
                               ),
@@ -333,7 +345,7 @@ class WebBottomPlayer extends StatelessWidget {
                               SizedBox(
                                 width: 36,
                                 child: Text(
-                                  _formatDuration(duration),
+                                  formatPlayerDuration(duration),
                                   style: TextStyle(color: Colors.grey[400], fontSize: 11),
                                 ),
                               ),
@@ -355,6 +367,9 @@ class WebBottomPlayer extends StatelessWidget {
                     children: [
                       // Playback speed
                       _WebSpeedButton(controller: controller),
+                      const SizedBox(width: 4),
+                      // Crossfade
+                      const _WebCrossfadeButton(),
                       const SizedBox(width: 4),
                       // Sleep timer
                       _WebSleepTimerButton(controller: controller),
@@ -429,15 +444,125 @@ class WebBottomPlayer extends StatelessWidget {
     );
   }
 
-  Widget _artworkPlaceholder() {
-    return Container(
-      width: 52,
-      height: 52,
-      decoration: BoxDecoration(
-        color: AppColor.getMain().withValues(alpha: 0.3),
-        borderRadius: BorderRadius.circular(6),
+}
+
+/// Artwork thumbnail with hover-to-preview overlay and palette extraction.
+///
+/// On hover, an [OverlayEntry] anchored above the thumbnail shows a 140×140
+/// preview of the same artwork. Tapping the thumbnail triggers [onTap]
+/// (typically opening the full-screen now playing view).
+class _WebHoverArtwork extends StatefulWidget {
+  final MediaItem mediaItem;
+  final double size;
+  final VoidCallback? onTap;
+
+  const _WebHoverArtwork({
+    required this.mediaItem,
+    required this.size,
+    this.onTap,
+  });
+
+  @override
+  State<_WebHoverArtwork> createState() => _WebHoverArtworkState();
+}
+
+class _WebHoverArtworkState extends State<_WebHoverArtwork> {
+  final LayerLink _link = LayerLink();
+  OverlayEntry? _previewEntry;
+
+  @override
+  void initState() {
+    super.initState();
+    _scheduleExtraction();
+  }
+
+  @override
+  void didUpdateWidget(covariant _WebHoverArtwork oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.mediaItem.id != widget.mediaItem.id) {
+      _removePreview();
+      _scheduleExtraction();
+    }
+  }
+
+  @override
+  void dispose() {
+    _removePreview();
+    super.dispose();
+  }
+
+  void _scheduleExtraction() {
+    final url = widget.mediaItem.artUri?.toString();
+    if (url == null || url.isEmpty) return;
+    // Fire and forget — caches the dominant color for the rest of the UI.
+    WebColorExtractor.extract(cacheKey: widget.mediaItem.id, imageUrl: url);
+  }
+
+  void _showPreview() {
+    if (_previewEntry != null) return;
+    final url = widget.mediaItem.artUri?.toString();
+    if (url == null || url.isEmpty) return;
+
+    _previewEntry = OverlayEntry(
+      builder: (_) => Positioned(
+        width: 140,
+        height: 140,
+        child: CompositedTransformFollower(
+          link: _link,
+          showWhenUnlinked: false,
+          // Anchor above the thumbnail with a small gap.
+          offset: const Offset(-44, -150),
+          child: Material(
+            color: Colors.transparent,
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.5),
+                    blurRadius: 18,
+                    offset: const Offset(0, 6),
+                  ),
+                ],
+              ),
+              child: WebImageResolver.build(
+                imageUrl: url,
+                cacheKey: widget.mediaItem.id,
+                width: 140,
+                height: 140,
+                borderRadius: 8,
+              ),
+            ),
+          ),
+        ),
       ),
-      child: const Icon(Icons.music_note_rounded, color: Colors.white54, size: 24),
+    );
+    Overlay.of(context, rootOverlay: true).insert(_previewEntry!);
+  }
+
+  void _removePreview() {
+    _previewEntry?.remove();
+    _previewEntry = null;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return CompositedTransformTarget(
+      link: _link,
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        onEnter: (_) => _showPreview(),
+        onExit: (_) => _removePreview(),
+        child: GestureDetector(
+          onTap: widget.onTap,
+          child: WebImageResolver.build(
+            imageUrl: widget.mediaItem.artUri?.toString(),
+            cacheKey: widget.mediaItem.id,
+            width: widget.size,
+            height: widget.size,
+          ),
+        ),
+      ),
     );
   }
 }
@@ -567,6 +692,86 @@ class _WebSleepTimerButton extends StatelessWidget {
   }
 }
 
+/// Crossfade duration popup. Lazily registers [EnhancedPlaybackController]
+/// the first time the button mounts so the rest of the app does not need to
+/// wire it up explicitly.
+class _WebCrossfadeButton extends StatefulWidget {
+  const _WebCrossfadeButton();
+
+  @override
+  State<_WebCrossfadeButton> createState() => _WebCrossfadeButtonState();
+}
+
+class _WebCrossfadeButtonState extends State<_WebCrossfadeButton> {
+  EnhancedPlaybackController? _enhanced;
+
+  @override
+  void initState() {
+    super.initState();
+    if (!Sint.isRegistered<EnhancedPlaybackController>()) {
+      try {
+        Bind.put<EnhancedPlaybackController>(
+          EnhancedPlaybackController(),
+          permanent: true,
+        );
+      } catch (_) {
+        // Swallow: button hides itself below if registration failed.
+      }
+    }
+    if (Sint.isRegistered<EnhancedPlaybackController>()) {
+      _enhanced = Sint.find<EnhancedPlaybackController>();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final enhanced = _enhanced;
+    if (enhanced == null) return const SizedBox.shrink();
+
+    return PopupMenuButton<CrossfadeMode>(
+      tooltip: 'Crossfade',
+      icon: Icon(
+        Icons.compare_arrows_rounded,
+        color: enhanced.isCrossfadeEnabled ? Colors.white : Colors.white70,
+        size: 20,
+      ),
+      color: AppColor.surfaceElevated,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      onSelected: (mode) async {
+        await enhanced.setCrossfadeMode(mode);
+        if (mounted) setState(() {});
+      },
+      itemBuilder: (_) => CrossfadeMode.values
+          .where((m) => m != CrossfadeMode.custom)
+          .map((mode) {
+        final isActive = enhanced.crossfadeMode == mode;
+        final label = mode == CrossfadeMode.off
+            ? mode.displayName
+            : '${mode.displayName} (${mode.duration.inSeconds}s)';
+        return PopupMenuItem<CrossfadeMode>(
+          value: mode,
+          height: 36,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                isActive ? Icons.check_rounded : Icons.compare_arrows_rounded,
+                color: isActive ? AppColor.getMain() : Colors.white54,
+                size: 14,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                label,
+                style: const TextStyle(color: Colors.white, fontSize: 13),
+              ),
+            ],
+          ),
+        );
+      }).toList(),
+    );
+  }
+}
+
 /// Small icon button used in web transport controls with optional tooltip.
 class _WebControlButton extends StatelessWidget {
   final IconData icon;
@@ -608,12 +813,21 @@ class _WebControlButton extends StatelessWidget {
   }
 }
 
-/// A seek slider that shows the thumb only on hover (web-friendly).
+/// A seek slider that shows the thumb only on hover (web-friendly) and uses
+/// a **drag-and-release** pattern: while the user is dragging, the slider is
+/// driven by a local pending value and the upstream `positionStream` is
+/// ignored, so the thumb does not snap back. `onSeek` is called exactly once
+/// per gesture, on `onChangeEnd`.
 class _HoverSeekSlider extends StatefulWidget {
   final double value;
-  final ValueChanged<double> onChanged;
+  final Duration duration;
+  final ValueChanged<Duration> onSeek;
 
-  const _HoverSeekSlider({required this.value, required this.onChanged});
+  const _HoverSeekSlider({
+    required this.value,
+    required this.duration,
+    required this.onSeek,
+  });
 
   @override
   State<_HoverSeekSlider> createState() => _HoverSeekSliderState();
@@ -621,9 +835,11 @@ class _HoverSeekSlider extends StatefulWidget {
 
 class _HoverSeekSliderState extends State<_HoverSeekSlider> {
   bool _hovered = false;
+  double? _dragValue;
 
   @override
   Widget build(BuildContext context) {
+    final effectiveValue = (_dragValue ?? widget.value).clamp(0.0, 1.0);
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       onEnter: (_) => setState(() => _hovered = true),
@@ -631,15 +847,25 @@ class _HoverSeekSliderState extends State<_HoverSeekSlider> {
       child: SliderTheme(
         data: SliderTheme.of(context).copyWith(
           trackHeight: _hovered ? 5 : 3,
-          thumbShape: RoundSliderThumbShape(enabledThumbRadius: _hovered ? 6 : 0),
+          thumbShape: RoundSliderThumbShape(
+            enabledThumbRadius: _hovered || _dragValue != null ? 6 : 0,
+          ),
           overlayShape: const RoundSliderOverlayShape(overlayRadius: 10),
           activeTrackColor: _hovered ? AppColor.getMain() : Colors.white,
           inactiveTrackColor: Colors.white24,
           thumbColor: Colors.white,
         ),
         child: Slider(
-          value: widget.value,
-          onChanged: widget.onChanged,
+          value: effectiveValue,
+          onChangeStart: (v) => setState(() => _dragValue = v),
+          onChanged: (v) => setState(() => _dragValue = v),
+          onChangeEnd: (v) {
+            final target = sliderValueToPosition(v, widget.duration);
+            widget.onSeek(target);
+            // Clear pending so the next position tick from the stream takes
+            // over again.
+            setState(() => _dragValue = null);
+          },
         ),
       ),
     );

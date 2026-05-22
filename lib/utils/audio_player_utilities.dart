@@ -19,15 +19,6 @@ class AudioPlayerUtilities {
     return isOwnMediaItem;
   }
 
-  ///DEPRECATED
-  // static bool isOwnMediaItem(AppMediaItem appMediaItem) {
-  //   final bool isOwnMediaItem = appMediaItem.url.contains(AppProperties.getHubName())
-  //       || appMediaItem.url.contains(AppProperties.getStorageServerName())
-  //       || appMediaItem.mediaSource == AppMediaSource.internal;
-  //
-  //   return isOwnMediaItem;
-  // }
-
   static void showSpeedSliderDialog({
     required BuildContext context,
     required String title,

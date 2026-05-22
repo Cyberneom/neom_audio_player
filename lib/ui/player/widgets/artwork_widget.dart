@@ -168,13 +168,7 @@ class ArtWorkWidget extends StatelessWidget {
             builder: (context, snapshot) {
               final queueState = snapshot.data ?? QueueState.empty;
               return GestureDetector(
-                onTap: !enabled ? null : () {
-                  ///TODO WHEN ADDING MORE FUNCTIONS
-                  // tapped.value = true;
-                  // Future.delayed(const Duration(seconds: 2), () async {
-                  //   tapped.value = false;
-                  // });
-                },
+                onTap: !enabled ? null : () {},
                 onDoubleTapDown: (details) {
                   if (details.globalPosition.dx <= width * 2 / 5) {
                     controller.audioHandler?.customAction('rewind');

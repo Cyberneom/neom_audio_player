@@ -33,8 +33,8 @@ import '../../data/implementations/player_hive_controller.dart';
 import '../../domain/models/media_lyrics.dart';
 import '../../domain/use_cases/audio_player_service.dart';
 import '../../neom_audio_handler.dart';
+import '../../utils/constants/audio_player_route_constants.dart';
 import '../../utils/mappers/media_item_mapper.dart';
-import '../library/playlist_player_page.dart';
 import 'lyrics/lyrics.dart';
 
 class AudioPlayerController extends SintController implements AudioPlayerService {
@@ -204,7 +204,11 @@ class AudioPlayerController extends SintController implements AudioPlayerService
   @override
   void gotoPlaylistPlayer() {
     getItemPlaylist();
-    Sint.to(() => PlaylistPlayerPage(itemlist: releaseItemlist));
+    // Navigates to PlaylistPlayerPage which lives in `neom_audio_platform`.
+    Sint.toNamed(
+      AudioPlayerRouteConstants.playlistPlayer,
+      arguments: {'itemlist': releaseItemlist},
+    );
   }
 
   @override

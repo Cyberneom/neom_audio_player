@@ -120,9 +120,6 @@ class _MusicPlaybackSettingsPageState extends State<MusicPlaybackSettingsPage> {
                                         preferredLanguage = checked;
                                         Sint.back();
                                         Hive.box(AppHiveBox.settings.name).put('preferredLanguage', checked,);
-                                        //TODO VERIFY FUNCTIONALITY
-                                        // widget.fetched = false;
-                                        // widget.preferredLanguage = preferredLanguage;
                                         widget.callback!();
                                         },
                                       );

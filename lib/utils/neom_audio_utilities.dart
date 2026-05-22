@@ -1,5 +1,5 @@
 import 'package:audio_service/audio_service.dart';
-import 'package:just_audio/just_audio.dart';
+import 'package:neom_sound/neom_sound.dart';
 import 'package:neom_core/domain/model/app_media_item.dart';
 
 

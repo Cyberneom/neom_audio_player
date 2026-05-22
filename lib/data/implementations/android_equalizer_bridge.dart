@@ -1,9 +1,10 @@
-import 'package:just_audio/just_audio.dart';
-import 'package:neom_sound/domain/use_cases/native_equalizer_bridge.dart';
+import 'package:neom_sound/neom_sound.dart';
 
 /// Concrete [NativeEqualizerBridge] backed by just_audio's [AndroidEqualizer].
 ///
-/// Created in neom_audio_player so that neom_sound does NOT depend on just_audio.
+/// `just_audio` is re-exported from `neom_sound`, so this bridge imports
+/// everything it needs through the single `package:neom_sound/neom_sound.dart`
+/// entry point — it never touches `package:just_audio/…` directly.
 class AndroidEqualizerBridge implements NativeEqualizerBridge {
   final AndroidEqualizer _equalizer;
 

@@ -5,6 +5,11 @@ import '../../utils/enums/radio_seed_type.dart';
 
 /// Abstract service for radio station generation and management
 abstract class RadioService {
+  /// The radio station currently playing, or null when no station is active.
+  /// Used by the player UI to render the "RADIO" badge in the bottom bar
+  /// without depending on the concrete `RadioController` implementation.
+  RadioStation? get currentStation;
+
   /// Get list of user's saved radio stations
   Future<List<RadioStation>> getSavedStations();
 

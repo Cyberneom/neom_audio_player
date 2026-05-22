@@ -110,7 +110,13 @@ class _MiniPlayerTileState extends State<MiniPlayerTile> {
       child: InkWell(
         onTap: () {
           if (widget.item != null && widget.miniPlayerController.isInternal) {
-            Sint.toNamed(AppRouteConstants.audioPlayerMedia, arguments: [MediaItemMapper.toAppMediaItem(widget.item!)]);
+            // Pass reproduceItem=false so opening the full player from the
+            // mini player just attaches the UI to the existing playback
+            // instead of re-initialising and restarting the track.
+            Sint.toNamed(
+              AppRouteConstants.audioPlayerMedia,
+              arguments: [MediaItemMapper.toAppMediaItem(widget.item!), false],
+            );
           }
         },
         child: Row(

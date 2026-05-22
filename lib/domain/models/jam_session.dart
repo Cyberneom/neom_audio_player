@@ -153,12 +153,15 @@ class JamSession {
 
   /// Get current song
   JamQueueItem? get currentItem {
-    if (queue.isEmpty || currentIndex >= queue.length) return null;
+    if (queue.isEmpty || currentIndex < 0 || currentIndex >= queue.length) {
+      return null;
+    }
     return queue[currentIndex];
   }
 
   /// Get upcoming songs
   List<JamQueueItem> get upcomingItems {
+    if (queue.isEmpty || currentIndex < 0) return [];
     if (currentIndex >= queue.length - 1) return [];
     return queue.sublist(currentIndex + 1);
   }

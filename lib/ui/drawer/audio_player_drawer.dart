@@ -17,7 +17,6 @@ import 'package:neom_core/utils/enums/user_role.dart';
 import '../../../utils/constants/audio_player_route_constants.dart';
 import '../../../utils/enums/audio_player_drawer_menu.dart';
 import '../../utils/constants/audio_player_translation_constants.dart';
-import '../library/playlist_player_page.dart';
 import '../player/miniplayer_controller.dart';
 
 class AudioPlayerDrawer extends StatelessWidget {
@@ -151,8 +150,14 @@ class AudioPlayerDrawer extends StatelessWidget {
             case AudioPlayerDrawerMenu.lastSession:
               Sint.toNamed(AudioPlayerRouteConstants.recent);
             case AudioPlayerDrawerMenu.favorites:
-              Sint.to(()=>PlaylistPlayerPage(
-                    alternativeName: AppTranslationConstants.favoriteItems.tr,),
+              // Navigates to PlaylistPlayerPage which now lives in
+              // `neom_audio_platform`. The platform's `AudioPlatformRoutes`
+              // registers this route.
+              Sint.toNamed(
+                AudioPlayerRouteConstants.playlistPlayer,
+                arguments: {
+                  'alternativeName': AppTranslationConstants.favoriteItems.tr,
+                },
               );
             case AudioPlayerDrawerMenu.downloads:
               Sint.toNamed(AudioPlayerRouteConstants.downloads);

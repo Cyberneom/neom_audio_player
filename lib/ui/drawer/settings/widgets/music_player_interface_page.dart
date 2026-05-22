@@ -137,7 +137,7 @@ class _MusicPlayerInterfacePageState extends State<MusicPlayerInterfacePage> {
                               ),
                               TextButton(
                                 style: TextButton.styleFrom(
-                                  backgroundColor: AppColor.bondiBlue,
+                                  backgroundColor: AppColor.getReleaseShelfColor(),
                                 ),
                                 onPressed: () {
                                   setState(
@@ -276,7 +276,7 @@ class _MusicPlayerInterfacePageState extends State<MusicPlayerInterfacePage> {
                               ),
                               TextButton(
                                 style: TextButton.styleFrom(
-                                  backgroundColor: AppColor.bondiBlue,
+                                  backgroundColor: AppColor.getReleaseShelfColor(),
                                 ),
                                 onPressed: () {
                                   setState(

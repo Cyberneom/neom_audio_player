@@ -103,11 +103,6 @@ class RecentlyPlayedPageState extends State<RecentlyPlayedPage> {
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  ///DEPRECATED
-                  // DownloadButton(
-                  //   data: _songs[index] as Map,
-                  //   icon: 'download',
-                  // ),
                   LikeButton(itemId: item.id, itemName: item.name),
                 ],
               ),

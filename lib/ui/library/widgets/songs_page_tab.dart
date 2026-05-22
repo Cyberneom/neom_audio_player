@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:sint/sint.dart';
 import 'package:neom_core/domain/model/app_media_item.dart';
+import 'package:sint/sint.dart';
 
+import '../../../utils/constants/audio_player_route_constants.dart';
 import '../../../utils/constants/audio_player_translation_constants.dart';
-import '../../home/widgets/search_page.dart';
 import '../../widgets/audio_player_widgets.dart';
 import '../../widgets/empty_screen.dart';
 import '../../widgets/playlist_head.dart';
-import '../playlist_player_page.dart';
 
 class SongsPageTab extends StatelessWidget {
 
@@ -28,9 +27,9 @@ class SongsPageTab extends StatelessWidget {
   Widget build(BuildContext context) {    
     return Container(child: appMediaItems.isEmpty
       ? TextButton(
-      onPressed: ()=> Navigator.push(context, MaterialPageRoute(
-          builder: (context) => const SearchPage(fromHome: true, autofocus: true,),
-        ),
+      onPressed: () => Sint.toNamed(
+        AudioPlayerRouteConstants.search,
+        arguments: {'fromHome': true, 'autofocus': true},
       ),
       child: emptyScreen(context, 3,
         AudioPlayerTranslationConstants.nothingTo.tr, 15.0,

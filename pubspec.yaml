@@ -27,6 +27,7 @@ dependencies:
   flip_card: ^0.7.0
   sliding_up_panel: ^2.0.0+1
   flutter_lyric: ^2.0.4+6
+  palette_generator: ^0.3.3+6
 
   #This would be needed when adding offline mode downloading audio.
   #metadata_god: ^1.0.
