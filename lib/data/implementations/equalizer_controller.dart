@@ -1,7 +1,7 @@
 import 'package:hive/hive.dart';
 import 'package:neom_core/app_config.dart';
 import 'package:neom_core/utils/neom_error_logger.dart';
-import 'package:neom_sound/neom_sound.dart';
+import 'package:neom_sound/neom_sound.dart' hide EqualizerPreset, EqualizerService;
 import 'package:sint/sint.dart';
 
 import '../../domain/use_cases/equalizer_service.dart';
