@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:audio_service/audio_service.dart';
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:flutter/material.dart';
@@ -13,7 +14,6 @@ import 'package:neom_core/utils/enums/app_media_source.dart';
 import 'package:neom_core/utils/enums/external_media_source.dart';
 
 import 'package:neom_core/domain/use_cases/audio_player_invoker_service.dart';
-import '../../neom_audio_handler.dart';
 import '../../utils/mappers/media_item_mapper.dart';
 
 class MiniPlayerController extends SintController implements MiniPlayerService {
@@ -26,7 +26,8 @@ class MiniPlayerController extends SintController implements MiniPlayerService {
   bool isTimeline = true;
   bool isButtonDisabled = false;
   bool showInTimeline = true;
-  NeomAudioHandler? audioHandler;
+  dynamic audioHandler;
+  StreamSubscription? _mediaItemSub;
   AppMediaSource source = AppMediaSource.internal;
   ExternalSource? externalSource;
   bool isInternal = true;
@@ -39,11 +40,23 @@ class MiniPlayerController extends SintController implements MiniPlayerService {
     AppConfig.logger.d('onInit miniPlayer Controller');
 
     try {
-
+      Sint.find<AudioPlayerInvokerService>().getOrInitAudioHandler().then((handler) {
+        audioHandler = handler;
+        audioHandlerRegistered = true;
+        if (audioHandler != null) {
+          if (audioHandler.currentMediaItem != null) {
+            setMediaItem(audioHandler.currentMediaItem);
+          }
+          _mediaItemSub = audioHandler.mediaItem.listen((item) {
+            if (item != null) {
+              setMediaItem(item);
+            }
+          });
+        }
+      });
     } catch (e, st) {
       NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: 'MiniPlayerController.onInit');
     }
-
   }
 
   @override
@@ -67,7 +80,7 @@ class MiniPlayerController extends SintController implements MiniPlayerService {
   @override
   Future<void> setAppMediaItem(AppMediaItem appMediaItem) async {
     AppConfig.logger.d('Setting new mediaitem ${appMediaItem.name}');
-    audioHandler ??= await Sint.find<AudioPlayerInvokerService>().getOrInitAudioHandler() as NeomAudioHandler?;
+    audioHandler ??= await Sint.find<AudioPlayerInvokerService>().getOrInitAudioHandler();
     audioHandlerRegistered = true;
     mediaItem.value = MediaItemMapper.fromAppMediaItem(item: appMediaItem);
     source = EnumToString.fromString(AppMediaSource.values, mediaItem.value?.extras?["source"] ?? AppMediaSource.internal.name) ?? AppMediaSource.internal;
@@ -78,7 +91,7 @@ class MiniPlayerController extends SintController implements MiniPlayerService {
 
   Future<void> setMediaItem(MediaItem item) async {
     AppConfig.logger.d('Setting new mediaitem ${item.title}');
-    audioHandler ??= await Sint.find<AudioPlayerInvokerService>().getOrInitAudioHandler() as NeomAudioHandler?;
+    audioHandler ??= await Sint.find<AudioPlayerInvokerService>().getOrInitAudioHandler();
     audioHandlerRegistered = true;
     mediaItem.value = item;
     source = EnumToString.fromString(AppMediaSource.values, mediaItem.value?.extras?["source"] ?? AppMediaSource.internal.name) ?? AppMediaSource.internal;
@@ -92,6 +105,12 @@ class MiniPlayerController extends SintController implements MiniPlayerService {
     AppConfig.logger.d('Setting IsTimeline: $value');
     isTimeline = value;
     update([AppPageIdConstants.home, AppPageIdConstants.timeline]);
+  }
+ 
+  @override
+  void onClose() {
+    _mediaItemSub?.cancel();
+    super.onClose();
   }
 
   @override

@@ -32,7 +32,6 @@ import 'package:sliding_up_panel/sliding_up_panel.dart';
 import '../../data/implementations/player_hive_controller.dart';
 import '../../domain/models/media_lyrics.dart';
 import '../../domain/use_cases/audio_player_service.dart';
-import '../../neom_audio_handler.dart';
 import '../../utils/constants/audio_player_route_constants.dart';
 import '../../utils/mappers/media_item_mapper.dart';
 import 'lyrics/lyrics.dart';
@@ -40,7 +39,9 @@ import 'lyrics/lyrics.dart';
 class AudioPlayerController extends SintController implements AudioPlayerService {
 
   final userServiceImpl = Sint.find<UserService>();
-  NeomAudioHandler? audioHandler;
+  dynamic audioHandler;
+  StreamSubscription? _mediaItemSub;
+  StreamSubscription? _isLoadingAudioSub;
 
   AppUser user = AppUser();
   AppProfile profile = AppProfile();
@@ -135,7 +136,20 @@ class AudioPlayerController extends SintController implements AudioPlayerService
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       try {
         Sint.find<AudioPlayerInvokerService>().getOrInitAudioHandler().then((handler) async {
-          audioHandler = handler as NeomAudioHandler?;
+          audioHandler = handler;
+          if (audioHandler != null) {
+            if (audioHandler.currentMediaItem != null) {
+              setMediaItem(item: audioHandler.currentMediaItem);
+            }
+            _mediaItemSub = audioHandler.mediaItem.listen((item) {
+              if (item != null) {
+                setMediaItem(item: item);
+              }
+            });
+            _isLoadingAudioSub = audioHandler.isLoadingAudio.listen((loading) {
+              isLoadingAudio.value = loading;
+            });
+          }
           bool alreadyPlaying = false;
           if(appReleaseItem.value.id.isNotEmpty) {
             alreadyPlaying = audioHandler?.currentMediaItem?.id == appReleaseItem.value.id;
@@ -162,6 +176,8 @@ class AudioPlayerController extends SintController implements AudioPlayerService
 
   @override
   void onClose() {
+    _mediaItemSub?.cancel();
+    _isLoadingAudioSub?.cancel();
     super.onClose();
     appMediaItem.value = AppMediaItem();
     isLoading.value = true;

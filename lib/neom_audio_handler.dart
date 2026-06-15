@@ -27,8 +27,6 @@ import 'data/implementations/casete_hive_controller.dart';
 import 'data/implementations/player_hive_controller.dart';
 import 'data/implementations/playlist_hive_controller.dart';
 import 'domain/models/queue_state.dart';
-import 'ui/player/audio_player_controller.dart';
-import 'ui/player/miniplayer_controller.dart';
 import 'utils/audio_player_stats.dart';
 import 'utils/constants/audio_player_constants.dart';
 import 'utils/mappers/media_item_mapper.dart';
@@ -60,6 +58,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
 
   int? count;
   Timer? _sleepTimer;
+  final RxBool isLoadingAudio = false.obs;
   Timer? _caseteBeaconTimer;
   String? _currentCaseteSessionId;
   final Rxn<DateTime> sleepTimerEndTime = Rxn<DateTime>();
@@ -672,23 +671,20 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
       }
 
       if(currentMediaItem != null) {
+        isLoadingAudio.value = true;
         if (player.audioSource == null || currentMediaItem!.id != mediaItem.value?.id) {
           AudioSource? audioSource = await _itemToSourceWithRetry(currentMediaItem!);
           if(audioSource != null) {
             await player.setAudioSource(audioSource);
           } else {
             AppConfig.logger.w('Unable to play: no audio source for ${currentMediaItem!.title}');
-            if (Sint.isRegistered<AudioPlayerController>()) {
-              Sint.find<AudioPlayerController>().setIsLoadingAudio(false);
-            }
+            isLoadingAudio.value = false;
             return;
           }
         }
 
         setItemInMediaPlayers();
-        if (Sint.isRegistered<AudioPlayerController>()) {
-          Sint.find<AudioPlayerController>().setIsLoadingAudio(false);
-        }
+        isLoadingAudio.value = false;
         neomStopwatch.start(ref: currentMediaItem!.id);
         await player.play();
       }
@@ -867,18 +863,6 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
     AppConfig.logger.w('StopWatch started for item ${currentMediaItem?.title}');
 
     if (currentMediaItem != null && currentMediaItem?.title != 'null') {
-      if (Sint.isRegistered<MiniPlayerController>()) {
-        await Sint.find<MiniPlayerController>().setMediaItem(currentMediaItem!);
-      } else {
-        await Sint.put(MiniPlayerController()).setMediaItem(currentMediaItem!);
-      }
-
-      if (Sint.isRegistered<AudioPlayerController>()) {
-        Sint.find<AudioPlayerController>().setMediaItem(item: currentMediaItem!);
-      } else {
-        Sint.put(AudioPlayerController()).setMediaItem(item: currentMediaItem!);
-      }
-
       await AudioPlayerStats.addRecentlyPlayed(currentMediaItem!);
     }
   }
