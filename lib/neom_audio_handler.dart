@@ -13,6 +13,7 @@ import 'package:neom_core/data/implementations/neom_stopwatch.dart';
 import 'package:neom_core/domain/model/casete/casete_session.dart';
 import 'package:neom_core/domain/repository/casete_session_repository.dart';
 import 'package:neom_core/domain/use_cases/audio_handler_service.dart';
+import 'package:neom_core/domain/use_cases/media_player_service.dart';
 import 'package:neom_core/domain/use_cases/user_service.dart';
 import 'package:neom_core/utils/constants/core_constants.dart';
 import 'package:neom_core/utils/core_utilities.dart';
@@ -134,7 +135,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
       );
 
   NeomAudioHandler() {
-    if (!kIsWeb) {
+    if (defaultTargetPlatform == TargetPlatform.android && !kIsWeb) {
       _androidEqualizer = AndroidEqualizer();
       final pipeline = AudioPipeline(androidAudioEffects: [_androidEqualizer!]);
       player = AudioPlayer(audioPipeline: pipeline);
@@ -154,7 +155,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
       startCaseteBeaconTimer();
 
       // Connect the EqualizerController to the native AndroidEqualizer
-      if (!kIsWeb) {
+      if (defaultTargetPlatform == TargetPlatform.android && !kIsWeb) {
         _connectEqualizer();
       }
     } catch (e, st) {
@@ -652,9 +653,10 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
   Future<void> skipToQueueItem(int index) async {
     final playlistLength = player.audioSource?.sequence.length ?? 0;
     if (index < 0 || index >= playlistLength) return;
-    player.seek(Duration.zero,
+    await player.seek(Duration.zero,
       index: player.shuffleModeEnabled ? player.shuffleIndices[index] : index,
     );
+    await player.play();
   }
 
   @override
@@ -686,6 +688,9 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
         setItemInMediaPlayers();
         isLoadingAudio.value = false;
         neomStopwatch.start(ref: currentMediaItem!.id);
+        if (Sint.isRegistered<MediaPlayerService>()) {
+          Sint.find<MediaPlayerService>().muteVideoPlayer();
+        }
         await player.play();
       }
     } catch (e, st) {

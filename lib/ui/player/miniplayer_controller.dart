@@ -33,6 +33,7 @@ class MiniPlayerController extends SintController implements MiniPlayerService {
   bool isInternal = true;
   Duration? itemDuration;
   bool audioHandlerRegistered = false;
+  final RxBool isWebPlayerRetracted = true.obs;
 
   @override
   void onInit() {
@@ -170,6 +171,9 @@ class MiniPlayerController extends SintController implements MiniPlayerService {
 
   @override
   bool get isActive => mediaItem.value != null && showInTimeline;
+
+  @override
+  bool get isWebPlayerRetractedValue => isWebPlayerRetracted.value;
 
   @override
   void goToTimeline(BuildContext context) {

@@ -274,7 +274,8 @@ class _WebNowPlayingFullState extends State<WebNowPlayingFull> {
                       StreamBuilder<bool>(
                         stream: controller.audioHandler?.playbackState
                             .map((s) => s.playing)
-                            .distinct(),
+                            .distinct()
+                            .cast<bool>(),
                         builder: (_, snap) {
                           final playing = snap.data ?? false;
                           return WebPseudoVisualizer(

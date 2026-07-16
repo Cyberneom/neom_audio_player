@@ -66,32 +66,43 @@ class NameNControls extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 10),
                       child: Column(
                         children: [
-                          Obx(() => Text(
-                            controller.mediaItemTitle.value == 'null'
-                                ? controller.mediaItemAlbum.value
-                                : controller.mediaItemTitle.value,
-                            style: TextStyle(
-                              fontSize: titleBoxHeight / 4.5,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: -0.3,
-                            ),
-                            textAlign: TextAlign.center,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          )),
-                          AppTheme.heightSpace5,
-                          GestureDetector(
-                            child: Obx(() => Text(
-                              controller.mediaItemArtist.isNotEmpty ? controller.mediaItemArtist.value : AppTranslationConstants.unknown.tr.capitalizeFirst,
+                          Obx(() {
+                            final title = controller.mediaItemTitle.value.trim();
+                            final album = controller.mediaItemAlbum.value.trim();
+                            final displayTitle = (title.isNotEmpty && title != 'null') 
+                                ? title 
+                                : ((album.isNotEmpty && album != 'null') ? album : 'Lanzamiento');
+                            return Text(
+                              displayTitle,
                               style: TextStyle(
-                                fontSize: titleBoxHeight / 6.5,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.white70,
+                                fontSize: titleBoxHeight / 4.5,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: -0.3,
                               ),
                               textAlign: TextAlign.center,
-                              maxLines: 1,
+                              maxLines: 2,
                               overflow: TextOverflow.ellipsis,
-                            )),
+                            );
+                          }),
+                          AppTheme.heightSpace5,
+                          GestureDetector(
+                            child: Obx(() {
+                              final artist = controller.mediaItemArtist.value.trim();
+                              final displayArtist = (artist.isNotEmpty && artist != 'null') 
+                                  ? artist 
+                                  : AppTranslationConstants.unknown.tr.capitalizeFirst;
+                              return Text(
+                                displayArtist,
+                                style: TextStyle(
+                                  fontSize: titleBoxHeight / 6.5,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.white70,
+                                ),
+                                textAlign: TextAlign.center,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              );
+                            }),
                             onTap: () => (controller.mediaItem.value?.extras!['ownerEmail']?.isEmpty ?? true) ? {}
                                 : controller.goToOwnerProfile(),
                           ),
@@ -163,7 +174,9 @@ class NameNControls extends StatelessWidget {
                               AppTheme.heightSpace5,
                               StreamBuilder<bool>(
                                 stream: controller.audioHandler?.playbackState
-                                    .map((state) => state.shuffleMode == AudioServiceShuffleMode.all,).distinct(),
+                                    .map((state) => state.shuffleMode == AudioServiceShuffleMode.all,)
+                                    .distinct()
+                                    .cast<bool>(),
                                 builder: (context, snapshot) {
                                   final shuffleModeEnabled = snapshot.data ?? false;
                                   return IconButton(icon: shuffleModeEnabled
@@ -195,7 +208,10 @@ class NameNControls extends StatelessWidget {
                             children: [
                               AppTheme.heightSpace5,
                               StreamBuilder<AudioServiceRepeatMode>(
-                                stream: controller.audioHandler?.playbackState.map((state) => state.repeatMode).distinct(),
+                                stream: controller.audioHandler?.playbackState
+                                    .map((state) => state.repeatMode)
+                                    .distinct()
+                                    .cast<AudioServiceRepeatMode>(),
                                 builder: (context, snapshot) {
                                   final repeatMode = snapshot.data ?? AudioServiceRepeatMode.none;
                                   const texts = ['None', 'All', 'One'];

@@ -244,18 +244,23 @@ class AudioPlayerController extends SintController implements AudioPlayerService
 
   @override
   void updateReleaseItemValues() {
-    mediaItemTitle.value = appReleaseItem.value.name;
-    mediaItemArtist.value = appReleaseItem.value.ownerName;
-    mediaItemAlbum.value = appReleaseItem.value.metaName ?? '';
-    if(mediaItemTitle.value.contains(' - ')) {
+    final name = appReleaseItem.value.name.trim();
+    final owner = appReleaseItem.value.ownerName.trim();
+    final meta = appReleaseItem.value.metaName?.trim() ?? '';
+
+    mediaItemTitle.value = (name.isEmpty || name == 'null') ? 'Lanzamiento' : name;
+    mediaItemArtist.value = (owner.isEmpty || owner == 'null') ? '' : owner;
+    mediaItemAlbum.value = (meta.isEmpty || meta == 'null') ? '' : meta;
+
+    if (mediaItemTitle.value.contains(' - ')) {
       mediaItemTitle.value = TextUtilities.getMediaName(appReleaseItem.value.name);
-      if(appReleaseItem.value.ownerName.isEmpty) {
+      if (appReleaseItem.value.ownerName.isEmpty) {
         mediaItemArtist.value = TextUtilities.getArtistName(appReleaseItem.value.name);
       }
     }
 
-    if(mediaItem.value == null) {
-      mediaItem.value= MediaItemMapper.fromAppReleaseItem(item:appReleaseItem.value);
+    if (mediaItem.value == null) {
+      mediaItem.value = MediaItemMapper.fromAppReleaseItem(item: appReleaseItem.value);
     }
 
     isValidItem = mediaItem.value != null;
@@ -263,18 +268,23 @@ class AudioPlayerController extends SintController implements AudioPlayerService
 
   @override
   void updateMediaItemValues() {
-    mediaItemTitle.value = appMediaItem.value.name;
-    mediaItemArtist.value = appMediaItem.value.ownerName;
-    mediaItemAlbum.value = appMediaItem.value.album;
-    if(mediaItemTitle.value.contains(' - ')) {
+    final name = appMediaItem.value.name.trim();
+    final owner = appMediaItem.value.ownerName.trim();
+    final album = appMediaItem.value.album.trim();
+
+    mediaItemTitle.value = (name.isEmpty || name == 'null') ? 'Lanzamiento' : name;
+    mediaItemArtist.value = (owner.isEmpty || owner == 'null') ? '' : owner;
+    mediaItemAlbum.value = (album.isEmpty || album == 'null') ? '' : album;
+
+    if (mediaItemTitle.value.contains(' - ')) {
       mediaItemTitle.value = TextUtilities.getMediaName(appMediaItem.value.name);
-      if(appMediaItem.value.ownerName.isEmpty) {
+      if (appMediaItem.value.ownerName.isEmpty) {
         mediaItemArtist.value = TextUtilities.getArtistName(appMediaItem.value.name);
       }
     }
 
-    if(mediaItem.value == null) {
-      mediaItem.value= MediaItemMapper.fromAppMediaItem(item:appMediaItem.value);
+    if (mediaItem.value == null) {
+      mediaItem.value = MediaItemMapper.fromAppMediaItem(item: appMediaItem.value);
     }
 
     isValidItem = mediaItem.value != null;

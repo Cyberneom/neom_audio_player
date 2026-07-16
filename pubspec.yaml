@@ -1,6 +1,6 @@
 name: neom_audio_player
 description: Audio Player Module for Open Neom.
-version: 2.1.1
+version: 2.1.2
 homepage: https://github.com/Cyberneom/neom_audio_player
 publish_to: 'none'
 

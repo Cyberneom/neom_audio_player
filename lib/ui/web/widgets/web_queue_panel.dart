@@ -22,7 +22,7 @@ class WebQueuePanel extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: AppColor.appBlack,
+        color: AppColor.surfaceElevated,
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(

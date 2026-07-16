@@ -40,6 +40,190 @@ class WebBottomPlayer extends StatelessWidget {
         final screenWidth = MediaQuery.of(context).size.width;
         final isCompact = screenWidth < 900;
 
+        final titleText = (mediaItem.title.trim().isNotEmpty && mediaItem.title != 'null')
+            ? mediaItem.title
+            : ((mediaItem.album?.trim().isNotEmpty ?? false) && mediaItem.album != 'null'
+                ? mediaItem.album!
+                : AudioPlayerTranslationConstants.lookingForNewMusic.tr);
+
+        final artistText = (mediaItem.artist?.trim().isNotEmpty ?? false) && mediaItem.artist != 'null'
+            ? mediaItem.artist!
+            : '';
+
+        final isRetracted = controller.isWebPlayerRetracted.value && !isCompact;
+
+        if (isRetracted) {
+          return Container(
+            width: 320,
+            height: 180,
+            decoration: BoxDecoration(
+              color: AppColor.surfaceElevated,
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(12),
+                topRight: Radius.circular(12),
+                bottomLeft: Radius.circular(12),
+                bottomRight: Radius.circular(12),
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black54,
+                  blurRadius: 10,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+              border: Border.all(
+                color: Colors.white.withOpacity(0.08),
+                width: 1,
+              ),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                // Top Row: Title, Artist & Expand Button
+                Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            titleText,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 13,
+                              letterSpacing: -0.2,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            artistText,
+                            style: TextStyle(color: Colors.grey[400], fontSize: 11),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    _WebLikeButton(mediaItem: mediaItem),
+                    const SizedBox(width: 4),
+                    _WebControlButton(
+                      icon: Icons.open_in_full_rounded,
+                      size: 18,
+                      color: Colors.white70,
+                      tooltip: 'Stretches the player horizontally',
+                      onTap: () {
+                        controller.isWebPlayerRetracted.value = false;
+                        controller.update(['web_bottom_player']);
+                      },
+                    ),
+                  ],
+                ),
+                // Middle Row: Artwork on the left, Playback controls on the right
+                Row(
+                  children: [
+                    _WebHoverArtwork(
+                      mediaItem: mediaItem,
+                      size: 52,
+                      onTap: onArtworkTap,
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              // Previous
+                              _WebControlButton(
+                                icon: Icons.skip_previous_rounded,
+                                size: 20,
+                                tooltip: AudioPlayerTranslationConstants.skipPrevious.tr,
+                                onTap: () => controller.audioHandler?.skipToPrevious(),
+                              ),
+                              const SizedBox(width: 12),
+                              // Play/Pause
+                              StreamBuilder<PlaybackState>(
+                                stream: controller.audioHandler?.playbackState,
+                                builder: (context, snapshot) {
+                                  final playing = snapshot.data?.playing ?? false;
+                                  return Container(
+                                    width: 32,
+                                    height: 32,
+                                    decoration: const BoxDecoration(
+                                      color: Colors.white,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: InkWell(
+                                      customBorder: const CircleBorder(),
+                                      onTap: () => playing ? controller.audioHandler?.pause() : controller.audioHandler?.play(),
+                                      child: Icon(
+                                        playing ? Icons.pause_rounded : Icons.play_arrow_rounded,
+                                        color: Colors.black,
+                                        size: 20,
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                              const SizedBox(width: 12),
+                              // Next
+                              _WebControlButton(
+                                icon: Icons.skip_next_rounded,
+                                size: 20,
+                                tooltip: AudioPlayerTranslationConstants.skipNext.tr,
+                                onTap: () => controller.audioHandler?.skipToNext(),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                // Bottom Row: Seek Bar
+                StreamBuilder<Duration>(
+                  stream: controller.audioHandler?.player.positionStream,
+                  builder: (context, positionSnapshot) {
+                    final position = positionSnapshot.data ?? Duration.zero;
+                    final duration = controller.audioHandler?.player.duration ?? Duration.zero;
+                    final sliderValue = computeSliderValue(position, duration);
+
+                    return Row(
+                      children: [
+                        Text(
+                          formatPlayerDuration(position),
+                          style: TextStyle(color: Colors.grey[400], fontSize: 10),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: _HoverSeekSlider(
+                            value: sliderValue,
+                            duration: duration,
+                            onSeek: (target) {
+                              controller.audioHandler?.seek(target);
+                            },
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          formatPlayerDuration(duration),
+                          style: TextStyle(color: Colors.grey[400], fontSize: 10),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+              ],
+            ),
+          );
+        }
+
         return Container(
           height: 80,
           decoration: BoxDecoration(
@@ -75,7 +259,7 @@ class WebBottomPlayer extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            mediaItem.title,
+                            titleText,
                             style: const TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.w600,
@@ -92,7 +276,8 @@ class WebBottomPlayer extends StatelessWidget {
                               StreamBuilder<bool>(
                                 stream: controller.audioHandler?.playbackState
                                     .map((s) => s.playing)
-                                    .distinct(),
+                                    .distinct()
+                                    .cast<bool>(),
                                 builder: (context, snap) {
                                   final playing = snap.data ?? false;
                                   return Padding(
@@ -109,7 +294,7 @@ class WebBottomPlayer extends StatelessWidget {
                               ),
                               Flexible(
                                 child: Text(
-                                  mediaItem.artist ?? '',
+                                  artistText,
                                   style: TextStyle(color: Colors.grey[400], fontSize: 11),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
@@ -192,7 +377,8 @@ class WebBottomPlayer extends StatelessWidget {
                         StreamBuilder<bool>(
                           stream: controller.audioHandler?.playbackState
                               .map((state) => state.shuffleMode == AudioServiceShuffleMode.all)
-                              .distinct(),
+                              .distinct()
+                              .cast<bool>(),
                           builder: (context, snapshot) {
                             final shuffleOn = snapshot.data ?? false;
                             return _WebControlButton(
@@ -280,7 +466,8 @@ class WebBottomPlayer extends StatelessWidget {
                         StreamBuilder<AudioServiceRepeatMode>(
                           stream: controller.audioHandler?.playbackState
                               .map((state) => state.repeatMode)
-                              .distinct(),
+                              .distinct()
+                              .cast<AudioServiceRepeatMode>(),
                           builder: (context, snapshot) {
                             final repeatMode = snapshot.data ?? AudioServiceRepeatMode.none;
                             final isActive = repeatMode != AudioServiceRepeatMode.none;
@@ -361,7 +548,7 @@ class WebBottomPlayer extends StatelessWidget {
               // ─── Right: Speed + Sleep Timer + Queue + Volume ───
               if (!isCompact)
                 SizedBox(
-                  width: 320,
+                  width: 350,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
@@ -432,6 +619,17 @@ class WebBottomPlayer extends StatelessWidget {
                               ),
                             ],
                           );
+                        },
+                      ),
+                      const SizedBox(width: 8),
+                      _WebControlButton(
+                        icon: Icons.close_fullscreen_rounded,
+                        size: 18,
+                        color: Colors.white70,
+                        tooltip: 'Minimize player to the right',
+                        onTap: () {
+                          controller.isWebPlayerRetracted.value = true;
+                          controller.update(['web_bottom_player']);
                         },
                       ),
                     ],

@@ -40,22 +40,24 @@ class MediaItemMapper  {
     bool autoplay = true,
     String? playlistBox,
   }) {
+    final idVal = song['id']?.toString() ?? '';
+    final titleVal = song['title']?.toString().trim() ?? '';
+    final albumVal = song['album']?.toString().trim() ?? '';
+    final artistVal = (song['ownerName'] ?? song['artist'])?.toString().trim() ?? '';
+    final durationVal = song['duration']?.toString().trim() ?? '';
+
     return MediaItem(
-      id: song['id'].toString(),
-      album: song['album'].toString(),
-      artist: song['ownerName'] != null
-          ? song['ownerName'].toString() : song['artist'].toString(),
+      id: idVal,
+      album: (albumVal.isEmpty || albumVal == 'null') ? '' : albumVal,
+      artist: (artistVal.isEmpty || artistVal == 'null') ? '' : artistVal,
       duration: Duration(
         seconds: int.parse(
-          (song['duration'] == null ||
-              song['duration'] == 'null' ||
-              song['duration'] == '')
-              ? '180' : song['duration'].toString(),
+          (durationVal.isEmpty || durationVal == 'null') ? '180' : durationVal,
         ),
       ),
-      title: song['title'].toString(),
-      artUri: Uri.parse(song['image'].toString()),
-      genre: song['language'].toString(),
+      title: (titleVal.isEmpty || titleVal == 'null') ? 'Lanzamiento' : titleVal,
+      artUri: Uri.parse(song['image']?.toString() ?? ''),
+      genre: song['language']?.toString() ?? '',
       extras: {
         'ownerId': song['ownerId'] ?? '',
         'url': song['url'],
@@ -71,7 +73,6 @@ class MediaItemMapper  {
         'autoplay': autoplay,
         'playlistBox': playlistBox,
         'source': song['source'],
-
       },
     );
   }
@@ -79,12 +80,16 @@ class MediaItemMapper  {
   static MediaItem fromAppMediaItem({required AppMediaItem item,
     bool addedByAutoplay = false, bool autoplay = true, String? playlistBox,
   }) {
+    final nameVal = item.name.trim();
+    final artistVal = item.ownerName.trim();
+    final albumVal = item.album.trim();
+
     return MediaItem(
       id: item.id,
-      album: item.album,
-      artist: item.ownerName,
+      album: (albumVal.isEmpty || albumVal == 'null') ? '' : albumVal,
+      artist: (artistVal.isEmpty || artistVal == 'null') ? '' : artistVal,
       duration: Duration(seconds: item.duration),
-      title: item.name,
+      title: (nameVal.isEmpty || nameVal == 'null') ? 'Lanzamiento' : nameVal,
       artUri: Uri.parse(item.imgUrl),
       genre: item.categories?.isNotEmpty ?? false ? item.categories?.first : null,
       extras: {
@@ -107,32 +112,42 @@ class MediaItemMapper  {
   }
 
   static AppMediaItem toAppMediaItem(MediaItem item) {
+    final titleVal = item.title.trim();
+    final artistVal = item.artist?.trim() ?? '';
+    final albumVal = item.album?.trim() ?? '';
+
+    final nameVal = TextUtilities.getMediaName((titleVal.isEmpty || titleVal == 'null') ? 'Lanzamiento' : titleVal);
+
     return AppMediaItem(
       id: item.id,
-      album: item.album ?? '',
-      albumId: item.extras?['metaId'].toString() ?? '',
-      ownerName: item.artist ?? TextUtilities.getArtistName(item.title),
+      album: (albumVal.isEmpty || albumVal == 'null') ? '' : albumVal,
+      albumId: item.extras?['metaId']?.toString() ?? '',
+      ownerName: (artistVal.isEmpty || artistVal == 'null') ? TextUtilities.getArtistName(titleVal) : artistVal,
       duration: item.duration?.inSeconds ?? 0,
-      name: TextUtilities.getMediaName(item.title),
+      name: (nameVal.isEmpty || nameVal == 'null') ? 'Lanzamiento' : nameVal,
       imgUrl: item.artUri?.toString() ?? '',
       categories: item.genre != null ? [item.genre!] : [],
-      url: item.extras?['url'].toString() ?? '',
-      description: item.extras?['description'].toString() ?? '',
-      lyrics: item.extras?['lyrics'].toString() ?? '',
-      ownerId: item.extras?['ownerId'].toString() ?? '',
-      mediaSource: CoreUtilities.isInternal(item.extras?['url'].toString() ?? '') ? AppMediaSource.internal : AppMediaSource.external,
+      url: item.extras?['url']?.toString() ?? '',
+      description: item.extras?['description']?.toString() ?? '',
+      lyrics: item.extras?['lyrics']?.toString() ?? '',
+      ownerId: item.extras?['ownerId']?.toString() ?? '',
+      mediaSource: CoreUtilities.isInternal(item.extras?['url']?.toString() ?? '') ? AppMediaSource.internal : AppMediaSource.external,
     );
   }
 
   static MediaItem fromAppReleaseItem({required AppReleaseItem item,
     bool addedByAutoplay = false, bool autoplay = true, String? playlistBox,
   }) {
+    final nameVal = item.name.trim();
+    final artistVal = item.ownerName.trim();
+    final albumVal = item.metaName?.trim() ?? '';
+
     return MediaItem(
       id: item.id,
-      album: item.metaName,
-      artist: item.ownerName,
+      album: (albumVal.isEmpty || albumVal == 'null') ? '' : albumVal,
+      artist: (artistVal.isEmpty || artistVal == 'null') ? '' : artistVal,
       duration: Duration(seconds: item.duration),
-      title: item.name,
+      title: (nameVal.isEmpty || nameVal == 'null') ? 'Lanzamiento' : nameVal,
       artUri: Uri.parse(item.imgUrl),
       genre: item.categories.isNotEmpty ? item.categories.first : null,
       extras: {

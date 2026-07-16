@@ -51,21 +51,27 @@ class _MiniPlayerTileState extends State<MiniPlayerTile> {
   void initState() {
     super.initState();
 
+    if (widget.item != null) {
+      final t = widget.item!.title.trim();
+      final alb = widget.item!.album?.trim() ?? '';
+      final art = widget.item!.artist?.trim() ?? '';
 
-    if(widget.item != null) {
-      if(widget.item!.title != 'null') {
-        titleText = widget.item!.title;
-      } else if(widget.item!.album != null) {
-        titleText = widget.item!.album ?? '';
+      if (t.isNotEmpty && t != 'null') {
+        titleText = t;
+      } else if (alb.isNotEmpty && alb != 'null') {
+        titleText = alb;
+      } else {
+        titleText = widget.isTimeline
+            ? AudioPlayerTranslationConstants.lookingForNewMusic.tr
+            : AudioPlayerTranslationConstants.lookingForInspiration.tr;
       }
-      subtitleText = widget.item!.artist ?? '';
+
+      subtitleText = (art.isNotEmpty && art != 'null') ? art : '';
     }
 
-
-
-    if(titleText.contains(' - ')) {
+    if (titleText.contains(' - ')) {
       titleText = TextUtilities.getMediaName(titleText);
-      if(subtitleText.isEmpty) {
+      if (subtitleText.isEmpty) {
         subtitleText = TextUtilities.getArtistName(titleText);
       }
     }

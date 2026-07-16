@@ -1,5 +1,9 @@
 # Changelog — neom_audio_player
 
+## [2.1.2] - 2026-07-16
+- Update miniplayer, bottom player, queue panel, and Winamp-style floating widgets.
+- Fix audio handler mapping.
+
 ## Unreleased - System updates
 - Actualizaciones de estabilidad y compatibilidad.
 
