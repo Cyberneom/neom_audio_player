@@ -75,7 +75,6 @@ export 'utils/enums/lyrics_source.dart';
 export 'utils/enums/lyrics_type.dart';
 export 'utils/enums/radio_seed_type.dart';
 export 'utils/enums/jam_session_type.dart';
-export 'utils/enums/equalizer_preset.dart';
 export 'utils/enums/playback_mode.dart';
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -107,7 +106,6 @@ export 'domain/use_cases/listening_stats_service.dart';
 export 'domain/use_cases/smart_queue_service.dart';
 export 'domain/use_cases/enhanced_playback_service.dart';
 export 'domain/use_cases/artwork_color_service.dart';
-export 'domain/use_cases/equalizer_service.dart';
 export 'domain/use_cases/lyrics_service.dart';
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -124,7 +122,6 @@ export 'data/implementations/artwork_color_controller.dart';
 export 'data/implementations/audio_lite_player_controller.dart';
 export 'data/implementations/casete_hive_controller.dart';
 export 'data/implementations/enhanced_playback_controller.dart';
-export 'data/implementations/equalizer_controller.dart';
 export 'data/implementations/player_hive_controller.dart';
 export 'data/implementations/lyrics_controller.dart';
 export 'data/implementations/playlist_hive_controller.dart';
