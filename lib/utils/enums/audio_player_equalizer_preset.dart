@@ -2,7 +2,7 @@
 ///
 /// Each preset provides a [gains] function that returns gain values
 /// normalized to the number of bands available on the device hardware.
-enum EqualizerPreset {
+enum AudioPlayerEqualizerPreset {
   flat('flat', 'Flat'),
   bassBoost('bass_boost', 'Bass Boost'),
   trebleBoost('treble_boost', 'Treble Boost'),
@@ -14,7 +14,7 @@ enum EqualizerPreset {
   final String value;
   final String displayName;
 
-  const EqualizerPreset(this.value, this.displayName);
+  const AudioPlayerEqualizerPreset(this.value, this.displayName);
 
   /// Returns gain values for each band, normalized to [bandCount].
   ///
@@ -59,5 +59,4 @@ enum EqualizerPreset {
           : 6.0,
     };
   }
-
 }

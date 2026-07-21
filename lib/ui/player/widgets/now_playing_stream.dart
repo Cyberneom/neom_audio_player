@@ -15,7 +15,7 @@ import '../../../neom_audio_handler.dart';
 import '../../../utils/constants/audio_player_translation_constants.dart';
 import '../../widgets/like_button.dart';
 
-class NowPlayingStream extends StatelessWidget {
+class NowPlayingStream extends StatefulWidget {
   final NeomAudioHandler? audioHandler;
   final ScrollController? scrollController;
   final PanelController? panelController;
@@ -34,10 +34,17 @@ class NowPlayingStream extends StatelessWidget {
     this.showLikeButton = true,
   });
 
+  @override
+  State<NowPlayingStream> createState() => _NowPlayingStreamState();
+}
+
+class _NowPlayingStreamState extends State<NowPlayingStream> {
+  int? _lastQueueIndex;
+
   void _updateScrollController(ScrollController? controller, int itemIndex,
       int queuePosition, int queueLength,) {
 
-    if (panelController != null && !panelController!.isPanelOpen) {
+    if (widget.panelController != null && !widget.panelController!.isPanelOpen) {
       if (queuePosition > 3) {
         controller?.animateTo(
           itemIndex * 72 + 12,
@@ -62,28 +69,32 @@ class NowPlayingStream extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QueueState>(
-      stream: audioHandler?.queueState,
+      stream: widget.audioHandler?.queueState,
       builder: (context, snapshot) {
         final queueState = snapshot.data ?? QueueState.empty;
         final queue = queueState.queue;
         final int queueStateIndex = queueState.queueIndex ?? 0;
         final num queuePosition = queue.length - queueStateIndex;
-        WidgetsBinding.instance.addPostFrameCallback(
-              (_) => _updateScrollController(
-            scrollController,
-            queueState.queueIndex ?? 0,
-            queuePosition.toInt(),
-            queue.length,
-          ),
-        );
+        
+        if (_lastQueueIndex != queueStateIndex) {
+          _lastQueueIndex = queueStateIndex;
+          WidgetsBinding.instance.addPostFrameCallback(
+                (_) => _updateScrollController(
+              widget.scrollController,
+              queueStateIndex,
+              queuePosition.toInt(),
+              queue.length,
+            ),
+          );
+        }
 
         return ReorderableListView.builder(
-          header: SizedBox(height: head ? headHeight : 0,),
+          header: SizedBox(height: widget.head ? widget.headHeight : 0,),
           onReorder: (int oldIndex, int newIndex) {
             if (oldIndex < newIndex) newIndex--;
-            audioHandler?.moveQueueItem(oldIndex, newIndex);
+            widget.audioHandler?.moveQueueItem(oldIndex, newIndex);
           },
-          scrollController: scrollController,
+          scrollController: widget.scrollController,
           physics: const BouncingScrollPhysics(),
           padding: const EdgeInsets.only(bottom: 10),
           shrinkWrap: true,
@@ -91,11 +102,11 @@ class NowPlayingStream extends StatelessWidget {
           itemBuilder: (context, index) {
             MediaItem item = queue[index];
             return Dismissible(
-              key: ValueKey(item.id),
+              key: ValueKey('${item.id}_$index'),
               direction: index == queueState.queueIndex
                   ? DismissDirection.none
                   : DismissDirection.horizontal,
-              onDismissed: (dir) => audioHandler?.removeQueueItemAt(index),
+              onDismissed: (dir) => widget.audioHandler?.removeQueueItemAt(index),
               child: ListTileTheme(
                 selectedColor: Theme.of(context).colorScheme.secondary,
                 child: ListTile(
@@ -113,7 +124,7 @@ class NowPlayingStream extends StatelessWidget {
                       ),
                     ] : [
                       if(item.extras!['url'].toString().startsWith('http')) ...[
-                        if(showLikeButton) LikeButton(
+                        if(widget.showLikeButton) LikeButton(
                           itemId: queue[index].id,
                           itemName: queue[index].title,
                         ),
@@ -208,7 +219,7 @@ class NowPlayingStream extends StatelessWidget {
                     item.artist!,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  onTap: () => audioHandler?.skipToQueueItem(index),
+                  onTap: () => widget.audioHandler?.skipToQueueItem(index),
                 ),
               ),
             );
@@ -218,3 +229,4 @@ class NowPlayingStream extends StatelessWidget {
     );
   }
 }
+

@@ -1,3 +1,6 @@
+
+## [2.0.0-unreleased] - 2026-07-21
+- Fix permanent lockup in stop(), resolve duplicate EqualizerController/Service naming conflicts by renaming to AudioPlayerEqualizerController, resolve RangeError in updateMediaItem, fix dismissible keys collision in queue widget, and hook setVolume callback in artwork slider.
 # Changelog — neom_audio_player
 
 ## [2.1.2] - 2026-07-16

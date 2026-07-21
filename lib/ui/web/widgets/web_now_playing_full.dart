@@ -103,7 +103,9 @@ class _WebNowPlayingFullState extends State<WebNowPlayingFull> {
       builder: (controller) {
         final mediaItem = controller.mediaItem.value;
         if (mediaItem == null) {
-          widget.onClose();
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            widget.onClose();
+          });
           return const SizedBox.shrink();
         }
 
@@ -346,6 +348,7 @@ class _WebNowPlayingFullState extends State<WebNowPlayingFull> {
                             SizedBox(
                               // Using existing lyrics panel but removing its internal background/constraints if needed
                               width: double.infinity,
+                              height: 450,
                               child: WebLyricsPanel(mediaItem: mediaItem),
                             ),
                           ],

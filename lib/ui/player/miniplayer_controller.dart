@@ -34,6 +34,7 @@ class MiniPlayerController extends SintController implements MiniPlayerService {
   Duration? itemDuration;
   bool audioHandlerRegistered = false;
   final RxBool isWebPlayerRetracted = true.obs;
+  final RxBool isWebPlayerClosed = false.obs;
 
   @override
   void onInit() {
@@ -86,8 +87,9 @@ class MiniPlayerController extends SintController implements MiniPlayerService {
     mediaItem.value = MediaItemMapper.fromAppMediaItem(item: appMediaItem);
     source = EnumToString.fromString(AppMediaSource.values, mediaItem.value?.extras?["source"] ?? AppMediaSource.internal.name) ?? AppMediaSource.internal;
     isInternal = source == AppMediaSource.internal || source == AppMediaSource.offline;
+    isWebPlayerClosed.value = false;
 
-    update([AppPageIdConstants.miniPlayer]);
+    update([AppPageIdConstants.miniPlayer, 'web_bottom_player']);
   }
 
   Future<void> setMediaItem(MediaItem item) async {
@@ -97,6 +99,7 @@ class MiniPlayerController extends SintController implements MiniPlayerService {
     mediaItem.value = item;
     source = EnumToString.fromString(AppMediaSource.values, mediaItem.value?.extras?["source"] ?? AppMediaSource.internal.name) ?? AppMediaSource.internal;
     isInternal = source == AppMediaSource.internal || source == AppMediaSource.offline;
+    isWebPlayerClosed.value = false;
 
     update([AppPageIdConstants.miniPlayer, 'web_bottom_player', 'web_now_playing_full']);
   }
@@ -150,7 +153,7 @@ class MiniPlayerController extends SintController implements MiniPlayerService {
           child: Center(
             child: Slider(
               inactiveColor: Colors.transparent,
-              value: position.inSeconds.toDouble(),
+              value: position.inSeconds.toDouble().clamp(0.0, isPreview ? 30.0 : maxDuration),
               max: isPreview ? 30 : maxDuration,
               onChanged: (newPosition) {
                 audioHandler?.seek(Duration(seconds: newPosition.round(),),);

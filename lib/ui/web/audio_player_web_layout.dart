@@ -343,7 +343,7 @@ class _AudioPlayerWebLayoutState extends State<AudioPlayerWebLayout> {
                     // ─── Bottom Player ───
                     Obx(() {
                       final miniPlayerController = Sint.find<MiniPlayerController>();
-                      if (miniPlayerController.mediaItem.value == null) {
+                      if (miniPlayerController.mediaItem.value == null || miniPlayerController.isWebPlayerClosed.value) {
                         return const SizedBox.shrink();
                       }
                       return WebBottomPlayer(

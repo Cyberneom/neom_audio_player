@@ -57,6 +57,17 @@ import 'utils/neom_audio_utilities.dart';
 /// ```
 class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler implements AudioHandlerService {
 
+  static final likeControl = MediaControl(
+    androidIcon: 'drawable/ic_action_like',
+    label: 'Like',
+    action: MediaAction.fastForward,
+  );
+  static final unlikeControl = MediaControl(
+    androidIcon: 'drawable/ic_action_unlike',
+    label: 'Unlike',
+    action: MediaAction.rewind,
+  );
+
   int? count;
   Timer? _sleepTimer;
   final RxBool isLoadingAudio = false.obs;
@@ -313,8 +324,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
       playbackState.add(
         playbackState.value.copyWith(
           controls: [
-            if (liked) MediaControl.rewind else
-              MediaControl.fastForward,
+            if (liked) unlikeControl else likeControl,
             MediaControl.skipToPrevious,
             if (playing) MediaControl.pause else
               MediaControl.play,
@@ -491,17 +501,18 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
   Future<void> skipToMediaItem(String id, {int index = 0}) async {
     AppConfig.logger.t('skipToMediaItem $id');
 
-    if (queue.value.indexWhere((item) => item.id == id) >= 0) {
-      index = queue.value.indexWhere((item) => item.id == id);
+    final queueIndex = queue.value.indexWhere((item) => item.id == id);
+    if (queueIndex >= 0) {
+      index = queueIndex;
       AppConfig.logger.t(
           'SkipToMediaItem: mediaItem found in queue with Index $index');
+      player.seek(Duration.zero,
+        index: player.shuffleModeEnabled && index != 0 ? player
+            .shuffleIndices[index] : index,
+      );
+    } else {
+      AppConfig.logger.w('skipToMediaItem: ID $id not found in queue');
     }
-
-    player.seek(Duration.zero,
-      index: player.shuffleModeEnabled && index != 0 ? player
-          .shuffleIndices[index] : index,
-    );
-
   }
 
   @override
@@ -551,13 +562,15 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
   Future<void> updateMediaItem(MediaItem mediaItem) async {
     AppConfig.logger.d('updateMediaItem');
     final index = queue.value.indexWhere((item) => item.id == mediaItem.id);
-    _mediaItemExpando[player.sequence[index]] = mediaItem;
+    if (index != -1 && index < player.sequence.length) {
+      _mediaItemExpando[player.sequence[index]] = mediaItem;
+    }
   }
 
   @override
   Future<void> removeQueueItem(MediaItem mediaItem) async {
     AppConfig.logger.d('removeQueueItem');
-    final index = queue.value.indexOf(mediaItem);
+    final index = queue.value.indexWhere((item) => item.id == mediaItem.id);
     if (index != -1) await removeQueueItemAt(index);
   }
 
@@ -720,8 +733,11 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
     AppConfig.logger.d('Stopping player');
     trackCaseteSession();
     await player.stop();
-    await playbackState.firstWhere((state) =>
-    state.processingState == AudioProcessingState.idle,);
+    if (playbackState.value.processingState != AudioProcessingState.idle) {
+      await playbackState.firstWhere((state) =>
+      state.processingState == AudioProcessingState.idle,
+      ).timeout(const Duration(seconds: 2), onTimeout: () => playbackState.value);
+    }
 
     AppConfig.logger.t(
         'Caching last index ${player.currentIndex} and position ${player
@@ -939,12 +955,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
   Timer? _freeTrialTimer;
 
   void startCaseteBeaconTimer() {
-    _caseteBeaconTimer?.cancel();
-    _caseteBeaconTimer = Timer.periodic(const Duration(seconds: 15), (timer) async {
-      if (player.playing) {
-        await trackCaseteSession(isPeriodic: true);
-      }
-    });
+    // No-op. Session is persisted at natural session boundaries (pause/skip/stop/completion).
   }
 
   Future<void> startFreeTrialTimer() async {

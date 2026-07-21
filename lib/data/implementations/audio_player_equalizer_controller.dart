@@ -4,14 +4,14 @@ import 'package:neom_core/utils/neom_error_logger.dart';
 import 'package:neom_sound/neom_sound.dart' hide EqualizerPreset, EqualizerService;
 import 'package:sint/sint.dart';
 
-import '../../domain/use_cases/equalizer_service.dart';
-import '../../utils/enums/equalizer_preset.dart';
+import '../../domain/use_cases/audio_player_equalizer_service.dart';
+import '../../utils/enums/audio_player_equalizer_preset.dart';
 
-/// Concrete [EqualizerService] backed by Android's native equalizer
+/// Concrete [AudioPlayerEqualizerService] backed by Android's native equalizer
 /// via [AndroidEqualizer] from just_audio.
 ///
 /// Persists enabled state, per-band gains, and active preset in Hive.
-class EqualizerController extends SintController implements EqualizerService {
+class AudioPlayerEqualizerController extends SintController implements AudioPlayerEqualizerService {
 
   static const String _boxName = 'equalizer';
 
@@ -19,7 +19,7 @@ class EqualizerController extends SintController implements EqualizerService {
   AndroidEqualizer? _equalizer;
 
   final _isEnabled = false.obs;
-  final Rxn<EqualizerPreset> _activePreset = Rxn<EqualizerPreset>();
+  final Rxn<AudioPlayerEqualizerPreset> _activePreset = Rxn<AudioPlayerEqualizerPreset>();
 
   /// Sets the Android equalizer instance from the audio pipeline.
   void setEqualizer(AndroidEqualizer equalizer) {
@@ -38,9 +38,9 @@ class EqualizerController extends SintController implements EqualizerService {
       _isEnabled.value = _box?.get('enabled', defaultValue: false) as bool? ?? false;
       final presetName = _box?.get('activePreset') as String?;
       if (presetName != null) {
-        _activePreset.value = EqualizerPreset.values.firstWhere(
+        _activePreset.value = AudioPlayerEqualizerPreset.values.firstWhere(
           (e) => e.value == presetName,
-          orElse: () => EqualizerPreset.flat,
+          orElse: () => AudioPlayerEqualizerPreset.flat,
         );
       }
       if (_isEnabled.value && _equalizer != null) {
@@ -49,17 +49,17 @@ class EqualizerController extends SintController implements EqualizerService {
       }
     } catch (e, st) {
       NeomErrorLogger.recordError(e, st,
-          module: 'neom_audio_player', operation: 'EqualizerController._initHive');
+          module: 'neom_audio_player', operation: 'AudioPlayerEqualizerController._initHive');
     }
   }
 
-  // ─── EqualizerService ─────────────────────────────────────────────────
+  // ─── AudioPlayerEqualizerService ─────────────────────────────────────────────────
 
   @override
   bool get isEnabled => _isEnabled.value;
 
   @override
-  EqualizerPreset? get activePreset => _activePreset.value;
+  AudioPlayerEqualizerPreset? get activePreset => _activePreset.value;
 
   @override
   Future<void> setEnabled(bool enabled) async {
@@ -110,7 +110,7 @@ class EqualizerController extends SintController implements EqualizerService {
   }
 
   @override
-  Future<void> applyPreset(EqualizerPreset preset) async {
+  Future<void> applyPreset(AudioPlayerEqualizerPreset preset) async {
     if (_equalizer == null) return;
     final params = await _equalizer!.parameters;
     final gains = preset.getGains(params.bands.length);
@@ -128,7 +128,7 @@ class EqualizerController extends SintController implements EqualizerService {
 
   @override
   Future<void> resetBands() async {
-    await applyPreset(EqualizerPreset.flat);
+    await applyPreset(AudioPlayerEqualizerPreset.flat);
   }
 
   // ─── Internal ─────────────────────────────────────────────────────────

@@ -100,6 +100,7 @@ export 'domain/models/smart_queue.dart';
 export 'domain/use_cases/audio_player_service.dart';
 export 'domain/use_cases/player_hive_service.dart';
 export 'domain/use_cases/playlist_hive_service.dart';
+export 'domain/use_cases/playlist_generator_service.dart';
 export 'domain/use_cases/radio_service.dart';
 export 'domain/use_cases/jam_session_service.dart';
 export 'domain/use_cases/listening_stats_service.dart';

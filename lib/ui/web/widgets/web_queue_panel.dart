@@ -147,7 +147,7 @@ class WebQueuePanel extends StatelessWidget {
 
                     final upcoming = currentIndex >= 0 && currentIndex < queue.length - 1
                         ? queue.sublist(currentIndex + 1)
-                        : queue;
+                        : <MediaItem>[];
 
                     if (upcoming.isEmpty) {
                       return Padding(
@@ -160,7 +160,7 @@ class WebQueuePanel extends StatelessWidget {
                       );
                     }
 
-                    final upcomingStartIndex = currentIndex + 1;
+                    final upcomingStartIndex = currentIndex >= 0 ? currentIndex + 1 : 0;
                     final totalRemaining = upcoming.fold<Duration>(
                       Duration.zero,
                       (acc, item) => acc + (item.duration ?? Duration.zero),

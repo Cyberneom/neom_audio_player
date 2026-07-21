@@ -1,10 +1,10 @@
-import '../../utils/enums/equalizer_preset.dart';
+import '../../utils/enums/audio_player_equalizer_preset.dart';
 
 /// Abstract service for audio equalizer management.
 ///
 /// Implementations provide per-band gain control, preset application,
 /// enable/disable toggle, and Hive persistence of user settings.
-abstract class EqualizerService {
+abstract class AudioPlayerEqualizerService {
 
   /// Whether the equalizer is currently enabled.
   bool get isEnabled;
@@ -28,12 +28,11 @@ abstract class EqualizerService {
   Future<void> setBandGain(int bandIndex, double gain);
 
   /// Applies a preset to all bands.
-  Future<void> applyPreset(EqualizerPreset preset);
+  Future<void> applyPreset(AudioPlayerEqualizerPreset preset);
 
   /// The currently active preset, or null if custom.
-  EqualizerPreset? get activePreset;
+  AudioPlayerEqualizerPreset? get activePreset;
 
   /// Resets all bands to flat (0 dB).
   Future<void> resetBands();
-
 }

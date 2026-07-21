@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:neom_commons/ui/theme/app_color.dart';
 import 'package:neom_commons/utils/auth_guard.dart';
+import 'package:neom_commons/utils/deeplink_utilities.dart';
+import 'package:neom_commons/utils/device_utilities.dart';
 import 'package:neom_commons/utils/constants/translations/app_translation_constants.dart';
 import 'package:sint/sint.dart';
 import 'package:neom_audio_player/ui/player/miniplayer_controller.dart';
@@ -32,7 +34,7 @@ class WebBottomPlayer extends StatelessWidget {
     return SintBuilder<MiniPlayerController>(
       id: 'web_bottom_player',
       builder: (controller) {
-        if (controller.mediaItem.value == null) {
+        if (controller.mediaItem.value == null || controller.isWebPlayerClosed.value) {
           return const SizedBox.shrink();
         }
 
@@ -112,12 +114,42 @@ class WebBottomPlayer extends StatelessWidget {
                     _WebLikeButton(mediaItem: mediaItem),
                     const SizedBox(width: 4),
                     _WebControlButton(
+                      icon: Icons.share_rounded,
+                      size: 18,
+                      color: Colors.white70,
+                      tooltip: 'Copy share link',
+                      onTap: () {
+                        final slug = mediaItem.extras?['slug']?.toString() ?? '';
+                        final url = DeeplinkUtilities.generateVanityUrl(
+                          type: 'media',
+                          id: mediaItem.id,
+                          slug: slug,
+                        );
+                        DeviceUtilities.copyToClipboard(
+                          text: url,
+                          displayText: 'Link de la canción copiado al portapapeles',
+                        );
+                      },
+                    ),
+                    const SizedBox(width: 4),
+                    _WebControlButton(
                       icon: Icons.open_in_full_rounded,
                       size: 18,
                       color: Colors.white70,
                       tooltip: 'Stretches the player horizontally',
                       onTap: () {
                         controller.isWebPlayerRetracted.value = false;
+                        controller.update(['web_bottom_player']);
+                      },
+                    ),
+                    const SizedBox(width: 4),
+                    _WebControlButton(
+                      icon: Icons.close_rounded,
+                      size: 18,
+                      color: Colors.white70,
+                      tooltip: 'Close player',
+                      onTap: () {
+                        controller.isWebPlayerClosed.value = true;
                         controller.update(['web_bottom_player']);
                       },
                     ),
@@ -548,7 +580,7 @@ class WebBottomPlayer extends StatelessWidget {
               // ─── Right: Speed + Sleep Timer + Queue + Volume ───
               if (!isCompact)
                 SizedBox(
-                  width: 350,
+                  width: 390,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
@@ -570,6 +602,29 @@ class WebBottomPlayer extends StatelessWidget {
                           tooltip: AudioPlayerTranslationConstants.upNext.tr,
                           onTap: onQueueToggle,
                         ),
+                      const SizedBox(width: 4),
+                      // Share button
+                      _WebControlButton(
+                        icon: Icons.share_rounded,
+                        size: 20,
+                        color: Colors.white70,
+                        tooltip: 'Copy share link',
+                        onTap: () {
+                          final mediaItem = controller.mediaItem.value;
+                          if (mediaItem != null) {
+                            final slug = mediaItem.extras?['slug']?.toString() ?? '';
+                            final url = DeeplinkUtilities.generateVanityUrl(
+                              type: 'media',
+                              id: mediaItem.id,
+                              slug: slug,
+                            );
+                            DeviceUtilities.copyToClipboard(
+                              text: url,
+                              displayText: 'Link de la canción copiado al portapapeles',
+                            );
+                          }
+                        },
+                      ),
                       const SizedBox(width: 8),
                       // Volume
                       StreamBuilder<double>(

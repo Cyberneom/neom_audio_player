@@ -105,7 +105,7 @@ class ControlButtons extends StatelessWidget {
                   builder: (context, snapshot) {
                     final playbackState = snapshot.data;
                     final processingState = playbackState?.processingState;
-                    final playing = playbackState?.playing ?? true;
+                    final playing = playbackState?.playing ?? false;
                     return Stack(
                       children: [
                         if (processingState == AudioProcessingState.loading ||

@@ -61,6 +61,7 @@ class MediaItemMapper  {
       extras: {
         'ownerId': song['ownerId'] ?? '',
         'url': song['url'],
+        'slug': song['slug'] ?? '',
         'publishedYear': song['publishedYear'],
         'language': song['language'],
         'is320Kbps': song['is320Kbps'],
@@ -95,6 +96,7 @@ class MediaItemMapper  {
       extras: {
         'ownerId': item.ownerId,
         'url': item.url,
+        'slug': item.slug,
         'publishedYear': item.publishedYear,
         'language': item.language,
         'is320Kbps': item.is320Kbps,

@@ -3,13 +3,13 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:sint/sint.dart';
 
-import '../../data/implementations/equalizer_controller.dart';
-import '../../utils/enums/equalizer_preset.dart';
+import '../../data/implementations/audio_player_equalizer_controller.dart';
+import '../../utils/enums/audio_player_equalizer_preset.dart';
 
 /// Full equalizer UI with enable toggle, per-band vertical sliders,
 /// and preset buttons.
 ///
-/// Finds [EqualizerController] via Sint and uses [Obx] for reactive updates.
+/// Finds [AudioPlayerEqualizerController] via Sint and uses [Obx] for reactive updates.
 class EqualizerWidget extends StatefulWidget {
 
   final Color? accentColor;
@@ -23,7 +23,7 @@ class EqualizerWidget extends StatefulWidget {
 
 class _EqualizerWidgetState extends State<EqualizerWidget> {
 
-  late final EqualizerController _controller;
+  late final AudioPlayerEqualizerController _controller;
   List<double> _gains = [];
   List<double> _frequencies = [];
   double _minDb = -15;
@@ -33,7 +33,7 @@ class _EqualizerWidgetState extends State<EqualizerWidget> {
   @override
   void initState() {
     super.initState();
-    _controller = Sint.find<EqualizerController>();
+    _controller = Sint.find<AudioPlayerEqualizerController>();
     _loadParameters();
   }
 
@@ -90,10 +90,10 @@ class _EqualizerWidgetState extends State<EqualizerWidget> {
       child: Obx(() => ListView.separated(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 16),
-        itemCount: EqualizerPreset.values.length,
+        itemCount: AudioPlayerEqualizerPreset.values.length,
         separatorBuilder: (_, __) => const SizedBox(width: 8),
         itemBuilder: (_, i) {
-          final preset = EqualizerPreset.values[i];
+          final preset = AudioPlayerEqualizerPreset.values[i];
           final isActive = _controller.activePreset == preset;
           return ChoiceChip(
             label: Text(preset.displayName),
