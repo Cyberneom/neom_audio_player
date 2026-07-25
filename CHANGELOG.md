@@ -1,3 +1,6 @@
+## [2026-07-25] - Dependencias Externas
+- Actualizacion de dependencias externas a sus versiones mas recientes y compatibles.
+
 
 ## [2.0.0-unreleased] - 2026-07-21
 - Fix permanent lockup in stop(), resolve duplicate EqualizerController/Service naming conflicts by renaming to AudioPlayerEqualizerController, resolve RangeError in updateMediaItem, fix dismissible keys collision in queue widget, and hook setVolume callback in artwork slider.
