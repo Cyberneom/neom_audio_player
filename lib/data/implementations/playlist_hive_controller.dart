@@ -29,9 +29,9 @@ class PlaylistHiveController implements PlaylistHiveService {
 
   bool _isInitialized = false;
 
-  final userServiceImpl = Sint.find<UserService>();
+  UserService get userServiceImpl => Sint.find<UserService>();
   final playerHiveController = PlayerHiveController();
-  final appHiveServiceImpl = Sint.find<AppHiveService>();
+  AppHiveService get appHiveServiceImpl => Sint.find<AppHiveService>();
   Map<String, AppMediaItem> globalMediaItems = {};
   late SharedPreferences prefs;
 

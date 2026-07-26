@@ -19,13 +19,19 @@ class NeomAudioProvider {
     if (!_isInitialized) {
       if (_initCompleter == null) {
         _initCompleter = Completer<void>();
-        await _initialize();
-        _isInitialized = true;
-        _initCompleter!.complete();
+        try {
+          await _initialize();
+          _isInitialized = true;
+          _initCompleter!.complete();
+        } catch (e, st) {
+          _initCompleter!.completeError(e, st);
+          _initCompleter = null;
+          rethrow;
+        }
       } else {
         await _initCompleter!.future;
       }
-      if(audioHandler == null) {
+      if (audioHandler == null) {
         throw Exception("Failed to initialize NeomAudioHandler");
       }
     }
