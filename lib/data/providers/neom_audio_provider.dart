@@ -57,6 +57,10 @@ class NeomAudioProvider {
         ),
       );
     }
+
+    if (audioHandler != null && !Sint.isRegistered<NeomAudioHandler>()) {
+      Sint.put<NeomAudioHandler>(audioHandler!, permanent: true);
+    }
   }
 
 }

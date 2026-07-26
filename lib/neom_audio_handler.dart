@@ -161,7 +161,9 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
 
     try {
       startService();
-      allowFullAccess = userServiceImpl.subscriptionLevel.value > SubscriptionLevel.freemium.value;
+      allowFullAccess = Sint.isRegistered<UserService>()
+          ? (userServiceImpl.subscriptionLevel.value > SubscriptionLevel.freemium.value)
+          : true;
       if(!isFree && !allowFullAccess) startFreeTrialTimer();
       startCaseteBeaconTimer();
 
