@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:sint/sint.dart';
 import 'package:neom_core/app_properties.dart';
 import '../../neom_audio_handler.dart';
 
