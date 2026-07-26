@@ -4,7 +4,7 @@ import 'package:audio_service/audio_service.dart';
 import 'package:neom_commons/ui/widgets/images/handled_cached_network_image.dart';
 import 'package:flip_card/flip_card.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_lyric/lyrics_reader.dart';
+import 'package:flutter_lyric/flutter_lyric.dart';
 import 'package:sint/sint.dart';
 import 'package:neom_commons/ui/theme/app_color.dart';
 import 'package:neom_commons/utils/constants/app_assets.dart';
@@ -103,17 +103,9 @@ class ArtWorkWidget extends StatelessWidget {
                             builder: (context, snapshot) {
                               final position =
                                   snapshot.data ?? Duration.zero;
-                              return LyricsReader(
-                                model: controller.lyricsReaderModel,
-                                position: position.inMilliseconds,
-                                lyricUi: UINetease(highlight: false),
-                                playing: true,
-                                size: Size(flipCardWidth, flipCardWidth,),
-                                emptyBuilder: () => Center(
-                                  child: Text(AudioPlayerTranslationConstants.lyricsNotFound,
-                                    style: controller.lyricUI.getOtherMainTextStyle(),
-                                  ),
-                                ),
+                              return LyricView(
+                                controller: controller.lyricsReaderModel ?? LyricController(),
+                                style: LyricStyles.default1,
                               );
                             },
                           ) : child!;

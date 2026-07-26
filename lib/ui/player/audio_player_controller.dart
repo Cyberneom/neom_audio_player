@@ -4,9 +4,8 @@ import 'package:audio_service/audio_service.dart';
 import 'package:flip_card/flip_card.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_lyric/lyric_ui/ui_netease.dart';
-import 'package:flutter_lyric/lyrics_model_builder.dart';
-import 'package:flutter_lyric/lyrics_reader_model.dart';
+import 'package:flutter_lyric/flutter_lyric.dart';
+import 'package:flutter_lyric/core/lyric_parse.dart';
 import 'package:sint/sint.dart';
 import 'package:neom_commons/utils/app_utilities.dart';
 import 'package:neom_commons/utils/constants/app_page_id_constants.dart';
@@ -334,8 +333,8 @@ class AudioPlayerController extends SintController implements AudioPlayerService
 
   MediaLyrics mediaLyrics = MediaLyrics();
   
-  final lyricUI = UINetease();
-  LyricsReaderModel? lyricsReaderModel;
+  final lyricUI = LyricStyles.default1;
+  LyricController? lyricsReaderModel;
   bool flipped = false;
 
   @override
@@ -353,7 +352,8 @@ class AudioPlayerController extends SintController implements AudioPlayerService
     }
 
     lyricsSource.value = mediaLyrics.source.name;
-    lyricsReaderModel = LyricsModelBuilder.create().bindLyricToMain(mediaLyrics.lyrics).getModel();
+    lyricsReaderModel = LyricController();
+    lyricsReaderModel?.lyricNotifier.value = LyricParse.parse(mediaLyrics.lyrics);
     done.value = true;
   }
 
