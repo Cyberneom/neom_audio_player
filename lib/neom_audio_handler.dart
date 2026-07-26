@@ -93,7 +93,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
   final rx.BehaviorSubject<List<MediaItem>> _recentSubject = rx.BehaviorSubject
       .seeded(<MediaItem>[]);
 
-  final userServiceImpl = Sint.find<UserService>();
+  UserService get userServiceImpl => Sint.find<UserService>();
   final neomStopwatch =  NeomStopwatch();
 
   int caseteSessionDuration = 0; //Seconds per session
