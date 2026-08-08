@@ -674,6 +674,25 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
     await player.play();
   }
 
+  /// Loads [mediaItem] and starts playback, appending it to the queue when
+  /// it is not already there. Required by Jam Session listener sync — the
+  /// base implementation in audio_service is a no-op.
+  @override
+  Future<void> playMediaItem(MediaItem mediaItem) async {
+    AppConfig.logger.d('playMediaItem: ${mediaItem.title}');
+    var index = queue.value.indexWhere((item) => item.id == mediaItem.id);
+    if (index < 0) {
+      await addQueueItem(mediaItem);
+      // queue.value syncs asynchronously from the player sequence; when it
+      // has not caught up yet, fall back to the last appended source.
+      index = queue.value.indexWhere((item) => item.id == mediaItem.id);
+      if (index < 0) {
+        index = (player.audioSource?.sequence.length ?? 1) - 1;
+      }
+    }
+    await skipToQueueItem(index);
+  }
+
   @override
   Future<void> play() async {
     AppConfig.logger.d('NeomAudioHandler Dispose and Play');
