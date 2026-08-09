@@ -30,8 +30,10 @@ import 'data/implementations/player_hive_controller.dart';
 import 'data/implementations/playlist_hive_controller.dart';
 import 'domain/models/queue_state.dart';
 import 'utils/audio_player_stats.dart';
+import 'utils/audio_quality_swap.dart';
 import 'utils/constants/audio_player_constants.dart';
 import 'utils/mappers/media_item_mapper.dart';
+import 'utils/media_url_resolver_registry.dart';
 import 'utils/neom_audio_utilities.dart';
 import 'utils/playback_error_recovery.dart';
 
@@ -124,6 +126,18 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
   bool _awaitingConnectivity = false;
   StreamSubscription? _connectivitySubscription;
   DateTime _lastRecoverySnackAt = DateTime.fromMillisecondsSinceEpoch(0);
+
+  /// Fresh-URL resolvers registered by modules (expired signed URLs, rotated
+  /// CDN links…). Consulted by the recovery flow before a track is retried.
+  final MediaUrlResolverRegistry urlResolverRegistry = MediaUrlResolverRegistry();
+
+  @override
+  void registerUrlResolver(String owner, MediaUrlResolver resolver) =>
+      urlResolverRegistry.register(owner, resolver);
+
+  @override
+  void unregisterUrlResolver(String owner) =>
+      urlResolverRegistry.unregister(owner);
 
   Stream<List<IndexedAudioSource>> get _effectiveSequence =>
       rx.Rx.combineLatest3<List<IndexedAudioSource>?,
@@ -333,7 +347,11 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
           // Small linear backoff before re-attempting the failing source.
           await Future.delayed(
               Duration(seconds: _errorRecovery.sameItemErrors));
-          final reloaded = await _reloadCurrentItem();
+          // Before blindly reloading the same (possibly stale) URL, ask
+          // registered resolvers for a fresh one — or bypass the quality
+          // swap when the swapped variant is what 404s.
+          var reloaded = await _tryResolveFreshUrl(itemId);
+          reloaded = reloaded || await _reloadCurrentItem();
           if (!reloaded) {
             // The reload failed synchronously (no new stream error will fire);
             // feed it back so escalation keeps moving.
@@ -366,6 +384,70 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
       if (pending != null) {
         unawaited(Future.microtask(() => _handlePlaybackError(pending)));
       }
+    }
+  }
+
+  /// Attempts to obtain a FRESH URL for the failing item and rebuild its
+  /// audio source in place. Two paths:
+  ///
+  /// 1. Registered [MediaUrlResolver]s (modules with a source-specific
+  ///    refresh path: expired signed URLs, rotated CDN links…).
+  /// 2. Built-in quality-swap bypass: when the configured preferred quality
+  ///    rewrote `_96.` to a variant that does not exist server-side, retry
+  ///    the original baseline file with [AudioQualitySwap.noSwapFlag] set.
+  ///
+  /// Returns true when a fresh source was built and playback restarted.
+  Future<bool> _tryResolveFreshUrl(String itemId) async {
+    try {
+      final matches = queue.value.where((e) => e.id == itemId);
+      final item = matches.isNotEmpty ? matches.first
+          : (currentMediaItem?.id == itemId ? currentMediaItem : null);
+      if (item == null) return false;
+
+      final extras = item.extras ?? <String, dynamic>{};
+      Map<String, dynamic> newExtras;
+
+      final freshUrl = await urlResolverRegistry.resolveFreshUrl(itemId, extras);
+      if (freshUrl != null) {
+        AppConfig.logger.i('Fresh URL resolved for "$itemId"');
+        newExtras = {...extras, 'url': freshUrl};
+      } else {
+        final originalUrl = extras['url']?.toString() ?? '';
+        final canBypassSwap = extras[AudioQualitySwap.noSwapFlag] != true &&
+            AudioQualitySwap.wouldSwap(
+                originalUrl, playerHiveController.preferredQuality);
+        if (!canBypassSwap) return false;
+        AppConfig.logger.w('Quality-swapped URL failed for "$itemId" — '
+            'retrying the original baseline file');
+        newExtras = {...extras, AudioQualitySwap.noSwapFlag: true};
+      }
+
+      final updated = item.copyWith(extras: newExtras);
+      final source = await _itemToSource(updated);
+      if (source == null) return false;
+
+      final index = queue.value.indexWhere((e) => e.id == itemId);
+      final sequenceLength = player.audioSource?.sequence.length ?? 0;
+      if (index >= 0 && index < sequenceLength) {
+        // Replace the source IN PLACE so queue order and position survive.
+        await player.removeAudioSourceAt(index);
+        await player.insertAudioSource(index, source);
+        if (currentMediaItem?.id == itemId) currentMediaItem = updated;
+        await player.seek(Duration.zero, index: index);
+        await player.play();
+        return true;
+      }
+      if (currentMediaItem?.id == itemId) {
+        currentMediaItem = updated;
+        await player.setAudioSource(source);
+        await player.play();
+        return true;
+      }
+      return false;
+    } catch (e, st) {
+      NeomErrorLogger.recordErrorLight(e, st,
+          module: 'neom_audio_player', operation: '_tryResolveFreshUrl');
+      return false;
     }
   }
 
@@ -536,8 +618,21 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
         'Audio Player refreshLink | received new link for ${newData['title']}');
     final MediaItem newItem = MediaItemMapper.fromJSON(newData);
 
-    AppConfig.logger.i('player | inserting refreshed item');
+    final index = queue.value.indexWhere((e) => e.id == newItem.id);
+    final sequenceLength = player.audioSource?.sequence.length ?? 0;
+    if (index >= 0 && index < sequenceLength) {
+      // Replace the stale source IN PLACE (previously this appended a
+      // duplicate at the end of the queue, leaving the dead one behind).
+      final source = await _itemToSource(newItem);
+      if (source != null) {
+        AppConfig.logger.i('player | replacing refreshed item at index $index');
+        await player.removeAudioSourceAt(index);
+        await player.insertAudioSource(index, source);
+        return;
+      }
+    }
 
+    AppConfig.logger.i('player | inserting refreshed item');
     addQueueItem(newItem);
   }
 
@@ -565,9 +660,12 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
           if (mediaItem.extras!['url'] != null && mediaItem.extras!['url']
               .toString().isNotEmpty) {
             audioUrl = mediaItem.extras!['url'].toString();
-            if (playerHiveController.preferredQuality.isNotEmpty && audioUrl.contains('_96.')) {
-              audioUrl = audioUrl.replaceAll(
-                  '_96.', "_${playerHiveController.preferredQuality.replaceAll(' kbps', '')}.");
+            // The quality rewrite may point to a variant that does not exist
+            // server-side; the recovery flow sets noQualitySwap on the item
+            // to retry the original baseline file.
+            if (mediaItem.extras?[AudioQualitySwap.noSwapFlag] != true) {
+              audioUrl = AudioQualitySwap.apply(
+                  audioUrl, playerHiveController.preferredQuality);
             }
           }
 
