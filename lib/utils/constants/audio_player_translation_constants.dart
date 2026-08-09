@@ -173,6 +173,7 @@ class AudioPlayerTranslationConstants {
   static const String downFilenameSub = 'downFilenameSub';
   static const String downingAlbum = 'downingAlbum';
   static const String downed = 'downed';
+  static const String downloadFailed = 'downloadFailed';
   static const String downloadSomething = 'downloadSomething';
   static const String enterSongsCount = 'enterSongsCount';
   static const String enterThemeName = 'enterThemeName';

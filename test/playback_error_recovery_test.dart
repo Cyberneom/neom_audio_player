@@ -135,5 +135,16 @@ void main() {
           reason: 'An offline give-up must re-arm playback when '
               'connectivity returns.');
     });
+
+    test('offline downloads fall back to network when the file is missing', () {
+      expect(handlerSource.contains('offlineResolved'), isTrue,
+          reason: 'The downloads branch must fall through to the network '
+              'when no valid offline file exists — previously a missing '
+              'entry left audioSource null and the track died in silence.');
+      expect(handlerSource.contains('existsSync()'), isTrue);
+      expect(handlerSource.contains('downloadsBox.delete'), isTrue,
+          reason: 'Stale download entries (deleted/truncated files) must be '
+              'removed so playback falls back to the network.');
+    });
   });
 }

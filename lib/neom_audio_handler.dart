@@ -21,6 +21,7 @@ import 'package:neom_core/utils/core_utilities.dart';
 import 'package:neom_core/utils/enums/app_hive_box.dart';
 import 'package:neom_core/utils/enums/subscription_level.dart';
 import 'package:neom_core/utils/enums/user_role.dart';
+import 'package:neom_core/utils/platform/core_io.dart';
 import 'package:neom_sound/data/implementations/equalizer_controller.dart';
 import 'package:neom_sound/domain/use_cases/equalizer_service.dart';
 import 'package:rxdart/rxdart.dart' as rx;
@@ -646,16 +647,32 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
       if (mediaItem.artUri.toString().startsWith('file:')) {
         audioSource = AudioSource.uri(Uri.file(mediaItem.extras!['url'].toString()));
       } else {
+        // Offline-first resolution: a valid downloaded file wins. When the
+        // entry is stale (file deleted, zero-length, corrupted partial) the
+        // Hive record is removed and playback FALLS BACK to the network —
+        // previously any missing/offline entry left audioSource null and the
+        // track died in silence.
+        bool offlineResolved = false;
         if(playerHiveController.useDownload) {
           AppConfig.logger.d("Looking for files from downloads");
           final downloadsBox = await AppHiveController().getBox(AppHiveBox.downloads.name);
           if(downloadsBox.containsKey(mediaItem.id)) {
-            audioSource = AudioSource.uri(
-              Uri.file(downloadsBox.get(mediaItem.id)['path'].toString(),),
-              tag: mediaItem.id,
-            );
+            final path = downloadsBox.get(mediaItem.id)['path'].toString();
+            final file = File(path);
+            if (path.isNotEmpty && file.existsSync() && file.lengthSync() > 0) {
+              audioSource = AudioSource.uri(
+                Uri.file(path),
+                tag: mediaItem.id,
+              );
+              offlineResolved = true;
+            } else {
+              AppConfig.logger.w('Stale download entry for ${mediaItem.title} '
+                  '(path: $path) — removing it and falling back to network');
+              await downloadsBox.delete(mediaItem.id);
+            }
           }
-        } else {
+        }
+        if (!offlineResolved) {
           String audioUrl = '';
           if (mediaItem.extras!['url'] != null && mediaItem.extras!['url']
               .toString().isNotEmpty) {

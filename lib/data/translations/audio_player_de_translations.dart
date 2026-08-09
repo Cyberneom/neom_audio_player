@@ -83,6 +83,7 @@ class AudioPlayerDeTranslations {
     AudioPlayerTranslationConstants.downQuality: "Download-Qualität",
     AudioPlayerTranslationConstants.downQualitySub: "Höhere Qualität benötigt mehr Speicherplatz",
     AudioPlayerTranslationConstants.downed: "wurde heruntergeladen",
+    AudioPlayerTranslationConstants.downloadFailed: "Download fehlgeschlagen. Prüfe deine Verbindung und versuche es erneut.",
     AudioPlayerTranslationConstants.downingAlbum: "Album wird heruntergeladen",
     AudioPlayerTranslationConstants.downloadSomething: "Etwas herunterladen",
     AudioPlayerTranslationConstants.downs: "Downloads",
