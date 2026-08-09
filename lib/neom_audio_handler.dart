@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:audio_service/audio_service.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:sint/sint.dart';
 import 'package:neom_sound/neom_sound.dart';
@@ -32,6 +33,7 @@ import 'utils/audio_player_stats.dart';
 import 'utils/constants/audio_player_constants.dart';
 import 'utils/mappers/media_item_mapper.dart';
 import 'utils/neom_audio_utilities.dart';
+import 'utils/playback_error_recovery.dart';
 
 /// Central audio handler for the Open Neom audio module.
 ///
@@ -111,6 +113,17 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
   final rx.BehaviorSubject<double> speed = rx.BehaviorSubject.seeded(1.0);
   final _mediaItemExpando = Expando<MediaItem>();
   final List<StreamSubscription> _subscriptions = [];
+
+  // Playback error recovery state. The decision policy lives in the pure
+  // [PlaybackErrorRecovery] class; the fields below are the wiring state:
+  // re-entrancy guard (error bursts coalesce into [_pendingPlaybackError]),
+  // connectivity-resume watcher, and snackbar throttling.
+  final PlaybackErrorRecovery _errorRecovery = PlaybackErrorRecovery();
+  bool _recoveringFromError = false;
+  Object? _pendingPlaybackError;
+  bool _awaitingConnectivity = false;
+  StreamSubscription? _connectivitySubscription;
+  DateTime _lastRecoverySnackAt = DateTime.fromMillisecondsSinceEpoch(0);
 
   Stream<List<IndexedAudioSource>> get _effectiveSequence =>
       rx.Rx.combineLatest3<List<IndexedAudioSource>?,
@@ -234,12 +247,28 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
     _subscriptions.add(player.shuffleModeEnabledStream.listen((enabled) => _broadcastState(player.playbackEvent)));
     _subscriptions.add(player.loopModeStream.listen((event) => _broadcastState(player.playbackEvent)));
 
+    // Playback error recovery: without this listener a dead URL or a network
+    // drop left the user in silence. Errors funnel into _handlePlaybackError,
+    // which retries the track, auto-skips it, or pauses with feedback.
+    // NOTE: errorStream is a PublishSubject (single-subscription) — re-init
+    // is safe because setListeners() cancels every previous subscription.
+    _subscriptions.add(player.errorStream.listen((error) {
+      _handlePlaybackError(error);
+    }));
+
     _subscriptions.add(player.processingStateStream.listen((state) async {
       AppConfig.logger.d('Audio Player - Processing Stream: ${state.name}');
       switch (state) {
         case ProcessingState.loading:
           break;
         case ProcessingState.ready:
+          // Healthy playback reached: recovery budgets reset so a transient
+          // blip does not poison the session, and any connectivity-resume
+          // watcher becomes obsolete.
+          _errorRecovery.reset();
+          _awaitingConnectivity = false;
+          _connectivitySubscription?.cancel();
+          _connectivitySubscription = null;
           if(neomStopwatch.currentReference != (mediaItem.value?.id ?? '')) {
             neomStopwatch.start(ref: mediaItem.value?.id ?? '');
           } else {
@@ -262,6 +291,154 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
         sequence.map((source) => _mediaItemExpando[source]!)
             .toList(),).listen(queue.add));
 
+  }
+
+  // ---------------------------------------------------------------------------
+  // Playback error recovery
+  // ---------------------------------------------------------------------------
+
+  /// Central funnel for every playback failure (dead URL, network drop,
+  /// undecodable media). Decides via [PlaybackErrorRecovery] whether to retry
+  /// the same track, skip it, or give up — and arms a connectivity watcher
+  /// when the failure coincides with being offline.
+  ///
+  /// Re-entrant safe: error bursts (a failing load often emits several events)
+  /// coalesce into [_pendingPlaybackError] and are processed sequentially.
+  Future<void> _handlePlaybackError(Object error) async {
+    if (_recoveringFromError) {
+      _pendingPlaybackError = error;
+      return;
+    }
+    _recoveringFromError = true;
+    try {
+      final itemId = currentMediaItem?.id ?? mediaItem.value?.id ?? '';
+      NeomErrorLogger.recordErrorLight(error, StackTrace.current,
+          module: 'neom_audio_player', operation: 'playbackError');
+
+      final queueItems = queue.value;
+      final currentIndex =
+          queueItems.indexWhere((item) => item.id == itemId);
+      final hasNext = currentIndex >= 0 && currentIndex + 1 < queueItems.length;
+
+      final action = _errorRecovery.registerError(itemId, hasNext: hasNext);
+      AppConfig.logger.w('Playback error on "$itemId" '
+          '(item attempt ${_errorRecovery.sameItemErrors}, '
+          'total ${_errorRecovery.totalAttempts}) -> ${action.name}');
+
+      switch (action) {
+        case PlaybackRecoveryAction.retrySame:
+          if (_errorRecovery.sameItemErrors == 1) {
+            _showRecoverySnack(AppTranslationConstants.playbackErrorRetrying);
+          }
+          // Small linear backoff before re-attempting the failing source.
+          await Future.delayed(
+              Duration(seconds: _errorRecovery.sameItemErrors));
+          final reloaded = await _reloadCurrentItem();
+          if (!reloaded) {
+            // The reload failed synchronously (no new stream error will fire);
+            // feed it back so escalation keeps moving.
+            _pendingPlaybackError ??=
+                Exception('Reload failed for $itemId');
+          }
+          break;
+        case PlaybackRecoveryAction.skipNext:
+          _showRecoverySnack(AppTranslationConstants.playbackErrorSkipped);
+          await skipToNext();
+          break;
+        case PlaybackRecoveryAction.giveUp:
+          _showRecoverySnack(AppTranslationConstants.playbackErrorStopped);
+          _errorRecovery.reset();
+          if (!await _isOnline()) {
+            // Offline: resume automatically as soon as connectivity returns.
+            _awaitingConnectivity = true;
+            _watchConnectivityForResume();
+          }
+          await pause();
+          break;
+      }
+    } catch (e, st) {
+      NeomErrorLogger.recordErrorLight(e, st,
+          module: 'neom_audio_player', operation: '_handlePlaybackError');
+    } finally {
+      _recoveringFromError = false;
+      final pending = _pendingPlaybackError;
+      _pendingPlaybackError = null;
+      if (pending != null) {
+        unawaited(Future.microtask(() => _handlePlaybackError(pending)));
+      }
+    }
+  }
+
+  /// Re-attempts the current track. When the item is part of a loaded queue
+  /// this re-seeks the current index, which forces just_audio to reload that
+  /// segment; when the sequence is empty (the item never became a source)
+  /// a fresh standalone source is built. Returns false when the reload could
+  /// not even be attempted (caller must keep escalating).
+  Future<bool> _reloadCurrentItem() async {
+    try {
+      final item = currentMediaItem;
+      if (item == null) return false;
+
+      if (player.audioSource == null ||
+          (player.audioSource?.sequence.isEmpty ?? true)) {
+        final source = await _itemToSource(item);
+        if (source == null) return false;
+        await player.setAudioSource(source);
+        await player.play();
+        return true;
+      }
+
+      await player.seek(Duration.zero, index: player.currentIndex ?? 0);
+      await player.play();
+      return true;
+    } catch (e, st) {
+      NeomErrorLogger.recordErrorLight(e, st,
+          module: 'neom_audio_player', operation: '_reloadCurrentItem');
+      return false;
+    }
+  }
+
+  Future<bool> _isOnline() async {
+    try {
+      final results = await Connectivity().checkConnectivity();
+      return !results.contains(ConnectivityResult.none);
+    } catch (e, st) {
+      NeomErrorLogger.recordErrorLight(e, st,
+          module: 'neom_audio_player', operation: '_isOnline');
+      // Fail-open: assume online so recovery does not stall on platforms
+      // where the connectivity plugin is unavailable.
+      return true;
+    }
+  }
+
+  /// One-shot watcher that reloads the failed track once connectivity returns.
+  /// Rearmed on every offline give-up; cancelled when playback becomes ready.
+  void _watchConnectivityForResume() {
+    if (_connectivitySubscription != null) return;
+    _connectivitySubscription =
+        Connectivity().onConnectivityChanged.listen((results) async {
+      final online = !results.contains(ConnectivityResult.none);
+      if (online && _awaitingConnectivity && currentMediaItem != null) {
+        _awaitingConnectivity = false;
+        AppConfig.logger
+            .i('Connectivity restored — resuming playback recovery');
+        await _reloadCurrentItem();
+      }
+    }, onError: (Object e, StackTrace st) {
+      NeomErrorLogger.recordErrorLight(e, st,
+          module: 'neom_audio_player', operation: '_watchConnectivityForResume');
+    });
+  }
+
+  /// Throttled user feedback: error storms must not queue dozens of snackbars.
+  void _showRecoverySnack(String messageKey) {
+    final now = DateTime.now();
+    if (now.difference(_lastRecoverySnackAt).inSeconds < 4) return;
+    _lastRecoverySnackAt = now;
+    AppUtilities.showSnackBar(
+      title: AppTranslationConstants.error,
+      message: messageKey,
+    );
   }
 
   Future<void> loadLastQueue() async {
@@ -715,6 +892,10 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
           } else {
             AppConfig.logger.w('Unable to play: no audio source for ${currentMediaItem!.title}');
             isLoadingAudio.value = false;
+            // Feed the failure into recovery (retry → skip → pause) instead
+            // of leaving the user in silence.
+            await _handlePlaybackError(
+                Exception('No audio source for ${currentMediaItem!.id}'));
             return;
           }
         }
