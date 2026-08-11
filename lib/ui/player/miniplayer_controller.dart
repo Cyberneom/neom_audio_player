@@ -36,6 +36,11 @@ class MiniPlayerController extends SintController implements MiniPlayerService {
   final RxBool isWebPlayerRetracted = true.obs;
   final RxBool isWebPlayerClosed = false.obs;
 
+  /// Position (top-left) of the floating retracted web player card.
+  /// `null` means "use the default bottom-right placement". Session-scoped:
+  /// survives navigation rebuilds but is not persisted to disk.
+  final Rx<Offset?> webPlayerOffset = Rx<Offset?>(null);
+
   @override
   void onInit() {
     super.onInit();

@@ -24,6 +24,11 @@ import '../utils/web_track_transition.dart';
 import 'web_pseudo_visualizer.dart';
 
 class WebBottomPlayer extends StatelessWidget {
+  /// Fixed size of the retracted (floating) player card. The host layout
+  /// uses these constants to position and clamp the draggable overlay.
+  static const double retractedWidth = 320;
+  static const double retractedHeight = 180;
+
   final VoidCallback? onQueueToggle;
   final VoidCallback? onArtworkTap;
 
@@ -56,8 +61,8 @@ class WebBottomPlayer extends StatelessWidget {
 
         if (isRetracted) {
           return Container(
-            width: 320,
-            height: 180,
+            width: retractedWidth,
+            height: retractedHeight,
             decoration: BoxDecoration(
               color: AppColor.surfaceElevated,
               borderRadius: const BorderRadius.only(
@@ -86,9 +91,13 @@ class WebBottomPlayer extends StatelessWidget {
                 Row(
                   children: [
                     Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
+                      // Drag hint: this area (plus the card padding) is the
+                      // draggable zone of the floating card.
+                      child: MouseRegion(
+                        cursor: SystemMouseCursors.grab,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
                           Text(
                             titleText,
                             style: const TextStyle(
@@ -107,7 +116,8 @@ class WebBottomPlayer extends StatelessWidget {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                     const SizedBox(width: 8),

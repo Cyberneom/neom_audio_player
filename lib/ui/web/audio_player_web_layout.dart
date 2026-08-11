@@ -233,6 +233,9 @@ class _AudioPlayerWebLayoutState extends State<AudioPlayerWebLayout> {
     final screenWidth = MediaQuery.of(context).size.width;
     final sidebarCollapsed = screenWidth < 1200;
     final sidebarWidth = sidebarCollapsed ? 72.0 : 280.0;
+    // Matches the compact breakpoint inside WebBottomPlayer: below it the
+    // player always docks (the floating card needs room to be useful).
+    final isCompact = screenWidth < 900;
 
     return Shortcuts(
       shortcuts: webKeyboardShortcuts,
@@ -340,10 +343,15 @@ class _AudioPlayerWebLayoutState extends State<AudioPlayerWebLayout> {
                       ),
                     ),
 
-                    // ─── Bottom Player ───
+                    // ─── Bottom Player (docked) ───
+                    // Hidden while retracted on wide screens: in that mode
+                    // the player floats as a draggable card (see the Stack
+                    // overlay below) and the content reclaims the strip.
                     Obx(() {
                       final miniPlayerController = Sint.find<MiniPlayerController>();
-                      if (miniPlayerController.mediaItem.value == null || miniPlayerController.isWebPlayerClosed.value) {
+                      if (miniPlayerController.mediaItem.value == null ||
+                          miniPlayerController.isWebPlayerClosed.value ||
+                          (miniPlayerController.isWebPlayerRetracted.value && !isCompact)) {
                         return const SizedBox.shrink();
                       }
                       return WebBottomPlayer(
@@ -352,6 +360,59 @@ class _AudioPlayerWebLayoutState extends State<AudioPlayerWebLayout> {
                       );
                     }),
                   ],
+                ),
+
+                // ─── Floating draggable player (retracted mode) ───
+                // Positioned.fill keeps the overlay inside the Stack without
+                // breaking hit-testing: areas outside the card pass through
+                // to the content below.
+                Positioned.fill(
+                  child: Obx(() {
+                    final c = Sint.find<MiniPlayerController>();
+                    if (c.mediaItem.value == null ||
+                        c.isWebPlayerClosed.value ||
+                        !c.isWebPlayerRetracted.value ||
+                        isCompact) {
+                      return const SizedBox.shrink();
+                    }
+
+                    final size = MediaQuery.of(context).size;
+                    const w = WebBottomPlayer.retractedWidth;
+                    const h = WebBottomPlayer.retractedHeight;
+                    final maxX = (size.width - w).clamp(0.0, double.infinity);
+                    final maxY = (size.height - h).clamp(0.0, double.infinity);
+
+                    // Default placement: bottom-right corner with a margin.
+                    final raw = c.webPlayerOffset.value ??
+                        Offset(size.width - w - 16, size.height - h - 16);
+                    final offset = Offset(
+                      raw.dx.clamp(0.0, maxX),
+                      raw.dy.clamp(0.0, maxY),
+                    );
+
+                    return Align(
+                      alignment: Alignment.topLeft,
+                      child: Padding(
+                        padding: EdgeInsets.only(
+                            left: offset.dx, top: offset.dy),
+                        child: GestureDetector(
+                          behavior: HitTestBehavior.translucent,
+                          onPanUpdate: (details) {
+                            c.webPlayerOffset.value = Offset(
+                              (offset.dx + details.delta.dx)
+                                  .clamp(0.0, maxX),
+                              (offset.dy + details.delta.dy)
+                                  .clamp(0.0, maxY),
+                            );
+                          },
+                          child: WebBottomPlayer(
+                            onQueueToggle: _toggleQueue,
+                            onArtworkTap: () => _onMenuSelected(5),
+                          ),
+                        ),
+                      ),
+                    );
+                  }),
                 ),
               ],
             ),
