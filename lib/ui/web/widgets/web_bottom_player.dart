@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:neom_commons/ui/theme/app_color.dart';
+import 'package:neom_commons/utils/app_utilities.dart';
 import 'package:neom_commons/utils/auth_guard.dart';
+import 'package:neom_commons/utils/constants/translations/common_translation_constants.dart';
 import 'package:neom_commons/utils/deeplink_utilities.dart';
 import 'package:neom_commons/utils/device_utilities.dart';
 import 'package:neom_commons/utils/constants/translations/app_translation_constants.dart';
+import 'package:neom_core/data/firestore/profile_firestore.dart';
+import 'package:neom_core/utils/neom_error_logger.dart';
 import 'package:sint/sint.dart';
 import 'package:neom_audio_player/ui/player/miniplayer_controller.dart';
 import 'package:audio_service/audio_service.dart';
@@ -863,15 +867,44 @@ class _WebLikeButtonState extends State<_WebLikeButton> {
   }
 
   Future<void> _toggleLike() async {
-    if (_isLiked) {
-      await PlaylistHiveController().removeLiked(widget.mediaItem.id);
-    } else {
-      await PlaylistHiveController().addItemToPlaylist(
-        AppHiveBox.favoriteItems.name,
-        widget.mediaItem,
-      );
+    final profile = PlaylistHiveController().userServiceImpl.profile;
+    final itemId = widget.mediaItem.id;
+    if (itemId.isEmpty) return;
+
+    final newLiked = !_isLiked;
+    if (mounted) setState(() => _isLiked = newLiked);
+
+    try {
+      if (newLiked) {
+        await PlaylistHiveController().addItemToPlaylist(
+          AppHiveBox.favoriteItems.name,
+          widget.mediaItem,
+        );
+        if (profile.id.isNotEmpty) {
+          profile.favoriteItems ??= [];
+          if (!profile.favoriteItems!.contains(itemId)) {
+            profile.favoriteItems!.add(itemId);
+          }
+          ProfileFirestore().addFavoriteItem(profile.id, itemId);
+        }
+        AppUtilities.showSnackBar(
+          title: widget.mediaItem.title,
+          message: CommonTranslationConstants.addedToFav.tr,
+        );
+      } else {
+        await PlaylistHiveController().removeLiked(itemId);
+        if (profile.id.isNotEmpty) {
+          profile.favoriteItems?.remove(itemId);
+          ProfileFirestore().removeFavoriteItem(profile.id, itemId);
+        }
+        AppUtilities.showSnackBar(
+          title: widget.mediaItem.title,
+          message: CommonTranslationConstants.removedFromFav.tr,
+        );
+      }
+    } catch (e, st) {
+      NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: 'WebBottomPlayer._toggleLike');
     }
-    if (mounted) setState(() => _isLiked = !_isLiked);
   }
 
   @override
@@ -884,7 +917,11 @@ class _WebLikeButtonState extends State<_WebLikeButton> {
       child: MouseRegion(
         cursor: SystemMouseCursors.click,
         child: GestureDetector(
-          onTap: _toggleLike,
+          onTap: () {
+            AuthGuard.protect(context, () {
+              _toggleLike();
+            });
+          },
           child: Padding(
             padding: const EdgeInsets.all(6),
             child: Icon(

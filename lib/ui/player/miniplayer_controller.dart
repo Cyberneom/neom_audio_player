@@ -178,7 +178,7 @@ class MiniPlayerController extends SintController implements MiniPlayerService {
   }
 
   @override
-  bool get isActive => mediaItem.value != null && showInTimeline;
+  bool get isActive => mediaItem.value != null && showInTimeline && !isWebPlayerClosed.value;
 
   @override
   bool get isWebPlayerRetractedValue => isWebPlayerRetracted.value;
