@@ -891,7 +891,9 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
     AppConfig.logger.d('skipToNext');
     if (currentMediaItem == null) return;
 
-    await trackCaseteSession();
+    // Fire-and-forget: el guardado en Firestore no debe bloquear el skip.
+    // trackCaseteSession ya captura sus errores internamente.
+    unawaited(trackCaseteSession());
 
     int index = queue.value.indexWhere((item) => item.id == currentMediaItem!.id);
     if(index >= 0 && index + 1 < queue.value.length) {
@@ -931,7 +933,8 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
     AppConfig.logger.d('skipToPrevious');
     if (currentMediaItem == null) return;
 
-    await trackCaseteSession();
+    // Fire-and-forget: el guardado en Firestore no debe bloquear el skip.
+    unawaited(trackCaseteSession());
 
     if(playerHiveController.resetOnSkip) {
       if ((player.position.inSeconds) <= 2) {
@@ -1033,7 +1036,8 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
   Future<void> pause() async {
     AppConfig.logger.d('Pause');
     await player.pause();
-    await trackCaseteSession();
+    // Fire-and-forget: el guardado en Firestore no debe retrasar la pausa.
+    unawaited(trackCaseteSession());
     if(currentMediaItem != null) {
       neomStopwatch.pause(ref: currentMediaItem!.id);
     }
@@ -1048,7 +1052,7 @@ class NeomAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler i
   @override
   Future<void> stop() async {
     AppConfig.logger.d('Stopping player');
-    trackCaseteSession();
+    unawaited(trackCaseteSession());
     await player.stop();
     if (playbackState.value.processingState != AudioProcessingState.idle) {
       await playbackState.firstWhere((state) =>

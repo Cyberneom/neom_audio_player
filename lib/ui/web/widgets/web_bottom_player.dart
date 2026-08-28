@@ -83,7 +83,7 @@ class WebBottomPlayer extends StatelessWidget {
                 ),
               ],
               border: Border.all(
-                color: Colors.white.withOpacity(0.08),
+                color: Colors.white.withValues(alpha: 0.08),
                 width: 1,
               ),
             ),
@@ -351,7 +351,7 @@ class WebBottomPlayer extends StatelessWidget {
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
                                   decoration: BoxDecoration(
-                                    color: AppColor.getMain().withOpacity(0.2),
+                                    color: AppColor.getMain().withValues(alpha: 0.2),
                                     borderRadius: BorderRadius.circular(3),
                                   ),
                                   child: Text(
@@ -373,7 +373,7 @@ class WebBottomPlayer extends StatelessWidget {
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
                                   decoration: BoxDecoration(
-                                    color: Colors.purple.withOpacity(0.2),
+                                    color: Colors.purple.withValues(alpha: 0.2),
                                     borderRadius: BorderRadius.circular(3),
                                   ),
                                   child: const Text(
@@ -389,7 +389,7 @@ class WebBottomPlayer extends StatelessWidget {
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
                                   decoration: BoxDecoration(
-                                    color: Colors.green.withOpacity(0.2),
+                                    color: Colors.green.withValues(alpha: 0.2),
                                     borderRadius: BorderRadius.circular(3),
                                   ),
                                   child: const Text(

@@ -118,7 +118,7 @@ class _WebEditPlaylistDialogState extends State<WebEditPlaylistDialog> {
                 hintText: AppTranslationConstants.name.tr,
                 hintStyle: TextStyle(color: Colors.grey[500]),
                 filled: true,
-                fillColor: Colors.white.withOpacity(0.08),
+                fillColor: Colors.white.withValues(alpha: 0.08),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
                   borderSide: BorderSide.none,
@@ -140,7 +140,7 @@ class _WebEditPlaylistDialogState extends State<WebEditPlaylistDialog> {
                 hintText: AppTranslationConstants.description.tr,
                 hintStyle: TextStyle(color: Colors.grey[500]),
                 filled: true,
-                fillColor: Colors.white.withOpacity(0.08),
+                fillColor: Colors.white.withValues(alpha: 0.08),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
                   borderSide: BorderSide.none,
@@ -221,7 +221,7 @@ class _WebEditPlaylistDialogState extends State<WebEditPlaylistDialog> {
       width: 120,
       height: 120,
       decoration: BoxDecoration(
-        color: AppColor.getMain().withOpacity(0.3),
+        color: AppColor.getMain().withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(8),
       ),
       child: const Icon(Icons.library_music, color: Colors.white54, size: 48),

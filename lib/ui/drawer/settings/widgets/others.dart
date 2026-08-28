@@ -114,7 +114,7 @@ class _OthersPageState extends State<OthersPage> {
             //                               label: Text(
             //                                 AudioPlayerTranslationConstants.excluded.tr,
             //                               ),
-            //                               selectedColor: Theme.of(context).colorScheme.secondary.withOpacity(0.2),
+            //                               selectedColor: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.2),
             //                               labelStyle: TextStyle(
             //                                 color: !value
             //                                     ? Theme.of(context).colorScheme.secondary
@@ -136,7 +136,7 @@ class _OthersPageState extends State<OthersPage> {
             //                               label: Text(
             //                                 AudioPlayerTranslationConstants.included.tr,
             //                               ),
-            //                               selectedColor: Theme.of(context).colorScheme.secondary.withOpacity(0.2),
+            //                               selectedColor: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.2),
             //                               labelStyle: TextStyle(
             //                                 color: value
             //                                     ? Theme.of(context).colorScheme.secondary

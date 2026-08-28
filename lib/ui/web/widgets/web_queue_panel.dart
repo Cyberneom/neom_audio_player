@@ -52,7 +52,7 @@ class WebQueuePanel extends StatelessWidget {
             ),
           ),
 
-          Divider(color: Colors.white.withOpacity(0.1), height: 1),
+          Divider(color: Colors.white.withValues(alpha: 0.1), height: 1),
 
           // ─── Now Playing ───
           StreamBuilder<MediaItem?>(
@@ -307,7 +307,7 @@ class _QueueItemState extends State<_QueueItem> {
           );
         },
         child: Container(
-          color: _isHovered ? Colors.white.withOpacity(0.06) : Colors.transparent,
+          color: _isHovered ? Colors.white.withValues(alpha: 0.06) : Colors.transparent,
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           child: Row(
             children: [

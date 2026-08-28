@@ -30,8 +30,8 @@ class _WebUpgradeBannerState extends State<WebUpgradeBanner> {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppColor.getMain().withOpacity(0.3),
-            Colors.purple.withOpacity(0.2),
+            AppColor.getMain().withValues(alpha: 0.3),
+            Colors.purple.withValues(alpha: 0.2),
           ],
         ),
         borderRadius: BorderRadius.circular(12),
