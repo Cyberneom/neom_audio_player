@@ -380,5 +380,7 @@ class AudioPlayerTranslationConstants {
   static const String noActiveJamSession = 'noActiveJamSession';
   static const String goHome = 'goHome';
   static const String endSessionWarning = 'endSessionWarning';
+  static const String upgrade = 'upgrade';
+  static const String upgradeToSupport = 'upgradeToSupport';
 
 }

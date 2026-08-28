@@ -366,7 +366,9 @@ class AudioPlayerDeTranslations {
     AudioPlayerTranslationConstants.enterCodeToJoin: 'Geben Sie den 6-stelligen Code ein um beizutreten',
     AudioPlayerTranslationConstants.noActiveJamSession: 'Keine aktive Jam-Session',
     AudioPlayerTranslationConstants.goHome: 'Startseite',
-    AudioPlayerTranslationConstants.endSessionWarning: 'Dies beendet die Sitzung f\u00fcr alle Teilnehmer.',
+    AudioPlayerTranslationConstants.endSessionWarning: 'Dies beendet die Sitzung für alle Teilnehmer.',
+    AudioPlayerTranslationConstants.upgrade: 'Upgraden',
+    AudioPlayerTranslationConstants.upgradeToSupport: 'Verbessere deinen Plan, um deine Lieblingskünstler zu unterstützen',
   };
 
 }

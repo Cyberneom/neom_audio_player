@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:neom_commons/ui/theme/app_color.dart';
+import 'package:neom_commons/utils/constants/translations/app_translation_constants.dart';
+import 'package:sint/sint.dart';
 
 class WebUpgradeBanner extends StatefulWidget {
   final String message;
+  final String? buttonText;
   final VoidCallback? onUpgrade;
   final VoidCallback? onDismiss;
 
   const WebUpgradeBanner({
     Key? key,
     required this.message,
+    this.buttonText,
     this.onUpgrade,
     this.onDismiss,
   }) : super(key: key);
@@ -71,9 +75,9 @@ class _WebUpgradeBannerState extends State<WebUpgradeBanner> {
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(20),
                 ),
-                child: const Text(
-                  'Upgrade',
-                  style: TextStyle(
+                child: Text(
+                  widget.buttonText ?? AppTranslationConstants.upgrade.tr,
+                  style: const TextStyle(
                     color: Colors.black,
                     fontWeight: FontWeight.bold,
                     fontSize: 13,

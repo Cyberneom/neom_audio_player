@@ -367,6 +367,8 @@ class AudioPlayerEsTranslations {
     AudioPlayerTranslationConstants.noActiveJamSession: 'No hay Sesi\u00f3n Jam activa',
     AudioPlayerTranslationConstants.goHome: 'Ir al Inicio',
     AudioPlayerTranslationConstants.endSessionWarning: 'Esto terminar\u00e1 la sesi\u00f3n para todos los participantes.',
+    AudioPlayerTranslationConstants.upgrade: 'Mejorar',
+    AudioPlayerTranslationConstants.upgradeToSupport: 'Mejora tu plan para apoyar a tus artistas favoritos',
   };
 
 }

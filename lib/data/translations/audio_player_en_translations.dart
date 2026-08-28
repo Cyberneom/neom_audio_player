@@ -367,6 +367,8 @@ class AudioPlayerEnTranslations {
     AudioPlayerTranslationConstants.noActiveJamSession: 'No active Jam Session',
     AudioPlayerTranslationConstants.goHome: 'Go Home',
     AudioPlayerTranslationConstants.endSessionWarning: 'This will end the session for all participants.',
+    AudioPlayerTranslationConstants.upgrade: 'Upgrade',
+    AudioPlayerTranslationConstants.upgradeToSupport: 'Upgrade your plan to support your favorite artists',
   };
 
 }
