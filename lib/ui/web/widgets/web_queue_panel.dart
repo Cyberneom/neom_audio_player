@@ -229,8 +229,8 @@ class WebQueuePanel extends StatelessWidget {
                       physics: const BouncingScrollPhysics(),
                       padding: const EdgeInsets.only(top: 8, bottom: 20),
                       itemCount: upcoming.length,
-                      onReorder: (oldIndex, newIndex) {
-                        if (newIndex > oldIndex) newIndex--;
+                      // onReorderItem already reports the final index.
+                      onReorderItem: (oldIndex, newIndex) {
                         final realOldIndex = upcomingStartIndex + oldIndex;
                         final realNewIndex = upcomingStartIndex + newIndex;
                         audioHandler.moveQueueItem(realOldIndex, realNewIndex);

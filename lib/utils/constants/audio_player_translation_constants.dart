@@ -2,6 +2,8 @@ class AudioPlayerTranslationConstants {
 
   static const String accent = "accent";
   static const String addNew = "addNew";
+  static const String addToList = "addToList";
+  static const String selectList = "selectList";
   static const String selectedPlaylist = "selectedPlaylist";
   static const String playlistToChoose = "playlistToChoose";
   static const String lookingForNewMusic = "lookingForNewMusic";

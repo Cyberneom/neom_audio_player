@@ -13,8 +13,8 @@ import 'package:neom_core/utils/enums/app_hive_box.dart';
 import '../../domain/use_cases/player_hive_service.dart';
 
 class PlayerHiveController implements PlayerHiveService {
-
-  static final PlayerHiveController _instance = PlayerHiveController._internal();
+  static final PlayerHiveController _instance =
+      PlayerHiveController._internal();
   factory PlayerHiveController() {
     _instance.init();
     return _instance;
@@ -23,6 +23,7 @@ class PlayerHiveController implements PlayerHiveService {
   PlayerHiveController._internal();
 
   bool _isInitialized = false;
+  bool? _lastPersistenceAccess;
 
   //Music Player Cache
   List headList = [];
@@ -58,32 +59,49 @@ class PlayerHiveController implements PlayerHiveService {
 
   @override
   Future<void> init() async {
-    if (_isInitialized) return;
+    final canPersist = AppConfig.instance.canPersistUserActivity;
+    if (_isInitialized && _lastPersistenceAccess == canPersist) return;
     _isInitialized = true;
+    _lastPersistenceAccess = canPersist;
     try {
       AppConfig.logger.t('PlayerHive Controller');
       await fetchCachedData();
       await fetchSettingsData();
     } catch (e, st) {
-      NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: 'PlayerHiveController.init');
+      NeomErrorLogger.recordError(
+        e,
+        st,
+        module: 'neom_audio_player',
+        operation: 'PlayerHiveController.init',
+      );
     }
-
   }
 
   @override
   Future<void> fetchCachedData() async {
     AppConfig.logger.t('Fetch Cache Data');
+    if (!AppConfig.instance.canPersistUserActivity) {
+      lastQueueList = [];
+      lastIndex = 0;
+      lastPos = 0;
+      return;
+    }
+
     final playerBox = await AppHiveController().getBox(AppHiveBox.player.name);
 
-    lastQueueList = (playerBox.get(AppHiveConstants.lastQueue) ?? []).toList() as List;
+    lastQueueList =
+        (playerBox.get(AppHiveConstants.lastQueue) ?? []).toList() as List;
     lastIndex = (playerBox.get(AppHiveConstants.lastIndex) ?? 0) as int;
     lastPos = (playerBox.get(AppHiveConstants.lastPos) ?? 0) as int;
   }
 
   @override
   Future<int> fetchLastPos(String itemId) async {
+    if (!AppConfig.instance.canPersistUserActivity) return 0;
+
     final playerBox = await AppHiveController().getBox(AppHiveBox.player.name);
-    lastPos = (playerBox.get('${AppHiveConstants.lastPos}_$itemId') ?? 0) as int;
+    lastPos =
+        (playerBox.get('${AppHiveConstants.lastPos}_$itemId') ?? 0) as int;
     // await playerBox.close();
 
     return lastPos;
@@ -91,6 +109,8 @@ class PlayerHiveController implements PlayerHiveService {
 
   @override
   Future<void> updateItemLastPos(String itemId, int position) async {
+    if (!AppConfig.instance.canPersistUserActivity) return;
+
     final playerBox = await AppHiveController().getBox(AppHiveBox.player.name);
     await playerBox.put('${AppHiveConstants.lastPos}_$itemId', position);
     // await playerBox.close();
@@ -100,45 +120,141 @@ class PlayerHiveController implements PlayerHiveService {
   Future<void> fetchSettingsData() async {
     AppConfig.logger.t('Fetch Settings Data');
 
-    final settingsBox = await AppHiveController().getBox(AppHiveBox.settings.name);
+    if (!AppConfig.instance.canPersistUserActivity) {
+      _resetSettingsToGuestDefaults();
+      return;
+    }
 
-    preferredMobileQuality = settingsBox.get(AppHiveConstants.streamingQuality, defaultValue: '96 kbps') as String;
-    preferredWifiQuality = settingsBox.get(AppHiveConstants.streamingWifiQuality, defaultValue: '320 kbps') as String;
-    resetOnSkip = settingsBox.get(AppHiveConstants.resetOnSkip, defaultValue: true) as bool;
-    cacheSong = settingsBox.get(AppHiveConstants.cacheSong, defaultValue: true) as bool;
-    recommend =  settingsBox.get(AppHiveConstants.autoplay, defaultValue: true) as bool;
-    loadStart = settingsBox.get(AppHiveConstants.loadStart, defaultValue: true) as bool;
-    useDownload = settingsBox.get(AppHiveConstants.useDown, defaultValue: false) as bool;
-    preferredCompactNotificationButtons = settingsBox.get(AppHiveConstants.preferredCompactNotificationButtons, defaultValue: [1, 2, 3],) as List<int>;
-    stopForegroundService = settingsBox.get(AppHiveConstants.stopForegroundService, defaultValue: true) as bool;
-    repeatMode = EnumToString.fromString(AudioServiceRepeatMode.values, settingsBox.get(AppHiveConstants.repeatMode, defaultValue: AudioServiceRepeatMode.none.name,).toString(),) ?? AudioServiceRepeatMode.none;
-    enforceRepeat = settingsBox.get(AppHiveConstants.enforceRepeat, defaultValue: false) as bool;
-    liveSearch = settingsBox.get(AppHiveConstants.liveSearch, defaultValue: true) as bool;
-    showHistory = settingsBox.get(AppHiveConstants.showHistory, defaultValue: true) as bool;
-    searchHistory = settingsBox.get(AppHiveConstants.searchHistory, defaultValue: []) as List;
-    getLyricsOnline = settingsBox.get(AppHiveConstants.getLyricsOnline, defaultValue: false) as bool;
-    enableGesture = settingsBox.get(AppHiveConstants.enableGesture, defaultValue: true) as bool;
-    preferredLanguage = settingsBox.get(AppHiveConstants.preferredLanguage, defaultValue: ['Español']) as List;
+    final settingsBox = await AppHiveController().getBox(
+      AppHiveBox.settings.name,
+    );
+
+    preferredMobileQuality =
+        settingsBox.get(
+              AppHiveConstants.streamingQuality,
+              defaultValue: '96 kbps',
+            )
+            as String;
+    preferredWifiQuality =
+        settingsBox.get(
+              AppHiveConstants.streamingWifiQuality,
+              defaultValue: '320 kbps',
+            )
+            as String;
+    resetOnSkip =
+        settingsBox.get(AppHiveConstants.resetOnSkip, defaultValue: true)
+            as bool;
+    cacheSong =
+        settingsBox.get(AppHiveConstants.cacheSong, defaultValue: true) as bool;
+    recommend =
+        settingsBox.get(AppHiveConstants.autoplay, defaultValue: true) as bool;
+    loadStart =
+        settingsBox.get(AppHiveConstants.loadStart, defaultValue: true) as bool;
+    useDownload =
+        settingsBox.get(AppHiveConstants.useDown, defaultValue: false) as bool;
+    preferredCompactNotificationButtons =
+        settingsBox.get(
+              AppHiveConstants.preferredCompactNotificationButtons,
+              defaultValue: [1, 2, 3],
+            )
+            as List<int>;
+    stopForegroundService =
+        settingsBox.get(
+              AppHiveConstants.stopForegroundService,
+              defaultValue: true,
+            )
+            as bool;
+    repeatMode =
+        EnumToString.fromString(
+          AudioServiceRepeatMode.values,
+          settingsBox
+              .get(
+                AppHiveConstants.repeatMode,
+                defaultValue: AudioServiceRepeatMode.none.name,
+              )
+              .toString(),
+        ) ??
+        AudioServiceRepeatMode.none;
+    enforceRepeat =
+        settingsBox.get(AppHiveConstants.enforceRepeat, defaultValue: false)
+            as bool;
+    liveSearch =
+        settingsBox.get(AppHiveConstants.liveSearch, defaultValue: true)
+            as bool;
+    showHistory =
+        settingsBox.get(AppHiveConstants.showHistory, defaultValue: true)
+            as bool;
+    searchHistory =
+        settingsBox.get(AppHiveConstants.searchHistory, defaultValue: [])
+            as List;
+    getLyricsOnline =
+        settingsBox.get(AppHiveConstants.getLyricsOnline, defaultValue: false)
+            as bool;
+    enableGesture =
+        settingsBox.get(AppHiveConstants.enableGesture, defaultValue: true)
+            as bool;
+    preferredLanguage =
+        settingsBox.get(
+              AppHiveConstants.preferredLanguage,
+              defaultValue: ['Español'],
+            )
+            as List;
+  }
+
+  void _resetSettingsToGuestDefaults() {
+    preferredQuality = '';
+    preferredMobileQuality = '96 kbps';
+    preferredWifiQuality = '320 kbps';
+    preferredCompactNotificationButtons = [1, 2, 3];
+    resetOnSkip = true;
+    // Guest playback is ephemeral: never inherit or create an authenticated
+    // user's on-device audio cache.
+    cacheSong = false;
+    recommend = true;
+    loadStart = false;
+    useDownload = false;
+    stopForegroundService = true;
+    repeatMode = AudioServiceRepeatMode.none;
+    enforceRepeat = false;
+    liveSearch = true;
+    showHistory = false;
+    searchHistory = [];
+    getLyricsOnline = false;
+    enableGesture = true;
+    preferredLanguage = ['Español'];
   }
 
   @override
   Future<void> updateRepeatMode(AudioServiceRepeatMode mode) async {
-    final settingsBox = await AppHiveController().getBox(AppHiveBox.settings.name);
+    if (!AppConfig.instance.canPersistUserActivity) return;
+
+    final settingsBox = await AppHiveController().getBox(
+      AppHiveBox.settings.name,
+    );
     await settingsBox.put(AppHiveConstants.repeatMode, mode.name);
   }
 
   @override
   Future<void> setSearchQueries(List searchQueries) async {
-    final settingsBox = await AppHiveController().getBox(AppHiveBox.settings.name);
+    if (!AppConfig.instance.canPersistUserActivity) return;
+
+    final settingsBox = await AppHiveController().getBox(
+      AppHiveBox.settings.name,
+    );
     await settingsBox.put(AppHiveConstants.searchQueries, searchQueries);
   }
 
   @override
   Future<void> addQuery(String query) async {
-    final settingsBox = await AppHiveController().getBox(AppHiveBox.settings.name);
+    if (!AppConfig.instance.canPersistUserActivity) return;
+
+    final settingsBox = await AppHiveController().getBox(
+      AppHiveBox.settings.name,
+    );
 
     query = query.trim();
-    List searchQueries = settingsBox.get(AppHiveConstants.search, defaultValue: [],) as List;
+    List searchQueries =
+        settingsBox.get(AppHiveConstants.search, defaultValue: []) as List;
     final idx = searchQueries.indexOf(query);
     if (idx != -1) searchQueries.removeAt(idx);
     searchQueries.insert(0, query);
@@ -148,25 +264,40 @@ class PlayerHiveController implements PlayerHiveService {
 
   @override
   Future<List<String>> getPreferredMiniButtons() async {
-    final settingsBox = await AppHiveController().getBox(AppHiveBox.settings.name);
+    if (!AppConfig.instance.canPersistUserActivity) {
+      return const ['Like', 'Play/Pause', 'Next'];
+    }
 
-    List preferredButtons = settingsBox.get(AppHiveConstants.preferredMiniButtons,
-      defaultValue: ['Like', 'Play/Pause', 'Next'],)?.toList() as List<dynamic>;
+    final settingsBox = await AppHiveController().getBox(
+      AppHiveBox.settings.name,
+    );
+
+    List preferredButtons =
+        settingsBox
+                .get(
+                  AppHiveConstants.preferredMiniButtons,
+                  defaultValue: ['Like', 'Play/Pause', 'Next'],
+                )
+                ?.toList()
+            as List<dynamic>;
 
     return preferredButtons.map((e) => e.toString()).toList();
   }
 
   @override
-  Future<void> setLastQueue(List<Map<dynamic,dynamic>> lastQueue) async {
+  Future<void> setLastQueue(List<Map<dynamic, dynamic>> lastQueue) async {
+    if (!AppConfig.instance.canPersistUserActivity) return;
+
     final playerBox = await AppHiveController().getBox(AppHiveBox.player.name);
     await playerBox.put(AppHiveConstants.lastQueue, lastQueue);
   }
 
   @override
   Future<void> setLastIndexAndPos(int? lastIndex, int lastPos) async {
+    if (!AppConfig.instance.canPersistUserActivity) return;
+
     final playerBox = await AppHiveController().getBox(AppHiveBox.player.name);
     await playerBox.put(AppHiveConstants.lastIndex, lastIndex);
     await playerBox.put(AppHiveConstants.lastPos, lastPos);
   }
-
 }

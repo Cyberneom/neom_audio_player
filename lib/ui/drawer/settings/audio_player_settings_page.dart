@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:sint/sint.dart';
 import 'package:neom_commons/app_flavour.dart';
 import 'package:neom_commons/ui/theme/app_theme.dart';
+import 'package:neom_commons/utils/auth_guard.dart';
 import 'package:neom_commons/utils/constants/translations/app_translation_constants.dart';
 import 'package:neom_core/app_config.dart';
+import 'package:neom_core/utils/constants/app_route_constants.dart';
 import 'package:neom_core/utils/enums/app_in_use.dart';
 
 import '../../../utils/constants/audio_player_translation_constants.dart';
@@ -16,7 +18,8 @@ class AudioPlayerSettingsPage extends StatefulWidget {
   const AudioPlayerSettingsPage({super.key, this.callback});
 
   @override
-  State<AudioPlayerSettingsPage> createState() => _AudioPlayerSettingsPageState();
+  State<AudioPlayerSettingsPage> createState() =>
+      _AudioPlayerSettingsPageState();
 }
 
 class _AudioPlayerSettingsPageState extends State<AudioPlayerSettingsPage> {
@@ -32,21 +35,20 @@ class _AudioPlayerSettingsPageState extends State<AudioPlayerSettingsPage> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
-        backgroundColor: AppFlavour.getBackgroundColor(),
-        resizeToAvoidBottomInset: false,
-        appBar: SintAppBar(title: AppTranslationConstants.settings.tr,),
-        body: Container(
-          decoration: AppTheme.appBoxDecoration,
-          child: Column(
-            children: [
-              ///APPLY WHEN MORE OPTIONS ARE ADDED
-              // _searchBar(context),
-              Expanded(child: _settingsItem(context)),
-            ],
-          ),
-        )
+      backgroundColor: AppFlavour.getBackgroundColor(),
+      resizeToAvoidBottomInset: false,
+      appBar: SintAppBar(title: AppTranslationConstants.settings.tr),
+      body: Container(
+        decoration: AppTheme.appBoxDecoration,
+        child: Column(
+          children: [
+            ///APPLY WHEN MORE OPTIONS ARE ADDED
+            // _searchBar(context),
+            Expanded(child: _settingsItem(context)),
+          ],
+        ),
+      ),
     );
   }
 
@@ -55,9 +57,7 @@ class _AudioPlayerSettingsPageState extends State<AudioPlayerSettingsPage> {
       {
         'title': AudioPlayerTranslationConstants.ui.tr,
         'icon': Icons.design_services_rounded,
-        'onTap': MusicPlayerInterfacePage(
-          callback: widget.callback,
-        ),
+        'onTap': MusicPlayerInterfacePage(callback: widget.callback),
         'isThreeLine': true,
         'items': [
           AudioPlayerTranslationConstants.miniButtons.tr,
@@ -72,15 +72,14 @@ class _AudioPlayerSettingsPageState extends State<AudioPlayerSettingsPage> {
       {
         'title': AudioPlayerTranslationConstants.musicPlayback.tr,
         'icon': Icons.music_note_rounded,
-        'onTap': MusicPlaybackSettingsPage(
-          callback: widget.callback,
-        ),
+        'onTap': MusicPlaybackSettingsPage(callback: widget.callback),
         'isThreeLine': true,
         'items': [
           // AudioPlayerTranslationConstants.musicLang.tr,
           AudioPlayerTranslationConstants.streamQuality.tr,
           // AudioPlayerTranslationConstants.chartLocation.tr,
           AudioPlayerTranslationConstants.streamWifiQuality.tr,
+
           /// AudioPlayerTranslationConstants.ytStreamQuality.tr,
           AudioPlayerTranslationConstants.loadLast.tr,
           AudioPlayerTranslationConstants.resetOnSkip.tr,
@@ -89,6 +88,7 @@ class _AudioPlayerSettingsPageState extends State<AudioPlayerSettingsPage> {
           AudioPlayerTranslationConstants.cacheMediaItem.tr,
         ],
       },
+
       ///DOWNLOAD IN PROGRESS
       // {
       //   'title': AudioPlayerTranslationConstants.downloads.tr,
@@ -109,19 +109,22 @@ class _AudioPlayerSettingsPageState extends State<AudioPlayerSettingsPage> {
         'icon': Icons.miscellaneous_services_rounded,
         'onTap': const OthersPage(),
         'isThreeLine': true,
-        'items': AppConfig.instance.appInUse == AppInUse.g ? [
-          AudioPlayerTranslationConstants.getLyricsOnline.tr,
-          AudioPlayerTranslationConstants.stopOnClose.tr,
-          AudioPlayerTranslationConstants.clearCache.tr,
-          // AudioPlayerTranslationConstants.useDown.tr,
-          // AudioPlayerTranslationConstants.includeExcludeFolder.tr,
-          // AudioPlayerTranslationConstants.minAudioLen.tr,
-          // AudioPlayerTranslationConstants.supportEq.tr,
-          // AudioPlayerTranslationConstants.checkUpdate.tr,
-          // AudioPlayerTranslationConstants.shareLogs.tr,
-        ] : [ AudioPlayerTranslationConstants.stopOnClose.tr,
-          AudioPlayerTranslationConstants.clearCache.tr,
-        ],
+        'items': AppConfig.instance.appInUse == AppInUse.g
+            ? [
+                AudioPlayerTranslationConstants.getLyricsOnline.tr,
+                AudioPlayerTranslationConstants.stopOnClose.tr,
+                AudioPlayerTranslationConstants.clearCache.tr,
+                // AudioPlayerTranslationConstants.useDown.tr,
+                // AudioPlayerTranslationConstants.includeExcludeFolder.tr,
+                // AudioPlayerTranslationConstants.minAudioLen.tr,
+                // AudioPlayerTranslationConstants.supportEq.tr,
+                // AudioPlayerTranslationConstants.checkUpdate.tr,
+                // AudioPlayerTranslationConstants.shareLogs.tr,
+              ]
+            : [
+                AudioPlayerTranslationConstants.stopOnClose.tr,
+                AudioPlayerTranslationConstants.clearCache.tr,
+              ],
       },
     ];
 
@@ -135,10 +138,7 @@ class _AudioPlayerSettingsPageState extends State<AudioPlayerSettingsPage> {
     return Stack(
       children: [
         ListView.builder(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 10.0,
-            vertical: 15.0,
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 15.0),
           physics: const BouncingScrollPhysics(),
           itemCount: settingsList.length,
           itemBuilder: (context, index) {
@@ -153,16 +153,20 @@ class _AudioPlayerSettingsPageState extends State<AudioPlayerSettingsPage> {
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
-              isThreeLine: (settingsList[index]['isThreeLine'] as bool? ?? false),
+              isThreeLine:
+                  (settingsList[index]['isThreeLine'] as bool? ?? false),
               onTap: () {
-                searchQuery.value = '';
-                controller.text = '';
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => settingsList[index]['onTap'] as Widget,
-                  ),
-                );
+                AuthGuard.protect(context, () {
+                  searchQuery.value = '';
+                  controller.text = '';
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          settingsList[index]['onTap'] as Widget,
+                    ),
+                  );
+                }, redirectRoute: AppRouteConstants.audioPlayerSetting);
               },
             );
           },
@@ -233,35 +237,22 @@ class _AudioPlayerSettingsPageState extends State<AudioPlayerSettingsPage> {
   //   );
   // }
 
-  List<Map> _getSearchResults(
-    List<Map> searchOptions,
-    String query,
-  ) {
+  List<Map> _getSearchResults(List<Map> searchOptions, String query) {
     final List<Map> options = query != ''
         ? searchOptions
-            .where(
-              (element) =>
-                  element['title'].toString().toLowerCase().contains(query),
-            )
-            .toList()
+              .where(
+                (element) =>
+                    element['title'].toString().toLowerCase().contains(query),
+              )
+              .toList()
         : List.empty();
     return options;
   }
 
-  Widget _searchSuggestions(
-    BuildContext context,
-    List<Map> options,
-  ) {
+  Widget _searchSuggestions(BuildContext context, List<Map> options) {
     return Card(
-      margin: const EdgeInsets.symmetric(
-        horizontal: 18.0,
-        vertical: 10,
-      ),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(
-          10.0,
-        ),
-      ),
+      margin: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 10),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
       elevation: 8.0,
       child: SizedBox(
         height: options.length * 70,
@@ -274,17 +265,19 @@ class _AudioPlayerSettingsPageState extends State<AudioPlayerSettingsPage> {
             return ListTile(
               leading: Text(options[index]['title'].toString()),
               onTap: () {
-                searchQuery.value = '';
-                controller.text = '';
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => options[index]['route'] as Widget,
-                    settings: RouteSettings(
-                      arguments: options[index]['title'],
+                AuthGuard.protect(context, () {
+                  searchQuery.value = '';
+                  controller.text = '';
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => options[index]['route'] as Widget,
+                      settings: RouteSettings(
+                        arguments: options[index]['title'],
+                      ),
                     ),
-                  ),
-                );
+                  );
+                }, redirectRoute: AppRouteConstants.audioPlayerSetting);
               },
             );
           },

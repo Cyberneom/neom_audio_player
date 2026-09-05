@@ -17,7 +17,6 @@ import 'package:neom_core/domain/use_cases/audio_player_invoker_service.dart';
 import '../../utils/mappers/media_item_mapper.dart';
 
 class MiniPlayerController extends SintController implements MiniPlayerService {
-
   final userServiceImpl = Sint.find<UserService>();
 
   AppMediaItem appMediaItem = AppMediaItem();
@@ -33,6 +32,7 @@ class MiniPlayerController extends SintController implements MiniPlayerService {
   bool isInternal = true;
   Duration? itemDuration;
   bool audioHandlerRegistered = false;
+  bool? _mediaSessionCanPersist;
   final RxBool isWebPlayerRetracted = true.obs;
   final RxBool isWebPlayerClosed = false.obs;
 
@@ -47,22 +47,33 @@ class MiniPlayerController extends SintController implements MiniPlayerService {
     AppConfig.logger.d('onInit miniPlayer Controller');
 
     try {
-      Sint.find<AudioPlayerInvokerService>().getOrInitAudioHandler().then((handler) {
+      Sint.find<AudioPlayerInvokerService>().getOrInitAudioHandler().then((
+        handler,
+      ) {
         audioHandler = handler;
         audioHandlerRegistered = true;
         if (audioHandler != null) {
           if (audioHandler.currentMediaItem != null) {
             setMediaItem(audioHandler.currentMediaItem);
+          } else {
+            clear();
           }
           _mediaItemSub = audioHandler.mediaItem.listen((item) {
             if (item != null) {
               setMediaItem(item);
+            } else {
+              clear();
             }
           });
         }
       });
     } catch (e, st) {
-      NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: 'MiniPlayerController.onInit');
+      NeomErrorLogger.recordError(
+        e,
+        st,
+        module: 'neom_audio_player',
+        operation: 'MiniPlayerController.onInit',
+      );
     }
   }
 
@@ -70,10 +81,13 @@ class MiniPlayerController extends SintController implements MiniPlayerService {
   void onReady() {
     super.onReady();
 
-    try {
-
-    } catch (e, st) {
-      NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: 'MiniPlayerController.onReady');
+    try {} catch (e, st) {
+      NeomErrorLogger.recordError(
+        e,
+        st,
+        module: 'neom_audio_player',
+        operation: 'MiniPlayerController.onReady',
+      );
     }
 
     isLoading = false;
@@ -81,17 +95,34 @@ class MiniPlayerController extends SintController implements MiniPlayerService {
   }
 
   void clear() {
-
+    mediaItem.value = null;
+    appMediaItem = AppMediaItem();
+    _mediaSessionCanPersist = null;
+    showInTimeline = false;
+    isWebPlayerClosed.value = true;
+    update([
+      AppPageIdConstants.miniPlayer,
+      'web_bottom_player',
+      'web_now_playing_full',
+    ]);
   }
 
   @override
   Future<void> setAppMediaItem(AppMediaItem appMediaItem) async {
     AppConfig.logger.d('Setting new mediaitem ${appMediaItem.name}');
-    audioHandler ??= await Sint.find<AudioPlayerInvokerService>().getOrInitAudioHandler();
+    audioHandler ??= await Sint.find<AudioPlayerInvokerService>()
+        .getOrInitAudioHandler();
     audioHandlerRegistered = true;
     mediaItem.value = MediaItemMapper.fromAppMediaItem(item: appMediaItem);
-    source = EnumToString.fromString(AppMediaSource.values, mediaItem.value?.extras?["source"] ?? AppMediaSource.internal.name) ?? AppMediaSource.internal;
-    isInternal = source == AppMediaSource.internal || source == AppMediaSource.offline;
+    _mediaSessionCanPersist = AppConfig.instance.canPersistUserActivity;
+    source =
+        EnumToString.fromString(
+          AppMediaSource.values,
+          mediaItem.value?.extras?["source"] ?? AppMediaSource.internal.name,
+        ) ??
+        AppMediaSource.internal;
+    isInternal =
+        source == AppMediaSource.internal || source == AppMediaSource.offline;
     isWebPlayerClosed.value = false;
 
     update([AppPageIdConstants.miniPlayer, 'web_bottom_player']);
@@ -99,14 +130,37 @@ class MiniPlayerController extends SintController implements MiniPlayerService {
 
   Future<void> setMediaItem(MediaItem item) async {
     AppConfig.logger.d('Setting new mediaitem ${item.title}');
-    audioHandler ??= await Sint.find<AudioPlayerInvokerService>().getOrInitAudioHandler();
+    audioHandler ??= await Sint.find<AudioPlayerInvokerService>()
+        .getOrInitAudioHandler();
     audioHandlerRegistered = true;
     mediaItem.value = item;
-    source = EnumToString.fromString(AppMediaSource.values, mediaItem.value?.extras?["source"] ?? AppMediaSource.internal.name) ?? AppMediaSource.internal;
-    isInternal = source == AppMediaSource.internal || source == AppMediaSource.offline;
+    _mediaSessionCanPersist = AppConfig.instance.canPersistUserActivity;
+    source =
+        EnumToString.fromString(
+          AppMediaSource.values,
+          mediaItem.value?.extras?["source"] ?? AppMediaSource.internal.name,
+        ) ??
+        AppMediaSource.internal;
+    isInternal =
+        source == AppMediaSource.internal || source == AppMediaSource.offline;
     isWebPlayerClosed.value = false;
 
-    update([AppPageIdConstants.miniPlayer, 'web_bottom_player', 'web_now_playing_full']);
+    update([
+      AppPageIdConstants.miniPlayer,
+      'web_bottom_player',
+      'web_now_playing_full',
+    ]);
+  }
+
+  /// Synchronous UI-side boundary check. The audio handler performs the
+  /// authoritative queue cleanup; this prevents even one frame of the prior
+  /// session's title/artwork from appearing while that async cleanup runs.
+  MediaItem? get visibleMediaItem {
+    if (_mediaSessionCanPersist != null &&
+        _mediaSessionCanPersist != AppConfig.instance.canPersistUserActivity) {
+      return null;
+    }
+    return mediaItem.value;
   }
 
   @override
@@ -115,7 +169,7 @@ class MiniPlayerController extends SintController implements MiniPlayerService {
     isTimeline = value;
     update([AppPageIdConstants.home, AppPageIdConstants.timeline]);
   }
- 
+
   @override
   void onClose() {
     _mediaItemSub?.cancel();
@@ -125,8 +179,12 @@ class MiniPlayerController extends SintController implements MiniPlayerService {
   @override
   void setShowInTimeline({bool value = true}) {
     AppConfig.logger.i('Setting showInTimeline to $value');
-    showInTimeline =  value;
-    update([AppPageIdConstants.home, AppPageIdConstants.audioPlayerHome, AppPageIdConstants.miniPlayer]);
+    showInTimeline = value;
+    update([
+      AppPageIdConstants.home,
+      AppPageIdConstants.audioPlayerHome,
+      AppPageIdConstants.miniPlayer,
+    ]);
   }
 
   @override
@@ -135,37 +193,44 @@ class MiniPlayerController extends SintController implements MiniPlayerService {
       stream: audioHandler?.player.positionStream,
       builder: (context, snapshot) {
         final position = snapshot.data;
-        double? maxDuration = audioHandler?.player.duration?.inSeconds.toDouble();
+        double? maxDuration = audioHandler?.player.duration?.inSeconds
+            .toDouble();
 
         return position == null || maxDuration == null
             ? const SizedBox.shrink()
             : (position.inSeconds.toDouble() < 0.0 ||
-            (position.inSeconds.toDouble() > (maxDuration)))
-            ? const SizedBox.shrink() : SliderTheme(
-          data: SliderTheme.of(context).copyWith(
-            activeTrackColor: Theme.of(context).colorScheme.secondary,
-            inactiveTrackColor: Colors.transparent,
-            trackHeight: 1,
-            thumbColor: Theme.of(context).colorScheme.secondary,
-            thumbShape: const RoundSliderThumbShape(
-              enabledThumbRadius: 1.0,
-            ),
-            overlayColor: Colors.transparent,
-            overlayShape: const RoundSliderOverlayShape(
-              overlayRadius: 1.0,
-            ),
-          ),
-          child: Center(
-            child: Slider(
-              inactiveColor: Colors.transparent,
-              value: position.inSeconds.toDouble().clamp(0.0, isPreview ? 30.0 : maxDuration),
-              max: isPreview ? 30 : maxDuration,
-              onChanged: (newPosition) {
-                audioHandler?.seek(Duration(seconds: newPosition.round(),),);
-              },
-            ),
-          ),
-        );
+                  (position.inSeconds.toDouble() > (maxDuration)))
+            ? const SizedBox.shrink()
+            : SliderTheme(
+                data: SliderTheme.of(context).copyWith(
+                  activeTrackColor: Theme.of(context).colorScheme.secondary,
+                  inactiveTrackColor: Colors.transparent,
+                  trackHeight: 1,
+                  thumbColor: Theme.of(context).colorScheme.secondary,
+                  thumbShape: const RoundSliderThumbShape(
+                    enabledThumbRadius: 1.0,
+                  ),
+                  overlayColor: Colors.transparent,
+                  overlayShape: const RoundSliderOverlayShape(
+                    overlayRadius: 1.0,
+                  ),
+                ),
+                child: Center(
+                  child: Slider(
+                    inactiveColor: Colors.transparent,
+                    value: position.inSeconds.toDouble().clamp(
+                      0.0,
+                      isPreview ? 30.0 : maxDuration,
+                    ),
+                    max: isPreview ? 30 : maxDuration,
+                    onChanged: (newPosition) {
+                      audioHandler?.seek(
+                        Duration(seconds: newPosition.round()),
+                      );
+                    },
+                  ),
+                ),
+              );
       },
     );
   }
@@ -174,11 +239,16 @@ class MiniPlayerController extends SintController implements MiniPlayerService {
   void goToMusicPlayerHome() {
     isTimeline = false;
     Sint.toNamed(AppRouteConstants.audioPlayer);
-    update([AppPageIdConstants.home, AppPageIdConstants.audioPlayerHome, AppPageIdConstants.miniPlayer]);
+    update([
+      AppPageIdConstants.home,
+      AppPageIdConstants.audioPlayerHome,
+      AppPageIdConstants.miniPlayer,
+    ]);
   }
 
   @override
-  bool get isActive => mediaItem.value != null && showInTimeline && !isWebPlayerClosed.value;
+  bool get isActive =>
+      mediaItem.value != null && showInTimeline && !isWebPlayerClosed.value;
 
   @override
   bool get isWebPlayerRetractedValue => isWebPlayerRetracted.value;
@@ -189,7 +259,10 @@ class MiniPlayerController extends SintController implements MiniPlayerService {
     showInTimeline = mediaItem.value != null;
 
     Sint.back();
-    update([AppPageIdConstants.home, AppPageIdConstants.audioPlayerHome, AppPageIdConstants.miniPlayer]);
+    update([
+      AppPageIdConstants.home,
+      AppPageIdConstants.audioPlayerHome,
+      AppPageIdConstants.miniPlayer,
+    ]);
   }
-
 }

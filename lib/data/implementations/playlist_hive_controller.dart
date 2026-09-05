@@ -18,8 +18,8 @@ import '../../utils/mappers/media_item_mapper.dart';
 import 'player_hive_controller.dart';
 
 class PlaylistHiveController implements PlaylistHiveService {
-
-  static final PlaylistHiveController _instance = PlaylistHiveController._internal();
+  static final PlaylistHiveController _instance =
+      PlaylistHiveController._internal();
   factory PlaylistHiveController() {
     _instance.init();
     return _instance;
@@ -45,24 +45,31 @@ class PlaylistHiveController implements PlaylistHiveService {
 
     AppConfig.logger.d('onInit PlaylistHive Controller');
     globalMediaItems = await AppMediaItemFirestore().fetchAll();
-
   }
 
   @override
   Future<bool> checkPlaylist(String name, String key) async {
+    if (!AppConfig.instance.canPersistUserActivity) return false;
+
     await appHiveServiceImpl.getBox(name);
     return Hive.box(name).containsKey(key);
   }
 
   @override
   Future<void> removeLiked(String key) async {
-    final Box likedBox = await appHiveServiceImpl.getBox(AppHiveBox.favoriteItems.name);
+    if (!AppConfig.instance.canPersistUserActivity) return;
+
+    final Box likedBox = await appHiveServiceImpl.getBox(
+      AppHiveBox.favoriteItems.name,
+    );
     likedBox.delete(key);
     // setState(() {});
   }
 
   @override
   Future<void> addMapToPlaylist(String name, Map info) async {
+    if (!AppConfig.instance.canPersistUserActivity) return;
+
     final Box playlistBox = await appHiveServiceImpl.getBox(name);
     final List songs = playlistBox.values.toList();
     info.addEntries([MapEntry('dateAdded', DateTime.now().toString())]);
@@ -76,6 +83,8 @@ class PlaylistHiveController implements PlaylistHiveService {
 
   @override
   Future<void> addItemToPlaylist(String name, MediaItem mediaItem) async {
+    if (!AppConfig.instance.canPersistUserActivity) return;
+
     if (name != AppHiveBox.favoriteItems.name) await Hive.openBox(name);
     final Box playlistBox = Hive.box(name);
     final Map info = MediaItemMapper.toJSON(mediaItem);
@@ -91,6 +100,8 @@ class PlaylistHiveController implements PlaylistHiveService {
 
   @override
   Future<void> addPlaylist(String inputName, List data) async {
+    if (!AppConfig.instance.canPersistUserActivity) return;
+
     final RegExp avoid = RegExp(r'[\.\\\*\:\"\?#/;\|]');
     String name = inputName.replaceAll(avoid, '').replaceAll('  ', ' ');
 
@@ -105,8 +116,11 @@ class PlaylistHiveController implements PlaylistHiveService {
     final Map result = {for (final v in data) v['id'].toString(): v};
     playlistBox.putAll(result);
 
-    final settingsBox = await appHiveServiceImpl.getBox(AppHiveBox.settings.name);
-    final List playlistNames = settingsBox.get('playlistNames', defaultValue: []) as List;
+    final settingsBox = await appHiveServiceImpl.getBox(
+      AppHiveBox.settings.name,
+    );
+    final List playlistNames =
+        settingsBox.get('playlistNames', defaultValue: []) as List;
 
     if (name.trim() == '') {
       name = 'Playlist ${playlistNames.length}';
@@ -121,6 +135,8 @@ class PlaylistHiveController implements PlaylistHiveService {
 
   @override
   Future<void> addQueryEntry(String inputName, List data) async {
+    if (!AppConfig.instance.canPersistUserActivity) return;
+
     final RegExp avoid = RegExp(r'[\.\\\*\:\"\?#/;\|]');
     String name = inputName.replaceAll(avoid, '').replaceAll('  ', ' ');
 
@@ -135,8 +151,11 @@ class PlaylistHiveController implements PlaylistHiveService {
     final Map result = {for (final v in data) v['id'].toString(): v};
     playlistBox.putAll(result);
 
-    final settingsBox = await appHiveServiceImpl.getBox(AppHiveBox.settings.name);
-    final List playlistNames = settingsBox.get('playlistNames', defaultValue: []) as List;
+    final settingsBox = await appHiveServiceImpl.getBox(
+      AppHiveBox.settings.name,
+    );
+    final List playlistNames =
+        settingsBox.get('playlistNames', defaultValue: []) as List;
 
     if (name.trim() == '') {
       name = 'Playlist ${playlistNames.length}';
@@ -148,5 +167,4 @@ class PlaylistHiveController implements PlaylistHiveService {
     playlistNames.add(name);
     settingsBox.put('playlistNames', playlistNames);
   }
-
 }

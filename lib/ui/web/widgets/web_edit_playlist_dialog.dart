@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:neom_commons/ui/theme/app_color.dart';
 import 'package:neom_commons/ui/widgets/custom_image.dart';
+import 'package:neom_commons/utils/auth_guard.dart';
 import 'package:neom_commons/utils/constants/translations/app_translation_constants.dart';
+import 'package:neom_core/app_config.dart';
 import 'package:neom_core/data/firestore/itemlist_firestore.dart';
 import 'package:neom_core/domain/model/item_list.dart';
+import 'package:neom_core/utils/constants/app_route_constants.dart';
 import 'package:sint/sint.dart';
 
 import '../../../utils/constants/audio_player_translation_constants.dart';
@@ -19,10 +22,24 @@ class WebEditPlaylistDialog extends StatefulWidget {
     this.onUpdated,
   }) : super(key: key);
 
-  static Future<void> show(BuildContext context, Itemlist itemlist, {VoidCallback? onUpdated}) {
+  static Future<void> show(
+    BuildContext context,
+    Itemlist itemlist, {
+    VoidCallback? onUpdated,
+  }) {
+    if (!AppConfig.instance.canPersistUserActivity) {
+      AuthGuard.protect(
+        context,
+        () {},
+        redirectRoute: AppRouteConstants.audioPlayer,
+      );
+      return Future.value();
+    }
+
     return showDialog(
       context: context,
-      builder: (_) => WebEditPlaylistDialog(itemlist: itemlist, onUpdated: onUpdated),
+      builder: (_) =>
+          WebEditPlaylistDialog(itemlist: itemlist, onUpdated: onUpdated),
     );
   }
 
@@ -52,6 +69,8 @@ class _WebEditPlaylistDialogState extends State<WebEditPlaylistDialog> {
   }
 
   Future<void> _save() async {
+    if (!AppConfig.instance.canPersistUserActivity) return;
+
     final name = _nameController.text.trim();
     if (name.isEmpty) return;
 
@@ -164,7 +183,7 @@ class _WebEditPlaylistDialogState extends State<WebEditPlaylistDialog> {
                 Switch(
                   value: _isPublic,
                   onChanged: (v) => setState(() => _isPublic = v),
-                  activeColor: AppColor.getMain(),
+                  activeThumbColor: AppColor.getMain(),
                 ),
               ],
             ),
@@ -189,7 +208,10 @@ class _WebEditPlaylistDialogState extends State<WebEditPlaylistDialog> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 32,
+                      vertical: 12,
+                    ),
                   ),
                   child: _isSaving
                       ? const SizedBox(

@@ -6,6 +6,8 @@ class AudioPlayerFrTranslations {
     AudioPlayerTranslationConstants.aboutLine1: "Ceci est un projet open source et peut être trouvé sur",
     AudioPlayerTranslationConstants.accent: "Couleur d'accentuation et teinte",
     AudioPlayerTranslationConstants.addNew: "Ajouter nouveau",
+    AudioPlayerTranslationConstants.addToList: "Ajouter à la liste",
+    AudioPlayerTranslationConstants.selectList: "Choisir une liste",
     AudioPlayerTranslationConstants.addSomething: "Allez-y et ajoutez quelque chose",
     AudioPlayerTranslationConstants.addToPlaylist: "Ajouter à la playlist",
     AudioPlayerTranslationConstants.addToQueue: "Ajouter à la file",

@@ -150,28 +150,32 @@ class SongTileTrailingMenuState extends State<SongTileTrailingMenu> {
         ],
       ],
       onSelected: (value) {
-        AuthGuard.protect(context, () {
-          switch (value) {
-            case 0:
+        switch (value) {
+          case 0:
+            AuthGuard.protect(context, () {
               AddToPlaylist().addToPlaylist(context, widget.appMediaItem);
-            case 1:
-              addToNowPlaying(context: context, mediaItem: mediaItem);
-            case 2:
-              playNext(mediaItem, context);
-            case 3:
-              ShareUtilities.shareAppWithMediaItem(widget.appMediaItem);
-            case 4:
+            });
+          case 1:
+            addToNowPlaying(context: context, mediaItem: mediaItem);
+          case 2:
+            playNext(mediaItem, context);
+          case 3:
+            ShareUtilities.shareAppWithMediaItem(widget.appMediaItem);
+          case 4:
+            AuthGuard.protect(context, () {
               widget.deleteLiked!(widget.appMediaItem);
-            case 5:
-              if(widget.itemlist != null) {
-                // PlaylistPlayerPage now lives in `neom_audio_platform`.
-                Sint.toNamed(
-                  AudioPlayerRouteConstants.playlistPlayer,
-                  arguments: {'itemlist': widget.itemlist!},
-                );
-              }
+            });
+          case 5:
+            if(widget.itemlist != null) {
+              // PlaylistPlayerPage now lives in `neom_audio_platform`.
+              Sint.toNamed(
+                AudioPlayerRouteConstants.playlistPlayer,
+                arguments: {'itemlist': widget.itemlist!},
+              );
+            }
 
-            case 10:
+          case 10:
+            AuthGuard.protect(context, () {
               if (widget.appMediaItem.isSuspended) {
                 ContentModerationHelper.unsuspendMediaItem(widget.appMediaItem.id);
               } else {
@@ -187,7 +191,9 @@ class SongTileTrailingMenuState extends State<SongTileTrailingMenu> {
                   },
                 );
               }
-            case 11:
+            });
+          case 11:
+            AuthGuard.protect(context, () {
               ContentModerationHelper.showDeleteContentDialog(
                 context,
                 contentName: widget.appMediaItem.name,
@@ -195,11 +201,11 @@ class SongTileTrailingMenuState extends State<SongTileTrailingMenu> {
                   return await ContentModerationHelper.deleteMediaItem(widget.appMediaItem);
                 },
               );
+            });
 
-            default:
-              break;
-          }
-        });
+          default:
+            break;
+        }
       },
     );
   }

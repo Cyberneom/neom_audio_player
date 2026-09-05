@@ -5,6 +5,7 @@ import 'package:neom_commons/app_flavour.dart';
 import 'package:neom_commons/ui/theme/app_theme.dart';
 import 'package:neom_commons/ui/widgets/images/neom_image_card.dart';
 import 'package:neom_commons/utils/constants/translations/common_translation_constants.dart';
+import 'package:neom_core/app_config.dart';
 import 'package:neom_core/domain/model/app_media_item.dart';
 import 'package:neom_core/utils/constants/app_hive_constants.dart';
 import 'package:neom_core/utils/enums/app_hive_box.dart';
@@ -26,8 +27,19 @@ class RecentlyPlayedPageState extends State<RecentlyPlayedPage> {
   bool added = false;
 
   Future<void> getSongs() async {
-    List recentSongs = await Hive.box(AppHiveBox.player.name).get(AppHiveConstants.recentSongs, defaultValue: []) as List;
-    if(recentSongs.isNotEmpty) {
+    if (!AppConfig.instance.canPersistUserActivity) {
+      _songs = {};
+      added = true;
+      if (mounted) setState(() {});
+      return;
+    }
+
+    List recentSongs =
+        await Hive.box(
+              AppHiveBox.player.name,
+            ).get(AppHiveConstants.recentSongs, defaultValue: [])
+            as List;
+    if (recentSongs.isNotEmpty) {
       for (final element in recentSongs) {
         AppMediaItem recentMediaItem = AppMediaItem.fromJSON(element);
         _songs[recentMediaItem.id] = recentMediaItem;
@@ -39,6 +51,12 @@ class RecentlyPlayedPageState extends State<RecentlyPlayedPage> {
 
   @override
   Widget build(BuildContext context) {
+    final canPersist = AppConfig.instance.canPersistUserActivity;
+    if (!canPersist) {
+      _songs = {};
+      added = true;
+    }
+
     if (!added) {
       getSongs();
     }
@@ -47,82 +65,95 @@ class RecentlyPlayedPageState extends State<RecentlyPlayedPage> {
       backgroundColor: AppFlavour.getBackgroundColor(),
       appBar: SintAppBar(
         title: CommonTranslationConstants.lastSession.tr,
-        actions: [
-          IconButton(
-            onPressed: () {
-              Hive.box(AppHiveBox.player.name).put('recentSongs', []);
-              setState(() => _songs = {});
-            },
-            tooltip: AudioPlayerTranslationConstants.clearAll.tr,
-            icon: const Icon(Icons.clear_all_rounded),
-          ),
-        ],
+        actions: canPersist
+            ? [
+                IconButton(
+                  onPressed: () {
+                    Hive.box(AppHiveBox.player.name).put('recentSongs', []);
+                    setState(() => _songs = {});
+                  },
+                  tooltip: AudioPlayerTranslationConstants.clearAll.tr,
+                  icon: const Icon(Icons.clear_all_rounded),
+                ),
+              ]
+            : null,
       ),
       body: Container(
-    decoration: AppTheme.appBoxDecoration,
-    child: _songs.isEmpty ? TextButton(
-        child: emptyScreen(
-          context, 3,
-          AudioPlayerTranslationConstants.nothingTo.tr, 16,
-          AudioPlayerTranslationConstants.showHere.tr, 45.0,
-          AudioPlayerTranslationConstants.playSomething.tr, 26.0,
-        ),
-        onPressed: ()=> Sint.back(),
-      ) : ListView.builder(
-        physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.only(top: 10, bottom: 10),
-        shrinkWrap: true,
-        itemCount: _songs.length,
-        itemExtent: 70.0,
-        itemBuilder: (context, index) {
-          final AppMediaItem item = _songs.values.elementAt(index);
-          return _songs.isEmpty
-              ? const SizedBox.shrink()
-              : Dismissible(
-            key: Key(item.id),
-            direction: DismissDirection.endToStart,
-            background: const ColoredBox(
-              color: Colors.redAccent,
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 15.0,),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Icon(Icons.delete_outline_rounded),
-                  ],
+        decoration: AppTheme.appBoxDecoration,
+        child: _songs.isEmpty
+            ? TextButton(
+                child: emptyScreen(
+                  context,
+                  3,
+                  AudioPlayerTranslationConstants.nothingTo.tr,
+                  16,
+                  AudioPlayerTranslationConstants.showHere.tr,
+                  45.0,
+                  AudioPlayerTranslationConstants.playSomething.tr,
+                  26.0,
                 ),
-              ),
-            ),
-            onDismissed: (direction) {
-              _songs.remove(item.id);
-              setState(() {});
-              Hive.box(AppHiveBox.player.name).put(AppHiveConstants.recentSongs, _songs);
-              },
-            child: ListTile(
-              leading: NeomImageCard(imageUrl: item.imgUrl,),
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  LikeButton(itemId: item.id, itemName: item.name),
-                ],
-              ),
-              title: Text(item.name,
-                overflow: TextOverflow.ellipsis,
-              ),
-              subtitle: Text(item.ownerName,
-                overflow: TextOverflow.ellipsis,
-              ),
-              onTap: () {
-                Sint.find<AudioPlayerInvokerService>().init(
-                  mediaItems: _songs.values.toList(),
-                  index: index,
-                );
+                onPressed: () => Sint.back(),
+              )
+            : ListView.builder(
+                physics: const BouncingScrollPhysics(),
+                padding: const EdgeInsets.only(top: 10, bottom: 10),
+                shrinkWrap: true,
+                itemCount: _songs.length,
+                itemExtent: 70.0,
+                itemBuilder: (context, index) {
+                  final AppMediaItem item = _songs.values.elementAt(index);
+                  return _songs.isEmpty
+                      ? const SizedBox.shrink()
+                      : Dismissible(
+                          key: Key(item.id),
+                          direction: DismissDirection.endToStart,
+                          background: const ColoredBox(
+                            color: Colors.redAccent,
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 15.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [Icon(Icons.delete_outline_rounded)],
+                              ),
+                            ),
+                          ),
+                          onDismissed: (direction) {
+                            _songs.remove(item.id);
+                            setState(() {});
+                            Hive.box(
+                              AppHiveBox.player.name,
+                            ).put(AppHiveConstants.recentSongs, _songs);
+                          },
+                          child: ListTile(
+                            leading: NeomImageCard(imageUrl: item.imgUrl),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                LikeButton(
+                                  itemId: item.id,
+                                  itemName: item.name,
+                                ),
+                              ],
+                            ),
+                            title: Text(
+                              item.name,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            subtitle: Text(
+                              item.ownerName,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            onTap: () {
+                              Sint.find<AudioPlayerInvokerService>().init(
+                                mediaItems: _songs.values.toList(),
+                                index: index,
+                              );
+                            },
+                          ),
+                        );
                 },
-            ),
-          );
-          },
-      ),),
+              ),
+      ),
     );
   }
-
 }

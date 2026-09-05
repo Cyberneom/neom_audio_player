@@ -10,30 +10,49 @@ import 'package:neom_core/utils/enums/app_hive_box.dart';
 import 'mappers/media_item_mapper.dart';
 
 class AudioPlayerStats {
-
   static Future<void> addRecentlyPlayed(MediaItem mediaItem) async {
     AppConfig.logger.d('Adding ${mediaItem.id} to recently played');
 
+    // Playback is public, listening history is not. In particular, do not
+    // merge a guest session into the global Hive boxes left by another user.
+    if (!AppConfig.instance.canPersistUserActivity) return;
+
     try {
-      final playerBox = await AppHiveController().getBox(AppHiveBox.player.name);
+      final playerBox = await AppHiveController().getBox(
+        AppHiveBox.player.name,
+      );
       final statsBox = await AppHiveController().getBox(AppHiveBox.stats.name);
 
-      List recentList = await playerBox.get(AppHiveConstants.recentSongs, defaultValue: [])?.toList() as List;
-      final Map songStats = await statsBox.get(mediaItem.id, defaultValue: {}) as Map;
-      final Map mostPlayed = await statsBox.get(AppHiveConstants.mostPlayed, defaultValue: {}) as Map;
+      List recentList =
+          await playerBox
+                  .get(AppHiveConstants.recentSongs, defaultValue: [])
+                  ?.toList()
+              as List;
+      final Map songStats =
+          await statsBox.get(mediaItem.id, defaultValue: {}) as Map;
+      final Map mostPlayed =
+          await statsBox.get(AppHiveConstants.mostPlayed, defaultValue: {})
+              as Map;
 
-      songStats[AppHiveConstants.lastPlayed] = DateTime.now().millisecondsSinceEpoch;
-      songStats[AppHiveConstants.playCount] = songStats[AppHiveConstants.playCount] == null ? 1 : songStats[AppHiveConstants.playCount] + 1;
+      songStats[AppHiveConstants.lastPlayed] =
+          DateTime.now().millisecondsSinceEpoch;
+      songStats[AppHiveConstants.playCount] =
+          songStats[AppHiveConstants.playCount] == null
+          ? 1
+          : songStats[AppHiveConstants.playCount] + 1;
       songStats[AppHiveConstants.title] = mediaItem.title;
       songStats[AppHiveConstants.artist] = mediaItem.artist;
       songStats[AppHiveConstants.album] = mediaItem.album;
       songStats[AppHiveConstants.id] = mediaItem.id;
       statsBox.put(mediaItem.id, songStats);
 
-      if ((songStats[AppHiveConstants.playCount] as int) > (mostPlayed[AppHiveConstants.playCount] as int? ?? 0)) {
+      if ((songStats[AppHiveConstants.playCount] as int) >
+          (mostPlayed[AppHiveConstants.playCount] as int? ?? 0)) {
         statsBox.put(AppHiveConstants.mostPlayed, songStats);
       }
-      AppConfig.logger.i('Adding mediaItemId: ${mediaItem.id} Name: ${mediaItem.title} data to stats');
+      AppConfig.logger.i(
+        'Adding mediaItemId: ${mediaItem.id} Name: ${mediaItem.title} data to stats',
+      );
 
       recentList.insert(0, MediaItemMapper.toJSON(mediaItem));
 
@@ -45,11 +64,13 @@ class AudioPlayerStats {
         recentList = recentList.sublist(0, 30);
       }
       playerBox.put(AppHiveConstants.recentSongs, recentList);
-    } catch(e, st) {
-      NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: 'addRecentlyPlayed');
+    } catch (e, st) {
+      NeomErrorLogger.recordError(
+        e,
+        st,
+        module: 'neom_audio_player',
+        operation: 'addRecentlyPlayed',
+      );
     }
-
   }
-
-
 }

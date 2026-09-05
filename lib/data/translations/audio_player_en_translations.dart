@@ -6,6 +6,8 @@ class AudioPlayerEnTranslations {
     AudioPlayerTranslationConstants.aboutLine1: "This is an open-source project and can be found on",
     AudioPlayerTranslationConstants.accent: "Accent Color & Hue",
     AudioPlayerTranslationConstants.addNew: "Add New",
+    AudioPlayerTranslationConstants.addToList: "Add to list",
+    AudioPlayerTranslationConstants.selectList: "Select a list",
     AudioPlayerTranslationConstants.addSomething: "Go on and Add Something",
     AudioPlayerTranslationConstants.addToPlaylist: "Add to Playlist",
     AudioPlayerTranslationConstants.addToQueue: "Add to Queue",

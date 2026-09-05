@@ -172,7 +172,7 @@ class SleepTimerSheet extends StatelessWidget {
                 onChanged: (value) {
                   // Would update settings
                 },
-                activeColor: accent,
+                activeThumbColor: accent,
                 contentPadding: EdgeInsets.zero,
               )),
 

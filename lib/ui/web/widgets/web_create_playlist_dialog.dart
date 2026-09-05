@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:neom_commons/ui/theme/app_color.dart';
+import 'package:neom_commons/utils/auth_guard.dart';
 import 'package:neom_commons/utils/constants/translations/app_translation_constants.dart';
+import 'package:neom_core/app_config.dart';
 import 'package:neom_core/domain/use_cases/itemlist_service.dart';
+import 'package:neom_core/utils/constants/app_route_constants.dart';
 import 'package:sint/sint.dart';
 
 import '../../../utils/constants/audio_player_translation_constants.dart';
@@ -10,6 +13,15 @@ class WebCreatePlaylistDialog extends StatefulWidget {
   const WebCreatePlaylistDialog({Key? key}) : super(key: key);
 
   static Future<void> show(BuildContext context) {
+    if (!AppConfig.instance.canPersistUserActivity) {
+      AuthGuard.protect(
+        context,
+        () {},
+        redirectRoute: AppRouteConstants.audioPlayer,
+      );
+      return Future.value();
+    }
+
     return showDialog(
       context: context,
       builder: (_) => const WebCreatePlaylistDialog(),
@@ -17,7 +29,8 @@ class WebCreatePlaylistDialog extends StatefulWidget {
   }
 
   @override
-  State<WebCreatePlaylistDialog> createState() => _WebCreatePlaylistDialogState();
+  State<WebCreatePlaylistDialog> createState() =>
+      _WebCreatePlaylistDialogState();
 }
 
 class _WebCreatePlaylistDialogState extends State<WebCreatePlaylistDialog> {
@@ -101,7 +114,7 @@ class _WebCreatePlaylistDialogState extends State<WebCreatePlaylistDialog> {
                     setState(() => _isPublic = v);
                     controller.isPublicNewItemlist = v;
                   },
-                  activeColor: AppColor.getMain(),
+                  activeThumbColor: AppColor.getMain(),
                 ),
               ],
             ),
@@ -123,6 +136,7 @@ class _WebCreatePlaylistDialogState extends State<WebCreatePlaylistDialog> {
                 const SizedBox(width: 12),
                 ElevatedButton(
                   onPressed: () async {
+                    if (!AppConfig.instance.canPersistUserActivity) return;
                     controller.isPublicNewItemlist = _isPublic;
                     await controller.createItemlist();
                     if (context.mounted) Sint.back();
@@ -132,7 +146,10 @@ class _WebCreatePlaylistDialogState extends State<WebCreatePlaylistDialog> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 32,
+                      vertical: 12,
+                    ),
                   ),
                   child: Text(
                     AppTranslationConstants.save.tr,

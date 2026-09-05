@@ -11,8 +11,6 @@ import '../../domain/models/lyrics_cache_entry.dart';
 import '../../domain/models/media_lyrics.dart';
 import '../../domain/use_cases/lyrics_service.dart';
 import '../../ui/player/lyrics/lyrics.dart';
-import '../../utils/enums/lyrics_source.dart';
-import '../../utils/enums/lyrics_type.dart';
 import '../../utils/helpers/lrc_parser.dart';
 import '../../utils/helpers/spotify_lyrics_helper.dart';
 

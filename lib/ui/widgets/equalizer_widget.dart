@@ -75,7 +75,7 @@ class _EqualizerWidgetState extends State<EqualizerWidget> {
     return Obx(() => SwitchListTile(
       title: Text('Equalizer', style: theme.textTheme.titleMedium),
       value: _controller.isEnabled,
-      activeColor: accent,
+      activeThumbColor: accent,
       onChanged: (value) async {
         await _controller.setEnabled(value);
         if (value) await _loadParameters();

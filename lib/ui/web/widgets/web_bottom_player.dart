@@ -7,6 +7,7 @@ import 'package:neom_commons/utils/constants/translations/common_translation_con
 import 'package:neom_commons/utils/deeplink_utilities.dart';
 import 'package:neom_commons/utils/device_utilities.dart';
 import 'package:neom_commons/utils/constants/translations/app_translation_constants.dart';
+import 'package:neom_core/app_config.dart';
 import 'package:neom_core/data/firestore/profile_firestore.dart';
 import 'package:neom_core/utils/neom_error_logger.dart';
 import 'package:sint/sint.dart';
@@ -36,28 +37,34 @@ class WebBottomPlayer extends StatelessWidget {
   final VoidCallback? onQueueToggle;
   final VoidCallback? onArtworkTap;
 
-  const WebBottomPlayer({Key? key, this.onQueueToggle, this.onArtworkTap}) : super(key: key);
+  const WebBottomPlayer({Key? key, this.onQueueToggle, this.onArtworkTap})
+    : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return SintBuilder<MiniPlayerController>(
       id: 'web_bottom_player',
       builder: (controller) {
-        if (controller.mediaItem.value == null || controller.isWebPlayerClosed.value) {
+        final visibleMediaItem = controller.visibleMediaItem;
+        if (visibleMediaItem == null || controller.isWebPlayerClosed.value) {
           return const SizedBox.shrink();
         }
 
-        final mediaItem = controller.mediaItem.value!;
+        final mediaItem = visibleMediaItem;
         final screenWidth = MediaQuery.of(context).size.width;
         final isCompact = screenWidth < 900;
 
-        final titleText = (mediaItem.title.trim().isNotEmpty && mediaItem.title != 'null')
+        final titleText =
+            (mediaItem.title.trim().isNotEmpty && mediaItem.title != 'null')
             ? mediaItem.title
-            : ((mediaItem.album?.trim().isNotEmpty ?? false) && mediaItem.album != 'null'
-                ? mediaItem.album!
-                : AudioPlayerTranslationConstants.lookingForNewMusic.tr);
+            : ((mediaItem.album?.trim().isNotEmpty ?? false) &&
+                      mediaItem.album != 'null'
+                  ? mediaItem.album!
+                  : AudioPlayerTranslationConstants.lookingForNewMusic.tr);
 
-        final artistText = (mediaItem.artist?.trim().isNotEmpty ?? false) && mediaItem.artist != 'null'
+        final artistText =
+            (mediaItem.artist?.trim().isNotEmpty ?? false) &&
+                mediaItem.artist != 'null'
             ? mediaItem.artist!
             : '';
 
@@ -102,24 +109,27 @@ class WebBottomPlayer extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                          Text(
-                            titleText,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 13,
-                              letterSpacing: -0.2,
+                            Text(
+                              titleText,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 13,
+                                letterSpacing: -0.2,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            artistText,
-                            style: TextStyle(color: Colors.grey[400], fontSize: 11),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
+                            const SizedBox(height: 2),
+                            Text(
+                              artistText,
+                              style: TextStyle(
+                                color: Colors.grey[400],
+                                fontSize: 11,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ],
                         ),
                       ),
@@ -133,7 +143,8 @@ class WebBottomPlayer extends StatelessWidget {
                       color: Colors.white70,
                       tooltip: 'Copy share link',
                       onTap: () {
-                        final slug = mediaItem.extras?['slug']?.toString() ?? '';
+                        final slug =
+                            mediaItem.extras?['slug']?.toString() ?? '';
                         final url = DeeplinkUtilities.generateVanityUrl(
                           type: 'media',
                           id: mediaItem.id,
@@ -141,7 +152,8 @@ class WebBottomPlayer extends StatelessWidget {
                         );
                         DeviceUtilities.copyToClipboard(
                           text: url,
-                          displayText: 'Link de la canción copiado al portapapeles',
+                          displayText:
+                              'Link de la canción copiado al portapapeles',
                         );
                       },
                     ),
@@ -189,15 +201,19 @@ class WebBottomPlayer extends StatelessWidget {
                               _WebControlButton(
                                 icon: Icons.skip_previous_rounded,
                                 size: 20,
-                                tooltip: AudioPlayerTranslationConstants.skipPrevious.tr,
-                                onTap: () => controller.audioHandler?.skipToPrevious(),
+                                tooltip: AudioPlayerTranslationConstants
+                                    .skipPrevious
+                                    .tr,
+                                onTap: () =>
+                                    controller.audioHandler?.skipToPrevious(),
                               ),
                               const SizedBox(width: 12),
                               // Play/Pause
                               StreamBuilder<PlaybackState>(
                                 stream: controller.audioHandler?.playbackState,
                                 builder: (context, snapshot) {
-                                  final playing = snapshot.data?.playing ?? false;
+                                  final playing =
+                                      snapshot.data?.playing ?? false;
                                   return Container(
                                     width: 32,
                                     height: 32,
@@ -207,9 +223,13 @@ class WebBottomPlayer extends StatelessWidget {
                                     ),
                                     child: InkWell(
                                       customBorder: const CircleBorder(),
-                                      onTap: () => playing ? controller.audioHandler?.pause() : controller.audioHandler?.play(),
+                                      onTap: () => playing
+                                          ? controller.audioHandler?.pause()
+                                          : controller.audioHandler?.play(),
                                       child: Icon(
-                                        playing ? Icons.pause_rounded : Icons.play_arrow_rounded,
+                                        playing
+                                            ? Icons.pause_rounded
+                                            : Icons.play_arrow_rounded,
                                         color: Colors.black,
                                         size: 20,
                                       ),
@@ -222,8 +242,10 @@ class WebBottomPlayer extends StatelessWidget {
                               _WebControlButton(
                                 icon: Icons.skip_next_rounded,
                                 size: 20,
-                                tooltip: AudioPlayerTranslationConstants.skipNext.tr,
-                                onTap: () => controller.audioHandler?.skipToNext(),
+                                tooltip:
+                                    AudioPlayerTranslationConstants.skipNext.tr,
+                                onTap: () =>
+                                    controller.audioHandler?.skipToNext(),
                               ),
                             ],
                           ),
@@ -237,14 +259,19 @@ class WebBottomPlayer extends StatelessWidget {
                   stream: controller.audioHandler?.player.positionStream,
                   builder: (context, positionSnapshot) {
                     final position = positionSnapshot.data ?? Duration.zero;
-                    final duration = controller.audioHandler?.player.duration ?? Duration.zero;
+                    final duration =
+                        controller.audioHandler?.player.duration ??
+                        Duration.zero;
                     final sliderValue = computeSliderValue(position, duration);
 
                     return Row(
                       children: [
                         Text(
                           formatPlayerDuration(position),
-                          style: TextStyle(color: Colors.grey[400], fontSize: 10),
+                          style: TextStyle(
+                            color: Colors.grey[400],
+                            fontSize: 10,
+                          ),
                         ),
                         const SizedBox(width: 8),
                         Expanded(
@@ -259,7 +286,10 @@ class WebBottomPlayer extends StatelessWidget {
                         const SizedBox(width: 8),
                         Text(
                           formatPlayerDuration(duration),
-                          style: TextStyle(color: Colors.grey[400], fontSize: 10),
+                          style: TextStyle(
+                            color: Colors.grey[400],
+                            fontSize: 10,
+                          ),
                         ),
                       ],
                     );
@@ -301,108 +331,143 @@ class WebBottomPlayer extends StatelessWidget {
                       const SizedBox(width: 12),
                       Expanded(
                         child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            titleText,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 13,
-                              letterSpacing: -0.2,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              titleText,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 13,
+                                letterSpacing: -0.2,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          const SizedBox(height: 3),
-                          Row(
-                            children: [
-                              // Mini "now playing" visualizer reacts to playback state.
-                              StreamBuilder<bool>(
-                                stream: controller.audioHandler?.playbackState
-                                    .map((s) => s.playing)
-                                    .distinct()
-                                    .cast<bool>(),
-                                builder: (context, snap) {
-                                  final playing = snap.data ?? false;
-                                  return Padding(
-                                    padding: const EdgeInsets.only(right: 6),
-                                    child: WebPseudoVisualizer(
-                                      color: WebColorExtractor.cachedOrFallback(mediaItem.id),
-                                      width: 16,
-                                      height: 12,
-                                      barCount: 4,
-                                      playing: playing,
-                                    ),
-                                  );
-                                },
-                              ),
-                              Flexible(
-                                child: Text(
-                                  artistText,
-                                  style: TextStyle(color: Colors.grey[400], fontSize: 11),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
+                            const SizedBox(height: 3),
+                            Row(
+                              children: [
+                                // Mini "now playing" visualizer reacts to playback state.
+                                StreamBuilder<bool>(
+                                  stream: controller.audioHandler?.playbackState
+                                      .map((s) => s.playing)
+                                      .distinct()
+                                      .cast<bool>(),
+                                  builder: (context, snap) {
+                                    final playing = snap.data ?? false;
+                                    return Padding(
+                                      padding: const EdgeInsets.only(right: 6),
+                                      child: WebPseudoVisualizer(
+                                        color:
+                                            WebColorExtractor.cachedOrFallback(
+                                              mediaItem.id,
+                                            ),
+                                        width: 16,
+                                        height: 12,
+                                        barCount: 4,
+                                        playing: playing,
+                                      ),
+                                    );
+                                  },
                                 ),
-                              ),
-                              if (mediaItem.extras?['casete'] == true) ...[
-                                const SizedBox(width: 6),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
-                                  decoration: BoxDecoration(
-                                    color: AppColor.getMain().withValues(alpha: 0.2),
-                                    borderRadius: BorderRadius.circular(3),
-                                  ),
+                                Flexible(
                                   child: Text(
-                                    'CASETE',
+                                    artistText,
                                     style: TextStyle(
-                                      color: AppColor.getMain(),
-                                      fontSize: 8,
-                                      fontWeight: FontWeight.bold,
-                                      letterSpacing: 0.5,
+                                      color: Colors.grey[400],
+                                      fontSize: 11,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                if (mediaItem.extras?['casete'] == true) ...[
+                                  const SizedBox(width: 6),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 4,
+                                      vertical: 1,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: AppColor.getMain().withValues(
+                                        alpha: 0.2,
+                                      ),
+                                      borderRadius: BorderRadius.circular(3),
+                                    ),
+                                    child: Text(
+                                      'CASETE',
+                                      style: TextStyle(
+                                        color: AppColor.getMain(),
+                                        fontSize: 8,
+                                        fontWeight: FontWeight.bold,
+                                        letterSpacing: 0.5,
+                                      ),
                                     ),
                                   ),
-                                ),
+                                ],
+                                // Radio badge — uses RadioService interface so the
+                                // player has no dependency on the concrete impl
+                                // (which lives in neom_audio_platform).
+                                if (Sint.isRegistered<RadioService>() &&
+                                    Sint.find<RadioService>().currentStation !=
+                                        null) ...[
+                                  const SizedBox(width: 6),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 4,
+                                      vertical: 1,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.purple.withValues(
+                                        alpha: 0.2,
+                                      ),
+                                      borderRadius: BorderRadius.circular(3),
+                                    ),
+                                    child: const Text(
+                                      'RADIO',
+                                      style: TextStyle(
+                                        color: Colors.purpleAccent,
+                                        fontSize: 8,
+                                        fontWeight: FontWeight.bold,
+                                        letterSpacing: 0.5,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                                // Jam Session badge — uses JamSessionService
+                                // interface (impl lives in neom_audio_platform).
+                                if (Sint.isRegistered<JamSessionService>() &&
+                                    Sint.find<JamSessionService>()
+                                        .isInSession) ...[
+                                  const SizedBox(width: 6),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 4,
+                                      vertical: 1,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.green.withValues(
+                                        alpha: 0.2,
+                                      ),
+                                      borderRadius: BorderRadius.circular(3),
+                                    ),
+                                    child: const Text(
+                                      'JAM',
+                                      style: TextStyle(
+                                        color: Colors.greenAccent,
+                                        fontSize: 8,
+                                        fontWeight: FontWeight.bold,
+                                        letterSpacing: 0.5,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ],
-                              // Radio badge — uses RadioService interface so the
-                              // player has no dependency on the concrete impl
-                              // (which lives in neom_audio_platform).
-                              if (Sint.isRegistered<RadioService>() && Sint.find<RadioService>().currentStation != null) ...[
-                                const SizedBox(width: 6),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
-                                  decoration: BoxDecoration(
-                                    color: Colors.purple.withValues(alpha: 0.2),
-                                    borderRadius: BorderRadius.circular(3),
-                                  ),
-                                  child: const Text(
-                                    'RADIO',
-                                    style: TextStyle(color: Colors.purpleAccent, fontSize: 8, fontWeight: FontWeight.bold, letterSpacing: 0.5),
-                                  ),
-                                ),
-                              ],
-                              // Jam Session badge — uses JamSessionService
-                              // interface (impl lives in neom_audio_platform).
-                              if (Sint.isRegistered<JamSessionService>() && Sint.find<JamSessionService>().isInSession) ...[
-                                const SizedBox(width: 6),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
-                                  decoration: BoxDecoration(
-                                    color: Colors.green.withValues(alpha: 0.2),
-                                    borderRadius: BorderRadius.circular(3),
-                                  ),
-                                  child: const Text(
-                                    'JAM',
-                                    style: TextStyle(color: Colors.greenAccent, fontSize: 8, fontWeight: FontWeight.bold, letterSpacing: 0.5),
-                                  ),
-                                ),
-                              ],
-                            ],
-                          ),
-                        ],
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
                       // ─── Like button ───
                       _WebLikeButton(mediaItem: mediaItem),
                     ],
@@ -422,7 +487,11 @@ class WebBottomPlayer extends StatelessWidget {
                         // Shuffle
                         StreamBuilder<bool>(
                           stream: controller.audioHandler?.playbackState
-                              .map((state) => state.shuffleMode == AudioServiceShuffleMode.all)
+                              .map(
+                                (state) =>
+                                    state.shuffleMode ==
+                                    AudioServiceShuffleMode.all,
+                              )
                               .distinct()
                               .cast<bool>(),
                           builder: (context, snapshot) {
@@ -431,11 +500,14 @@ class WebBottomPlayer extends StatelessWidget {
                               icon: Icons.shuffle_rounded,
                               size: 18,
                               color: shuffleOn ? Colors.white : Colors.white38,
-                              tooltip: AudioPlayerTranslationConstants.shuffle.tr,
+                              tooltip:
+                                  AudioPlayerTranslationConstants.shuffle.tr,
                               onTap: () {
                                 AuthGuard.protect(context, () {
                                   controller.audioHandler?.setShuffleMode(
-                                    shuffleOn ? AudioServiceShuffleMode.none : AudioServiceShuffleMode.all,
+                                    shuffleOn
+                                        ? AudioServiceShuffleMode.none
+                                        : AudioServiceShuffleMode.all,
                                   );
                                 });
                               },
@@ -447,8 +519,10 @@ class WebBottomPlayer extends StatelessWidget {
                         _WebControlButton(
                           icon: Icons.skip_previous_rounded,
                           size: 22,
-                          tooltip: AudioPlayerTranslationConstants.skipPrevious.tr,
-                          onTap: () => controller.audioHandler?.skipToPrevious(),
+                          tooltip:
+                              AudioPlayerTranslationConstants.skipPrevious.tr,
+                          onTap: () =>
+                              controller.audioHandler?.skipToPrevious(),
                         ),
                         const SizedBox(width: 6),
                         // Play/Pause
@@ -457,14 +531,21 @@ class WebBottomPlayer extends StatelessWidget {
                           builder: (context, snapshot) {
                             final playbackState = snapshot.data;
                             final playing = playbackState?.playing ?? false;
-                            final isBuffering = playbackState?.processingState == AudioProcessingState.loading
-                                || playbackState?.processingState == AudioProcessingState.buffering;
+                            final isBuffering =
+                                playbackState?.processingState ==
+                                    AudioProcessingState.loading ||
+                                playbackState?.processingState ==
+                                    AudioProcessingState.buffering;
 
                             return Tooltip(
-                              message: playing ? AppTranslationConstants.pause.tr : AppTranslationConstants.play.tr,
+                              message: playing
+                                  ? AppTranslationConstants.pause.tr
+                                  : AppTranslationConstants.play.tr,
                               waitDuration: const Duration(milliseconds: 500),
                               child: Container(
-                                margin: const EdgeInsets.symmetric(horizontal: 4),
+                                margin: const EdgeInsets.symmetric(
+                                  horizontal: 4,
+                                ),
                                 width: 36,
                                 height: 36,
                                 decoration: const BoxDecoration(
@@ -476,21 +557,30 @@ class WebBottomPlayer extends StatelessWidget {
                                         padding: const EdgeInsets.all(9),
                                         child: TweenAnimationBuilder<double>(
                                           tween: Tween(begin: 0.85, end: 1.0),
-                                          duration: const Duration(milliseconds: 600),
-                                          curve: Curves.easeInOut,
-                                          builder: (_, value, child) =>
-                                              Opacity(opacity: value, child: child),
-                                          child: const CircularProgressIndicator(
-                                            strokeWidth: 1.8,
-                                            color: Colors.black,
+                                          duration: const Duration(
+                                            milliseconds: 600,
                                           ),
+                                          curve: Curves.easeInOut,
+                                          builder: (_, value, child) => Opacity(
+                                            opacity: value,
+                                            child: child,
+                                          ),
+                                          child:
+                                              const CircularProgressIndicator(
+                                                strokeWidth: 1.8,
+                                                color: Colors.black,
+                                              ),
                                         ),
                                       )
                                     : InkWell(
                                         customBorder: const CircleBorder(),
-                                        onTap: () => playing ? controller.audioHandler?.pause() : controller.audioHandler?.play(),
+                                        onTap: () => playing
+                                            ? controller.audioHandler?.pause()
+                                            : controller.audioHandler?.play(),
                                         child: Icon(
-                                          playing ? Icons.pause_rounded : Icons.play_arrow_rounded,
+                                          playing
+                                              ? Icons.pause_rounded
+                                              : Icons.play_arrow_rounded,
                                           color: Colors.black,
                                           size: 22,
                                         ),
@@ -515,12 +605,17 @@ class WebBottomPlayer extends StatelessWidget {
                               .distinct()
                               .cast<AudioServiceRepeatMode>(),
                           builder: (context, snapshot) {
-                            final repeatMode = snapshot.data ?? AudioServiceRepeatMode.none;
-                            final isActive = repeatMode != AudioServiceRepeatMode.none;
-                            final isOne = repeatMode == AudioServiceRepeatMode.one;
+                            final repeatMode =
+                                snapshot.data ?? AudioServiceRepeatMode.none;
+                            final isActive =
+                                repeatMode != AudioServiceRepeatMode.none;
+                            final isOne =
+                                repeatMode == AudioServiceRepeatMode.one;
 
                             return _WebControlButton(
-                              icon: isOne ? Icons.repeat_one_rounded : Icons.repeat_rounded,
+                              icon: isOne
+                                  ? Icons.repeat_one_rounded
+                                  : Icons.repeat_rounded,
                               size: 18,
                               color: isActive ? Colors.white : Colors.white38,
                               tooltip: 'Repeat',
@@ -534,8 +629,17 @@ class WebBottomPlayer extends StatelessWidget {
                                   const texts = ['None', 'All', 'One'];
                                   final idx = modes.indexOf(repeatMode);
                                   final nextIdx = (idx + 1) % modes.length;
-                                  Hive.box(AppHiveBox.settings.name).put(AppHiveConstants.repeatMode, texts[nextIdx]);
-                                  controller.audioHandler?.setRepeatMode(modes[nextIdx]);
+                                  if (AppConfig
+                                      .instance
+                                      .canPersistUserActivity) {
+                                    Hive.box(AppHiveBox.settings.name).put(
+                                      AppHiveConstants.repeatMode,
+                                      texts[nextIdx],
+                                    );
+                                  }
+                                  controller.audioHandler?.setRepeatMode(
+                                    modes[nextIdx],
+                                  );
                                 });
                               },
                             );
@@ -549,18 +653,28 @@ class WebBottomPlayer extends StatelessWidget {
                       stream: controller.audioHandler?.player.positionStream,
                       builder: (context, positionSnapshot) {
                         final position = positionSnapshot.data ?? Duration.zero;
-                        final duration = controller.audioHandler?.player.duration ?? Duration.zero;
-                        final sliderValue = computeSliderValue(position, duration);
+                        final duration =
+                            controller.audioHandler?.player.duration ??
+                            Duration.zero;
+                        final sliderValue = computeSliderValue(
+                          position,
+                          duration,
+                        );
 
                         return ConstrainedBox(
-                          constraints: BoxConstraints(maxWidth: isCompact ? 300 : 500),
+                          constraints: BoxConstraints(
+                            maxWidth: isCompact ? 300 : 500,
+                          ),
                           child: Row(
                             children: [
                               SizedBox(
                                 width: 36,
                                 child: Text(
                                   formatPlayerDuration(position),
-                                  style: TextStyle(color: Colors.grey[400], fontSize: 11),
+                                  style: TextStyle(
+                                    color: Colors.grey[400],
+                                    fontSize: 11,
+                                  ),
                                   textAlign: TextAlign.right,
                                 ),
                               ),
@@ -579,7 +693,10 @@ class WebBottomPlayer extends StatelessWidget {
                                 width: 36,
                                 child: Text(
                                   formatPlayerDuration(duration),
-                                  style: TextStyle(color: Colors.grey[400], fontSize: 11),
+                                  style: TextStyle(
+                                    color: Colors.grey[400],
+                                    fontSize: 11,
+                                  ),
                                 ),
                               ),
                             ],
@@ -624,9 +741,10 @@ class WebBottomPlayer extends StatelessWidget {
                         color: Colors.white70,
                         tooltip: 'Copy share link',
                         onTap: () {
-                          final mediaItem = controller.mediaItem.value;
+                          final mediaItem = controller.visibleMediaItem;
                           if (mediaItem != null) {
-                            final slug = mediaItem.extras?['slug']?.toString() ?? '';
+                            final slug =
+                                mediaItem.extras?['slug']?.toString() ?? '';
                             final url = DeeplinkUtilities.generateVanityUrl(
                               type: 'media',
                               id: mediaItem.id,
@@ -634,7 +752,8 @@ class WebBottomPlayer extends StatelessWidget {
                             );
                             DeviceUtilities.copyToClipboard(
                               text: url,
-                              displayText: 'Link de la canción copiado al portapapeles',
+                              displayText:
+                                  'Link de la canción copiado al portapapeles',
                             );
                           }
                         },
@@ -655,14 +774,16 @@ class WebBottomPlayer extends StatelessWidget {
                                   cursor: SystemMouseCursors.click,
                                   child: GestureDetector(
                                     onTap: () {
-                                      controller.audioHandler?.setVolume(volume == 0 ? 1.0 : 0.0);
+                                      controller.audioHandler?.setVolume(
+                                        volume == 0 ? 1.0 : 0.0,
+                                      );
                                     },
                                     child: Icon(
                                       volume == 0
                                           ? Icons.volume_off_rounded
                                           : volume < 0.5
-                                              ? Icons.volume_down_rounded
-                                              : Icons.volume_up_rounded,
+                                          ? Icons.volume_down_rounded
+                                          : Icons.volume_up_rounded,
                                       color: Colors.white70,
                                       size: 20,
                                     ),
@@ -674,15 +795,20 @@ class WebBottomPlayer extends StatelessWidget {
                                 child: SliderTheme(
                                   data: SliderTheme.of(context).copyWith(
                                     trackHeight: 4,
-                                    thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
-                                    overlayShape: const RoundSliderOverlayShape(overlayRadius: 12),
+                                    thumbShape: const RoundSliderThumbShape(
+                                      enabledThumbRadius: 6,
+                                    ),
+                                    overlayShape: const RoundSliderOverlayShape(
+                                      overlayRadius: 12,
+                                    ),
                                     activeTrackColor: Colors.white,
                                     inactiveTrackColor: Colors.white24,
                                     thumbColor: Colors.white,
                                   ),
                                   child: Slider(
                                     value: volume,
-                                    onChanged: (v) => controller.audioHandler?.setVolume(v),
+                                    onChanged: (v) =>
+                                        controller.audioHandler?.setVolume(v),
                                   ),
                                 ),
                               ),
@@ -710,7 +836,6 @@ class WebBottomPlayer extends StatelessWidget {
       },
     );
   }
-
 }
 
 /// Artwork thumbnail with hover-to-preview overlay and palette extraction.
@@ -859,6 +984,11 @@ class _WebLikeButtonState extends State<_WebLikeButton> {
   }
 
   Future<void> _checkLiked() async {
+    if (!AppConfig.instance.canPersistUserActivity) {
+      if (mounted) setState(() => _isLiked = false);
+      return;
+    }
+
     final liked = await PlaylistHiveController().checkPlaylist(
       AppHiveBox.favoriteItems.name,
       widget.mediaItem.id,
@@ -867,6 +997,8 @@ class _WebLikeButtonState extends State<_WebLikeButton> {
   }
 
   Future<void> _toggleLike() async {
+    if (!AppConfig.instance.canPersistUserActivity) return;
+
     final profile = PlaylistHiveController().userServiceImpl.profile;
     final itemId = widget.mediaItem.id;
     if (itemId.isEmpty) return;
@@ -903,7 +1035,12 @@ class _WebLikeButtonState extends State<_WebLikeButton> {
         );
       }
     } catch (e, st) {
-      NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: 'WebBottomPlayer._toggleLike');
+      NeomErrorLogger.recordError(
+        e,
+        st,
+        module: 'neom_audio_player',
+        operation: 'WebBottomPlayer._toggleLike',
+      );
     }
   }
 
@@ -976,7 +1113,9 @@ class _WebSleepTimerButton extends StatelessWidget {
       color: AppColor.surfaceElevated,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       onSelected: (minutes) {
-        controller.audioHandler?.customAction('sleepTimer', {'minutes': minutes});
+        controller.audioHandler?.customAction('sleepTimer', {
+          'minutes': minutes,
+        });
       },
       itemBuilder: (_) => [15, 30, 45, 60, 90].map((min) {
         return PopupMenuItem<int>(
@@ -1044,30 +1183,33 @@ class _WebCrossfadeButtonState extends State<_WebCrossfadeButton> {
       itemBuilder: (_) => CrossfadeMode.values
           .where((m) => m != CrossfadeMode.custom)
           .map((mode) {
-        final isActive = enhanced.crossfadeMode == mode;
-        final label = mode == CrossfadeMode.off
-            ? mode.displayName
-            : '${mode.displayName} (${mode.duration.inSeconds}s)';
-        return PopupMenuItem<CrossfadeMode>(
-          value: mode,
-          height: 36,
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                isActive ? Icons.check_rounded : Icons.compare_arrows_rounded,
-                color: isActive ? AppColor.getMain() : Colors.white54,
-                size: 14,
+            final isActive = enhanced.crossfadeMode == mode;
+            final label = mode == CrossfadeMode.off
+                ? mode.displayName
+                : '${mode.displayName} (${mode.duration.inSeconds}s)';
+            return PopupMenuItem<CrossfadeMode>(
+              value: mode,
+              height: 36,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    isActive
+                        ? Icons.check_rounded
+                        : Icons.compare_arrows_rounded,
+                    color: isActive ? AppColor.getMain() : Colors.white54,
+                    size: 14,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    label,
+                    style: const TextStyle(color: Colors.white, fontSize: 13),
+                  ),
+                ],
               ),
-              const SizedBox(width: 8),
-              Text(
-                label,
-                style: const TextStyle(color: Colors.white, fontSize: 13),
-              ),
-            ],
-          ),
-        );
-      }).toList(),
+            );
+          })
+          .toList(),
     );
   }
 }

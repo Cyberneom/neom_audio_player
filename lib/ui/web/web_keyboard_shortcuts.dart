@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:neom_core/app_config.dart';
 import 'package:sint/sint.dart';
 
 import '../../neom_audio_handler.dart';
@@ -55,16 +56,23 @@ class SeekBackwardIntent extends Intent {
 // ─── Shortcut map ───
 final Map<ShortcutActivator, Intent> webKeyboardShortcuts = {
   const SingleActivator(LogicalKeyboardKey.space): const PlayPauseIntent(),
-  const SingleActivator(LogicalKeyboardKey.arrowRight, control: true): const SkipNextIntent(),
-  const SingleActivator(LogicalKeyboardKey.arrowLeft, control: true): const SkipPreviousIntent(),
-  const SingleActivator(LogicalKeyboardKey.arrowUp, control: true): const VolumeUpIntent(),
-  const SingleActivator(LogicalKeyboardKey.arrowDown, control: true): const VolumeDownIntent(),
+  const SingleActivator(LogicalKeyboardKey.arrowRight, control: true):
+      const SkipNextIntent(),
+  const SingleActivator(LogicalKeyboardKey.arrowLeft, control: true):
+      const SkipPreviousIntent(),
+  const SingleActivator(LogicalKeyboardKey.arrowUp, control: true):
+      const VolumeUpIntent(),
+  const SingleActivator(LogicalKeyboardKey.arrowDown, control: true):
+      const VolumeDownIntent(),
   // Plain arrows (no modifier) seek the current track ±5s.
-  const SingleActivator(LogicalKeyboardKey.arrowRight): const SeekForwardIntent(),
-  const SingleActivator(LogicalKeyboardKey.arrowLeft): const SeekBackwardIntent(),
+  const SingleActivator(LogicalKeyboardKey.arrowRight):
+      const SeekForwardIntent(),
+  const SingleActivator(LogicalKeyboardKey.arrowLeft):
+      const SeekBackwardIntent(),
   const SingleActivator(LogicalKeyboardKey.keyL): const ToggleLikeIntent(),
   const SingleActivator(LogicalKeyboardKey.keyQ): const ToggleQueueIntent(),
-  const SingleActivator(LogicalKeyboardKey.keyF): const ToggleFullScreenIntent(),
+  const SingleActivator(LogicalKeyboardKey.keyF):
+      const ToggleFullScreenIntent(),
   const SingleActivator(LogicalKeyboardKey.keyM): const ToggleMuteIntent(),
 };
 
@@ -115,6 +123,10 @@ Map<Type, Action<Intent>> buildWebKeyboardActions({
     ),
     ToggleLikeIntent: CallbackAction<ToggleLikeIntent>(
       onInvoke: (_) {
+        if (!AppConfig.instance.canPersistUserActivity) {
+          AppConfig.logger.w('Ignored guest attempt to favorite an audio item');
+          return null;
+        }
         final controller = Sint.find<MiniPlayerController>();
         final mediaItem = controller.mediaItem.value;
         if (mediaItem != null) {

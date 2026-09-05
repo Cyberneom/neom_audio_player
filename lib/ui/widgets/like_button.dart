@@ -12,7 +12,6 @@ import 'package:neom_core/domain/model/app_profile.dart';
 import '../../data/implementations/playlist_hive_controller.dart';
 
 class LikeButton extends StatefulWidget {
-
   final double size;
   final EdgeInsets? padding;
   final String? itemId;
@@ -51,14 +50,8 @@ class LikeButtonState extends State<LikeButton>
     _curve = CurvedAnimation(parent: _controller, curve: Curves.slowMiddle);
 
     _scale = TweenSequence(<TweenSequenceItem<double>>[
-      TweenSequenceItem(
-        tween: Tween<double>(begin: 1.0, end: 1.2),
-        weight: 50,
-      ),
-      TweenSequenceItem(
-        tween: Tween<double>(begin: 1.2, end: 1.0),
-        weight: 50,
-      ),
+      TweenSequenceItem(tween: Tween<double>(begin: 1.0, end: 1.2), weight: 50),
+      TweenSequenceItem(tween: Tween<double>(begin: 1.2, end: 1.0), weight: 50),
     ]).animate(_curve);
   }
 
@@ -72,9 +65,16 @@ class LikeButtonState extends State<LikeButton>
   Widget build(BuildContext context) {
     AppProfile profile = playlistHiveController.userServiceImpl.profile;
     try {
-      liked = profile.favoriteItems?.contains(widget.itemId) ?? false;
+      liked =
+          AppConfig.instance.canPersistUserActivity &&
+          (profile.favoriteItems?.contains(widget.itemId) ?? false);
     } catch (e, st) {
-      NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: 'LikeButton.build');
+      NeomErrorLogger.recordError(
+        e,
+        st,
+        module: 'neom_audio_player',
+        operation: 'LikeButton.build',
+      );
     }
     return ScaleTransition(
       scale: _scale,
@@ -85,23 +85,30 @@ class LikeButtonState extends State<LikeButton>
           color: liked ? Colors.redAccent : Theme.of(context).iconTheme.color,
         ),
         iconSize: widget.size,
-        tooltip: liked ? AppTranslationConstants.unlike.tr : AppTranslationConstants.like.tr,
+        tooltip: liked
+            ? AppTranslationConstants.unlike.tr
+            : AppTranslationConstants.like.tr,
         onPressed: () {
           AuthGuard.protect(context, () {
             String itemId = widget.itemId ?? '';
 
-            if(itemId.isEmpty) return;
+            if (itemId.isEmpty) return;
 
             try {
-              if(liked) {
+              if (liked) {
                 profile.favoriteItems?.remove(itemId);
                 ProfileFirestore().removeFavoriteItem(profile.id, itemId);
               } else {
                 profile.favoriteItems?.add(itemId);
                 ProfileFirestore().addFavoriteItem(profile.id, itemId);
               }
-            } catch(e, st) {
-              NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: 'LikeButton.onPressed');
+            } catch (e, st) {
+              NeomErrorLogger.recordError(
+                e,
+                st,
+                module: 'neom_audio_player',
+                operation: 'LikeButton.onPressed',
+              );
             }
 
             if (!liked) {
@@ -113,8 +120,10 @@ class LikeButtonState extends State<LikeButton>
               liked = !liked;
             });
             AppUtilities.showSnackBar(
-                title: '${widget.itemName}',
-                message: liked ? CommonTranslationConstants.addedToFav.tr : CommonTranslationConstants.removedFromFav.tr
+              title: '${widget.itemName}',
+              message: liked
+                  ? CommonTranslationConstants.addedToFav.tr
+                  : CommonTranslationConstants.removedFromFav.tr,
             );
           });
         },

@@ -90,8 +90,8 @@ class _NowPlayingStreamState extends State<NowPlayingStream> {
 
         return ReorderableListView.builder(
           header: SizedBox(height: widget.head ? widget.headHeight : 0,),
-          onReorder: (int oldIndex, int newIndex) {
-            if (oldIndex < newIndex) newIndex--;
+          // onReorderItem already reports the final index.
+          onReorderItem: (int oldIndex, int newIndex) {
             widget.audioHandler?.moveQueueItem(oldIndex, newIndex);
           },
           scrollController: widget.scrollController,

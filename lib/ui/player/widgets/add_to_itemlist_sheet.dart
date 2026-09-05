@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:neom_commons/ui/theme/app_color.dart';
 import 'package:neom_commons/utils/app_utilities.dart';
+import 'package:neom_commons/utils/auth_guard.dart';
 import 'package:neom_commons/utils/constants/translations/app_translation_constants.dart';
 import 'package:neom_commons/utils/constants/translations/common_translation_constants.dart';
 import 'package:neom_core/app_config.dart';
@@ -9,15 +10,16 @@ import 'package:neom_core/domain/model/item_list.dart';
 import 'package:neom_core/domain/use_cases/itemlist_service.dart';
 import 'package:neom_core/domain/use_cases/user_service.dart';
 import 'package:neom_core/utils/core_utilities.dart';
+import 'package:neom_core/utils/constants/app_route_constants.dart';
 import 'package:neom_core/utils/enums/app_item_state.dart';
 import 'package:neom_core/utils/enums/itemlist_type.dart';
 import 'package:neom_core/utils/enums/profile_type.dart';
 import 'package:sint/sint.dart';
+import '../../../utils/constants/audio_player_translation_constants.dart';
 
 /// Shared bottom sheet for adding items to itemlists.
 /// Replaces duplicated alert dialogs in neom_audio_player and neom_books.
 class AddToItemlistSheet {
-
   /// Shows a bottom sheet to add an item to a user's itemlist.
   /// For non-artists with a single list, adds directly without showing UI.
   /// [item] should be an AppMediaItem for audio flows.
@@ -29,13 +31,23 @@ class AddToItemlistSheet {
     required ItemlistType listType,
     Future<bool> Function(String itemlistId, int state)? onAdd,
   }) async {
+    if (!AppConfig.instance.canPersistUserActivity) {
+      AuthGuard.protect(
+        context,
+        () {},
+        redirectRoute: AppRouteConstants.audioPlayer,
+      );
+      return false;
+    }
+
     try {
       final itemlistService = Sint.find<ItemlistService>();
       final userService = Sint.find<UserService>();
       final isArtist = userService.profile.type == ProfileType.appArtist;
 
       List<Itemlist> lists = CoreUtilities.filterItemlists(
-        itemlistService.getItemlists(), listType,
+        itemlistService.getItemlists(),
+        listType,
       );
       lists.removeWhere((l) => !l.isModifiable);
 
@@ -50,7 +62,10 @@ class AddToItemlistSheet {
         if (onAdd != null) {
           return await onAdd(lists.first.id, AppItemState.heardIt.value);
         }
-        await itemlistService.addItemlistItem(context, fanItemState: AppItemState.heardIt.value);
+        await itemlistService.addItemlistItem(
+          context,
+          fanItemState: AppItemState.heardIt.value,
+        );
         return true;
       }
 
@@ -98,7 +113,8 @@ class _AddToItemlistSheetBody extends StatefulWidget {
   });
 
   @override
-  State<_AddToItemlistSheetBody> createState() => _AddToItemlistSheetBodyState();
+  State<_AddToItemlistSheetBody> createState() =>
+      _AddToItemlistSheetBodyState();
 }
 
 class _AddToItemlistSheetBodyState extends State<_AddToItemlistSheetBody> {
@@ -116,7 +132,9 @@ class _AddToItemlistSheetBodyState extends State<_AddToItemlistSheetBody> {
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.only(
-        left: 20, right: 20, top: 16,
+        left: 20,
+        right: 20,
+        top: 16,
         bottom: MediaQuery.of(context).viewInsets.bottom + 20,
       ),
       child: Column(
@@ -125,7 +143,8 @@ class _AddToItemlistSheetBodyState extends State<_AddToItemlistSheetBody> {
         children: [
           Center(
             child: Container(
-              width: 40, height: 4,
+              width: 40,
+              height: 4,
               decoration: BoxDecoration(
                 color: AppColor.textSecondary.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(2),
@@ -134,15 +153,20 @@ class _AddToItemlistSheetBodyState extends State<_AddToItemlistSheetBody> {
           ),
           const SizedBox(height: 16),
           Text(
-            "ItemlistTranslationConstants.addToList.tr",
-            style: TextStyle(color: AppColor.textPrimary, fontSize: 18, fontWeight: FontWeight.bold),
+            AudioPlayerTranslationConstants.addToList.tr,
+            style: TextStyle(
+              color: AppColor.textPrimary,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
           ),
           if (widget.item.name.isNotEmpty) ...[
             const SizedBox(height: 4),
             Text(
               widget.item.name,
               style: TextStyle(color: AppColor.textSecondary, fontSize: 13),
-              maxLines: 1, overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ],
           const SizedBox(height: 16),
@@ -165,15 +189,19 @@ class _AddToItemlistSheetBodyState extends State<_AddToItemlistSheetBody> {
                   borderRadius: BorderRadius.circular(8),
                   borderSide: BorderSide(color: AppColor.borderMedium),
                 ),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 10,
+                ),
               ),
               items: AppItemState.values
                   .where((s) => s != AppItemState.noState)
-                  .map((s) => DropdownMenuItem(
-                    value: s,
-                    child: Text(s.name.tr),
-                  )).toList(),
-              onChanged: (v) => setState(() => _selectedState = v ?? AppItemState.heardIt),
+                  .map(
+                    (s) => DropdownMenuItem(value: s, child: Text(s.name.tr)),
+                  )
+                  .toList(),
+              onChanged: (v) =>
+                  setState(() => _selectedState = v ?? AppItemState.heardIt),
             ),
             const SizedBox(height: 16),
           ],
@@ -181,35 +209,58 @@ class _AddToItemlistSheetBodyState extends State<_AddToItemlistSheetBody> {
           // List selector
           if (widget.lists.length > 1) ...[
             Text(
-              "ItemlistTranslationConstants.selectList.tr",
+              AudioPlayerTranslationConstants.selectList.tr,
               style: TextStyle(color: AppColor.textSecondary, fontSize: 12),
             ),
             const SizedBox(height: 8),
-            ...widget.lists.map((list) => RadioListTile<String>(
-              value: list.id,
+            // RadioGroup owns the selection (groupValue/onChanged on the
+            // tiles themselves are deprecated).
+            RadioGroup<String>(
               groupValue: _selectedListId,
-              activeColor: AppColor.getMain(),
-              title: Text(
-                list.name,
-                style: TextStyle(color: AppColor.textPrimary, fontSize: 14),
-                maxLines: 1, overflow: TextOverflow.ellipsis,
+              onChanged: (v) =>
+                  setState(() => _selectedListId = v ?? _selectedListId),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: widget.lists
+                    .map(
+                      (list) => RadioListTile<String>(
+                        value: list.id,
+                        activeColor: AppColor.getMain(),
+                        title: Text(
+                          list.name,
+                          style: TextStyle(
+                            color: AppColor.textPrimary,
+                            fontSize: 14,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        subtitle: Text(
+                          list.description.isNotEmpty
+                              ? '${list.allItems.length} items · ${list.description}'
+                              : '${list.allItems.length} items',
+                          style: TextStyle(
+                            color: AppColor.textSecondary,
+                            fontSize: 11,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        contentPadding: EdgeInsets.zero,
+                        dense: true,
+                      ),
+                    )
+                    .toList(),
               ),
-              subtitle: Text(
-                list.description.isNotEmpty
-                    ? '${list.allItems.length} items · ${list.description}'
-                    : '${list.allItems.length} items',
-                style: TextStyle(color: AppColor.textSecondary, fontSize: 11),
-                maxLines: 1, overflow: TextOverflow.ellipsis,
-              ),
-              contentPadding: EdgeInsets.zero,
-              dense: true,
-              onChanged: (v) => setState(() => _selectedListId = v ?? _selectedListId),
-            )),
+            ),
             const SizedBox(height: 8),
           ] else ...[
             ListTile(
               contentPadding: EdgeInsets.zero,
-              leading: Icon(Icons.playlist_add_check, color: AppColor.getMain()),
+              leading: Icon(
+                Icons.playlist_add_check,
+                color: AppColor.getMain(),
+              ),
               title: Text(
                 widget.lists.first.name,
                 style: TextStyle(color: AppColor.textPrimary, fontSize: 14),
@@ -231,11 +282,23 @@ class _AddToItemlistSheetBodyState extends State<_AddToItemlistSheetBody> {
               style: FilledButton.styleFrom(
                 backgroundColor: AppColor.getMain(),
                 padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
               child: _isAdding
-                  ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                  : Text(AppTranslationConstants.add.tr, style: const TextStyle(fontWeight: FontWeight.bold)),
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    )
+                  : Text(
+                      AppTranslationConstants.add.tr,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
             ),
           ),
         ],
@@ -247,7 +310,9 @@ class _AddToItemlistSheetBodyState extends State<_AddToItemlistSheetBody> {
     setState(() => _isAdding = true);
 
     try {
-      final state = widget.isArtist ? _selectedState.value : AppItemState.heardIt.value;
+      final state = widget.isArtist
+          ? _selectedState.value
+          : AppItemState.heardIt.value;
 
       if (widget.onAdd != null) {
         await widget.onAdd!(_selectedListId, state);
@@ -256,7 +321,10 @@ class _AddToItemlistSheetBodyState extends State<_AddToItemlistSheetBody> {
         widget.itemlistService.setAppItemState(
           widget.isArtist ? _selectedState : AppItemState.heardIt,
         );
-        await widget.itemlistService.addItemlistItem(context, fanItemState: state);
+        await widget.itemlistService.addItemlistItem(
+          context,
+          fanItemState: state,
+        );
       }
 
       if (mounted) Sint.back(result: true);

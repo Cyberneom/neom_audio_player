@@ -83,10 +83,9 @@ class _MusicPlayerInterfacePageState extends State<MusicPlayerInterfacePage> {
                                 physics: const BouncingScrollPhysics(),
                                 shrinkWrap: true,
                                 padding: const EdgeInsets.symmetric(vertical: 10),
-                                onReorder: (int oldIndex, int newIndex) {
-                                  if (oldIndex < newIndex) {
-                                    newIndex--;
-                                  }
+                                // onReorderItem already reports the final
+                                // index (the item is removed first).
+                                onReorderItem: (int oldIndex, int newIndex) {
                                   final temp = order.removeAt(
                                     oldIndex,
                                   );

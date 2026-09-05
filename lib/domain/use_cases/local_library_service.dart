@@ -1,4 +1,3 @@
-import '../models/media_state.dart';
 
 /// Service interface for local library operations.
 ///

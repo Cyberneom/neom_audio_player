@@ -35,8 +35,8 @@ import '../../utils/constants/audio_player_route_constants.dart';
 import '../../utils/mappers/media_item_mapper.dart';
 import 'lyrics/lyrics.dart';
 
-class AudioPlayerController extends SintController implements AudioPlayerService {
-
+class AudioPlayerController extends SintController
+    implements AudioPlayerService {
   final userServiceImpl = Sint.find<UserService>();
   dynamic audioHandler;
   StreamSubscription? _mediaItemSub;
@@ -80,7 +80,7 @@ class AudioPlayerController extends SintController implements AudioPlayerService
       user = userServiceImpl.user;
       profile = userServiceImpl.profile;
 
-      if(Sint.arguments != null && Sint.arguments.isNotEmpty) {
+      if (Sint.arguments != null && Sint.arguments.isNotEmpty) {
         final arg = Sint.arguments[0];
         if (arg is PlayableItem) {
           initPlayableItem(arg);
@@ -89,16 +89,20 @@ class AudioPlayerController extends SintController implements AudioPlayerService
           ///appMediaItemId = arguments[0];???
         }
 
-        if(Sint.arguments.length > 1) {
+        if (Sint.arguments.length > 1) {
           reproduceItem = Sint.arguments[1] as bool;
         }
       }
 
       getItemPlaylist();
     } catch (e, st) {
-      NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: 'AudioPlayerController.onInit');
+      NeomErrorLogger.recordError(
+        e,
+        st,
+        module: 'neom_audio_player',
+        operation: 'AudioPlayerController.onInit',
+      );
     }
-
   }
 
   /// Unified initializer: accepts any PlayableItem.
@@ -114,9 +118,13 @@ class AudioPlayerController extends SintController implements AudioPlayerService
   void initReleaseItem(AppReleaseItem item) {
     AppConfig.logger.i('Initializing release item ${item.name}');
     appReleaseItem.value = item;
-    if(appReleaseItem.value.ownerName.contains(' - ')) {
-      appReleaseItem.value.name = TextUtilities.getMediaName(appReleaseItem.value.ownerName);
-      appReleaseItem.value.ownerName = TextUtilities.getArtistName(appReleaseItem.value.ownerName);
+    if (appReleaseItem.value.ownerName.contains(' - ')) {
+      appReleaseItem.value.name = TextUtilities.getMediaName(
+        appReleaseItem.value.ownerName,
+      );
+      appReleaseItem.value.ownerName = TextUtilities.getArtistName(
+        appReleaseItem.value.ownerName,
+      );
     }
     updateReleaseItemValues();
   }
@@ -134,7 +142,9 @@ class AudioPlayerController extends SintController implements AudioPlayerService
     isLoading.value = false;
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       try {
-        Sint.find<AudioPlayerInvokerService>().getOrInitAudioHandler().then((handler) async {
+        Sint.find<AudioPlayerInvokerService>().getOrInitAudioHandler().then((
+          handler,
+        ) async {
           audioHandler = handler;
           if (audioHandler != null) {
             if (audioHandler.currentMediaItem != null) {
@@ -143,6 +153,8 @@ class AudioPlayerController extends SintController implements AudioPlayerService
             _mediaItemSub = audioHandler.mediaItem.listen((item) {
               if (item != null) {
                 setMediaItem(item: item);
+              } else {
+                _clearCurrentItem();
               }
             });
             _isLoadingAudioSub = audioHandler.isLoadingAudio.listen((loading) {
@@ -150,16 +162,22 @@ class AudioPlayerController extends SintController implements AudioPlayerService
             });
           }
           bool alreadyPlaying = false;
-          if(appReleaseItem.value.id.isNotEmpty) {
-            alreadyPlaying = audioHandler?.currentMediaItem?.id == appReleaseItem.value.id;
+          if (appReleaseItem.value.id.isNotEmpty) {
+            alreadyPlaying =
+                audioHandler?.currentMediaItem?.id == appReleaseItem.value.id;
           } else {
-            alreadyPlaying = audioHandler?.currentMediaItem?.id == appMediaItem.value.id;
+            alreadyPlaying =
+                audioHandler?.currentMediaItem?.id == appMediaItem.value.id;
           }
 
-          if(reproduceItem && !alreadyPlaying) {
+          if (reproduceItem && !alreadyPlaying) {
             await Sint.find<AudioPlayerInvokerService>().init(
-              releaseItems: appReleaseItem.value.id.isNotEmpty ? [appReleaseItem.value] : null,
-              mediaItems: appMediaItem.value.id.isNotEmpty ? [appMediaItem.value] : null,
+              releaseItems: appReleaseItem.value.id.isNotEmpty
+                  ? [appReleaseItem.value]
+                  : null,
+              mediaItems: appMediaItem.value.id.isNotEmpty
+                  ? [appMediaItem.value]
+                  : null,
               index: 0,
             );
           }
@@ -168,7 +186,12 @@ class AudioPlayerController extends SintController implements AudioPlayerService
 
         getLyricsOnline = PlayerHiveController().getLyricsOnline;
       } catch (e, st) {
-        NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: 'AudioPlayerController.onReady');
+        NeomErrorLogger.recordError(
+          e,
+          st,
+          module: 'neom_audio_player',
+          operation: 'AudioPlayerController.onReady',
+        );
       }
     });
   }
@@ -184,36 +207,60 @@ class AudioPlayerController extends SintController implements AudioPlayerService
   }
 
   @override
-  void clear() {
-
-  }
+  void clear() {}
 
   @override
   Future<void> getItemPlaylist() async {
-
-    if(profile.itemlists?.isEmpty ?? true) profile.itemlists = await ItemlistFirestore().getByOwnerId(profile.id);
-
-    for(Itemlist list in profile.itemlists?.values ?? {}) {
-      if(list.appReleaseItems?.firstWhereOrNull((item) => item.id == appMediaItem.value.id) != null){
-        personalPlaylist= list;
-        break;
+    if (AppConfig.instance.canPersistUserActivity) {
+      if (profile.itemlists?.isEmpty ?? true) {
+        profile.itemlists = await ItemlistFirestore().getByOwnerId(profile.id);
       }
-      if(list.appMediaItems?.firstWhereOrNull((item) => item.id == appMediaItem.value.id) != null){
-        personalPlaylist= list;
-        break;
+
+      for (Itemlist list in profile.itemlists?.values ?? {}) {
+        if (list.appReleaseItems?.firstWhereOrNull(
+              (item) => item.id == appMediaItem.value.id,
+            ) !=
+            null) {
+          personalPlaylist = list;
+          break;
+        }
+        if (list.appMediaItems?.firstWhereOrNull(
+              (item) => item.id == appMediaItem.value.id,
+            ) !=
+            null) {
+          personalPlaylist = list;
+          break;
+        }
       }
     }
 
-    for(Itemlist list in AppConfig.instance.releaseItemlists.values) {
-      if(list.appReleaseItems?.firstWhereOrNull((item) => item.id == appMediaItem.value.id) != null){
+    for (Itemlist list in AppConfig.instance.releaseItemlists.values) {
+      if (list.appReleaseItems?.firstWhereOrNull(
+            (item) => item.id == appMediaItem.value.id,
+          ) !=
+          null) {
         releaseItemlist = list;
         break;
       }
-      if(list.appMediaItems?.firstWhereOrNull((item) => item.id == appMediaItem.value.id) != null){
-        releaseItemlist= list;
+      if (list.appMediaItems?.firstWhereOrNull(
+            (item) => item.id == appMediaItem.value.id,
+          ) !=
+          null) {
+        releaseItemlist = list;
         break;
       }
     }
+  }
+
+  void _clearCurrentItem() {
+    mediaItem.value = null;
+    appMediaItem.value = AppMediaItem();
+    appReleaseItem.value = AppReleaseItem();
+    personalPlaylist = null;
+    releaseItemlist = null;
+    isValidItem = false;
+    isLoadingAudio.value = false;
+    update([AppPageIdConstants.mediaPlayer]);
   }
 
   @override
@@ -228,12 +275,14 @@ class AudioPlayerController extends SintController implements AudioPlayerService
 
   @override
   void setMediaItem({MediaItem? item, AppMediaItem? appItem}) {
-    AppConfig.logger.i('Setting new mediaitem ${item?.title} or ${appItem?.name}');
-    if(item != null && item.title != 'null') {
+    AppConfig.logger.i(
+      'Setting new mediaitem ${item?.title} or ${appItem?.name}',
+    );
+    if (item != null && item.title != 'null') {
       mediaItem.value = item;
       appMediaItem.value = appItem ?? MediaItemMapper.toAppMediaItem(item);
-    } else if(appItem != null) {
-      mediaItem.value= MediaItemMapper.fromAppMediaItem(item:appItem);
+    } else if (appItem != null) {
+      mediaItem.value = MediaItemMapper.fromAppMediaItem(item: appItem);
       appMediaItem.value = appItem;
     }
 
@@ -247,19 +296,27 @@ class AudioPlayerController extends SintController implements AudioPlayerService
     final owner = appReleaseItem.value.ownerName.trim();
     final meta = appReleaseItem.value.metaName?.trim() ?? '';
 
-    mediaItemTitle.value = (name.isEmpty || name == 'null') ? 'Lanzamiento' : name;
+    mediaItemTitle.value = (name.isEmpty || name == 'null')
+        ? 'Lanzamiento'
+        : name;
     mediaItemArtist.value = (owner.isEmpty || owner == 'null') ? '' : owner;
     mediaItemAlbum.value = (meta.isEmpty || meta == 'null') ? '' : meta;
 
     if (mediaItemTitle.value.contains(' - ')) {
-      mediaItemTitle.value = TextUtilities.getMediaName(appReleaseItem.value.name);
+      mediaItemTitle.value = TextUtilities.getMediaName(
+        appReleaseItem.value.name,
+      );
       if (appReleaseItem.value.ownerName.isEmpty) {
-        mediaItemArtist.value = TextUtilities.getArtistName(appReleaseItem.value.name);
+        mediaItemArtist.value = TextUtilities.getArtistName(
+          appReleaseItem.value.name,
+        );
       }
     }
 
     if (mediaItem.value == null) {
-      mediaItem.value = MediaItemMapper.fromAppReleaseItem(item: appReleaseItem.value);
+      mediaItem.value = MediaItemMapper.fromAppReleaseItem(
+        item: appReleaseItem.value,
+      );
     }
 
     isValidItem = mediaItem.value != null;
@@ -271,19 +328,27 @@ class AudioPlayerController extends SintController implements AudioPlayerService
     final owner = appMediaItem.value.ownerName.trim();
     final album = appMediaItem.value.album.trim();
 
-    mediaItemTitle.value = (name.isEmpty || name == 'null') ? 'Lanzamiento' : name;
+    mediaItemTitle.value = (name.isEmpty || name == 'null')
+        ? 'Lanzamiento'
+        : name;
     mediaItemArtist.value = (owner.isEmpty || owner == 'null') ? '' : owner;
     mediaItemAlbum.value = (album.isEmpty || album == 'null') ? '' : album;
 
     if (mediaItemTitle.value.contains(' - ')) {
-      mediaItemTitle.value = TextUtilities.getMediaName(appMediaItem.value.name);
+      mediaItemTitle.value = TextUtilities.getMediaName(
+        appMediaItem.value.name,
+      );
       if (appMediaItem.value.ownerName.isEmpty) {
-        mediaItemArtist.value = TextUtilities.getArtistName(appMediaItem.value.name);
+        mediaItemArtist.value = TextUtilities.getArtistName(
+          appMediaItem.value.name,
+        );
       }
     }
 
     if (mediaItem.value == null) {
-      mediaItem.value = MediaItemMapper.fromAppMediaItem(item: appMediaItem.value);
+      mediaItem.value = MediaItemMapper.fromAppMediaItem(
+        item: appMediaItem.value,
+      );
     }
 
     isValidItem = mediaItem.value != null;
@@ -309,7 +374,9 @@ class AudioPlayerController extends SintController implements AudioPlayerService
   Future<void> sharePopUp() async {
     if (!isSharePopupShown.value) {
       isSharePopupShown.value = true;
-      final AppMediaItem item = MediaItemMapper.toAppMediaItem(mediaItem.value!);
+      final AppMediaItem item = MediaItemMapper.toAppMediaItem(
+        mediaItem.value!,
+      );
       await ShareUtilities.shareAppWithMediaItem(item).whenComplete(() {
         Timer(const Duration(milliseconds: 600), () {
           isSharePopupShown.value = false;
@@ -332,7 +399,7 @@ class AudioPlayerController extends SintController implements AudioPlayerService
   final ValueNotifier<String> lyricsSource = ValueNotifier<String>('');
 
   MediaLyrics mediaLyrics = MediaLyrics();
-  
+
   final lyricUI = LyricStyles.default1;
   LyricController? lyricsReaderModel;
   bool flipped = false;
@@ -342,18 +409,29 @@ class AudioPlayerController extends SintController implements AudioPlayerService
     AppConfig.logger.i('Fetching lyrics for ${appMediaItem.value.name}');
     done.value = false;
     lyricsSource.value = '';
-    String appMediaItemLyric = appMediaItem.value.lyrics.isNotEmpty || (appMediaItem.value.description?.isNotEmpty ?? false)  ? (appMediaItem.value.lyrics.isNotEmpty ? appMediaItem.value.lyrics : appMediaItem.value.description ?? '') : '';
+    String appMediaItemLyric =
+        appMediaItem.value.lyrics.isNotEmpty ||
+            (appMediaItem.value.description?.isNotEmpty ?? false)
+        ? (appMediaItem.value.lyrics.isNotEmpty
+              ? appMediaItem.value.lyrics
+              : appMediaItem.value.description ?? '')
+        : '';
     if (appMediaItemLyric.isNotEmpty || offline) {
       mediaLyrics.lyrics = appMediaItemLyric.replaceAll('&nbsp;', '');
       mediaLyrics.mediaId = appMediaItem.value.id;
     } else {
-      mediaLyrics = await Lyrics.getLyrics(id: appMediaItem.value.id,
-        title: appMediaItem.value.name, artist: appMediaItem.value.ownerName.toString(),);
+      mediaLyrics = await Lyrics.getLyrics(
+        id: appMediaItem.value.id,
+        title: appMediaItem.value.name,
+        artist: appMediaItem.value.ownerName.toString(),
+      );
     }
 
     lyricsSource.value = mediaLyrics.source.name;
     lyricsReaderModel = LyricController();
-    lyricsReaderModel?.lyricNotifier.value = LyricParse.parse(mediaLyrics.lyrics);
+    lyricsReaderModel?.lyricNotifier.value = LyricParse.parse(
+      mediaLyrics.lyrics,
+    );
     done.value = true;
   }
 
@@ -364,38 +442,47 @@ class AudioPlayerController extends SintController implements AudioPlayerService
     String ownerId = appMediaItem.value.ownerId ?? '';
 
     try {
-      if(profile.id == ownerId || user.email == ownerId) {
+      if (profile.id == ownerId || user.email == ownerId) {
         Sint.toNamed(AppRouteConstants.profile);
       } else {
-
         bool isEmail = Validator.isEmail(ownerId);
 
-        if(isEmail) {
+        if (isEmail) {
           AppUser? bookUser = await UserFirestore().getByEmail(ownerId);
-          List<AppProfile> bookUserProfiles = await ProfileFirestore().retrieveByUserId(bookUser?.id ?? '');
-          ownerId = bookUserProfiles.isNotEmpty ? bookUserProfiles.first.id : '';
+          List<AppProfile> bookUserProfiles = await ProfileFirestore()
+              .retrieveByUserId(bookUser?.id ?? '');
+          ownerId = bookUserProfiles.isNotEmpty
+              ? bookUserProfiles.first.id
+              : '';
         }
 
-        if(ownerId.isNotEmpty && ownerId.length > 5) {
+        if (ownerId.isNotEmpty && ownerId.length > 5) {
           Sint.toNamed(AppRouteConstants.matePath(ownerId), arguments: ownerId);
         } else {
-          AppUtilities.showSnackBar(message: CommonTranslationConstants.noItemOwnerFound.tr);
+          AppUtilities.showSnackBar(
+            message: CommonTranslationConstants.noItemOwnerFound.tr,
+          );
         }
-
       }
     } catch (e, st) {
-      NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: 'goToOwnerProfile');
+      NeomErrorLogger.recordError(
+        e,
+        st,
+        module: 'neom_audio_player',
+        operation: 'goToOwnerProfile',
+      );
     }
   }
 
   @override
   bool isOffline() {
-    return !(mediaItem.value?.extras!['url'].toString() ?? '').startsWith('http');
+    return !(mediaItem.value?.extras!['url'].toString() ?? '').startsWith(
+      'http',
+    );
   }
 
   @override
   void setIsLoadingAudio(bool loading) {
     isLoadingAudio.value = loading;
   }
-
 }

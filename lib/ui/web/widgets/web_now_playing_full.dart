@@ -68,7 +68,9 @@ class _WebNowPlayingFullState extends State<WebNowPlayingFull> {
   Future<void> _navigateToArtist(String? ownerId) async {
     String targetId = _artistId ?? ownerId ?? '';
     if (targetId.isEmpty) {
-      AppUtilities.showSnackBar(message: CommonTranslationConstants.noItemOwnerFound.tr);
+      AppUtilities.showSnackBar(
+        message: CommonTranslationConstants.noItemOwnerFound.tr,
+      );
       return;
     }
 
@@ -82,22 +84,33 @@ class _WebNowPlayingFullState extends State<WebNowPlayingFull> {
         }
       }
 
-      final currentUserId = PlaylistHiveController().userServiceImpl.profile.id;
-      if (targetId == currentUserId) {
+      final canPersist = AppConfig.instance.canPersistUserActivity;
+      final currentUserId = canPersist
+          ? PlaylistHiveController().userServiceImpl.profile.id
+          : '';
+      if (canPersist && targetId == currentUserId) {
         Sint.toNamed(AppRouteConstants.profile);
       } else if (targetId.length > 5) {
         Sint.toNamed(AppRouteConstants.matePath(targetId), arguments: targetId);
       } else {
-        AppUtilities.showSnackBar(message: CommonTranslationConstants.noItemOwnerFound.tr);
+        AppUtilities.showSnackBar(
+          message: CommonTranslationConstants.noItemOwnerFound.tr,
+        );
       }
     } catch (e, st) {
-      NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: 'WebNowPlayingFull._navigateToArtist');
+      NeomErrorLogger.recordError(
+        e,
+        st,
+        module: 'neom_audio_player',
+        operation: 'WebNowPlayingFull._navigateToArtist',
+      );
     }
   }
 
   /// Navigates to the album in playlist format (AppRouteConstants.listItems).
   Future<void> _navigateToAlbum(MediaItem mediaItem) async {
-    final albumId = mediaItem.extras?['metaId']?.toString() ??
+    final albumId =
+        mediaItem.extras?['metaId']?.toString() ??
         mediaItem.extras?['albumId']?.toString() ??
         mediaItem.extras?['releaseId']?.toString() ??
         mediaItem.extras?['itemlistId']?.toString() ??
@@ -109,14 +122,20 @@ class _WebNowPlayingFullState extends State<WebNowPlayingFull> {
     Itemlist? matchedList;
     try {
       // 1. Check in-memory releaseItemlists
-      if (albumId.isNotEmpty && AppConfig.instance.releaseItemlists.containsKey(albumId)) {
+      if (albumId.isNotEmpty &&
+          AppConfig.instance.releaseItemlists.containsKey(albumId)) {
         matchedList = AppConfig.instance.releaseItemlists[albumId];
       }
       if (matchedList == null && albumName.isNotEmpty) {
         for (Itemlist list in AppConfig.instance.releaseItemlists.values) {
           if ((albumId.isNotEmpty && list.id == albumId) ||
               (list.name.toLowerCase() == albumName.toLowerCase()) ||
-              (list.appReleaseItems?.any((r) => r.id == mediaItem.id || r.name.toLowerCase() == mediaItem.title.toLowerCase()) == true) ||
+              (list.appReleaseItems?.any(
+                    (r) =>
+                        r.id == mediaItem.id ||
+                        r.name.toLowerCase() == mediaItem.title.toLowerCase(),
+                  ) ==
+                  true) ||
               (list.appMediaItems?.any((m) => m.id == mediaItem.id) == true)) {
             matchedList = list;
             break;
@@ -124,12 +143,20 @@ class _WebNowPlayingFullState extends State<WebNowPlayingFull> {
         }
       }
       // 2. Check in-memory personal playlists
-      if (matchedList == null) {
-        final userLists = PlaylistHiveController().userServiceImpl.profile.itemlists?.values ?? [];
+      if (matchedList == null && AppConfig.instance.canPersistUserActivity) {
+        final userLists =
+            PlaylistHiveController()
+                .userServiceImpl
+                .profile
+                .itemlists
+                ?.values ??
+            [];
         for (Itemlist list in userLists) {
           if ((albumId.isNotEmpty && list.id == albumId) ||
-              (albumName.isNotEmpty && list.name.toLowerCase() == albumName.toLowerCase()) ||
-              (list.appReleaseItems?.any((r) => r.id == mediaItem.id) == true) ||
+              (albumName.isNotEmpty &&
+                  list.name.toLowerCase() == albumName.toLowerCase()) ||
+              (list.appReleaseItems?.any((r) => r.id == mediaItem.id) ==
+                  true) ||
               (list.appMediaItems?.any((m) => m.id == mediaItem.id) == true)) {
             matchedList = list;
             break;
@@ -139,9 +166,14 @@ class _WebNowPlayingFullState extends State<WebNowPlayingFull> {
     } catch (_) {}
 
     // If matchedList was found and has items loaded, navigate directly
-    if (matchedList != null && (matchedList.appReleaseItems?.isNotEmpty == true || matchedList.appMediaItems?.isNotEmpty == true)) {
+    if (matchedList != null &&
+        (matchedList.appReleaseItems?.isNotEmpty == true ||
+            matchedList.appMediaItems?.isNotEmpty == true)) {
       matchedList.isModifiable = false;
-      Sint.toNamed(AppRouteConstants.listItems, arguments: [matchedList, true, false]);
+      Sint.toNamed(
+        AppRouteConstants.listItems,
+        arguments: [matchedList, true, false],
+      );
       return;
     }
 
@@ -150,15 +182,22 @@ class _WebNowPlayingFullState extends State<WebNowPlayingFull> {
       // A. Try ItemlistFirestore if albumId exists
       if (albumId.isNotEmpty) {
         final fetchedList = await ItemlistFirestore().retrieve(albumId);
-        if (fetchedList.id.isNotEmpty && (fetchedList.appReleaseItems?.isNotEmpty == true || fetchedList.appMediaItems?.isNotEmpty == true)) {
+        if (fetchedList.id.isNotEmpty &&
+            (fetchedList.appReleaseItems?.isNotEmpty == true ||
+                fetchedList.appMediaItems?.isNotEmpty == true)) {
           fetchedList.isModifiable = false;
-          Sint.toNamed(AppRouteConstants.listItems, arguments: [fetchedList, true, false]);
+          Sint.toNamed(
+            AppRouteConstants.listItems,
+            arguments: [fetchedList, true, false],
+          );
           return;
         }
       }
 
       // B. Query appReleaseItems collection by metaId or metaName
-      Query query = FirebaseFirestore.instance.collection(AppFirestoreCollectionConstants.appReleaseItems);
+      Query query = FirebaseFirestore.instance.collection(
+        AppFirestoreCollectionConstants.appReleaseItems,
+      );
       if (albumId.isNotEmpty) {
         query = query.where('metaId', isEqualTo: albumId);
       } else if (albumName.isNotEmpty) {
@@ -168,16 +207,24 @@ class _WebNowPlayingFullState extends State<WebNowPlayingFull> {
       final querySnap = await query.get();
       if (querySnap.docs.isNotEmpty) {
         final releaseItems = querySnap.docs.map((doc) {
-          final rel = AppReleaseItem.fromJSON(doc.data() as Map<String, dynamic>);
+          final rel = AppReleaseItem.fromJSON(
+            doc.data() as Map<String, dynamic>,
+          );
           rel.id = doc.id;
           return rel;
         }).toList();
 
         final albumItemList = Itemlist(
-          id: albumId.isNotEmpty ? albumId : (albumName.isNotEmpty ? albumName : 'album_${mediaItem.id}'),
-          name: albumName.isNotEmpty ? albumName : (releaseItems.first.metaName ?? mediaItem.title),
+          id: albumId.isNotEmpty
+              ? albumId
+              : (albumName.isNotEmpty ? albumName : 'album_${mediaItem.id}'),
+          name: albumName.isNotEmpty
+              ? albumName
+              : (releaseItems.first.metaName ?? mediaItem.title),
           description: mediaItem.extras?['description']?.toString() ?? '',
-          ownerId: mediaItem.extras?['ownerId']?.toString() ?? releaseItems.first.ownerEmail,
+          ownerId:
+              mediaItem.extras?['ownerId']?.toString() ??
+              releaseItems.first.ownerEmail,
           ownerName: mediaItem.artist ?? releaseItems.first.ownerName,
           imgUrl: mediaItem.artUri?.toString() ?? releaseItems.first.imgUrl,
           appReleaseItems: releaseItems,
@@ -186,11 +233,19 @@ class _WebNowPlayingFullState extends State<WebNowPlayingFull> {
           public: true,
         );
 
-        Sint.toNamed(AppRouteConstants.listItems, arguments: [albumItemList, true, false]);
+        Sint.toNamed(
+          AppRouteConstants.listItems,
+          arguments: [albumItemList, true, false],
+        );
         return;
       }
     } catch (e, st) {
-      NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: 'WebNowPlayingFull._navigateToAlbum');
+      NeomErrorLogger.recordError(
+        e,
+        st,
+        module: 'neom_audio_player',
+        operation: 'WebNowPlayingFull._navigateToAlbum',
+      );
     }
 
     // 4. Fallback: Build album playlist with current track
@@ -209,7 +264,9 @@ class _WebNowPlayingFullState extends State<WebNowPlayingFull> {
     );
 
     final singleAlbumList = Itemlist(
-      id: albumId.isNotEmpty ? albumId : (albumName.isNotEmpty ? albumName : 'album_${mediaItem.id}'),
+      id: albumId.isNotEmpty
+          ? albumId
+          : (albumName.isNotEmpty ? albumName : 'album_${mediaItem.id}'),
       name: albumName.isNotEmpty ? albumName : mediaItem.title,
       ownerName: mediaItem.artist ?? '',
       ownerId: mediaItem.extras?['ownerId']?.toString() ?? '',
@@ -220,12 +277,16 @@ class _WebNowPlayingFullState extends State<WebNowPlayingFull> {
       public: true,
     );
 
-    Sint.toNamed(AppRouteConstants.listItems, arguments: [singleAlbumList, true, false]);
+    Sint.toNamed(
+      AppRouteConstants.listItems,
+      arguments: [singleAlbumList, true, false],
+    );
   }
 
   /// Fetches artist profile image and name from Firestore via ownerId with race-condition guard.
   Future<void> _fetchArtistProfile(String? ownerId) async {
-    if (ownerId == null || ownerId.isEmpty || ownerId == _currentOwnerId) return;
+    if (ownerId == null || ownerId.isEmpty || ownerId == _currentOwnerId)
+      return;
     _currentOwnerId = ownerId;
     try {
       String targetId = ownerId;
@@ -240,7 +301,9 @@ class _WebNowPlayingFullState extends State<WebNowPlayingFull> {
       final profile = await ProfileFirestore().retrieveSimple(targetId);
       if (profile != null && mounted && _currentOwnerId == ownerId) {
         setState(() {
-          _artistPhotoUrl = profile.photoUrl.isNotEmpty ? profile.photoUrl : null;
+          _artistPhotoUrl = profile.photoUrl.isNotEmpty
+              ? profile.photoUrl
+              : null;
           _artistName = profile.name.isNotEmpty ? profile.name : null;
           _artistId = profile.id;
         });
@@ -270,8 +333,9 @@ class _WebNowPlayingFullState extends State<WebNowPlayingFull> {
     _ambientColor = WebColorExtractor.cachedOrFallback(mediaItem.id);
     final url = mediaItem.artUri?.toString();
     if (url == null || url.isEmpty) return;
-    WebColorExtractor.extract(cacheKey: mediaItem.id, imageUrl: url)
-        .then((color) {
+    WebColorExtractor.extract(cacheKey: mediaItem.id, imageUrl: url).then((
+      color,
+    ) {
       if (mounted && _ambientColorKey == mediaItem.id) {
         setState(() => _ambientColor = color);
       }
@@ -283,7 +347,7 @@ class _WebNowPlayingFullState extends State<WebNowPlayingFull> {
     return SintBuilder<MiniPlayerController>(
       id: 'web_now_playing_full',
       builder: (controller) {
-        final mediaItem = controller.mediaItem.value;
+        final mediaItem = controller.visibleMediaItem;
         if (mediaItem == null) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             widget.onClose();
@@ -295,15 +359,19 @@ class _WebNowPlayingFullState extends State<WebNowPlayingFull> {
         final ownerId = mediaItem.extras?['ownerId']?.toString();
         _fetchArtistProfile(ownerId);
 
-        final rawYear = mediaItem.extras?['publishedYear']?.toString() ??
-            mediaItem.extras?['releaseDate']?.toString().split('-').first ?? '';
+        final rawYear =
+            mediaItem.extras?['publishedYear']?.toString() ??
+            mediaItem.extras?['releaseDate']?.toString().split('-').first ??
+            '';
         final year = (rawYear == '0' || rawYear == 'null') ? '' : rawYear;
 
         final screenWidth = MediaQuery.of(context).size.width;
         final isDesktop = screenWidth >= 920;
 
         return Material(
-          color: _canvasMode ? const Color(0xFF030509) : const Color(0xFF070D18),
+          color: _canvasMode
+              ? const Color(0xFF030509)
+              : const Color(0xFF070D18),
           child: Stack(
             fit: StackFit.expand,
             children: [
@@ -323,12 +391,30 @@ class _WebNowPlayingFullState extends State<WebNowPlayingFull> {
                     constraints: BoxConstraints(
                       maxWidth: (_canvasMode || !isDesktop) ? 680 : 1260,
                     ),
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 20,
+                    ),
                     child: _canvasMode
-                        ? _buildCenteredCanvasView(controller, mediaItem, ownerId, year)
+                        ? _buildCenteredCanvasView(
+                            controller,
+                            mediaItem,
+                            ownerId,
+                            year,
+                          )
                         : (isDesktop
-                            ? _buildDesktopTwoColumn(controller, mediaItem, ownerId, year)
-                            : _buildMobileSingleColumn(controller, mediaItem, ownerId, year)),
+                              ? _buildDesktopTwoColumn(
+                                  controller,
+                                  mediaItem,
+                                  ownerId,
+                                  year,
+                                )
+                              : _buildMobileSingleColumn(
+                                  controller,
+                                  mediaItem,
+                                  ownerId,
+                                  year,
+                                )),
                   ),
                 ),
               ),
@@ -346,7 +432,11 @@ class _WebNowPlayingFullState extends State<WebNowPlayingFull> {
                     ),
                     child: IconButton(
                       onPressed: widget.onClose,
-                      icon: const Icon(Icons.close_rounded, color: Colors.white, size: 24),
+                      icon: const Icon(
+                        Icons.close_rounded,
+                        color: Colors.white,
+                        size: 24,
+                      ),
                       tooltip: 'Cerrar vista completa (ESC)',
                     ),
                   ),
@@ -443,8 +533,12 @@ class _WebNowPlayingFullState extends State<WebNowPlayingFull> {
                       onTap: () => _navigateToArtist(ownerId),
                     ),
                   ),
-                  if (mediaItem.album != null && mediaItem.album!.isNotEmpty) ...[
-                    const Text(' • ', style: TextStyle(color: Colors.white54, fontSize: 14)),
+                  if (mediaItem.album != null &&
+                      mediaItem.album!.isNotEmpty) ...[
+                    const Text(
+                      ' • ',
+                      style: TextStyle(color: Colors.white54, fontSize: 14),
+                    ),
                     Flexible(
                       child: _WebHoverLinkText(
                         text: mediaItem.album!,
@@ -461,7 +555,10 @@ class _WebNowPlayingFullState extends State<WebNowPlayingFull> {
                   if (year.isNotEmpty)
                     Text(
                       ' • $year',
-                      style: const TextStyle(color: Colors.white54, fontSize: 13),
+                      style: const TextStyle(
+                        color: Colors.white54,
+                        fontSize: 13,
+                      ),
                     ),
                 ],
               ),
@@ -485,9 +582,14 @@ class _WebNowPlayingFullState extends State<WebNowPlayingFull> {
                     _FullScreenLikeButton(mediaItem: mediaItem),
                     const SizedBox(width: 10),
                     IconButton(
-                      icon: const Icon(Icons.skip_previous_rounded, color: Colors.white, size: 32),
+                      icon: const Icon(
+                        Icons.skip_previous_rounded,
+                        color: Colors.white,
+                        size: 32,
+                      ),
                       tooltip: 'Canción anterior',
-                      onPressed: () => controller.audioHandler?.skipToPrevious(),
+                      onPressed: () =>
+                          controller.audioHandler?.skipToPrevious(),
                     ),
                     const SizedBox(width: 8),
                     StreamBuilder<PlaybackState>(
@@ -502,7 +604,9 @@ class _WebNowPlayingFullState extends State<WebNowPlayingFull> {
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
-                                color: AppColor.getMain().withValues(alpha: 0.45),
+                                color: AppColor.getMain().withValues(
+                                  alpha: 0.45,
+                                ),
                                 blurRadius: 18,
                                 offset: const Offset(0, 4),
                               ),
@@ -510,7 +614,9 @@ class _WebNowPlayingFullState extends State<WebNowPlayingFull> {
                           ),
                           child: IconButton(
                             icon: Icon(
-                              playing ? Icons.pause_rounded : Icons.play_arrow_rounded,
+                              playing
+                                  ? Icons.pause_rounded
+                                  : Icons.play_arrow_rounded,
                               color: Colors.black,
                               size: 32,
                             ),
@@ -523,7 +629,11 @@ class _WebNowPlayingFullState extends State<WebNowPlayingFull> {
                     ),
                     const SizedBox(width: 8),
                     IconButton(
-                      icon: const Icon(Icons.skip_next_rounded, color: Colors.white, size: 32),
+                      icon: const Icon(
+                        Icons.skip_next_rounded,
+                        color: Colors.white,
+                        size: 32,
+                      ),
                       tooltip: 'Siguiente canción',
                       onPressed: () => controller.audioHandler?.skipToNext(),
                     ),
@@ -538,7 +648,11 @@ class _WebNowPlayingFullState extends State<WebNowPlayingFull> {
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: IconButton(
-                          icon: const Icon(Icons.auto_awesome_rounded, color: Colors.white70, size: 22),
+                          icon: const Icon(
+                            Icons.auto_awesome_rounded,
+                            color: Colors.white70,
+                            size: 22,
+                          ),
                           onPressed: () => setState(() => _canvasMode = true),
                         ),
                       ),
@@ -547,7 +661,11 @@ class _WebNowPlayingFullState extends State<WebNowPlayingFull> {
                     if (widget.onToggleQueue != null) ...[
                       const SizedBox(width: 4),
                       IconButton(
-                        icon: const Icon(Icons.queue_music_rounded, color: Colors.white70, size: 22),
+                        icon: const Icon(
+                          Icons.queue_music_rounded,
+                          color: Colors.white70,
+                          size: 22,
+                        ),
                         tooltip: 'Cola de reproducción',
                         onPressed: widget.onToggleQueue,
                       ),
@@ -655,7 +773,10 @@ class _WebNowPlayingFullState extends State<WebNowPlayingFull> {
                 ),
               ),
               if (mediaItem.album != null && mediaItem.album!.isNotEmpty) ...[
-                const Text(' • ', style: TextStyle(color: Colors.white38, fontSize: 14)),
+                const Text(
+                  ' • ',
+                  style: TextStyle(color: Colors.white38, fontSize: 14),
+                ),
                 Flexible(
                   child: _WebHoverLinkText(
                     text: mediaItem.album!,
@@ -702,7 +823,11 @@ class _WebNowPlayingFullState extends State<WebNowPlayingFull> {
 
               // Previous Track
               IconButton(
-                icon: const Icon(Icons.skip_previous_rounded, color: Colors.white, size: 34),
+                icon: const Icon(
+                  Icons.skip_previous_rounded,
+                  color: Colors.white,
+                  size: 34,
+                ),
                 tooltip: 'Canción anterior',
                 onPressed: () => controller.audioHandler?.skipToPrevious(),
               ),
@@ -730,7 +855,9 @@ class _WebNowPlayingFullState extends State<WebNowPlayingFull> {
                     ),
                     child: IconButton(
                       icon: Icon(
-                        playing ? Icons.pause_rounded : Icons.play_arrow_rounded,
+                        playing
+                            ? Icons.pause_rounded
+                            : Icons.play_arrow_rounded,
                         color: Colors.black,
                         size: 38,
                       ),
@@ -746,7 +873,11 @@ class _WebNowPlayingFullState extends State<WebNowPlayingFull> {
 
               // Next Track
               IconButton(
-                icon: const Icon(Icons.skip_next_rounded, color: Colors.white, size: 34),
+                icon: const Icon(
+                  Icons.skip_next_rounded,
+                  color: Colors.white,
+                  size: 34,
+                ),
                 tooltip: 'Siguiente canción',
                 onPressed: () => controller.audioHandler?.skipToNext(),
               ),
@@ -760,10 +891,16 @@ class _WebNowPlayingFullState extends State<WebNowPlayingFull> {
                   decoration: BoxDecoration(
                     color: AppColor.getMain().withValues(alpha: 0.22),
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: AppColor.getMain().withValues(alpha: 0.5)),
+                    border: Border.all(
+                      color: AppColor.getMain().withValues(alpha: 0.5),
+                    ),
                   ),
                   child: IconButton(
-                    icon: Icon(Icons.auto_awesome_rounded, color: AppColor.getMain(), size: 24),
+                    icon: Icon(
+                      Icons.auto_awesome_rounded,
+                      color: AppColor.getMain(),
+                      size: 24,
+                    ),
                     onPressed: () => setState(() => _canvasMode = false),
                   ),
                 ),
@@ -773,7 +910,11 @@ class _WebNowPlayingFullState extends State<WebNowPlayingFull> {
               if (widget.onToggleQueue != null) ...[
                 const SizedBox(width: 6),
                 IconButton(
-                  icon: const Icon(Icons.queue_music_rounded, color: Colors.white54, size: 24),
+                  icon: const Icon(
+                    Icons.queue_music_rounded,
+                    color: Colors.white54,
+                    size: 24,
+                  ),
                   tooltip: 'Cola de reproducción',
                   onPressed: widget.onToggleQueue,
                 ),
@@ -807,24 +948,39 @@ class _WebNowPlayingFullState extends State<WebNowPlayingFull> {
           const SizedBox(height: 20),
           Text(
             mediaItem.title,
-            style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w900),
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 22,
+              fontWeight: FontWeight.w900,
+            ),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 6),
           _WebHoverLinkText(
             text: _artistName ?? mediaItem.artist ?? '',
-            style: const TextStyle(color: Colors.white70, fontSize: 15, fontWeight: FontWeight.w700),
+            style: const TextStyle(
+              color: Colors.white70,
+              fontSize: 15,
+              fontWeight: FontWeight.w700,
+            ),
             onTap: () => _navigateToArtist(ownerId),
           ),
           const SizedBox(height: 18),
-          _NowPlayingSeekSection(controller: controller, ambientColor: _ambientColor),
+          _NowPlayingSeekSection(
+            controller: controller,
+            ambientColor: _ambientColor,
+          ),
           const SizedBox(height: 14),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               _FullScreenLikeButton(mediaItem: mediaItem),
               IconButton(
-                icon: const Icon(Icons.skip_previous_rounded, color: Colors.white, size: 30),
+                icon: const Icon(
+                  Icons.skip_previous_rounded,
+                  color: Colors.white,
+                  size: 30,
+                ),
                 onPressed: () => controller.audioHandler?.skipToPrevious(),
               ),
               StreamBuilder<PlaybackState>(
@@ -834,21 +990,40 @@ class _WebNowPlayingFullState extends State<WebNowPlayingFull> {
                   return Container(
                     width: 52,
                     height: 52,
-                    decoration: BoxDecoration(color: AppColor.getMain(), shape: BoxShape.circle),
+                    decoration: BoxDecoration(
+                      color: AppColor.getMain(),
+                      shape: BoxShape.circle,
+                    ),
                     child: IconButton(
-                      icon: Icon(playing ? Icons.pause_rounded : Icons.play_arrow_rounded, color: Colors.black, size: 30),
-                      onPressed: () => playing ? controller.audioHandler?.pause() : controller.audioHandler?.play(),
+                      icon: Icon(
+                        playing
+                            ? Icons.pause_rounded
+                            : Icons.play_arrow_rounded,
+                        color: Colors.black,
+                        size: 30,
+                      ),
+                      onPressed: () => playing
+                          ? controller.audioHandler?.pause()
+                          : controller.audioHandler?.play(),
                     ),
                   );
                 },
               ),
               IconButton(
-                icon: const Icon(Icons.skip_next_rounded, color: Colors.white, size: 30),
+                icon: const Icon(
+                  Icons.skip_next_rounded,
+                  color: Colors.white,
+                  size: 30,
+                ),
                 onPressed: () => controller.audioHandler?.skipToNext(),
               ),
               IconButton(
-                icon: Icon(_canvasMode ? Icons.auto_awesome_rounded : Icons.aspect_ratio_rounded,
-                    color: _canvasMode ? AppColor.getMain() : Colors.white70),
+                icon: Icon(
+                  _canvasMode
+                      ? Icons.auto_awesome_rounded
+                      : Icons.aspect_ratio_rounded,
+                  color: _canvasMode ? AppColor.getMain() : Colors.white70,
+                ),
                 onPressed: () => setState(() => _canvasMode = !_canvasMode),
               ),
             ],
@@ -884,7 +1059,10 @@ class _NowPlayingSeekSection extends StatelessWidget {
       stream: controller.audioHandler?.player.positionStream,
       builder: (context, posSnap) {
         final position = posSnap.data ?? Duration.zero;
-        final duration = controller.audioHandler?.player.duration ?? controller.mediaItem.value?.duration ?? Duration.zero;
+        final duration =
+            controller.audioHandler?.player.duration ??
+            controller.visibleMediaItem?.duration ??
+            Duration.zero;
         final sliderValue = computeSliderValue(position, duration);
 
         return Column(
@@ -903,7 +1081,11 @@ class _NowPlayingSeekSection extends StatelessWidget {
                 children: [
                   Text(
                     formatPlayerDuration(position),
-                    style: const TextStyle(color: Colors.white54, fontSize: 12, fontWeight: FontWeight.w600),
+                    style: const TextStyle(
+                      color: Colors.white54,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                   // Pseudo Visualizer
                   SizedBox(
@@ -917,7 +1099,9 @@ class _NowPlayingSeekSection extends StatelessWidget {
                       builder: (_, snap) {
                         final playing = snap.data ?? false;
                         return WebPseudoVisualizer(
-                          color: ambientColor == Colors.transparent ? AppColor.getMain() : ambientColor,
+                          color: ambientColor == Colors.transparent
+                              ? AppColor.getMain()
+                              : ambientColor,
                           barCount: expandedVisualizer ? 20 : 14,
                           width: expandedVisualizer ? 200 : 130,
                           height: 20,
@@ -928,7 +1112,11 @@ class _NowPlayingSeekSection extends StatelessWidget {
                   ),
                   Text(
                     formatPlayerDuration(duration),
-                    style: const TextStyle(color: Colors.white54, fontSize: 12, fontWeight: FontWeight.w600),
+                    style: const TextStyle(
+                      color: Colors.white54,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ],
               ),
@@ -1026,7 +1214,9 @@ class _AmbientLiveCanvasBackground extends StatelessWidget {
           curve: Curves.easeOutCubic,
           decoration: BoxDecoration(
             gradient: RadialGradient(
-              center: canvasMode ? const Alignment(0.0, -0.25) : const Alignment(-0.35, -0.3),
+              center: canvasMode
+                  ? const Alignment(0.0, -0.25)
+                  : const Alignment(-0.35, -0.3),
               radius: canvasMode ? 0.95 : 1.25,
               colors: [
                 effectiveColor.withValues(alpha: canvasMode ? 0.32 : 0.45),
@@ -1095,7 +1285,9 @@ class _CanvasArtworkState extends State<_CanvasArtwork>
 
   @override
   Widget build(BuildContext context) {
-    final glowColor = widget.ambientColor == Colors.transparent ? AppColor.getMain() : widget.ambientColor;
+    final glowColor = widget.ambientColor == Colors.transparent
+        ? AppColor.getMain()
+        : widget.ambientColor;
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 500),
@@ -1129,7 +1321,9 @@ class _CanvasArtworkState extends State<_CanvasArtwork>
             child: AnimatedBuilder(
               animation: _controller,
               builder: (context, child) {
-                final scale = widget.canvasMode ? 1.0 + _controller.value * 0.12 : 1.0;
+                final scale = widget.canvasMode
+                    ? 1.0 + _controller.value * 0.12
+                    : 1.0;
                 return Transform.scale(scale: scale, child: child);
               },
               child: WebImageResolver.build(
@@ -1148,7 +1342,10 @@ class _CanvasArtworkState extends State<_CanvasArtwork>
               bottom: 14,
               left: 14,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 5,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.black.withValues(alpha: 0.75),
                   borderRadius: BorderRadius.circular(20),
@@ -1157,7 +1354,11 @@ class _CanvasArtworkState extends State<_CanvasArtwork>
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.auto_awesome_rounded, color: AppColor.getMain(), size: 13),
+                    Icon(
+                      Icons.auto_awesome_rounded,
+                      color: AppColor.getMain(),
+                      size: 13,
+                    ),
                     const SizedBox(width: 6),
                     const Text(
                       'ARTE EN VIVO',
@@ -1258,6 +1459,11 @@ class _FullScreenLikeButtonState extends State<_FullScreenLikeButton> {
   }
 
   Future<void> _checkLiked() async {
+    if (!AppConfig.instance.canPersistUserActivity) {
+      if (mounted) setState(() => _isLiked = false);
+      return;
+    }
+
     final liked = await PlaylistHiveController().checkPlaylist(
       AppHiveBox.favoriteItems.name,
       widget.mediaItem.id,
@@ -1266,6 +1472,8 @@ class _FullScreenLikeButtonState extends State<_FullScreenLikeButton> {
   }
 
   Future<void> _toggleLike() async {
+    if (!AppConfig.instance.canPersistUserActivity) return;
+
     final profile = PlaylistHiveController().userServiceImpl.profile;
     final itemId = widget.mediaItem.id;
     if (itemId.isEmpty) return;
@@ -1302,7 +1510,12 @@ class _FullScreenLikeButtonState extends State<_FullScreenLikeButton> {
         );
       }
     } catch (e, st) {
-      NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: '_FullScreenLikeButton._toggleLike');
+      NeomErrorLogger.recordError(
+        e,
+        st,
+        module: 'neom_audio_player',
+        operation: '_FullScreenLikeButton._toggleLike',
+      );
     }
   }
 
