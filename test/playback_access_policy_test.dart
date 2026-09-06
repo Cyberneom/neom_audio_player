@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:neom_audio_player/utils/playback_access_policy.dart';
+import 'package:neom_core/data/firestore/public_catalog_read_policy.dart';
+import 'package:neom_core/utils/enums/app_in_use.dart';
 
 void main() {
   const guestWithTrial = PlaybackAccessSnapshot(
@@ -41,6 +43,33 @@ void main() {
   );
 
   group('PlaybackAccessPolicy', () {
+    test(
+      'Gigmeout public catalogue is unmetered after guest trial exhaustion',
+      () {
+        for (final app in [AppInUse.g, AppInUse.e, AppInUse.c]) {
+          for (final origin in PlaybackRequestOrigin.values) {
+            final decision = PlaybackAccessPolicy.evaluate(
+              PlaybackAccessSnapshot(
+                isSessionReady: true,
+                isAuthenticated: false,
+                hasFullSubscription: false,
+                hasActiveTrial: false,
+                isPubliclyFree: PublicCatalogReadPolicy.usesPublicCatalog(
+                  app: app,
+                  canPersistUserActivity: false,
+                ),
+              ),
+              origin: origin,
+            );
+            expect(
+              decision.allowed,
+              app == AppInUse.g,
+              reason: '${app.name}/${origin.name}',
+            );
+          }
+        }
+      },
+    );
     test('guest can play during the intentional daily trial', () {
       final decision = PlaybackAccessPolicy.evaluate(
         guestWithTrial,
@@ -156,6 +185,26 @@ void main() {
       expect(
         handlerSource,
         isNot(contains(': true;\n      if (!isFree && !allowFullAccess)')),
+      );
+    });
+
+    test('public catalogue bypasses quota reads and the trial timer meter', () {
+      final entitlement = between(
+        'Future<PlaybackAccessDecision> _resolvePlaybackAccess(',
+        'Future<PlaybackAccessDecision> _authorizePlayback(',
+      );
+      expect(
+        entitlement,
+        contains('publicCatalogPlayback = PublicCatalogReadPolicy.enabled'),
+      );
+      expect(entitlement, contains('!publicCatalogPlayback'));
+      expect(
+        entitlement,
+        contains('isPubliclyFree: isFree || publicCatalogPlayback'),
+      );
+      expect(
+        handlerSource,
+        contains('access.reason == PlaybackAccessReason.activeTrial'),
       );
     });
 

@@ -6,8 +6,9 @@ import 'package:neom_core/domain/model/playable_item.dart';
 import 'package:neom_core/utils/core_utilities.dart';
 import 'package:neom_core/utils/enums/app_media_source.dart';
 
-class MediaItemMapper  {
+import '../audio_item_source_availability.dart';
 
+class MediaItemMapper {
   static Map toJSON(MediaItem item) {
     return {
       'id': item.id,
@@ -24,8 +25,12 @@ class MediaItemMapper  {
 
       'imgUrl': item.artUri?.path,
 
-      'publishedYear': int.tryParse((item.extras?['publishedYear'] ?? '0').toString()),
-      'releaseDate': int.tryParse((item.extras?['createdTime'] ?? '0').toString()),
+      'publishedYear': int.tryParse(
+        (item.extras?['publishedYear'] ?? '0').toString(),
+      ),
+      'releaseDate': int.tryParse(
+        (item.extras?['createdTime'] ?? '0').toString(),
+      ),
 
       'url': item.extras!['url'].toString(),
       'permaUrl': item.extras!['permaUrl']?.toString(),
@@ -43,7 +48,8 @@ class MediaItemMapper  {
     final idVal = song['id']?.toString() ?? '';
     final titleVal = song['title']?.toString().trim() ?? '';
     final albumVal = song['album']?.toString().trim() ?? '';
-    final artistVal = (song['ownerName'] ?? song['artist'])?.toString().trim() ?? '';
+    final artistVal =
+        (song['ownerName'] ?? song['artist'])?.toString().trim() ?? '';
     final durationVal = song['duration']?.toString().trim() ?? '';
 
     return MediaItem(
@@ -55,7 +61,9 @@ class MediaItemMapper  {
           (durationVal.isEmpty || durationVal == 'null') ? '180' : durationVal,
         ),
       ),
-      title: (titleVal.isEmpty || titleVal == 'null') ? 'Lanzamiento' : titleVal,
+      title: (titleVal.isEmpty || titleVal == 'null')
+          ? 'Lanzamiento'
+          : titleVal,
       artUri: Uri.parse(song['image']?.toString() ?? ''),
       genre: song['language']?.toString() ?? '',
       extras: {
@@ -78,8 +86,11 @@ class MediaItemMapper  {
     );
   }
 
-  static MediaItem fromAppMediaItem({required AppMediaItem item,
-    bool addedByAutoplay = false, bool autoplay = true, String? playlistBox,
+  static MediaItem fromAppMediaItem({
+    required AppMediaItem item,
+    bool addedByAutoplay = false,
+    bool autoplay = true,
+    String? playlistBox,
   }) {
     final nameVal = item.name.trim();
     final artistVal = item.ownerName.trim();
@@ -92,7 +103,9 @@ class MediaItemMapper  {
       duration: Duration(seconds: item.duration),
       title: (nameVal.isEmpty || nameVal == 'null') ? 'Lanzamiento' : nameVal,
       artUri: Uri.parse(item.imgUrl),
-      genre: item.categories?.isNotEmpty ?? false ? item.categories?.first : null,
+      genre: item.categories?.isNotEmpty ?? false
+          ? item.categories?.first
+          : null,
       extras: {
         'ownerId': item.ownerId,
         'url': item.url,
@@ -118,13 +131,17 @@ class MediaItemMapper  {
     final artistVal = item.artist?.trim() ?? '';
     final albumVal = item.album?.trim() ?? '';
 
-    final nameVal = TextUtilities.getMediaName((titleVal.isEmpty || titleVal == 'null') ? 'Lanzamiento' : titleVal);
+    final nameVal = TextUtilities.getMediaName(
+      (titleVal.isEmpty || titleVal == 'null') ? 'Lanzamiento' : titleVal,
+    );
 
     return AppMediaItem(
       id: item.id,
       album: (albumVal.isEmpty || albumVal == 'null') ? '' : albumVal,
       albumId: item.extras?['metaId']?.toString() ?? '',
-      ownerName: (artistVal.isEmpty || artistVal == 'null') ? TextUtilities.getArtistName(titleVal) : artistVal,
+      ownerName: (artistVal.isEmpty || artistVal == 'null')
+          ? TextUtilities.getArtistName(titleVal)
+          : artistVal,
       duration: item.duration?.inSeconds ?? 0,
       name: (nameVal.isEmpty || nameVal == 'null') ? 'Lanzamiento' : nameVal,
       imgUrl: item.artUri?.toString() ?? '',
@@ -133,12 +150,18 @@ class MediaItemMapper  {
       description: item.extras?['description']?.toString() ?? '',
       lyrics: item.extras?['lyrics']?.toString() ?? '',
       ownerId: item.extras?['ownerId']?.toString() ?? '',
-      mediaSource: CoreUtilities.isInternal(item.extras?['url']?.toString() ?? '') ? AppMediaSource.internal : AppMediaSource.external,
+      mediaSource:
+          CoreUtilities.isInternal(item.extras?['url']?.toString() ?? '')
+          ? AppMediaSource.internal
+          : AppMediaSource.external,
     );
   }
 
-  static MediaItem fromAppReleaseItem({required AppReleaseItem item,
-    bool addedByAutoplay = false, bool autoplay = true, String? playlistBox,
+  static MediaItem fromAppReleaseItem({
+    required AppReleaseItem item,
+    bool addedByAutoplay = false,
+    bool autoplay = true,
+    String? playlistBox,
   }) {
     final nameVal = item.name.trim();
     final artistVal = item.ownerName.trim();
@@ -153,7 +176,7 @@ class MediaItemMapper  {
       artUri: Uri.parse(item.imgUrl),
       genre: item.categories.isNotEmpty ? item.categories.first : null,
       extras: {
-        'url': item.previewUrl,
+        'url': audioItemSource(item),
         'allUrl': [],
         'publishedYear': item.publishedYear,
         'language': item.language,
@@ -166,7 +189,10 @@ class MediaItemMapper  {
         'addedByAutoplay': addedByAutoplay,
         'autoplay': autoplay,
         'playlistBox': playlistBox,
-        'source': AppMediaSource.internal,
+        'source': AppMediaSource.internal.name,
+        'ownerId': item.ownerProfileId?.isNotEmpty == true
+            ? item.ownerProfileId
+            : item.ownerEmail,
         'ownerEmail': item.ownerEmail,
       },
     );
@@ -174,15 +200,26 @@ class MediaItemMapper  {
 
   /// Unified method: accepts any PlayableItem (AppReleaseItem or AppMediaItem).
   /// Delegates to the specific mapper based on runtime type.
-  static MediaItem fromPlayableItem({required PlayableItem item,
-    bool addedByAutoplay = false, bool autoplay = true, String? playlistBox,
+  static MediaItem fromPlayableItem({
+    required PlayableItem item,
+    bool addedByAutoplay = false,
+    bool autoplay = true,
+    String? playlistBox,
   }) {
     if (item is AppReleaseItem) {
-      return fromAppReleaseItem(item: item, addedByAutoplay: addedByAutoplay,
-          autoplay: autoplay, playlistBox: playlistBox);
+      return fromAppReleaseItem(
+        item: item,
+        addedByAutoplay: addedByAutoplay,
+        autoplay: autoplay,
+        playlistBox: playlistBox,
+      );
     } else if (item is AppMediaItem) {
-      return fromAppMediaItem(item: item, addedByAutoplay: addedByAutoplay,
-          autoplay: autoplay, playlistBox: playlistBox);
+      return fromAppMediaItem(
+        item: item,
+        addedByAutoplay: addedByAutoplay,
+        autoplay: autoplay,
+        playlistBox: playlistBox,
+      );
     }
     // Fallback using interface fields
     return MediaItem(
@@ -191,7 +228,9 @@ class MediaItemMapper  {
       duration: Duration(seconds: item.duration),
       title: item.name,
       artUri: Uri.parse(item.imgUrl),
-      genre: (item.categories?.isNotEmpty ?? false) ? item.categories!.first : null,
+      genre: (item.categories?.isNotEmpty ?? false)
+          ? item.categories!.first
+          : null,
       extras: {
         'url': item.streamUrl,
         'publishedYear': item.publishedYear,
@@ -200,9 +239,10 @@ class MediaItemMapper  {
         'addedByAutoplay': addedByAutoplay,
         'autoplay': autoplay,
         'playlistBox': playlistBox,
-        'source': item.isInternal ? AppMediaSource.internal.name : AppMediaSource.external.name,
+        'source': item.isInternal
+            ? AppMediaSource.internal.name
+            : AppMediaSource.external.name,
       },
     );
   }
-
 }

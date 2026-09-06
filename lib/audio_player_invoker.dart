@@ -3,6 +3,8 @@ import 'package:audio_service/audio_service.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:neom_commons/utils/text_utilities.dart';
+import 'package:neom_commons/utils/app_utilities.dart';
+import 'package:neom_commons/utils/constants/translations/app_translation_constants.dart';
 import 'package:sint/sint.dart';
 import 'package:neom_commons/utils/constants/app_assets.dart';
 import 'package:neom_commons/utils/mappers/app_media_item_mapper.dart';
@@ -21,6 +23,7 @@ import 'neom_audio_handler.dart';
 import 'ui/player/miniplayer_controller.dart';
 import 'utils/mappers/media_item_mapper.dart';
 import 'utils/platform_io_helper.dart' as platform_io;
+import 'utils/audio_item_source_availability.dart';
 
 /// Entry-point service that converts arbitrary `PlayableItem`s
 /// (`AppMediaItem`, `AppReleaseItem`, `Itemlist`) into [MediaItem]s and
@@ -67,49 +70,45 @@ class AudioPlayerInvoker implements AudioPlayerInvokerService {
 
     try {
       audioHandler = await getOrInitAudioHandler();
+      if (audioHandler == null) {
+        throw StateError('The audio player could not be initialized.');
+      }
 
       if (items == null && releaseItems == null && mediaItems == null) {
         AppConfig.logger.e('No media items provided to play.');
         return;
       }
 
-      // Unified PlayableItem path — separate into concrete types
-      if (items != null) {
-        currentReleaseItems = [];
-        currentMediaItems = [];
-        for (final item in items.where((i) => i.isAudioContent)) {
-          if (item is AppReleaseItem) {
-            currentReleaseItems.add(item);
-            currentMediaItems.add(AppMediaItemMapper.fromAppReleaseItem(item));
-          } else if (item is AppMediaItem) {
-            currentMediaItems.add(item);
-          }
-        }
-      }
+      final List<PlayableItem> requestedItems =
+          mediaItems ?? releaseItems ?? items ?? const [];
+      final requestedItem = requestedItems.isEmpty
+          ? null
+          : requestedItems[index.clamp(0, requestedItems.length - 1)];
+      final playableItems = requestedItems
+          .where((item) => isAudioPlaybackItem(item) && !hasNoAudioSource(item))
+          .toList();
+      currentReleaseItems = playableItems.whereType<AppReleaseItem>().toList();
+      currentMediaItems = playableItems
+          .map(
+            (item) => item is AppReleaseItem
+                ? AppMediaItemMapper.fromAppReleaseItem(item)
+                : item as AppMediaItem,
+          )
+          .toList();
 
-      if (releaseItems != null) {
-        currentReleaseItems = releaseItems
-            .where((item) => item.isAudioContent)
-            .toList();
-        currentMediaItems = [];
-        for (var item in currentReleaseItems) {
-          currentMediaItems.add(AppMediaItemMapper.fromAppReleaseItem(item));
-        }
+      // Keep the tapped item after filtering. An unavailable selection must
+      // never silently select a different track or reuse the previous queue.
+      var globalIndex = requestedItem == null
+          ? -1
+          : playableItems.indexOf(requestedItem);
+      if (globalIndex < 0) {
+        throw StateError('The requested audio item has no playable source.');
       }
-
-      if (mediaItems != null) {
-        currentMediaItems = mediaItems
-            .where((item) => item.isAudioContent)
-            .toList();
+      if (shuffle) {
+        final selected = currentMediaItems[globalIndex];
+        currentMediaItems.shuffle();
+        globalIndex = currentMediaItems.indexOf(selected);
       }
-
-      if (currentMediaItems.isEmpty) {
-        AppConfig.logger.e('No audio content items to play.');
-        return;
-      }
-
-      final int globalIndex = index.clamp(0, currentMediaItems.length - 1);
-      if (shuffle) currentMediaItems.shuffle();
 
       if (!fromMiniPlayer) {
         await audioHandler?.stop();
@@ -134,7 +133,23 @@ class AudioPlayerInvoker implements AudioPlayerInvokerService {
       ///This would be needed when adding offline mode downloading audio.
       // await MetadataGod.initialize();
     } catch (e, st) {
-      NeomErrorLogger.recordError(
+      await audioHandler?.stop();
+      audioHandler?.currentMediaItem = null;
+      audioHandler?.mediaItem.add(null);
+      audioHandler?.queue.add(const <MediaItem>[]);
+      if (Sint.isRegistered<MiniPlayerController>()) {
+        Sint.find<MiniPlayerController>().clear();
+      }
+      try {
+        if (Sint.context != null) {
+          AppUtilities.showSnackBar(
+            message: AppTranslationConstants.playbackErrorStopped.tr,
+          );
+        }
+      } catch (_) {
+        // A standalone caller may not have mounted the navigation root yet.
+      }
+      NeomErrorLogger.recordErrorLight(
         e,
         st,
         module: 'neom_audio_player',
@@ -157,12 +172,14 @@ class AudioPlayerInvoker implements AudioPlayerInvokerService {
       // Guests may play public catalog entries, but playback must not create
       // or mutate catalog documents as a side effect.
       if (AppConfig.instance.canPersistUserActivity) {
-        if (currentReleaseItems.isNotEmpty &&
-            index < currentReleaseItems.length) {
-          AppReleaseItemFirestore().existsOrInsert(currentReleaseItems[index]);
-        } else if (currentMediaItems.isNotEmpty &&
-            index < currentMediaItems.length) {
-          AppMediaItemFirestore().existsOrInsert(currentMediaItems[index]);
+        final selectedItem = currentMediaItems[index];
+        final releaseItem = currentReleaseItems.firstWhereOrNull(
+          (item) => item.id == selectedItem.id,
+        );
+        if (releaseItem != null) {
+          AppReleaseItemFirestore().existsOrInsert(releaseItem);
+        } else {
+          AppMediaItemFirestore().existsOrInsert(selectedItem);
         }
       }
 
@@ -172,12 +189,13 @@ class AudioPlayerInvoker implements AudioPlayerInvokerService {
         playItem: playItem,
       );
     } catch (e, st) {
-      NeomErrorLogger.recordError(
+      NeomErrorLogger.recordErrorLight(
         e,
         st,
         module: 'neom_audio_player',
         operation: 'setValues',
       );
+      rethrow;
     }
   }
 
@@ -255,23 +273,28 @@ class AudioPlayerInvoker implements AudioPlayerInvokerService {
       );
 
       audioHandler?.currentMediaItem = selectedItem;
+      if (Sint.isRegistered<MiniPlayerController>()) {
+        await Sint.find<MiniPlayerController>().setMediaItem(selectedItem);
+      }
 
       if (playItem || nowPlaying) {
         AppConfig.logger.d(
-          "Starting stream for ${selectedItem.artist ?? ''} - ${selectedItem.title} and URL ${selectedItem.extras!['url'].toString()}",
+          "Starting stream for ${selectedItem.artist ?? ''} - ${selectedItem.title}",
         );
-        await audioHandler?.play();
-        Sint.find<MiniPlayerController>().setMediaItem(selectedItem);
+        // just_audio's play future lasts until playback stops. Releasing the
+        // request here lets the next song replace this queue immediately.
+        unawaited(audioHandler?.play());
       }
 
       enforceRepeat();
     } catch (e, st) {
-      NeomErrorLogger.recordError(
+      NeomErrorLogger.recordErrorLight(
         e,
         st,
         module: 'neom_audio_player',
         operation: 'updateNowPlaying',
       );
+      rethrow;
     }
   }
 

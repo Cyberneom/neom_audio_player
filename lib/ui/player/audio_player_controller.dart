@@ -32,12 +32,13 @@ import '../../data/implementations/player_hive_controller.dart';
 import '../../domain/models/media_lyrics.dart';
 import '../../domain/use_cases/audio_player_service.dart';
 import '../../utils/constants/audio_player_route_constants.dart';
+import '../../utils/audio_item_source_availability.dart';
 import '../../utils/mappers/media_item_mapper.dart';
 import 'lyrics/lyrics.dart';
 
 class AudioPlayerController extends SintController
     implements AudioPlayerService {
-  final userServiceImpl = Sint.find<UserService>();
+  UserService get userServiceImpl => Sint.find<UserService>();
   dynamic audioHandler;
   StreamSubscription? _mediaItemSub;
   StreamSubscription? _isLoadingAudioSub;
@@ -77,8 +78,10 @@ class AudioPlayerController extends SintController
     AppConfig.logger.t('onInit MediaPlayer Controller');
 
     try {
-      user = userServiceImpl.user;
-      profile = userServiceImpl.profile;
+      if (AppConfig.instance.canPersistUserActivity) {
+        user = userServiceImpl.user;
+        profile = userServiceImpl.profile;
+      }
 
       if (Sint.arguments != null && Sint.arguments.isNotEmpty) {
         final arg = Sint.arguments[0];
@@ -140,20 +143,30 @@ class AudioPlayerController extends SintController
   void onReady() {
     super.onReady();
     isLoading.value = false;
+    final PlayableItem? requestedItem = appReleaseItem.value.id.isNotEmpty
+        ? appReleaseItem.value
+        : appMediaItem.value.id.isNotEmpty
+        ? appMediaItem.value
+        : null;
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       try {
         Sint.find<AudioPlayerInvokerService>().getOrInitAudioHandler().then((
           handler,
         ) async {
           audioHandler = handler;
+          var waitingForRequested = requestedItem != null;
           if (audioHandler != null) {
-            if (audioHandler.currentMediaItem != null) {
+            if (audioHandler.currentMediaItem != null &&
+                (requestedItem == null ||
+                    audioHandler.currentMediaItem.id == requestedItem.id)) {
               setMediaItem(item: audioHandler.currentMediaItem);
             }
             _mediaItemSub = audioHandler.mediaItem.listen((item) {
               if (item != null) {
+                if (waitingForRequested && item.id != requestedItem?.id) return;
+                waitingForRequested = false;
                 setMediaItem(item: item);
-              } else {
+              } else if (!waitingForRequested) {
                 _clearCurrentItem();
               }
             });
@@ -161,23 +174,15 @@ class AudioPlayerController extends SintController
               isLoadingAudio.value = loading;
             });
           }
-          bool alreadyPlaying = false;
-          if (appReleaseItem.value.id.isNotEmpty) {
-            alreadyPlaying =
-                audioHandler?.currentMediaItem?.id == appReleaseItem.value.id;
-          } else {
-            alreadyPlaying =
-                audioHandler?.currentMediaItem?.id == appMediaItem.value.id;
-          }
+          final alreadyPlaying =
+              requestedItem == null ||
+              (audioHandler?.currentMediaItem?.id == requestedItem.id &&
+                  audioHandler?.currentMediaItem?.extras?['url'] ==
+                      audioItemSource(requestedItem));
 
           if (reproduceItem && !alreadyPlaying) {
             await Sint.find<AudioPlayerInvokerService>().init(
-              releaseItems: appReleaseItem.value.id.isNotEmpty
-                  ? [appReleaseItem.value]
-                  : null,
-              mediaItems: appMediaItem.value.id.isNotEmpty
-                  ? [appMediaItem.value]
-                  : null,
+              items: [requestedItem],
               index: 0,
             );
           }

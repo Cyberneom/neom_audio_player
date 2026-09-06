@@ -41,8 +41,8 @@ class PlaybackAccessSnapshot {
   final bool hasFullSubscription;
   final bool hasActiveTrial;
 
-  /// Explicit unmetered content. Public catalogue visibility alone does not
-  /// imply that a track is free to stream without the normal trial limits.
+  /// Explicit unmetered content, including Gigmeout's public catalogue.
+  /// Other apps retain their subscription and trial limits.
   final bool isPubliclyFree;
 }
 

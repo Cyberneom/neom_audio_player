@@ -9,6 +9,7 @@ import 'package:neom_commons/utils/app_utilities.dart';
 import 'package:neom_commons/utils/auth_guard.dart';
 import 'package:neom_commons/utils/constants/translations/app_translation_constants.dart';
 import 'package:neom_core/app_config.dart';
+import 'package:neom_core/data/firestore/public_catalog_read_policy.dart';
 import 'package:neom_core/data/implementations/app_hive_controller.dart';
 import 'package:neom_core/utils/neom_error_logger.dart';
 import 'package:neom_core/data/implementations/neom_stopwatch.dart';
@@ -497,7 +498,11 @@ class NeomAudioHandler extends BaseAudioHandler
     }
 
     var hasActiveTrial = false;
-    if (!isFree && isSessionReady && !hasFullSubscription) {
+    final publicCatalogPlayback = PublicCatalogReadPolicy.enabled;
+    if (!isFree &&
+        !publicCatalogPlayback &&
+        isSessionReady &&
+        !hasFullSubscription) {
       try {
         final dailyTrialUsage = await CaseteTrialUsageManager()
             .getDailyTrialUsage();
@@ -516,7 +521,7 @@ class NeomAudioHandler extends BaseAudioHandler
       }
     }
 
-    allowFullAccess = hasFullSubscription;
+    allowFullAccess = hasFullSubscription || publicCatalogPlayback;
     allowFreeTrial = hasActiveTrial;
 
     return PlaybackAccessPolicy.evaluate(
@@ -525,7 +530,7 @@ class NeomAudioHandler extends BaseAudioHandler
         isAuthenticated: isAuthenticated,
         hasFullSubscription: hasFullSubscription,
         hasActiveTrial: hasActiveTrial,
-        isPubliclyFree: isFree,
+        isPubliclyFree: isFree || publicCatalogPlayback,
       ),
       origin: origin,
     );
@@ -1235,7 +1240,7 @@ class NeomAudioHandler extends BaseAudioHandler
       AppConfig.logger.t(
         'SkipToMediaItem: mediaItem found in queue with Index $index',
       );
-      player.seek(
+      await player.seek(
         Duration.zero,
         index: player.shuffleModeEnabled && index != 0
             ? player.shuffleIndices[index]
@@ -1283,6 +1288,9 @@ class NeomAudioHandler extends BaseAudioHandler
     );
     try {
       final List<AudioSource> sources = await _itemsToSources(newQueue);
+      if (sources.length != newQueue.length) {
+        throw StateError('The audio queue contains an unavailable source.');
+      }
       await player.setAudioSources(sources);
       this.queue.add(newQueue);
     } catch (e, st) {
@@ -1292,6 +1300,12 @@ class NeomAudioHandler extends BaseAudioHandler
         module: 'neom_audio_player',
         operation: 'updateQueue',
       );
+      await player.stop();
+      await player.setAudioSources([]);
+      currentMediaItem = null;
+      mediaItem.add(null);
+      queue.add(const <MediaItem>[]);
+      rethrow;
     }
   }
 

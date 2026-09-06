@@ -17,7 +17,7 @@ import 'package:neom_core/domain/use_cases/audio_player_invoker_service.dart';
 import '../../utils/mappers/media_item_mapper.dart';
 
 class MiniPlayerController extends SintController implements MiniPlayerService {
-  final userServiceImpl = Sint.find<UserService>();
+  UserService get userServiceImpl => Sint.find<UserService>();
 
   AppMediaItem appMediaItem = AppMediaItem();
   Rxn<MediaItem> mediaItem = Rxn<MediaItem>();

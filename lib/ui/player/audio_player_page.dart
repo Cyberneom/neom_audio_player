@@ -9,17 +9,20 @@ import 'package:neom_commons/utils/auth_guard.dart';
 import 'package:neom_commons/utils/constants/app_page_id_constants.dart';
 import 'package:neom_commons/utils/constants/translations/app_translation_constants.dart';
 import 'package:neom_commons/utils/constants/translations/common_translation_constants.dart';
+import 'package:neom_core/domain/model/playable_item.dart';
 import 'package:neom_sound/neom_sound.dart';
 
+import '../../utils/audio_item_source_availability.dart';
 import '../../utils/constants/audio_player_translation_constants.dart';
 import '../web/widgets/web_now_playing_full.dart';
+import '../web/web_audio_item_page.dart';
 import 'audio_player_controller.dart';
 import 'widgets/artwork_widget.dart';
 import 'widgets/name_n_controls.dart';
 import 'widgets/player_options_menu.dart';
+import 'widgets/unavailable_audio_details.dart';
 
 class AudioPlayerPage extends StatelessWidget {
-
   const AudioPlayerPage({super.key});
 
   void _showEqualizerSheet(BuildContext context) {
@@ -35,7 +38,9 @@ class AudioPlayerPage extends StatelessWidget {
           return Container(
             decoration: BoxDecoration(
               color: Theme.of(context).scaffoldBackgroundColor,
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(20),
+              ),
             ),
             child: Column(
               children: [
@@ -50,9 +55,7 @@ class AudioPlayerPage extends StatelessWidget {
                   ),
                 ),
                 // Equalizer widget from neom_sound
-                const Expanded(
-                  child: EqualizerWidget(),
-                ),
+                const Expanded(child: EqualizerWidget()),
               ],
             ),
           );
@@ -63,73 +66,105 @@ class AudioPlayerPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final arguments = ModalRoute.of(context) == null
+        ? Sint.arguments
+        : context.arguments;
+    final requestedItem = arguments is List && arguments.isNotEmpty
+        ? arguments.first
+        : null;
+    if (requestedItem is PlayableItem && hasNoAudioSource(requestedItem)) {
+      return UnavailableAudioDetails(item: requestedItem);
+    }
+
     // On web, show the Spotify-style full-screen player instead of mobile layout
     if (kIsWeb) {
-      return WebNowPlayingFull(
-        onClose: () => Navigator.of(context).maybePop(),
-      );
+      if (requestedItem is PlayableItem) {
+        return WebAudioItemPage(
+          key: ValueKey(
+            '${requestedItem.id}:${audioItemSource(requestedItem)}',
+          ),
+          item: requestedItem,
+          playItem:
+              arguments is! List ||
+              arguments.length < 2 ||
+              arguments[1] != false,
+        );
+      }
+      return WebNowPlayingFull(onClose: () => Navigator.of(context).maybePop());
     }
 
     return SintBuilder<AudioPlayerController>(
       id: AppPageIdConstants.mediaPlayer,
       init: AudioPlayerController(),
       tag: AppPageIdConstants.mediaPlayer,
-      builder: (controller) => Obx(() => Scaffold(
-        resizeToAvoidBottomInset: false,
-        backgroundColor: AppFlavour.getBackgroundColor(),
-        appBar: SintAppBar(
-          elevation: 0,
-          backgroundColor: AppColor.surfaceElevated,
-          centerTitle: true,
-          actions: (controller.mediaItem.value?.id.isNotEmpty ?? false) ? [
-            // Equalizer quick access
-            IconButton(
-              icon: const Icon(Icons.equalizer),
-              tooltip: AudioPlayerTranslationConstants.equalizer.tr,
-              onPressed: () => _showEqualizerSheet(context),
-            ),
-            IconButton(
-              icon: const Icon(Icons.lyrics_rounded),
-              tooltip: AudioPlayerTranslationConstants.lyrics.tr,
-              onPressed: () => controller.toggleLyricsCard(),
-            ),
-            if (!controller.isOffline())
-              IconButton(
-                icon: const Icon(Icons.share_rounded),
-                tooltip: AppTranslationConstants.toShare.tr,
-                onPressed: () {
-                  AuthGuard.protect(context, () {
-                    controller.sharePopUp();
-                  });
-                },
-              ),
-            // 3-dot menu with more options
-            PlayerOptionsMenu(controller: controller),
-          ] : null,
+      builder: (controller) => Obx(
+        () => Scaffold(
+          resizeToAvoidBottomInset: false,
+          backgroundColor: AppFlavour.getBackgroundColor(),
+          appBar: SintAppBar(
+            elevation: 0,
+            backgroundColor: AppColor.surfaceElevated,
+            centerTitle: true,
+            actions: (controller.mediaItem.value?.id.isNotEmpty ?? false)
+                ? [
+                    // Equalizer quick access
+                    IconButton(
+                      icon: const Icon(Icons.equalizer),
+                      tooltip: AudioPlayerTranslationConstants.equalizer.tr,
+                      onPressed: () => _showEqualizerSheet(context),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.lyrics_rounded),
+                      tooltip: AudioPlayerTranslationConstants.lyrics.tr,
+                      onPressed: () => controller.toggleLyricsCard(),
+                    ),
+                    if (!controller.isOffline())
+                      IconButton(
+                        icon: const Icon(Icons.share_rounded),
+                        tooltip: AppTranslationConstants.toShare.tr,
+                        onPressed: () {
+                          AuthGuard.protect(context, () {
+                            controller.sharePopUp();
+                          });
+                        },
+                      ),
+                    // 3-dot menu with more options
+                    PlayerOptionsMenu(controller: controller),
+                  ]
+                : null,
+          ),
+          body: Container(
+            decoration: AppTheme.appBoxDecoration,
+            child: controller.isLoading.value
+                ? AppCircularProgressIndicator()
+                : controller.isValidItem
+                ? Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      ArtWorkWidget(
+                        mediaPlayerController: controller,
+                        cardKey: controller.onlineCardKey,
+                        height: AppTheme.fullHeight(context) * 0.4,
+                        width: AppTheme.fullWidth(context),
+                        offline: controller.isOffline(),
+                        getLyricsOnline: controller.getLyricsOnline,
+                      ),
+                      NameNControls(
+                        audioPlayerController: controller,
+                        height: AppTheme.fullHeight(context) * 0.49,
+                        width: AppTheme.fullWidth(context),
+                        isLoading: controller.isLoadingAudio.value,
+                      ),
+                    ],
+                  )
+                : SizedBox(
+                    child: Text(
+                      CommonTranslationConstants.noAvailablePreviewUrl.tr,
+                    ),
+                  ),
+          ),
         ),
-        body: Container(
-          decoration: AppTheme.appBoxDecoration,
-          child: controller.isLoading.value ? AppCircularProgressIndicator()
-              : controller.isValidItem ? Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              ArtWorkWidget(
-                mediaPlayerController: controller,
-                cardKey: controller.onlineCardKey,
-                height: AppTheme.fullHeight(context)*0.4,
-                width: AppTheme.fullWidth(context),
-                offline: controller.isOffline(), getLyricsOnline: controller.getLyricsOnline,
-              ),
-              NameNControls(
-                audioPlayerController: controller,
-                height: AppTheme.fullHeight(context)*0.49,
-                width: AppTheme.fullWidth(context),
-                isLoading: controller.isLoadingAudio.value,
-              ),
-            ],
-          ) : SizedBox(child: Text(CommonTranslationConstants.noAvailablePreviewUrl.tr),),
-        ),
-      )),
+      ),
     );
   }
 }

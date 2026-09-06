@@ -1,5 +1,4 @@
 import 'package:audio_service/audio_service.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:neom_commons/ui/theme/app_color.dart';
 import 'package:neom_commons/ui/widgets/custom_image.dart';
@@ -7,7 +6,6 @@ import 'package:neom_commons/utils/app_utilities.dart';
 import 'package:neom_commons/utils/auth_guard.dart';
 import 'package:neom_commons/utils/constants/translations/common_translation_constants.dart';
 import 'package:neom_core/app_config.dart';
-import 'package:neom_core/data/firestore/constants/app_firestore_collection_constants.dart';
 import 'package:neom_core/data/firestore/itemlist_firestore.dart';
 import 'package:neom_core/data/firestore/profile_firestore.dart';
 import 'package:neom_core/data/firestore/user_firestore.dart';
@@ -23,6 +21,7 @@ import 'package:sint/sint.dart';
 import '../../../data/implementations/playlist_hive_controller.dart';
 import '../../player/miniplayer_controller.dart';
 import '../utils/web_color_extractor.dart';
+import '../utils/catalog_album_lookup.dart';
 import '../utils/web_image_resolver.dart';
 import '../utils/web_player_helpers.dart';
 import 'web_lyrics_panel.dart';
@@ -194,26 +193,11 @@ class _WebNowPlayingFullState extends State<WebNowPlayingFull> {
         }
       }
 
-      // B. Query appReleaseItems collection by metaId or metaName
-      Query query = FirebaseFirestore.instance.collection(
-        AppFirestoreCollectionConstants.appReleaseItems,
+      final releaseItems = await loadCatalogAlbumItems(
+        albumId: albumId,
+        albumName: albumName,
       );
-      if (albumId.isNotEmpty) {
-        query = query.where('metaId', isEqualTo: albumId);
-      } else if (albumName.isNotEmpty) {
-        query = query.where('metaName', isEqualTo: albumName);
-      }
-
-      final querySnap = await query.get();
-      if (querySnap.docs.isNotEmpty) {
-        final releaseItems = querySnap.docs.map((doc) {
-          final rel = AppReleaseItem.fromJSON(
-            doc.data() as Map<String, dynamic>,
-          );
-          rel.id = doc.id;
-          return rel;
-        }).toList();
-
+      if (releaseItems.isNotEmpty) {
         final albumItemList = Itemlist(
           id: albumId.isNotEmpty
               ? albumId
