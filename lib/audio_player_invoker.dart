@@ -16,6 +16,7 @@ import 'package:neom_core/domain/model/app_media_item.dart';
 import 'package:neom_core/domain/model/app_release_item.dart';
 import 'package:neom_core/domain/model/playable_item.dart';
 import 'package:neom_core/domain/use_cases/audio_player_invoker_service.dart';
+import 'package:neom_core/domain/use_cases/media_player_service.dart';
 
 import 'data/implementations/player_hive_controller.dart';
 import 'data/providers/neom_audio_provider.dart';
@@ -69,6 +70,9 @@ class AudioPlayerInvoker implements AudioPlayerInvokerService {
     _isInitProcessing = true;
 
     try {
+      if (playItem && Sint.isRegistered<MediaPlayerService>()) {
+        Sint.find<MediaPlayerService>().pauseAllVideos();
+      }
       audioHandler = await getOrInitAudioHandler();
       if (audioHandler == null) {
         throw StateError('The audio player could not be initialized.');
@@ -278,6 +282,9 @@ class AudioPlayerInvoker implements AudioPlayerInvokerService {
       }
 
       if (playItem || nowPlaying) {
+        if (Sint.isRegistered<MediaPlayerService>()) {
+          Sint.find<MediaPlayerService>().pauseAllVideos();
+        }
         AppConfig.logger.d(
           "Starting stream for ${selectedItem.artist ?? ''} - ${selectedItem.title}",
         );

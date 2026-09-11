@@ -938,6 +938,9 @@ class NeomAudioHandler extends BaseAudioHandler
       _broadcastDebounceTimer?.cancel();
       _broadcastDebounceTimer = null;
       _lastBroadcastPlaying = playing;
+      if (playing && Sint.isRegistered<MediaPlayerService>()) {
+        Sint.find<MediaPlayerService>().pauseAllVideos();
+      }
       _doBroadcastState(event);
       return;
     }
@@ -1453,6 +1456,9 @@ class NeomAudioHandler extends BaseAudioHandler
     );
     final access = await _authorizePlayback(origin, showFeedback: false);
     if (!access.allowed) return;
+    if (Sint.isRegistered<MediaPlayerService>()) {
+      Sint.find<MediaPlayerService>().pauseAllVideos();
+    }
     await player.play();
   }
 
@@ -1522,7 +1528,7 @@ class NeomAudioHandler extends BaseAudioHandler
         isLoadingAudio.value = false;
         neomStopwatch.start(ref: currentMediaItem!.id);
         if (Sint.isRegistered<MediaPlayerService>()) {
-          Sint.find<MediaPlayerService>().muteVideoPlayer();
+          Sint.find<MediaPlayerService>().pauseAllVideos();
         }
         // Loading/resolving a source can outlive a logout or subscription
         // transition, so check once more immediately before starting audio.
