@@ -8,6 +8,7 @@ import 'package:neom_core/app_config.dart';
 import 'package:neom_core/utils/enums/app_hive_box.dart';
 import 'package:neom_core/utils/enums/app_in_use.dart';
 
+import '../../../../utils/audio_cache_store.dart';
 import '../../../../utils/platform_io_helper.dart' as platform_io;
 
 import '../../../../utils/constants/audio_player_translation_constants.dart';
@@ -243,7 +244,9 @@ class _OthersPageState extends State<OthersPage> {
                     ) {
                       if (snapshot.connectionState == ConnectionState.done) {
                         final size = snapshot.data;
-                        if (size == null) return const Text('N/A');
+                        if (size == null) {
+                          return Text(AudioPlayerTranslationConstants.notAvailable.tr);
+                        }
                         return Text(
                           '${(size / (1024 * 1024)).toStringAsFixed(2)} MB',
                         );
@@ -262,6 +265,33 @@ class _OthersPageState extends State<OthersPage> {
                 );
               },
             ),
+            // The songs themselves — by far the largest thing the player keeps.
+            // The tile above only clears session and home data.
+            if (platform_io.supportsLocalFiles)
+              ListTile(
+                title: Text(AudioPlayerTranslationConstants.songsOnDevice.tr),
+                subtitle: Text(AudioPlayerTranslationConstants.songsOnDeviceSub.tr),
+                trailing: SizedBox(
+                  height: 70.0,
+                  width: 70.0,
+                  child: Center(
+                    child: FutureBuilder<int>(
+                      future: AudioCacheStore.sizeBytes(),
+                      builder: (context, snapshot) => Text(
+                        snapshot.connectionState == ConnectionState.done
+                            ? '${((snapshot.data ?? 0) / (1024 * 1024)).toStringAsFixed(2)} MB'
+                            : '',
+                      ),
+                    ),
+                  ),
+                ),
+                dense: true,
+                isThreeLine: true,
+                onTap: () async {
+                  await AudioCacheStore.clear();
+                  if (mounted) setState(() {});
+                },
+              ),
           ],
         ),
         ),

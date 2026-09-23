@@ -12,7 +12,6 @@ import 'package:neom_core/app_config.dart';
 import 'package:neom_core/data/firestore/public_catalog_read_policy.dart';
 import 'package:neom_core/data/implementations/app_hive_controller.dart';
 import 'package:neom_core/utils/neom_error_logger.dart';
-import 'package:neom_core/data/implementations/neom_stopwatch.dart';
 import 'package:neom_core/domain/model/casete/casete_session.dart';
 import 'package:neom_core/domain/repository/casete_session_repository.dart';
 import 'package:neom_core/domain/use_cases/audio_handler_service.dart';
@@ -34,14 +33,18 @@ import 'data/implementations/casete_hive_controller.dart';
 import 'data/implementations/player_hive_controller.dart';
 import 'data/implementations/playlist_hive_controller.dart';
 import 'domain/models/queue_state.dart';
+import 'utils/audio_cache_policy.dart';
 import 'utils/audio_player_stats.dart';
 import 'utils/audio_quality_swap.dart';
+import 'utils/casete_listen_clock.dart';
 import 'utils/constants/audio_player_constants.dart';
+import 'utils/constants/audio_player_translation_constants.dart';
 import 'utils/mappers/media_item_mapper.dart';
 import 'utils/media_url_resolver_registry.dart';
 import 'utils/neom_audio_utilities.dart';
 import 'utils/playback_access_policy.dart';
 import 'utils/playback_error_recovery.dart';
+import 'utils/audio_cache_store.dart';
 
 /// Central audio handler for the Open Neom audio module.
 ///
@@ -68,14 +71,16 @@ import 'utils/playback_error_recovery.dart';
 class NeomAudioHandler extends BaseAudioHandler
     with QueueHandler, SeekHandler
     implements AudioHandlerService {
-  static final likeControl = MediaControl(
+  // Getters, not static finals: the label is read by accessibility services
+  // and must follow the current language, not the one active at first use.
+  static MediaControl get likeControl => MediaControl(
     androidIcon: 'drawable/ic_action_like',
-    label: 'Like',
+    label: AudioPlayerTranslationConstants.likeTrack.tr,
     action: MediaAction.fastForward,
   );
-  static final unlikeControl = MediaControl(
+  static MediaControl get unlikeControl => MediaControl(
     androidIcon: 'drawable/ic_action_unlike',
-    label: 'Unlike',
+    label: AudioPlayerTranslationConstants.unlikeTrack.tr,
     action: MediaAction.rewind,
   );
 
@@ -83,8 +88,6 @@ class NeomAudioHandler extends BaseAudioHandler
   Timer? _sleepTimer;
   final RxBool isLoadingAudio = false.obs;
   Timer? _caseteBeaconTimer;
-  String? _currentCaseteSessionId;
-  bool _casetePersistenceWasAllowed = false;
   bool? _lastPersonalAccessAllowed;
   final Rxn<DateTime> sleepTimerEndTime = Rxn<DateTime>();
 
@@ -108,7 +111,17 @@ class NeomAudioHandler extends BaseAudioHandler
       rx.BehaviorSubject.seeded(<MediaItem>[]);
 
   UserService get userServiceImpl => Sint.find<UserService>();
-  final neomStopwatch = NeomStopwatch();
+
+  /// Measures what is actually heard, per item. See [CaseteListenClock].
+  final CaseteListenClock _listenClock = CaseteListenClock();
+
+  /// The item [_listenClock] is measuring: the one a closed window belongs to.
+  MediaItem? _clockItem;
+
+  /// Whether the open window began with an account that can persist
+  /// activity. A window opened as a guest is never saved, even if the user
+  /// signs in before it closes: that time was heard by nobody's account.
+  bool _windowPersistable = false;
 
   int caseteSessionDuration = 0; //Seconds per session
   int casetePerSession = 0; //Pages per session
@@ -271,13 +284,15 @@ class NeomAudioHandler extends BaseAudioHandler
         }
 
         currentMediaItem = item;
+        // Every item change passes through here — skips, queue changes and,
+        // above all, items that advance on their own, which no transport
+        // method sees. The previous item's window closes now or never.
+        _moveListenClockTo(item);
         _currentItemLiked = await _playlistHiveController.checkPlaylist(
           AppHiveBox.favoriteItems.name,
           item.id,
         );
         setItemInMediaPlayers();
-
-        neomStopwatch.start(ref: item.id);
 
         if (AppConfig.instance.canPersistUserActivity &&
             item.artUri.toString().startsWith(CoreConstants.http)) {
@@ -299,6 +314,15 @@ class NeomAudioHandler extends BaseAudioHandler
               : null;
         },
       ).whereType<MediaItem>().distinct().listen(mediaItem.add),
+    );
+
+    // Listening time counts only while audio is audible.
+    _subscriptions.add(
+      player.playerStateStream.listen(
+        (state) => _listenClock.setAudible(
+          state.playing && state.processingState == ProcessingState.ready,
+        ),
+      ),
     );
 
     _subscriptions.add(player.playbackEventStream.listen(_broadcastState));
@@ -338,14 +362,8 @@ class NeomAudioHandler extends BaseAudioHandler
             _awaitingConnectivity = false;
             _connectivitySubscription?.cancel();
             _connectivitySubscription = null;
-            if (neomStopwatch.currentReference != (mediaItem.value?.id ?? '')) {
-              neomStopwatch.start(ref: mediaItem.value?.id ?? '');
-            } else {
-              neomStopwatch.resume();
-            }
             break;
           case ProcessingState.buffering:
-            neomStopwatch.stop();
             break;
           case ProcessingState.completed:
             await stop();
@@ -903,9 +921,18 @@ class NeomAudioHandler extends BaseAudioHandler
 
         if (lastQueue.isNotEmpty) {
           try {
-            List<AudioSource> sources = await _itemsToSources(lastQueue);
-            await player.setAudioSources(sources);
-            await gotoLastIndexAndPosition();
+            final sources = await _itemsToSources(lastQueue);
+            final lastIndex = playerHiveController.lastIndex;
+            // Load straight at the saved position. Loading index 0 and then
+            // seeking started a second source at every app start — with the
+            // full-file cache, a second whole download.
+            await player.setAudioSources(
+              sources,
+              initialIndex: lastIndex >= 0 && lastIndex < sources.length
+                  ? lastIndex
+                  : 0,
+              initialPosition: Duration(seconds: playerHiveController.lastPos),
+            );
           } catch (e, st) {
             NeomErrorLogger.recordError(
               e,
@@ -1077,11 +1104,18 @@ class NeomAudioHandler extends BaseAudioHandler
             }
           }
 
-          if (!kIsWeb &&
-              canUsePersonalPlaybackState &&
-              playerHiveController.cacheSong &&
-              CoreUtilities.isInternal(audioUrl)) {
-            audioSource = LockCachingAudioSource(Uri.parse(audioUrl));
+          if (AudioCachePolicy.canCacheFully(
+            isWeb: kIsWeb,
+            canPersistUserActivity: canUsePersonalPlaybackState,
+            subscriptionLevel: _currentSubscriptionLevel(),
+            cacheSetting: playerHiveController.cacheSong,
+            isInternalUrl: CoreUtilities.isInternal(audioUrl),
+          )) {
+            final cached = LockCachingAudioSource(Uri.parse(audioUrl));
+            // Keeps songs the listener actually plays at the back of the
+            // eviction line (AudioCacheStore.enforceLimit).
+            unawaited(cached.cacheFile.then(AudioCacheStore.markPlayed));
+            audioSource = cached;
           } else {
             audioSource = AudioSource.uri(Uri.parse(audioUrl));
           }
@@ -1103,6 +1137,17 @@ class NeomAudioHandler extends BaseAudioHandler
     }
 
     return audioSource;
+  }
+
+  /// The listener's subscription, or null while it is unknown. Unknown
+  /// streams: a full-file cache is only granted on a known subscription.
+  SubscriptionLevel? _currentSubscriptionLevel() {
+    if (!Sint.isRegistered<UserService>()) return null;
+    try {
+      return userServiceImpl.subscriptionLevel;
+    } catch (_) {
+      return null;
+    }
   }
 
   Future<AudioSource?> _itemToSourceWithRetry(
@@ -1187,6 +1232,8 @@ class NeomAudioHandler extends BaseAudioHandler
     if (player.playing) return;
 
     AppConfig.logger.d('Starting AudioPlayer Service');
+    // The full-file cache never evicts on its own; keep it under its cap.
+    unawaited(AudioCacheStore.enforceLimit());
     await player.setAudioSources([]);
     await loadLastQueue();
     await setListeners();
@@ -1216,7 +1263,9 @@ class NeomAudioHandler extends BaseAudioHandler
     queue.add(const <MediaItem>[]);
     _recentSubject.add(const <MediaItem>[]);
     _currentItemLiked = false;
-    neomStopwatch.reset();
+    _listenClock.clear();
+    _clockItem = null;
+    _windowPersistable = false;
     AppConfig.logger.d(
       'Cleared audio state after crossing the guest/auth boundary.',
     );
@@ -1353,16 +1402,13 @@ class NeomAudioHandler extends BaseAudioHandler
     if (!access.allowed) return;
     if (currentMediaItem == null) return;
 
-    // Fire-and-forget: el guardado en Firestore no debe bloquear el skip.
-    // trackCaseteSession ya captura sus errores internamente.
-    unawaited(trackCaseteSession());
-
+    // The skipped item's casete session is saved by the mediaItem listener
+    // when the item changes, like any other item change.
     int index = queue.value.indexWhere(
       (item) => item.id == currentMediaItem!.id,
     );
     if (index >= 0 && index + 1 < queue.value.length) {
       MediaItem nextMedia = queue.value.elementAt(index + 1);
-      neomStopwatch.start(ref: nextMedia.id);
       currentMediaItem = nextMedia;
       setItemInMediaPlayers();
       await player.seekToNext();
@@ -1405,9 +1451,6 @@ class NeomAudioHandler extends BaseAudioHandler
     if (!access.allowed) return;
     if (currentMediaItem == null) return;
 
-    // Fire-and-forget: el guardado en Firestore no debe bloquear el skip.
-    unawaited(trackCaseteSession());
-
     if (playerHiveController.resetOnSkip) {
       if ((player.position.inSeconds) <= 2) {
         AppConfig.logger.d('skipToPrevious');
@@ -1417,11 +1460,9 @@ class NeomAudioHandler extends BaseAudioHandler
         );
         if (queue.value.isNotEmpty && (index - 1 >= 0)) {
           MediaItem previousMedia = queue.value.elementAt(index - 1);
-          neomStopwatch.start(ref: previousMedia.id);
           currentMediaItem = previousMedia;
           setItemInMediaPlayers();
         }
-        // ROADMAP: integrate per-track Casete stopwatch tracking on skipPrevious.
         await player.seekToPrevious();
       } else {
         AppConfig.logger.d('Reset currentitem');
@@ -1526,7 +1567,6 @@ class NeomAudioHandler extends BaseAudioHandler
 
         setItemInMediaPlayers();
         isLoadingAudio.value = false;
-        neomStopwatch.start(ref: currentMediaItem!.id);
         if (Sint.isRegistered<MediaPlayerService>()) {
           Sint.find<MediaPlayerService>().pauseAllVideos();
         }
@@ -1553,10 +1593,12 @@ class NeomAudioHandler extends BaseAudioHandler
   Future<void> pause() async {
     AppConfig.logger.d('Pause');
     await player.pause();
-    // Fire-and-forget: el guardado en Firestore no debe retrasar la pausa.
-    unawaited(trackCaseteSession());
-    if (currentMediaItem != null) {
-      neomStopwatch.pause(ref: currentMediaItem!.id);
+    _listenClock.setAudible(false);
+    // A short listen keeps accumulating across pauses; once it is long
+    // enough to count, the window is saved and a new one begins on resume.
+    // Fire-and-forget: the Firestore write must not delay the pause.
+    if (_listenClock.elapsedSeconds >= AudioPlayerConstants.minCaseteSeconds) {
+      _saveListenWindow(_listenClock.takeWindow());
     }
 
     addLastQueue(queue.value);
@@ -1572,7 +1614,8 @@ class NeomAudioHandler extends BaseAudioHandler
   @override
   Future<void> stop() async {
     AppConfig.logger.d('Stopping player');
-    unawaited(trackCaseteSession());
+    _listenClock.setAudible(false);
+    _saveListenWindow(_listenClock.takeWindow());
     await player.stop();
     if (playbackState.value.processingState != AudioProcessingState.idle) {
       await playbackState
@@ -1748,46 +1791,65 @@ class NeomAudioHandler extends BaseAudioHandler
   }
 
   Future<void> setItemInMediaPlayers() async {
-    // ROADMAP: integrate per-track Casete stopwatch tracking when item changes.
-    AppConfig.logger.w('StopWatch started for item ${currentMediaItem?.title}');
 
     if (currentMediaItem != null && currentMediaItem?.title != 'null') {
       await AudioPlayerStats.addRecentlyPlayed(currentMediaItem!);
     }
   }
 
-  Future<void> trackCaseteSession({bool isPeriodic = false}) async {
+  /// Moves the listen clock to [item], saving the window of the item it
+  /// leaves.
+  void _moveListenClockTo(MediaItem item) {
+    final leaving = _clockItem;
+    final leavingPersistable = _windowPersistable;
+    final closed = _listenClock.switchTo(item.id);
+    _clockItem = item;
+    // Same item as before (a metadata refresh): its window stays open.
+    if (closed == null && leaving != null && leaving.id == item.id) return;
+
+    _windowPersistable = AppConfig.instance.canPersistUserActivity;
+    if (closed != null && leavingPersistable && leaving?.id == closed.itemId) {
+      unawaited(_persistCaseteWindow(closed, leaving!));
+    }
+  }
+
+  /// Fire-and-forget save of the current item's window. [window] has already
+  /// been taken, which opened a new one for the same item.
+  void _saveListenWindow(CaseteListenWindow? window) {
+    final item = _clockItem;
+    final persistable = _windowPersistable;
+    _windowPersistable = AppConfig.instance.canPersistUserActivity;
+    if (!persistable || window == null || item == null) return;
+    if (item.id != window.itemId) return;
+    unawaited(_persistCaseteWindow(window, item));
+  }
+
+  /// Saves one listening window of [item] as a casete session.
+  ///
+  /// The window is already closed by the caller, so nothing here depends on
+  /// which item is current: the session belongs to the item that was heard,
+  /// even when the save runs after the player has moved on.
+  Future<void> _persistCaseteWindow(
+    CaseteListenWindow window,
+    MediaItem item,
+  ) async {
     AppConfig.logger.t("CASETE ALG: Tracking casete session.");
 
-    final canPersist = AppConfig.instance.canPersistUserActivity;
-    if (!canPersist) {
-      neomStopwatch.reset();
-      _currentCaseteSessionId = null;
-      _casetePersistenceWasAllowed = false;
+    // Signed out while the window was open: the account that heard it is
+    // gone, and the one now present (if any) did not.
+    if (!AppConfig.instance.canPersistUserActivity) {
       AppConfig.logger.d(
         "CASETE ALG: Guest or unloaded user; session not persisted.",
       );
       return;
     }
 
-    // The first tracking tick after guest → authenticated starts a fresh
-    // window. Time accumulated while unauthenticated must never be attributed
-    // to the newly signed-in account.
-    if (!_casetePersistenceWasAllowed) {
-      neomStopwatch.reset();
-      _currentCaseteSessionId = null;
-      _casetePersistenceWasAllowed = true;
-      return;
-    }
-
-    // 1. Validación de Elegibilidad
-    String itemId = currentMediaItem?.id ?? mediaItem.value?.id ?? '';
+    final itemId = window.itemId;
     if (itemId.isEmpty) return;
 
-    bool isOwner =
+    final bool isOwner =
         (userServiceImpl.user.email == itemId) ||
         (userServiceImpl.user.releaseItemIds?.contains(itemId) ?? false);
-
     if (isOwner || !isCaseteElegible) {
       AppConfig.logger.w(
         "CASETE ALG: Owner or not eligible. Session not saved.",
@@ -1795,71 +1857,46 @@ class NeomAudioHandler extends BaseAudioHandler
       return;
     }
 
-    int secondsListened = neomStopwatch.elapsed();
-    AppConfig.logger.d(
-      "CASETE ALG: Checking session. Listened: ${secondsListened}s",
-    );
-
-    // 1. Validación de Tiempo Mínimo (El "Tiempo Sensato")
+    final int secondsListened = window.seconds;
     if (secondsListened < AudioPlayerConstants.minCaseteSeconds) {
-      AppConfig.logger.w(
-        "CASETE ALG: Audio listened less than ${AudioPlayerConstants.minCaseteSeconds}s. Not saved.",
+      AppConfig.logger.d(
+        "CASETE ALG: ${secondsListened}s is under "
+        "${AudioPlayerConstants.minCaseteSeconds}s. Not saved.",
       );
       return;
     }
 
-    if (!isPeriodic) {
-      neomStopwatch
-          .reset(); // Solo resetear si es stop/skip para iniciar la siguiente cancion
-    }
-
-    String itemName = currentMediaItem?.title ?? mediaItem.value?.title ?? '';
-    String ownerId =
-        currentMediaItem?.extras?['ownerId'] ??
-        mediaItem.value?.extras?['ownerId'] ??
-        ''; //
-
-    int createdTime = DateTime.now().millisecondsSinceEpoch;
-    if (_currentCaseteSessionId == null) {
-      _currentCaseteSessionId = '${itemId}_$createdTime';
-    }
-    String sessionId = _currentCaseteSessionId!;
-
-    // 3. Creación de la Sesión
-    CaseteSession caseteSession = CaseteSession(
-      id: sessionId,
+    final int createdTime = DateTime.now().millisecondsSinceEpoch;
+    final caseteSession = CaseteSession(
+      // One document per window. A shared id let two overlapping saves (a
+      // pause followed by a skip) write one item's session over another's.
+      id: '${itemId}_$createdTime',
       createdTime: createdTime,
       itemId: itemId,
-      itemName: itemName,
-      ownerEmail: ownerId,
-      listenerEmail: userServiceImpl.user.email, // Quien escucha
-      casete: secondsListened, // VALOR REAL CALCULADO
-      subscriptionLevel:
-          userServiceImpl.subscriptionLevel, // Si lo tienes disponible
+      itemName: item.title,
+      ownerEmail: item.extras?['ownerId']?.toString() ?? '',
+      listenerEmail: userServiceImpl.user.email,
+      casete: secondsListened,
+      subscriptionLevel: userServiceImpl.subscriptionLevel,
       isTest:
           kDebugMode || userServiceImpl.user.userRole != UserRole.subscriber,
     );
 
     try {
-      // 4. Guardado en Firestore
       await Sint.find<CaseteSessionRepository>().insert(
         caseteSession,
         isOwner: isOwner,
       );
       AppConfig.logger.i(
-        "CASETE ALG: Session saved! $secondsListened seconds for $itemName",
+        "CASETE ALG: Session saved! $secondsListened seconds for ${item.title}",
       );
     } catch (e, st) {
       NeomErrorLogger.recordError(
         e,
         st,
         module: 'neom_audio_player',
-        operation: 'trackCaseteSession',
+        operation: 'persistCaseteWindow',
       );
-    }
-
-    if (!isPeriodic) {
-      _currentCaseteSessionId = null;
     }
   }
 

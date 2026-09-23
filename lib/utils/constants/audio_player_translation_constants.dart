@@ -385,4 +385,11 @@ class AudioPlayerTranslationConstants {
   static const String upgrade = 'upgrade';
   static const String upgradeToSupport = 'upgradeToSupport';
 
+  // Handler notification actions and on-device song cache
+  static const String likeTrack = 'likeTrack';
+  static const String unlikeTrack = 'unlikeTrack';
+  static const String songsOnDevice = 'songsOnDevice';
+  static const String songsOnDeviceSub = 'songsOnDeviceSub';
+  static const String notAvailable = 'notAvailable';
+
 }

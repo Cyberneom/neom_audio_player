@@ -371,6 +371,12 @@ class AudioPlayerEnTranslations {
     AudioPlayerTranslationConstants.endSessionWarning: 'This will end the session for all participants.',
     AudioPlayerTranslationConstants.upgrade: 'Upgrade',
     AudioPlayerTranslationConstants.upgradeToSupport: 'Upgrade your plan to support your favorite artists',
+    // Handler notification actions and on-device song cache
+    AudioPlayerTranslationConstants.likeTrack: 'Like',
+    AudioPlayerTranslationConstants.unlikeTrack: 'Unlike',
+    AudioPlayerTranslationConstants.songsOnDevice: 'Songs saved on this device',
+    AudioPlayerTranslationConstants.songsOnDeviceSub: 'Your subscription keeps the songs you play so they are not downloaded again. Past 500 MB, the ones you have not played in the longest time are removed.',
+    AudioPlayerTranslationConstants.notAvailable: 'N/A',
   };
 
 }

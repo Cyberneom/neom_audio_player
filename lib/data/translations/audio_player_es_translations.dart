@@ -371,6 +371,12 @@ class AudioPlayerEsTranslations {
     AudioPlayerTranslationConstants.endSessionWarning: 'Esto terminar\u00e1 la sesi\u00f3n para todos los participantes.',
     AudioPlayerTranslationConstants.upgrade: 'Mejorar',
     AudioPlayerTranslationConstants.upgradeToSupport: 'Mejora tu plan para apoyar a tus artistas favoritos',
+    // Handler notification actions and on-device song cache
+    AudioPlayerTranslationConstants.likeTrack: 'Me gusta',
+    AudioPlayerTranslationConstants.unlikeTrack: 'Ya no me gusta',
+    AudioPlayerTranslationConstants.songsOnDevice: 'Canciones guardadas en el dispositivo',
+    AudioPlayerTranslationConstants.songsOnDeviceSub: 'Tu suscripción guarda las canciones que escuchas para no volver a descargarlas. Al pasar de 500 MB se borran las que llevas más tiempo sin escuchar.',
+    AudioPlayerTranslationConstants.notAvailable: 'N/D',
   };
 
 }

@@ -8,8 +8,10 @@ import 'package:neom_commons/utils/app_utilities.dart';
 import 'package:neom_commons/utils/constants/translations/app_translation_constants.dart';
 import 'package:neom_core/app_config.dart';
 import 'package:neom_core/utils/enums/app_hive_box.dart';
+import 'package:neom_core/domain/use_cases/user_service.dart';
 import 'package:neom_core/utils/enums/app_in_use.dart';
 
+import '../../../../utils/audio_cache_policy.dart';
 import '../../../../utils/constants/audio_player_constants.dart';
 import '../../../../utils/constants/audio_player_translation_constants.dart';
 import 'hive_box_switch_tile.dart';
@@ -23,6 +25,15 @@ class MusicPlaybackSettingsPage extends StatefulWidget {
 }
 
 class _MusicPlaybackSettingsPageState extends State<MusicPlaybackSettingsPage> {
+
+  bool get _hasSubscription {
+    if (!AppConfig.instance.canPersistUserActivity ||
+        !Sint.isRegistered<UserService>()) {
+      return false;
+    }
+    return AudioCachePolicy.hasSubscription(
+        Sint.find<UserService>().subscriptionLevel);
+  }
   String streamingMobileQuality = '96 kbps';
   String streamingWifiQuality = '320 kbps';
   String region = 'México';
@@ -236,12 +247,15 @@ class _MusicPlaybackSettingsPageState extends State<MusicPlaybackSettingsPage> {
               //   defaultValue: true,
               //   isThreeLine: true,
               // ),
-              HiveBoxSwitchTile(
-                title: AudioPlayerTranslationConstants.cacheMediaItem.tr,
-                subtitle: AudioPlayerTranslationConstants.cacheMediaItemSub.tr,
-                keyName: 'cacheSong',
-                defaultValue: true,
-              ),
+              // Keeping songs on the device is a subscriber benefit; for
+              // anyone else the switch would do nothing (see AudioCachePolicy).
+              if (_hasSubscription)
+                HiveBoxSwitchTile(
+                  title: AudioPlayerTranslationConstants.cacheMediaItem.tr,
+                  subtitle: AudioPlayerTranslationConstants.cacheMediaItemSub.tr,
+                  keyName: 'cacheSong',
+                  defaultValue: true,
+                ),
             ],
         ),
       ),
