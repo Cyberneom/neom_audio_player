@@ -235,7 +235,7 @@ class _WebLyricsPanelState extends State<WebLyricsPanel> {
                       ),
                       const SizedBox(width: 6),
                       Text(
-                        'KARAOKE SYNC',
+                        AudioPlayerTranslationConstants.karaokeSyncBadge.tr,
                         style: TextStyle(
                           color: AppColor.getMain(),
                           fontSize: 10,
@@ -250,7 +250,7 @@ class _WebLyricsPanelState extends State<WebLyricsPanel> {
               const Spacer(),
               // Font size controls
               Tooltip(
-                message: 'Reducir tamaño de letra',
+                message: AudioPlayerTranslationConstants.decreaseLyricsSize.tr,
                 child: IconButton(
                   icon: const Icon(Icons.text_decrease_rounded, color: Colors.white60, size: 18),
                   padding: EdgeInsets.zero,
@@ -261,7 +261,7 @@ class _WebLyricsPanelState extends State<WebLyricsPanel> {
                 ),
               ),
               Tooltip(
-                message: 'Aumentar tamaño de letra',
+                message: AudioPlayerTranslationConstants.increaseLyricsSize.tr,
                 child: IconButton(
                   icon: const Icon(Icons.text_increase_rounded, color: Colors.white60, size: 18),
                   padding: EdgeInsets.zero,
@@ -274,14 +274,14 @@ class _WebLyricsPanelState extends State<WebLyricsPanel> {
               // Copy lyrics button
               if (_lyrics.lyrics.isNotEmpty)
                 Tooltip(
-                  message: 'Copiar letra',
+                  message: AudioPlayerTranslationConstants.copyLyrics.tr,
                   child: IconButton(
                     icon: const Icon(Icons.copy_rounded, color: Colors.white60, size: 18),
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
                     onPressed: () {
                       DeviceUtilities.copyToClipboard(text: _lyrics.lyrics);
-                      AppUtilities.showSnackBar(message: 'Letra copiada al portapapeles');
+                      AppUtilities.showSnackBar(message: AudioPlayerTranslationConstants.lyricsCopied.tr);
                     },
                   ),
                 ),
@@ -304,7 +304,7 @@ class _WebLyricsPanelState extends State<WebLyricsPanel> {
                   ),
                   if (_entries.isNotEmpty)
                     Text(
-                      'Toca cualquier línea para saltar al minuto exacto',
+                      AudioPlayerTranslationConstants.tapLineToSeek.tr,
                       style: TextStyle(color: Colors.grey[500], fontSize: 11),
                     ),
                 ],
@@ -323,8 +323,8 @@ class _WebLyricsPanelState extends State<WebLyricsPanel> {
           children: [
             CircularProgressIndicator(color: AppColor.getMain()),
             const SizedBox(height: 12),
-            const Text(
-              'Cargando letras...',
+            Text(
+              AudioPlayerTranslationConstants.loadingLyrics.tr,
               style: TextStyle(color: Colors.white60, fontSize: 13),
             ),
           ],

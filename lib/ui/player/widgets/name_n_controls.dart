@@ -228,7 +228,11 @@ class NameNControls extends StatelessWidget {
                                   final index = cycleModes.indexOf(repeatMode);
                                   return IconButton(
                                     icon: icons[index],
-                                    tooltip: 'Repeat ${texts[(index + 1) % texts.length]}',
+                                    tooltip: [
+                                      AudioPlayerTranslationConstants.repeatOffTooltip.tr,
+                                      AudioPlayerTranslationConstants.repeatAllTooltip.tr,
+                                      AudioPlayerTranslationConstants.repeatOneTooltip.tr,
+                                    ][(index + 1) % texts.length],
                                     onPressed: () {
                                       AuthGuard.protect(context, () {
                                         Hive.box(AppHiveBox.settings.name).put(AppHiveConstants.repeatMode, texts[(index + 1) % texts.length],);

@@ -26,6 +26,7 @@ import '../utils/web_image_resolver.dart';
 import '../utils/web_player_helpers.dart';
 import 'web_lyrics_panel.dart';
 import 'web_pseudo_visualizer.dart';
+import '../../../utils/constants/audio_player_translation_constants.dart';
 
 /// Full-screen Now Playing overlay for web.
 ///
@@ -421,7 +422,7 @@ class _WebNowPlayingFullState extends State<WebNowPlayingFull> {
                         color: Colors.white,
                         size: 24,
                       ),
-                      tooltip: 'Cerrar vista completa (ESC)',
+                      tooltip: AudioPlayerTranslationConstants.closeFullView.tr,
                     ),
                   ),
                 ),
@@ -451,7 +452,7 @@ class _WebNowPlayingFullState extends State<WebNowPlayingFull> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Tooltip(
-                message: 'Reproducir álbum completo',
+                message: AudioPlayerTranslationConstants.playFullAlbum.tr,
                 waitDuration: const Duration(milliseconds: 400),
                 child: MouseRegion(
                   cursor: SystemMouseCursors.click,
@@ -490,7 +491,7 @@ class _WebNowPlayingFullState extends State<WebNowPlayingFull> {
                 children: [
                   if (_artistPhotoUrl != null && _artistPhotoUrl!.isNotEmpty)
                     Tooltip(
-                      message: 'Ver perfil del artista',
+                      message: AudioPlayerTranslationConstants.viewArtistProfile.tr,
                       child: MouseRegion(
                         cursor: SystemMouseCursors.click,
                         child: GestureDetector(
@@ -513,7 +514,7 @@ class _WebNowPlayingFullState extends State<WebNowPlayingFull> {
                         fontSize: 15,
                         fontWeight: FontWeight.w700,
                       ),
-                      tooltip: 'Ver perfil del artista',
+                      tooltip: AudioPlayerTranslationConstants.viewArtistProfile.tr,
                       onTap: () => _navigateToArtist(ownerId),
                     ),
                   ),
@@ -531,7 +532,7 @@ class _WebNowPlayingFullState extends State<WebNowPlayingFull> {
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                         ),
-                        tooltip: 'Reproducir álbum completo',
+                        tooltip: AudioPlayerTranslationConstants.playFullAlbum.tr,
                         onTap: () => _navigateToAlbum(mediaItem),
                       ),
                     ),
@@ -571,7 +572,7 @@ class _WebNowPlayingFullState extends State<WebNowPlayingFull> {
                         color: Colors.white,
                         size: 32,
                       ),
-                      tooltip: 'Canción anterior',
+                      tooltip: AudioPlayerTranslationConstants.previousSong.tr,
                       onPressed: () =>
                           controller.audioHandler?.skipToPrevious(),
                     ),
@@ -618,14 +619,14 @@ class _WebNowPlayingFullState extends State<WebNowPlayingFull> {
                         color: Colors.white,
                         size: 32,
                       ),
-                      tooltip: 'Siguiente canción',
+                      tooltip: AudioPlayerTranslationConstants.nextSong.tr,
                       onPressed: () => controller.audioHandler?.skipToNext(),
                     ),
                     const SizedBox(width: 10),
 
                     // Button to activate Canvas / Arte en Vivo Mode
                     Tooltip(
-                      message: 'Activar Modo Canvas / Arte Vivo',
+                      message: AudioPlayerTranslationConstants.enableCanvasMode.tr,
                       child: Container(
                         decoration: BoxDecoration(
                           color: Colors.white.withValues(alpha: 0.08),
@@ -650,7 +651,7 @@ class _WebNowPlayingFullState extends State<WebNowPlayingFull> {
                           color: Colors.white70,
                           size: 22,
                         ),
-                        tooltip: 'Cola de reproducción',
+                        tooltip: AudioPlayerTranslationConstants.upNextQueue.tr,
                         onPressed: widget.onToggleQueue,
                       ),
                     ],
@@ -690,7 +691,7 @@ class _WebNowPlayingFullState extends State<WebNowPlayingFull> {
         children: [
           // ─── Central Large Hero Artwork with Ken Burns Live Motion ───
           Tooltip(
-            message: 'Reproducir álbum completo',
+            message: AudioPlayerTranslationConstants.playFullAlbum.tr,
             waitDuration: const Duration(milliseconds: 400),
             child: MouseRegion(
               cursor: SystemMouseCursors.click,
@@ -729,7 +730,7 @@ class _WebNowPlayingFullState extends State<WebNowPlayingFull> {
             children: [
               if (_artistPhotoUrl != null && _artistPhotoUrl!.isNotEmpty)
                 Tooltip(
-                  message: 'Ver perfil del artista',
+                  message: AudioPlayerTranslationConstants.viewArtistProfile.tr,
                   child: MouseRegion(
                     cursor: SystemMouseCursors.click,
                     child: GestureDetector(
@@ -752,7 +753,7 @@ class _WebNowPlayingFullState extends State<WebNowPlayingFull> {
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
                   ),
-                  tooltip: 'Ver perfil del artista',
+                  tooltip: AudioPlayerTranslationConstants.viewArtistProfile.tr,
                   onTap: () => _navigateToArtist(ownerId),
                 ),
               ),
@@ -769,7 +770,7 @@ class _WebNowPlayingFullState extends State<WebNowPlayingFull> {
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
                     ),
-                    tooltip: 'Reproducir álbum completo',
+                    tooltip: AudioPlayerTranslationConstants.playFullAlbum.tr,
                     onTap: () => _navigateToAlbum(mediaItem),
                   ),
                 ),
@@ -812,7 +813,7 @@ class _WebNowPlayingFullState extends State<WebNowPlayingFull> {
                   color: Colors.white,
                   size: 34,
                 ),
-                tooltip: 'Canción anterior',
+                tooltip: AudioPlayerTranslationConstants.previousSong.tr,
                 onPressed: () => controller.audioHandler?.skipToPrevious(),
               ),
 
@@ -862,7 +863,7 @@ class _WebNowPlayingFullState extends State<WebNowPlayingFull> {
                   color: Colors.white,
                   size: 34,
                 ),
-                tooltip: 'Siguiente canción',
+                tooltip: AudioPlayerTranslationConstants.nextSong.tr,
                 onPressed: () => controller.audioHandler?.skipToNext(),
               ),
 
@@ -870,7 +871,7 @@ class _WebNowPlayingFullState extends State<WebNowPlayingFull> {
 
               // Active Canvas Button (Click to return to standard lyrics view)
               Tooltip(
-                message: 'Volver a vista con letras',
+                message: AudioPlayerTranslationConstants.backToLyricsView.tr,
                 child: Container(
                   decoration: BoxDecoration(
                     color: AppColor.getMain().withValues(alpha: 0.22),
@@ -899,7 +900,7 @@ class _WebNowPlayingFullState extends State<WebNowPlayingFull> {
                     color: Colors.white54,
                     size: 24,
                   ),
-                  tooltip: 'Cola de reproducción',
+                  tooltip: AudioPlayerTranslationConstants.upNextQueue.tr,
                   onPressed: widget.onToggleQueue,
                 ),
               ],
@@ -1344,8 +1345,8 @@ class _CanvasArtworkState extends State<_CanvasArtwork>
                       size: 13,
                     ),
                     const SizedBox(width: 6),
-                    const Text(
-                      'ARTE EN VIVO',
+                    Text(
+                      AudioPlayerTranslationConstants.liveArtBadge.tr,
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 10,
@@ -1506,7 +1507,9 @@ class _FullScreenLikeButtonState extends State<_FullScreenLikeButton> {
   @override
   Widget build(BuildContext context) {
     return Tooltip(
-      message: _isLiked ? 'Eliminar de favoritos' : 'Guardar en favoritos',
+      message: _isLiked
+          ? AudioPlayerTranslationConstants.removeFromFavorites.tr
+          : AudioPlayerTranslationConstants.saveToFavorites.tr,
       waitDuration: const Duration(milliseconds: 400),
       child: MouseRegion(
         cursor: SystemMouseCursors.click,

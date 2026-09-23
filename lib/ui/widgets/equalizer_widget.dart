@@ -5,6 +5,7 @@ import 'package:sint/sint.dart';
 
 import '../../data/implementations/audio_player_equalizer_controller.dart';
 import '../../utils/enums/audio_player_equalizer_preset.dart';
+import '../../utils/constants/audio_player_translation_constants.dart';
 
 /// Full equalizer UI with enable toggle, per-band vertical sliders,
 /// and preset buttons.
@@ -73,7 +74,7 @@ class _EqualizerWidgetState extends State<EqualizerWidget> {
 
   Widget _buildEnableToggle(ThemeData theme, Color accent) {
     return Obx(() => SwitchListTile(
-      title: Text('Equalizer', style: theme.textTheme.titleMedium),
+      title: Text(AudioPlayerTranslationConstants.equalizer.tr, style: theme.textTheme.titleMedium),
       value: _controller.isEnabled,
       activeThumbColor: accent,
       onChanged: (value) async {

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sint/sint.dart';
 
 import '../../data/implementations/enhanced_playback_controller.dart';
+import '../../utils/constants/audio_player_translation_constants.dart';
 
 /// Bottom sheet panel for controlling playback speed and pitch.
 ///
@@ -43,7 +44,7 @@ class PlaybackControlPanel extends StatelessWidget {
           ),
           const SizedBox(height: 16),
 
-          Text('Playback Controls', style: theme.textTheme.headlineSmall),
+          Text(AudioPlayerTranslationConstants.playbackControls.tr, style: theme.textTheme.headlineSmall),
           const SizedBox(height: 24),
 
           // Speed section
@@ -51,7 +52,7 @@ class PlaybackControlPanel extends StatelessWidget {
             context: context,
             theme: theme,
             accent: accent,
-            label: 'Speed',
+            label: AudioPlayerTranslationConstants.speedLabel.tr,
             getValue: () => controller.playbackSpeed,
             setValue: (v) => controller.setPlaybackSpeed(v),
             reset: () => controller.resetPlaybackSpeed(),
@@ -68,7 +69,7 @@ class PlaybackControlPanel extends StatelessWidget {
             context: context,
             theme: theme,
             accent: accent,
-            label: 'Pitch',
+            label: AudioPlayerTranslationConstants.pitchLabel.tr,
             getValue: () => controller.pitch,
             setValue: (v) => controller.setPitch(v),
             reset: () => controller.resetPitch(),
@@ -88,7 +89,7 @@ class PlaybackControlPanel extends StatelessWidget {
                 await controller.resetPitch();
               },
               icon: const Icon(Icons.refresh, size: 18),
-              label: const Text('Reset All'),
+              label: Text(AudioPlayerTranslationConstants.resetAll.tr),
               style: TextButton.styleFrom(
                 foregroundColor: theme.hintColor,
               ),

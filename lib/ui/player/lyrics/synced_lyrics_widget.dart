@@ -178,7 +178,7 @@ class _SyncedLyricsWidgetState extends State<SyncedLyricsWidget> {
               borderRadius: BorderRadius.circular(4),
             ),
             child: Text(
-              'SYNCED',
+              AudioPlayerTranslationConstants.syncedBadge.tr,
               style: TextStyle(
                 color: accent,
                 fontSize: 9,

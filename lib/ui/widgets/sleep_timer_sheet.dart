@@ -50,7 +50,7 @@ class SleepTimerSheet extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Sleep Timer',
+                AudioPlayerTranslationConstants.sleepTimer.tr,
                 style: theme.textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
@@ -60,7 +60,7 @@ class SleepTimerSheet extends StatelessWidget {
                   return TextButton(
                     onPressed: () => controller.cancelSleepTimer(),
                     child: Text(
-                      'Cancel',
+                      AudioPlayerTranslationConstants.cancelSleepTimer.tr,
                       style: TextStyle(color: Colors.red.shade400),
                     ),
                   );
@@ -89,7 +89,7 @@ class SleepTimerSheet extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Timer Active',
+                          AudioPlayerTranslationConstants.timerActive.tr,
                           style: TextStyle(
                             color: accent,
                             fontWeight: FontWeight.bold,
@@ -113,7 +113,7 @@ class SleepTimerSheet extends StatelessWidget {
                       onPressed: () => controller.extendSleepTimer(
                         const Duration(minutes: 5),
                       ),
-                      tooltip: 'Add 5 minutes',
+                      tooltip: AudioPlayerTranslationConstants.addFiveMinutes.tr,
                     ),
                   ],
                 ),
@@ -124,7 +124,7 @@ class SleepTimerSheet extends StatelessWidget {
 
           // Timer options
           Text(
-            'Stop playing in',
+            AudioPlayerTranslationConstants.stopPlayingIn.tr,
             style: theme.textTheme.bodyMedium?.copyWith(
               color: theme.textTheme.bodySmall?.color,
             ),

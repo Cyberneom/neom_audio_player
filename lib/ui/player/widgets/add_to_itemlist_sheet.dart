@@ -266,7 +266,9 @@ class _AddToItemlistSheetBodyState extends State<_AddToItemlistSheetBody> {
                 style: TextStyle(color: AppColor.textPrimary, fontSize: 14),
               ),
               trailing: Text(
-                '${widget.lists.first.allItems.length} items',
+                AudioPlayerTranslationConstants.itemsCount.trParams({
+                  'count': '${widget.lists.first.allItems.length}',
+                }),
                 style: TextStyle(color: AppColor.textSecondary, fontSize: 12),
               ),
             ),
@@ -332,7 +334,7 @@ class _AddToItemlistSheetBodyState extends State<_AddToItemlistSheetBody> {
       AppConfig.logger.e('AddToItemlistSheet._addItem error: $e');
       if (mounted) {
         setState(() => _isAdding = false);
-        AppUtilities.showSnackBar(message: 'Error adding item');
+        AppUtilities.showSnackBar(message: AudioPlayerTranslationConstants.addItemError.tr);
       }
     }
   }

@@ -12,6 +12,20 @@ import '../../../../utils/constants/audio_player_constants.dart';
 import '../../../../utils/constants/audio_player_translation_constants.dart';
 import 'hive_box_switch_tile.dart';
 
+/// Display name of a player control.
+///
+/// The English names are what Hive stores as the controls' ids (see
+/// [AudioPlayerConstants.defaultMiniButtonsOrder]), so they are translated
+/// here, where they are shown, and never where they are saved.
+String _controlLabel(String id) => switch (id) {
+      'Like' => AudioPlayerTranslationConstants.likeTrack.tr,
+      'Previous' => AudioPlayerTranslationConstants.controlPrevious.tr,
+      'Play/Pause' => AudioPlayerTranslationConstants.controlPlayPause.tr,
+      'Next' => AudioPlayerTranslationConstants.controlNext.tr,
+      'Stop' => AudioPlayerTranslationConstants.controlStop.tr,
+      _ => id,
+    };
+
 class MusicPlayerInterfacePage extends StatefulWidget {
   final Function? callback;
   const MusicPlayerInterfacePage({super.key, this.callback});
@@ -113,7 +127,7 @@ class _MusicPlayerInterfacePageState extends State<MusicPlayerInterfacePage> {
                                             checkColor: Theme.of(context,).colorScheme.secondary == Colors.white
                                                 ? Colors.black : null,
                                             value: checked.contains(e),
-                                            title: Text(e),
+                                            title: Text(_controlLabel(e)),
                                             onChanged: (bool? value) {
                                               setStt(
                                                 () {
@@ -240,7 +254,7 @@ class _MusicPlayerInterfacePageState extends State<MusicPlayerInterfacePage> {
                                       checkColor: Theme.of(context,).colorScheme.secondary == Colors.white
                                           ? Colors.black : null,
                                       value: checked.contains(value['index'] as int,),
-                                      title: Text(value['name'] as String,),
+                                      title: Text(_controlLabel(value['name'] as String)),
                                       onChanged: (bool? isChecked) {
                                         setState(
                                           () {

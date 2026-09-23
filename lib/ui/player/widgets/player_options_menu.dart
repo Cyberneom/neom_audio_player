@@ -224,11 +224,20 @@ class PlayerOptionsMenu extends StatelessWidget {
               spacing: 8,
               runSpacing: 8,
               children: [
-                _SleepTimerChip(label: '15 min', minutes: 15),
-                _SleepTimerChip(label: '30 min', minutes: 30),
-                _SleepTimerChip(label: '45 min', minutes: 45),
-                _SleepTimerChip(label: '1 hour', minutes: 60),
-                _SleepTimerChip(label: '2 hours', minutes: 120),
+                _SleepTimerChip(
+                  label: AudioPlayerTranslationConstants.minutesShort.trParams({'count': '15'}),
+                  minutes: 15,
+                ),
+                _SleepTimerChip(
+                  label: AudioPlayerTranslationConstants.minutesShort.trParams({'count': '30'}),
+                  minutes: 30,
+                ),
+                _SleepTimerChip(
+                  label: AudioPlayerTranslationConstants.minutesShort.trParams({'count': '45'}),
+                  minutes: 45,
+                ),
+                _SleepTimerChip(label: AudioPlayerTranslationConstants.oneHour.tr, minutes: 60),
+                _SleepTimerChip(label: AudioPlayerTranslationConstants.twoHours.tr, minutes: 120),
               ],
             ),
             const SizedBox(height: 20),
@@ -246,10 +255,14 @@ class PlayerOptionsMenu extends StatelessWidget {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            _QualityOption(label: 'Auto', subtitle: 'Adjusts based on connection', isSelected: true),
-            _QualityOption(label: 'High', subtitle: '320 kbps', isSelected: false),
-            _QualityOption(label: 'Normal', subtitle: '160 kbps', isSelected: false),
-            _QualityOption(label: 'Low', subtitle: '96 kbps', isSelected: false),
+            _QualityOption(
+              label: AudioPlayerTranslationConstants.qualityAuto.tr,
+              subtitle: AudioPlayerTranslationConstants.qualityAutoSub.tr,
+              isSelected: true,
+            ),
+            _QualityOption(label: AudioPlayerTranslationConstants.qualityHigh.tr, subtitle: '320 kbps', isSelected: false),
+            _QualityOption(label: AudioPlayerTranslationConstants.qualityNormal.tr, subtitle: '160 kbps', isSelected: false),
+            _QualityOption(label: AudioPlayerTranslationConstants.qualityLow.tr, subtitle: '96 kbps', isSelected: false),
           ],
         ),
         actions: [
@@ -326,7 +339,9 @@ class _SleepTimerChip extends StatelessWidget {
         // Would set sleep timer
         Sint.back();
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Sleep timer set for $label')),
+          SnackBar(
+            content: Text('${AudioPlayerTranslationConstants.sleepTimerSetFor.tr} $label'),
+          ),
         );
       },
     );

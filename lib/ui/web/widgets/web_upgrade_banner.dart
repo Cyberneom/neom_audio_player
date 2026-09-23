@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:neom_commons/ui/theme/app_color.dart';
 import 'package:neom_commons/utils/constants/translations/app_translation_constants.dart';
 import 'package:sint/sint.dart';
+import '../../../utils/constants/audio_player_translation_constants.dart';
 
 class WebUpgradeBanner extends StatefulWidget {
   final String message;
@@ -48,8 +49,8 @@ class _WebUpgradeBannerState extends State<WebUpgradeBanner> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'CASETE',
+                Text(
+                  AudioPlayerTranslationConstants.caseteBadge.tr,
                   style: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,

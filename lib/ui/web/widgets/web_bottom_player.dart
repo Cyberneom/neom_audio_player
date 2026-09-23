@@ -141,7 +141,7 @@ class WebBottomPlayer extends StatelessWidget {
                       icon: Icons.share_rounded,
                       size: 18,
                       color: Colors.white70,
-                      tooltip: 'Copy share link',
+                      tooltip: AudioPlayerTranslationConstants.copyShareLink.tr,
                       onTap: () {
                         final slug =
                             mediaItem.extras?['slug']?.toString() ?? '';
@@ -162,7 +162,7 @@ class WebBottomPlayer extends StatelessWidget {
                       icon: Icons.open_in_full_rounded,
                       size: 18,
                       color: Colors.white70,
-                      tooltip: 'Stretches the player horizontally',
+                      tooltip: AudioPlayerTranslationConstants.stretchPlayer.tr,
                       onTap: () {
                         controller.isWebPlayerRetracted.value = false;
                         controller.update(['web_bottom_player']);
@@ -173,7 +173,7 @@ class WebBottomPlayer extends StatelessWidget {
                       icon: Icons.close_rounded,
                       size: 18,
                       color: Colors.white70,
-                      tooltip: 'Close player',
+                      tooltip: AudioPlayerTranslationConstants.closePlayer.tr,
                       onTap: () {
                         controller.isWebPlayerClosed.value = true;
                         controller.update(['web_bottom_player']);
@@ -396,7 +396,7 @@ class WebBottomPlayer extends StatelessWidget {
                                       borderRadius: BorderRadius.circular(3),
                                     ),
                                     child: Text(
-                                      'CASETE',
+                                      AudioPlayerTranslationConstants.caseteBadge.tr,
                                       style: TextStyle(
                                         color: AppColor.getMain(),
                                         fontSize: 8,
@@ -424,8 +424,8 @@ class WebBottomPlayer extends StatelessWidget {
                                       ),
                                       borderRadius: BorderRadius.circular(3),
                                     ),
-                                    child: const Text(
-                                      'RADIO',
+                                    child: Text(
+                                      AudioPlayerTranslationConstants.radioBadge.tr,
                                       style: TextStyle(
                                         color: Colors.purpleAccent,
                                         fontSize: 8,
@@ -452,8 +452,8 @@ class WebBottomPlayer extends StatelessWidget {
                                       ),
                                       borderRadius: BorderRadius.circular(3),
                                     ),
-                                    child: const Text(
-                                      'JAM',
+                                    child: Text(
+                                      AudioPlayerTranslationConstants.jamBadge.tr,
                                       style: TextStyle(
                                         color: Colors.greenAccent,
                                         fontSize: 8,
@@ -618,7 +618,7 @@ class WebBottomPlayer extends StatelessWidget {
                                   : Icons.repeat_rounded,
                               size: 18,
                               color: isActive ? Colors.white : Colors.white38,
-                              tooltip: 'Repeat',
+                              tooltip: AudioPlayerTranslationConstants.repeatTooltip.tr,
                               onTap: () {
                                 AuthGuard.protect(context, () {
                                   const modes = [
@@ -739,7 +739,7 @@ class WebBottomPlayer extends StatelessWidget {
                         icon: Icons.share_rounded,
                         size: 20,
                         color: Colors.white70,
-                        tooltip: 'Copy share link',
+                        tooltip: AudioPlayerTranslationConstants.copyShareLink.tr,
                         onTap: () {
                           final mediaItem = controller.visibleMediaItem;
                           if (mediaItem != null) {
@@ -768,7 +768,9 @@ class WebBottomPlayer extends StatelessWidget {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Tooltip(
-                                message: volume == 0 ? 'Unmute' : 'Mute',
+                                message: volume == 0
+                                    ? AudioPlayerTranslationConstants.unmute.tr
+                                    : AudioPlayerTranslationConstants.mute.tr,
                                 waitDuration: const Duration(milliseconds: 500),
                                 child: MouseRegion(
                                   cursor: SystemMouseCursors.click,
@@ -821,7 +823,7 @@ class WebBottomPlayer extends StatelessWidget {
                         icon: Icons.close_fullscreen_rounded,
                         size: 18,
                         color: Colors.white70,
-                        tooltip: 'Minimize player to the right',
+                        tooltip: AudioPlayerTranslationConstants.minimizePlayerRight.tr,
                         onTap: () {
                           controller.isWebPlayerRetracted.value = true;
                           controller.update(['web_bottom_player']);
@@ -1168,7 +1170,7 @@ class _WebCrossfadeButtonState extends State<_WebCrossfadeButton> {
     if (enhanced == null) return const SizedBox.shrink();
 
     return PopupMenuButton<CrossfadeMode>(
-      tooltip: 'Crossfade',
+      tooltip: AudioPlayerTranslationConstants.crossfade.tr,
       icon: Icon(
         Icons.compare_arrows_rounded,
         color: enhanced.isCrossfadeEnabled ? Colors.white : Colors.white70,

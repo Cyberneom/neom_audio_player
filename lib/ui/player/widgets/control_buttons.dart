@@ -195,7 +195,7 @@ class ControlButtons extends StatelessWidget {
                       color: Theme.of(context).disabledColor,
                     ),
                     iconSize: miniPlayer ? 24.0 : 30.0,
-                    tooltip: 'Coming soon',
+                    tooltip: AudioPlayerTranslationConstants.comingSoon.tr,
                     onPressed: null,
                   ),
               );

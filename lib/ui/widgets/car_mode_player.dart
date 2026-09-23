@@ -7,6 +7,7 @@ import 'package:sint/sint.dart';
 
 import '../../data/implementations/enhanced_playback_controller.dart';
 import '../../utils/enums/playback_mode.dart';
+import '../../utils/constants/audio_player_translation_constants.dart';
 
 /// Full screen car mode player with large touch targets
 class CarModePlayer extends StatefulWidget {
@@ -444,7 +445,7 @@ class _CarModePlayerState extends State<CarModePlayer> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Up Next',
+                    AudioPlayerTranslationConstants.upNext.tr,
                     style: theme.textTheme.titleSmall?.copyWith(
                       color: Colors.white,
                     ),
@@ -479,7 +480,9 @@ class _CarModePlayerState extends State<CarModePlayer> {
                         ),
                       ),
                       title: Text(
-                        'Song ${index + 1}',
+                        AudioPlayerTranslationConstants.carModeSongPlaceholder.trParams({
+                          'number': '${index + 1}',
+                        }),
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 12,
@@ -488,7 +491,7 @@ class _CarModePlayerState extends State<CarModePlayer> {
                         overflow: TextOverflow.ellipsis,
                       ),
                       subtitle: Text(
-                        'Artist',
+                        AudioPlayerTranslationConstants.carModeArtistPlaceholder.tr,
                         style: TextStyle(
                           color: Colors.white.withValues(alpha: 0.6),
                           fontSize: 10,
