@@ -16,6 +16,7 @@ class MediaItemMapper {
       'description': item.extras?['description'],
       'ownerName': item.artist.toString(),
       'ownerId': item.extras?['ownerId'],
+      'ownerEmail': item.extras?['ownerEmail'],
       'album': item.album.toString(),
       'duration': item.duration?.inSeconds.toString(),
 
@@ -68,6 +69,7 @@ class MediaItemMapper {
       genre: song['language']?.toString() ?? '',
       extras: {
         'ownerId': song['ownerId'] ?? '',
+        'ownerEmail': song['ownerEmail'] ?? '',
         'url': song['url'],
         'slug': song['slug'] ?? '',
         'publishedYear': song['publishedYear'],
@@ -108,6 +110,7 @@ class MediaItemMapper {
           : null,
       extras: {
         'ownerId': item.ownerId,
+        'ownerEmail': item.ownerEmail,
         'url': item.url,
         'slug': item.slug,
         'publishedYear': item.publishedYear,
@@ -150,6 +153,7 @@ class MediaItemMapper {
       description: item.extras?['description']?.toString() ?? '',
       lyrics: item.extras?['lyrics']?.toString() ?? '',
       ownerId: item.extras?['ownerId']?.toString() ?? '',
+      ownerEmail: item.extras?['ownerEmail']?.toString(),
       mediaSource:
           CoreUtilities.isInternal(item.extras?['url']?.toString() ?? '')
           ? AppMediaSource.internal

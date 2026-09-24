@@ -14,6 +14,8 @@ import 'package:neom_core/data/implementations/app_hive_controller.dart';
 import 'package:neom_core/utils/neom_error_logger.dart';
 import 'package:neom_core/domain/model/casete/casete_session.dart';
 import 'package:neom_core/domain/repository/casete_session_repository.dart';
+import 'package:neom_core/data/implementations/release_ownership_resolver.dart';
+import 'package:neom_core/utils/consumption_audience_policy.dart';
 import 'package:neom_core/domain/use_cases/audio_handler_service.dart';
 import 'package:neom_core/domain/use_cases/login_service.dart';
 import 'package:neom_core/domain/use_cases/media_player_service.dart';
@@ -37,6 +39,7 @@ import 'utils/audio_cache_policy.dart';
 import 'utils/audio_player_stats.dart';
 import 'utils/audio_quality_swap.dart';
 import 'utils/casete_listen_clock.dart';
+import 'utils/casete_session_fields.dart';
 import 'utils/constants/audio_player_constants.dart';
 import 'utils/constants/audio_player_translation_constants.dart';
 import 'utils/mappers/media_item_mapper.dart';
@@ -1847,13 +1850,8 @@ class NeomAudioHandler extends BaseAudioHandler
     final itemId = window.itemId;
     if (itemId.isEmpty) return;
 
-    final bool isOwner =
-        (userServiceImpl.user.email == itemId) ||
-        (userServiceImpl.user.releaseItemIds?.contains(itemId) ?? false);
-    if (isOwner || !isCaseteElegible) {
-      AppConfig.logger.w(
-        "CASETE ALG: Owner or not eligible. Session not saved.",
-      );
+    if (!isCaseteElegible) {
+      AppConfig.logger.w("CASETE ALG: Not eligible. Session not saved.");
       return;
     }
 
@@ -1866,6 +1864,34 @@ class NeomAudioHandler extends BaseAudioHandler
       return;
     }
 
+    // Every account's listening is recorded — creators see their whole
+    // audience — but only a paying member who owns no release funds
+    // royalties. An author's listening, of their own work or anyone's,
+    // is statistics: counted in the pool it would lower the value per
+    // second, their own earnings included.
+    final user = userServiceImpl.user;
+    final profileIds = [
+      userServiceImpl.profile.id,
+      ...user.profiles.map((p) => p.id),
+    ];
+    final isAuthor =
+        CaseteSessionFields.listenerOwnsItem(
+          extras: item.extras,
+          itemId: itemId,
+          listenerEmail: user.email,
+          listenerProfileIds: profileIds,
+          legacyReleaseItemIds: user.releaseItemIds,
+        ) ||
+        await ReleaseOwnershipResolver().ownsAnyReleaseItem(
+          email: user.email,
+          profileIds: profileIds,
+          legacyReleaseItemIds: user.releaseItemIds,
+        );
+    final audience = ConsumptionAudiencePolicy.classify(
+      isAuthor: isAuthor,
+      level: userServiceImpl.subscriptionLevel,
+    );
+
     final int createdTime = DateTime.now().millisecondsSinceEpoch;
     final caseteSession = CaseteSession(
       // One document per window. A shared id let two overlapping saves (a
@@ -1874,21 +1900,20 @@ class NeomAudioHandler extends BaseAudioHandler
       createdTime: createdTime,
       itemId: itemId,
       itemName: item.title,
-      ownerEmail: item.extras?['ownerId']?.toString() ?? '',
-      listenerEmail: userServiceImpl.user.email,
+      ownerEmail: CaseteSessionFields.ownerEmail(item.extras),
+      listenerEmail: user.email,
       casete: secondsListened,
+      totalDuration: item.duration?.inSeconds ?? 0,
       subscriptionLevel: userServiceImpl.subscriptionLevel,
-      isTest:
-          kDebugMode || userServiceImpl.user.userRole != UserRole.subscriber,
+      isTest: kDebugMode || user.userRole != UserRole.subscriber,
+      audience: audience,
     );
 
     try {
-      await Sint.find<CaseteSessionRepository>().insert(
-        caseteSession,
-        isOwner: isOwner,
-      );
+      await Sint.find<CaseteSessionRepository>().insert(caseteSession);
       AppConfig.logger.i(
-        "CASETE ALG: Session saved! $secondsListened seconds for ${item.title}",
+        "CASETE ALG: ${audience.name} session saved: "
+        "$secondsListened seconds for ${item.title}",
       );
     } catch (e, st) {
       NeomErrorLogger.recordError(
