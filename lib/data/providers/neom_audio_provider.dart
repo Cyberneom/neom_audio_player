@@ -7,7 +7,6 @@ import 'package:neom_core/app_properties.dart';
 import '../../neom_audio_handler.dart';
 
 class NeomAudioProvider {
-
   static final NeomAudioProvider _instance = NeomAudioProvider._internal();
   factory NeomAudioProvider() => _instance;
   NeomAudioProvider._internal();
@@ -16,12 +15,14 @@ class NeomAudioProvider {
   static Completer<void>? _initCompleter;
   static NeomAudioHandler? audioHandler;
 
-  Future<NeomAudioHandler> getAudioHandler() async {
+  Future<NeomAudioHandler> getAudioHandler({
+    bool restoreLastQueue = true,
+  }) async {
     if (!_isInitialized) {
       if (_initCompleter == null) {
         _initCompleter = Completer<void>();
         try {
-          await _initialize();
+          await _initialize(restoreLastQueue: restoreLastQueue);
           _isInitialized = true;
           _initCompleter!.complete();
         } catch (e, st) {
@@ -39,18 +40,20 @@ class NeomAudioProvider {
     return audioHandler!;
   }
 
-  Future<void> _initialize() async {
+  Future<void> _initialize({required bool restoreLastQueue}) async {
     if (kIsWeb) {
       // On web, create the handler directly — AudioService.init() is
       // mobile-only (foreground service / notification).  The handler
       // itself (just_audio + BaseAudioHandler) works fine on web.
-      audioHandler = NeomAudioHandler();
+      audioHandler = NeomAudioHandler(restoreLastQueue: restoreLastQueue);
     } else {
       audioHandler = await AudioService.init(
-        builder: () => NeomAudioHandler(),
+        builder: () => NeomAudioHandler(restoreLastQueue: restoreLastQueue),
         config: AudioServiceConfig(
-          androidNotificationChannelId: AppProperties.getNotificationChannelId(),
-          androidNotificationChannelName: AppProperties.getNotificationChannelName(),
+          androidNotificationChannelId:
+              AppProperties.getNotificationChannelId(),
+          androidNotificationChannelName:
+              AppProperties.getNotificationChannelName(),
           androidNotificationIcon: AppProperties.getNotificationIcon(),
           androidShowNotificationBadge: true,
           androidStopForegroundOnPause: true,
@@ -63,5 +66,4 @@ class NeomAudioProvider {
       Sint.put<NeomAudioHandler>(audioHandler!, permanent: true);
     }
   }
-
 }

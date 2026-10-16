@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/services.dart' show rootBundle;
@@ -25,6 +26,7 @@ import 'ui/player/miniplayer_controller.dart';
 import 'utils/mappers/media_item_mapper.dart';
 import 'utils/platform_io_helper.dart' as platform_io;
 import 'utils/audio_item_source_availability.dart';
+import 'domain/use_cases/ephemeral_audio_service.dart';
 
 /// Entry-point service that converts arbitrary `PlayableItem`s
 /// (`AppMediaItem`, `AppReleaseItem`, `Itemlist`) into [MediaItem]s and
@@ -43,11 +45,28 @@ import 'utils/audio_item_source_availability.dart';
 ///   playItem: true,
 /// );
 /// ```
-class AudioPlayerInvoker implements AudioPlayerInvokerService {
+class AudioPlayerInvoker
+    implements AudioPlayerInvokerService, EphemeralAudioService {
   NeomAudioHandler? audioHandler;
   List<AppMediaItem> currentMediaItems = [];
   List<AppReleaseItem> currentReleaseItems = [];
   bool _isInitProcessing = false;
+  bool _initializingEphemeral = false;
+  EphemeralAudioGrant? _ephemeralGrant;
+
+  @override
+  Future<void> beginEphemeralAudio(EphemeralAudioGrant grant) async {
+    _initializingEphemeral = true;
+    try {
+      await initAudioHandler();
+    } finally {
+      _initializingEphemeral = false;
+    }
+    final handler = audioHandler;
+    if (handler == null) throw StateError('Audio handler unavailable.');
+    await handler.beginEphemeralAudio(grant);
+    _ephemeralGrant = grant;
+  }
 
   @override
   Future<void> init({
@@ -68,6 +87,7 @@ class AudioPlayerInvoker implements AudioPlayerInvokerService {
       await Future.delayed(const Duration(milliseconds: 100));
     }
     _isInitProcessing = true;
+    _ephemeralGrant = null;
 
     try {
       if (playItem && Sint.isRegistered<MediaPlayerService>()) {
@@ -250,6 +270,9 @@ class AudioPlayerInvoker implements AudioPlayerInvokerService {
             )
             .toList();
       }
+      if (_ephemeralGrant != null) {
+        queue = queue.map(audioHandler!.decorateEphemeralItem).toList();
+      }
       await audioHandler?.setShuffleMode(AudioServiceShuffleMode.none);
 
       if (queue.isEmpty) {
@@ -293,7 +316,11 @@ class AudioPlayerInvoker implements AudioPlayerInvokerService {
         unawaited(audioHandler?.play());
       }
 
-      enforceRepeat();
+      if (_ephemeralGrant != null) {
+        await audioHandler?.setRepeatMode(AudioServiceRepeatMode.none);
+      } else {
+        enforceRepeat();
+      }
     } catch (e, st) {
       NeomErrorLogger.recordErrorLight(
         e,
@@ -378,7 +405,9 @@ class AudioPlayerInvoker implements AudioPlayerInvokerService {
 
         // Obtener la instancia del AudioHandler de forma asíncrona
         // Reemplaza NeomAudioProvider().getAudioHandler() con tu lógica real para obtener el handler
-        handler = await NeomAudioProvider().getAudioHandler();
+        handler = await NeomAudioProvider().getAudioHandler(
+          restoreLastQueue: !_initializingEphemeral,
+        );
 
         // Registrar la instancia obtenida como un singleton en GetX
         Sint.put<NeomAudioHandler>(handler);
@@ -414,7 +443,9 @@ class AudioPlayerInvoker implements AudioPlayerInvokerService {
 
         // Obtener la instancia del AudioHandler de forma asíncrona
         // Reemplaza NeomAudioProvider().getAudioHandler() con tu lógica real para obtener el handler
-        handler = await NeomAudioProvider().getAudioHandler();
+        handler = await NeomAudioProvider().getAudioHandler(
+          restoreLastQueue: !_initializingEphemeral,
+        );
 
         // Registrar la instancia obtenida como un singleton en GetX
         Sint.put<NeomAudioHandler>(handler);
@@ -451,5 +482,10 @@ class AudioPlayerInvoker implements AudioPlayerInvokerService {
   @override
   Future<void> stop() async {
     await audioHandler?.stop();
+    if (_ephemeralGrant != null) {
+      _ephemeralGrant = null;
+      currentMediaItems = [];
+      currentReleaseItems = [];
+    }
   }
 }

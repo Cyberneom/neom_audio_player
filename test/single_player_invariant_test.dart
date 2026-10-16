@@ -84,7 +84,7 @@ void main() {
       expect(ctorCalls, isNotEmpty,
           reason: 'NeomAudioHandler must construct an AudioPlayer.');
 
-      final ctorStart = handlerSource.indexOf('NeomAudioHandler()');
+      final ctorStart = handlerSource.indexOf('NeomAudioHandler(');
       final ctorEnd = handlerSource.indexOf('Future<void> _init()');
       expect(ctorStart, isNonNegative);
       expect(ctorEnd, greaterThan(ctorStart));

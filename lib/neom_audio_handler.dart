@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:audio_service/audio_service.dart';
 import 'package:audio_session/audio_session.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -30,6 +31,7 @@ import 'package:neom_core/utils/platform/core_io.dart';
 import 'package:neom_sound/data/implementations/equalizer_controller.dart';
 import 'package:neom_sound/domain/use_cases/equalizer_service.dart';
 import 'package:rxdart/rxdart.dart' as rx;
+
 import 'data/implementations/android_equalizer_bridge.dart';
 import 'data/implementations/casete_hive_controller.dart';
 import 'data/implementations/player_hive_controller.dart';
@@ -48,6 +50,7 @@ import 'utils/neom_audio_utilities.dart';
 import 'utils/playback_access_policy.dart';
 import 'utils/playback_error_recovery.dart';
 import 'utils/audio_cache_store.dart';
+import 'domain/use_cases/ephemeral_audio_service.dart';
 
 /// Central audio handler for the Open Neom audio module.
 ///
@@ -97,6 +100,49 @@ class NeomAudioHandler extends BaseAudioHandler
   AndroidEqualizer? _androidEqualizer;
   late final AudioPlayer player;
   MediaItem? currentMediaItem;
+  EphemeralAudioGrant? _ephemeralGrant;
+  Timer? _ephemeralExpiry;
+  Future<void>? _ephemeralStopping;
+  int _ephemeralGeneration = 0;
+  bool _preparingEphemeral = false;
+  late final Future<void> _startup;
+  final bool restoreLastQueue;
+  static const _ephemeralFlag = 'ephemeralPlayback';
+
+  bool _isEphemeral(MediaItem? item) => item?.extras?[_ephemeralFlag] == true;
+
+  Future<void> beginEphemeralAudio(EphemeralAudioGrant grant) async {
+    final generation = ++_ephemeralGeneration;
+    if (!grant.permits(grant.itemId, grant.uri.toString())) {
+      throw StateError('The external audio grant is invalid.');
+    }
+    _preparingEphemeral = true;
+    try {
+      await _startup;
+    } finally {
+      _preparingEphemeral = false;
+    }
+    if (generation != _ephemeralGeneration) {
+      throw StateError('The external audio request was replaced.');
+    }
+    await stop();
+    if (!grant.permits(grant.itemId, grant.uri.toString())) {
+      throw StateError('The external audio grant expired during setup.');
+    }
+    _ephemeralGrant = grant;
+    _ephemeralExpiry = Timer(grant.expiresAt.difference(DateTime.now()), () {
+      unawaited(stop().catchError((Object _) {}));
+    });
+  }
+
+  MediaItem decorateEphemeralItem(MediaItem item) {
+    final grant = _ephemeralGrant;
+    if (grant == null) return item;
+    if (!grant.permits(item.id, item.extras?['url']?.toString() ?? '')) {
+      throw StateError('The item does not match the external audio grant.');
+    }
+    return item.copyWith(extras: {...?item.extras, _ephemeralFlag: true});
+  }
 
   String connectionType = AppTranslationConstants.wifi;
 
@@ -213,7 +259,7 @@ class NeomAudioHandler extends BaseAudioHandler
                 state.queue.length == state.shuffleIndices!.length,
           );
 
-  NeomAudioHandler() {
+  NeomAudioHandler({this.restoreLastQueue = true}) {
     if (defaultTargetPlatform == TargetPlatform.android && !kIsWeb) {
       _androidEqualizer = AndroidEqualizer();
       final pipeline = AudioPipeline(androidAudioEffects: [_androidEqualizer!]);
@@ -221,14 +267,14 @@ class NeomAudioHandler extends BaseAudioHandler
     } else {
       player = AudioPlayer();
     }
-    _init();
+    _startup = _init();
   }
 
   Future<void> _init() async {
     AppConfig.logger.t('Starting NeomAudioHandler');
 
     try {
-      startService();
+      await startService();
       // The handler is created before RootBinding in some hosts. Never grant
       // access merely because UserService has not been registered yet; each
       // playback entry point resolves the current entitlement dynamically.
@@ -291,13 +337,16 @@ class NeomAudioHandler extends BaseAudioHandler
         // above all, items that advance on their own, which no transport
         // method sees. The previous item's window closes now or never.
         _moveListenClockTo(item);
-        _currentItemLiked = await _playlistHiveController.checkPlaylist(
-          AppHiveBox.favoriteItems.name,
-          item.id,
-        );
+        _currentItemLiked =
+            !_isEphemeral(item) &&
+            await _playlistHiveController.checkPlaylist(
+              AppHiveBox.favoriteItems.name,
+              item.id,
+            );
         setItemInMediaPlayers();
 
-        if (AppConfig.instance.canPersistUserActivity &&
+        if (!_isEphemeral(item) &&
+            AppConfig.instance.canPersistUserActivity &&
             item.artUri.toString().startsWith(CoreConstants.http)) {
           _recentSubject.add([item]);
         }
@@ -562,6 +611,21 @@ class NeomAudioHandler extends BaseAudioHandler
     PlaybackRequestOrigin origin, {
     bool showFeedback = true,
   }) async {
+    final grant = _ephemeralGrant;
+    if (grant != null || _isEphemeral(currentMediaItem)) {
+      final item = currentMediaItem;
+      if (grant != null &&
+          item != null &&
+          grant.permits(item.id, item.extras?['url']?.toString() ?? '')) {
+        return const PlaybackAccessDecision.allow(
+          PlaybackAccessReason.externalAuthorization,
+        );
+      }
+      await stop();
+      return const PlaybackAccessDecision.deny(
+        PlaybackAccessReason.sessionNotReady,
+      );
+    }
     PlaybackAccessDecision decision;
     try {
       await enforcePersonalStateBoundary();
@@ -601,6 +665,7 @@ class NeomAudioHandler extends BaseAudioHandler
           'Playback blocked while authentication/entitlement is resolving.',
         );
       case PlaybackAccessReason.publicContent:
+      case PlaybackAccessReason.externalAuthorization:
       case PlaybackAccessReason.fullSubscription:
       case PlaybackAccessReason.activeTrial:
         break;
@@ -900,7 +965,11 @@ class NeomAudioHandler extends BaseAudioHandler
   }
 
   Future<void> loadLastQueue() async {
+    if (!restoreLastQueue || _preparingEphemeral || _ephemeralGrant != null) {
+      return;
+    }
     AppConfig.logger.d('Loading last queue from Hive');
+    final ephemeralGeneration = _ephemeralGeneration;
 
     final canPersist = AppConfig.instance.canPersistUserActivity;
     _lastPersonalAccessAllowed = canPersist;
@@ -916,6 +985,11 @@ class NeomAudioHandler extends BaseAudioHandler
       await Future.delayed(
         const Duration(milliseconds: 500),
       ); // Agrega un breve delay para dar tiempo a otros procesos
+      if (_preparingEphemeral ||
+          _ephemeralGrant != null ||
+          ephemeralGeneration != _ephemeralGeneration) {
+        return;
+      }
       final List lastQueueList = playerHiveController.lastQueueList;
       if (lastQueueList.isNotEmpty) {
         final List<MediaItem> lastQueue = lastQueueList
@@ -925,6 +999,11 @@ class NeomAudioHandler extends BaseAudioHandler
         if (lastQueue.isNotEmpty) {
           try {
             final sources = await _itemsToSources(lastQueue);
+            if (_preparingEphemeral ||
+                _ephemeralGrant != null ||
+                ephemeralGeneration != _ephemeralGeneration) {
+              return;
+            }
             final lastIndex = playerHiveController.lastIndex;
             // Load straight at the saved position. Loading index 0 and then
             // seeking started a second source at every app start — with the
@@ -985,6 +1064,17 @@ class NeomAudioHandler extends BaseAudioHandler
     try {
       final playing = player.playing;
       bool liked = _currentItemLiked;
+      final ephemeral =
+          _ephemeralGrant != null || _isEphemeral(currentMediaItem);
+      final controls = <MediaControl>[
+        if (!ephemeral) ...[
+          if (liked) unlikeControl else likeControl,
+          MediaControl.skipToPrevious,
+        ],
+        if (playing) MediaControl.pause else MediaControl.play,
+        if (!ephemeral) MediaControl.skipToNext,
+        MediaControl.stop,
+      ];
       final queueIndex = NeomAudioUtilities.getQueueIndex(
         player,
         event.currentIndex,
@@ -992,16 +1082,16 @@ class NeomAudioHandler extends BaseAudioHandler
 
       playbackState.add(
         playbackState.value.copyWith(
-          controls: [
-            if (liked) unlikeControl else likeControl,
-            MediaControl.skipToPrevious,
-            if (playing) MediaControl.pause else MediaControl.play,
-            MediaControl.skipToNext,
-            MediaControl.stop,
-          ],
-          systemActions: NeomAudioUtilities.mediaActions,
-          androidCompactActionIndices:
-              playerHiveController.preferredCompactNotificationButtons,
+          controls: controls,
+          systemActions: ephemeral
+              ? const {MediaAction.seek}
+              : NeomAudioUtilities.mediaActions,
+          androidCompactActionIndices: ephemeral
+              ? const [0, 1]
+              : playerHiveController.preferredCompactNotificationButtons
+                    .where((index) => index >= 0 && index < controls.length)
+                    .take(3)
+                    .toList(),
           processingState: const {
             ProcessingState.idle: AudioProcessingState.idle,
             ProcessingState.loading: AudioProcessingState.loading,
@@ -1056,6 +1146,18 @@ class NeomAudioHandler extends BaseAudioHandler
       "Moving mediaItem ${mediaItem.title} to audioSource for Music Player ",
     );
     try {
+      final grant = _ephemeralGrant;
+      if (grant != null || _isEphemeral(mediaItem)) {
+        final url = mediaItem.extras?['url']?.toString() ?? '';
+        if (grant == null || !grant.permits(mediaItem.id, url)) {
+          throw StateError('The external audio grant is no longer valid.');
+        }
+        // Never apply quality rewrites, personal downloads or whole-file cache
+        // to a scoped URL. Every retry must match the original grant exactly.
+        audioSource = AudioSource.uri(grant.uri);
+        _mediaItemExpando[audioSource] = decorateEphemeralItem(mediaItem);
+        return audioSource;
+      }
       if (mediaItem.artUri.toString().startsWith('file:')) {
         audioSource = AudioSource.uri(
           Uri.file(mediaItem.extras!['url'].toString()),
@@ -1231,7 +1333,7 @@ class NeomAudioHandler extends BaseAudioHandler
     }
   }
 
-  void startService() async {
+  Future<void> startService() async {
     if (player.playing) return;
 
     AppConfig.logger.d('Starting AudioPlayer Service');
@@ -1277,6 +1379,8 @@ class NeomAudioHandler extends BaseAudioHandler
   Future<void> addLastQueue(List<MediaItem> queue) async {
     if (!AppConfig.instance.canPersistUserActivity) return;
 
+    if (_ephemeralGrant != null) return;
+    queue = queue.where((item) => !_isEphemeral(item)).toList();
     if (queue.isNotEmpty) {
       AppConfig.logger.d('Saving last queue');
       final lastQueue = queue.map((item) {
@@ -1422,6 +1526,7 @@ class NeomAudioHandler extends BaseAudioHandler
   @override
   Future<void> fastForward() async {
     AppConfig.logger.d('');
+    if (_ephemeralGrant != null || _isEphemeral(mediaItem.value)) return;
     if (!AppConfig.instance.canPersistUserActivity) return;
 
     if (mediaItem.value?.id != null) {
@@ -1437,6 +1542,7 @@ class NeomAudioHandler extends BaseAudioHandler
   @override
   Future<void> rewind() async {
     AppConfig.logger.d('rewind');
+    if (_ephemeralGrant != null || _isEphemeral(mediaItem.value)) return;
     if (!AppConfig.instance.canPersistUserActivity) return;
 
     if (mediaItem.value?.id != null) {
@@ -1597,6 +1703,7 @@ class NeomAudioHandler extends BaseAudioHandler
     AppConfig.logger.d('Pause');
     await player.pause();
     _listenClock.setAudible(false);
+    if (_ephemeralGrant != null || _isEphemeral(currentMediaItem)) return;
     // A short listen keeps accumulating across pauses; once it is long
     // enough to count, the window is saved and a new one begins on resume.
     // Fire-and-forget: the Firestore write must not delay the pause.
@@ -1617,6 +1724,14 @@ class NeomAudioHandler extends BaseAudioHandler
   @override
   Future<void> stop() async {
     AppConfig.logger.d('Stopping player');
+    final grant = _ephemeralGrant;
+    if (grant != null || _isEphemeral(currentMediaItem)) {
+      return _ephemeralStopping ??= _clearEphemeralAudio(grant).whenComplete(
+        () {
+          _ephemeralStopping = null;
+        },
+      );
+    }
     _listenClock.setAudible(false);
     _saveListenWindow(_listenClock.takeWindow());
     await player.stop();
@@ -1642,6 +1757,22 @@ class NeomAudioHandler extends BaseAudioHandler
         lastPos: player.position.inSeconds,
       );
     }
+  }
+
+  Future<void> _clearEphemeralAudio(EphemeralAudioGrant? grant) async {
+    grant?.revoke();
+    _ephemeralExpiry?.cancel();
+    _ephemeralExpiry = null;
+    _listenClock.clear();
+    _clockItem = null;
+    _windowPersistable = false;
+    await player.stop();
+    await player.setAudioSources([]);
+    currentMediaItem = null;
+    mediaItem.add(null);
+    queue.add(const <MediaItem>[]);
+    _recentSubject.add(const <MediaItem>[]);
+    _ephemeralGrant = null;
   }
 
   @override
@@ -1794,7 +1925,7 @@ class NeomAudioHandler extends BaseAudioHandler
   }
 
   Future<void> setItemInMediaPlayers() async {
-
+    if (_isEphemeral(currentMediaItem)) return;
     if (currentMediaItem != null && currentMediaItem?.title != 'null') {
       await AudioPlayerStats.addRecentlyPlayed(currentMediaItem!);
     }
@@ -1836,6 +1967,7 @@ class NeomAudioHandler extends BaseAudioHandler
     CaseteListenWindow window,
     MediaItem item,
   ) async {
+    if (_isEphemeral(item)) return;
     AppConfig.logger.t("CASETE ALG: Tracking casete session.");
 
     // Signed out while the window was open: the account that heard it is

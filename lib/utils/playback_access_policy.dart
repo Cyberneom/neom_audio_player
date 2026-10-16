@@ -13,6 +13,7 @@ enum PlaybackRequestOrigin {
 }
 
 enum PlaybackAccessReason {
+  externalAuthorization,
   publicContent,
   fullSubscription,
   activeTrial,
