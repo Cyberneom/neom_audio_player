@@ -1,3 +1,8 @@
+# Changelog — neom_audio_player
+
+## [2026-10-16] - Dependency Cleanup
+- Clean up `pubspec.yaml` dependencies and formatting.
+
 ## [2026-09-23] - Tiempo de escucha correcto y canciones en el dispositivo solo con suscripcion
 
 ### Corregido
