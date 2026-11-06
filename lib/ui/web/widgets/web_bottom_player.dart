@@ -13,10 +13,13 @@ import 'package:neom_core/utils/neom_error_logger.dart';
 import 'package:sint/sint.dart';
 import 'package:neom_audio_player/ui/player/miniplayer_controller.dart';
 import 'package:audio_service/audio_service.dart';
+import 'package:neom_core/domain/model/audio_ad_break_spec.dart';
 import 'package:neom_core/utils/constants/app_hive_constants.dart';
 import 'package:neom_core/utils/enums/app_hive_box.dart';
+import 'package:neom_core/utils/neom_ad_registry.dart';
 
 import '../../../data/implementations/enhanced_playback_controller.dart';
+import '../../../neom_audio_handler.dart';
 import '../../../data/implementations/playlist_hive_controller.dart';
 import '../../../domain/use_cases/jam_session_service.dart';
 import '../../../domain/use_cases/radio_service.dart';
@@ -51,6 +54,44 @@ class WebBottomPlayer extends StatelessWidget {
         }
 
         final mediaItem = visibleMediaItem;
+        if (NeomAudioHandler.isAdMediaItem(mediaItem) &&
+            NeomAdRegistry.buildAudioCompanionCardFn != null) {
+          final adSpec = AudioAdBreakSpec.fromMediaItemExtras(mediaItem.extras);
+          if (adSpec != null) {
+            return Container(
+              height: 80,
+              decoration: BoxDecoration(
+                color: AppColor.surfaceElevated,
+                border: Border(
+                  top: BorderSide(
+                    color: Colors.white.withValues(alpha: 0.08),
+                    width: 1,
+                  ),
+                ),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+              alignment: Alignment.center,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 960),
+                child: StreamBuilder<Duration>(
+                  stream: controller.audioHandler?.player.positionStream,
+                  builder: (context, snap) {
+                    return NeomAdRegistry.buildAudioCompanionCardFn!(
+                      spec: adSpec,
+                      position: snap.data ?? Duration.zero,
+                      duration:
+                          mediaItem.duration ??
+                          Duration(seconds: adSpec.durationSeconds),
+                      onSkip: () => controller.audioHandler?.skipToNext(),
+                      compact: true,
+                    );
+                  },
+                ),
+              ),
+            );
+          }
+        }
+
         final screenWidth = MediaQuery.of(context).size.width;
         final isCompact = screenWidth < 900;
 

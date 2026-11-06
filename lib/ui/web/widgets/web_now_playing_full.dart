@@ -10,15 +10,19 @@ import 'package:neom_core/data/firestore/itemlist_firestore.dart';
 import 'package:neom_core/data/firestore/profile_firestore.dart';
 import 'package:neom_core/data/firestore/user_firestore.dart';
 import 'package:neom_core/domain/model/app_release_item.dart';
+import 'package:neom_core/domain/model/audio_ad_break_spec.dart';
 import 'package:neom_core/domain/model/item_list.dart';
 import 'package:neom_core/utils/constants/app_route_constants.dart';
+import 'package:neom_core/utils/enums/ad_placement.dart';
 import 'package:neom_core/utils/enums/app_hive_box.dart';
 import 'package:neom_core/utils/enums/itemlist_type.dart';
+import 'package:neom_core/utils/neom_ad_registry.dart';
 import 'package:neom_core/utils/neom_error_logger.dart';
 import 'package:neom_core/utils/validator.dart';
 import 'package:sint/sint.dart';
 
 import '../../../data/implementations/playlist_hive_controller.dart';
+import '../../../neom_audio_handler.dart';
 import '../../player/miniplayer_controller.dart';
 import '../utils/web_color_extractor.dart';
 import '../utils/catalog_album_lookup.dart';
@@ -380,7 +384,10 @@ class _WebNowPlayingFullState extends State<WebNowPlayingFull> {
                       horizontal: 24,
                       vertical: 20,
                     ),
-                    child: _canvasMode
+                    child: NeomAudioHandler.isAdMediaItem(mediaItem) &&
+                            NeomAdRegistry.buildAudioCompanionCardFn != null
+                        ? _buildAdCompanionFullView(controller, mediaItem)
+                        : _canvasMode
                         ? _buildCenteredCanvasView(
                             controller,
                             mediaItem,
@@ -431,6 +438,33 @@ class _WebNowPlayingFullState extends State<WebNowPlayingFull> {
           ),
         );
       },
+    );
+  }
+
+  Widget _buildAdCompanionFullView(
+    MiniPlayerController controller,
+    MediaItem mediaItem,
+  ) {
+    final spec = AudioAdBreakSpec.fromMediaItemExtras(mediaItem.extras);
+    if (spec == null || NeomAdRegistry.buildAudioCompanionCardFn == null) {
+      return const SizedBox.shrink();
+    }
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 480),
+        child: StreamBuilder<Duration>(
+          stream: controller.audioHandler?.player.positionStream,
+          builder: (context, snap) {
+            return NeomAdRegistry.buildAudioCompanionCardFn!(
+              spec: spec,
+              position: snap.data ?? Duration.zero,
+              duration:
+                  mediaItem.duration ?? Duration(seconds: spec.durationSeconds),
+              onSkip: () => controller.audioHandler?.skipToNext(),
+            );
+          },
+        ),
+      ),
     );
   }
 
@@ -658,6 +692,19 @@ class _WebNowPlayingFullState extends State<WebNowPlayingFull> {
                   ],
                 ),
               ),
+              if (NeomAdRegistry.shouldShowExternalAds &&
+                  NeomAdRegistry.buildAdSlotFn != null) ...[
+                const SizedBox(height: 16),
+                NeomAdRegistry.buildAdSlotFn!(
+                  placement: AdPlacement.playerBanner,
+                  contextKeywords: <String>[
+                    if (mediaItem.title.trim().isNotEmpty)
+                      mediaItem.title.trim(),
+                    if ((mediaItem.artist ?? '').trim().isNotEmpty)
+                      mediaItem.artist!.trim(),
+                  ],
+                ),
+              ],
             ],
           ),
         ),

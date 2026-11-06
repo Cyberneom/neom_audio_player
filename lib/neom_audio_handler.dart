@@ -13,10 +13,14 @@ import 'package:neom_core/app_config.dart';
 import 'package:neom_core/data/firestore/public_catalog_read_policy.dart';
 import 'package:neom_core/data/implementations/app_hive_controller.dart';
 import 'package:neom_core/utils/neom_error_logger.dart';
+import 'package:neom_core/domain/model/ad_market_policy.dart';
+import 'package:neom_core/domain/model/audio_ad_break_spec.dart';
 import 'package:neom_core/domain/model/casete/casete_session.dart';
 import 'package:neom_core/domain/repository/casete_session_repository.dart';
 import 'package:neom_core/data/implementations/release_ownership_resolver.dart';
 import 'package:neom_core/utils/consumption_audience_policy.dart';
+import 'package:neom_core/utils/enums/ad_placement.dart';
+import 'package:neom_core/utils/neom_ad_registry.dart';
 import 'package:neom_core/domain/use_cases/audio_handler_service.dart';
 import 'package:neom_core/domain/use_cases/login_service.dart';
 import 'package:neom_core/domain/use_cases/media_player_service.dart';
@@ -110,6 +114,32 @@ class NeomAudioHandler extends BaseAudioHandler
   static const _ephemeralFlag = 'ephemeralPlayback';
 
   bool _isEphemeral(MediaItem? item) => item?.extras?[_ephemeralFlag] == true;
+
+  static bool isAdMediaItem(MediaItem? item) =>
+      item?.extras?[AudioAdBreakSpec.extraIsAdKey] == true;
+
+  AudioAdBreakSpec? get currentAdBreakSpec =>
+      AudioAdBreakSpec.fromMediaItemExtras(
+        (currentMediaItem ?? mediaItem.value)?.extras,
+      );
+
+  bool get canSkipCurrentAd {
+    final item = currentMediaItem ?? mediaItem.value;
+    if (!isAdMediaItem(item)) return true;
+    final skipAfter =
+        (item?.extras?[AudioAdBreakSpec.extraSkipAfterSecondsKey] as num?)
+            ?.toInt() ??
+        10;
+    return player.position.inSeconds >= skipAfter;
+  }
+
+  final Set<String> _firedAdMilestones = <String>{};
+  final Set<String> _skippedAdItemIds = <String>{};
+  int _nonAdTracksPlayedSinceAd = 0;
+  DateTime? _lastAudioAdInsertedAt;
+  bool _resolvingAudioAd = false;
+  int _rewardedAudioUnlocksUsed = 0;
+  static const int _maxRewardedAudioUnlocksPerSession = 2;
 
   Future<void> beginEphemeralAudio(EphemeralAudioGrant grant) async {
     final generation = ++_ephemeralGeneration;
@@ -388,6 +418,9 @@ class NeomAudioHandler extends BaseAudioHandler
         (event) => _broadcastState(player.playbackEvent),
       ),
     );
+    _subscriptions.add(
+      player.positionStream.listen(_handleAdPositionTick),
+    );
 
     // Playback error recovery: without this listener a dead URL or a network
     // drop left the user in silence. Errors funnel into _handlePlaybackError,
@@ -611,6 +644,11 @@ class NeomAudioHandler extends BaseAudioHandler
     PlaybackRequestOrigin origin, {
     bool showFeedback = true,
   }) async {
+    if (isAdMediaItem(currentMediaItem)) {
+      return const PlaybackAccessDecision.allow(
+        PlaybackAccessReason.externalAuthorization,
+      );
+    }
     final grant = _ephemeralGrant;
     if (grant != null || _isEphemeral(currentMediaItem)) {
       final item = currentMediaItem;
@@ -656,6 +694,12 @@ class NeomAudioHandler extends BaseAudioHandler
           AuthGuard.showGuestModal(Sint.context!);
         }
       case PlaybackAccessReason.freemiumTrialExhausted:
+        if (origin != PlaybackRequestOrigin.trialTimer &&
+            await _offerRewardedAudioUnlock()) {
+          return const PlaybackAccessDecision.allow(
+            PlaybackAccessReason.activeTrial,
+          );
+        }
         AppUtilities.showSnackBar(
           title: AppTranslationConstants.trialEnded.tr,
           message: AppTranslationConstants.trialEndedMessage.tr,
@@ -671,6 +715,70 @@ class NeomAudioHandler extends BaseAudioHandler
         break;
     }
     return decision;
+  }
+
+  Future<bool> _offerRewardedAudioUnlock() async {
+    final unlockFn = NeomAdRegistry.showRewardedUnlockFn;
+    if (unlockFn == null ||
+        !NeomAdRegistry.shouldShowExternalAds ||
+        _rewardedAudioUnlocksUsed >= _maxRewardedAudioUnlocksPerSession ||
+        Sint.context == null) {
+      return false;
+    }
+    try {
+      final rewarded = await unlockFn(
+        placement: AdPlacement.playerRewarded,
+        contextKeywords: <String>[
+          if ((currentMediaItem?.title ?? '').trim().isNotEmpty)
+            currentMediaItem!.title.trim(),
+          if ((currentMediaItem?.artist ?? '').trim().isNotEmpty)
+            currentMediaItem!.artist!.trim(),
+        ],
+        context: Sint.context,
+      );
+      if (!rewarded) return false;
+      _rewardedAudioUnlocksUsed++;
+      CaseteTrialUsageManager().setDailyTrialUsage(-1800);
+      allowFreeTrial = true;
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  void _handleAdPositionTick(Duration position) {
+    final item = currentMediaItem ?? mediaItem.value;
+    if (!isAdMediaItem(item) || !player.playing) return;
+    final spec = AudioAdBreakSpec.fromMediaItemExtras(item?.extras);
+    if (spec == null) return;
+
+    void fireOnce(String event) {
+      final key = '${item!.id}:$event';
+      if (_firedAdMilestones.add(key)) {
+        NeomAdRegistry.onAudioAdTrackingEventFn?.call(spec, event);
+      }
+    }
+
+    if (position.inMilliseconds >= 250) {
+      fireOnce('impression');
+    }
+
+    final totalMs =
+        (player.duration ?? Duration(seconds: spec.durationSeconds))
+            .inMilliseconds;
+    if (totalMs > 0) {
+      final ratio = position.inMilliseconds / totalMs;
+      if (ratio >= 0.25) fireOnce('firstQuartile');
+      if (ratio >= 0.50) fireOnce('midpoint');
+      if (ratio >= 0.75) fireOnce('thirdQuartile');
+    }
+
+    if (position.inSeconds >= spec.skipAfterSeconds) {
+      final unlockKey = '${item!.id}:skipUnlocked';
+      if (_firedAdMilestones.add(unlockKey)) {
+        _broadcastState(player.playbackEvent);
+      }
+    }
   }
 
   // ---------------------------------------------------------------------------
@@ -1064,6 +1172,7 @@ class NeomAudioHandler extends BaseAudioHandler
     try {
       final playing = player.playing;
       bool liked = _currentItemLiked;
+      final adPlaying = isAdMediaItem(currentMediaItem);
       final ephemeral =
           _ephemeralGrant != null || _isEphemeral(currentMediaItem);
       final controls = <MediaControl>[
@@ -1072,7 +1181,8 @@ class NeomAudioHandler extends BaseAudioHandler
           MediaControl.skipToPrevious,
         ],
         if (playing) MediaControl.pause else MediaControl.play,
-        if (!ephemeral) MediaControl.skipToNext,
+        if (!ephemeral || (adPlaying && canSkipCurrentAd))
+          MediaControl.skipToNext,
         MediaControl.stop,
       ];
       final queueIndex = NeomAudioUtilities.getQueueIndex(
@@ -1083,11 +1193,16 @@ class NeomAudioHandler extends BaseAudioHandler
       playbackState.add(
         playbackState.value.copyWith(
           controls: controls,
-          systemActions: ephemeral
+          systemActions: adPlaying
+              ? const <MediaAction>{}
+              : ephemeral
               ? const {MediaAction.seek}
               : NeomAudioUtilities.mediaActions,
           androidCompactActionIndices: ephemeral
-              ? const [0, 1]
+              ? List<int>.generate(
+                  controls.length.clamp(0, 2),
+                  (index) => index,
+                )
               : playerHiveController.preferredCompactNotificationButtons
                     .where((index) => index >= 0 && index < controls.length)
                     .take(3)
@@ -1146,6 +1261,24 @@ class NeomAudioHandler extends BaseAudioHandler
       "Moving mediaItem ${mediaItem.title} to audioSource for Music Player ",
     );
     try {
+      if (isAdMediaItem(mediaItem)) {
+        final adUrl = mediaItem.extras?['url']?.toString().trim() ?? '';
+        if (adUrl.isEmpty) return null;
+        if (adUrl.startsWith('packages/') || adUrl.startsWith('assets/')) {
+          audioSource = kIsWeb
+              ? AudioSource.uri(Uri.base.resolve('/assets/$adUrl'))
+              : AudioSource.uri(Uri.parse('asset:///$adUrl'));
+        } else if (adUrl.startsWith('asset:///')) {
+          final assetKey = adUrl.substring('asset:///'.length);
+          audioSource = kIsWeb
+              ? AudioSource.uri(Uri.base.resolve('/assets/$assetKey'))
+              : AudioSource.uri(Uri.parse(adUrl));
+        } else {
+          audioSource = AudioSource.uri(Uri.parse(adUrl));
+        }
+        _mediaItemExpando[audioSource] = mediaItem;
+        return audioSource;
+      }
       final grant = _ephemeralGrant;
       if (grant != null || _isEphemeral(mediaItem)) {
         final url = mediaItem.extras?['url']?.toString() ?? '';
@@ -1505,6 +1638,15 @@ class NeomAudioHandler extends BaseAudioHandler
   @override
   Future<void> skipToNext() async {
     AppConfig.logger.d('skipToNext');
+    if (isAdMediaItem(currentMediaItem)) {
+      if (!canSkipCurrentAd) return;
+      final adId = currentMediaItem!.id;
+      _skippedAdItemIds.add(adId);
+      final spec = currentAdBreakSpec;
+      if (spec != null) {
+        NeomAdRegistry.onAudioAdTrackingEventFn?.call(spec, 'skip');
+      }
+    }
     final access = await _authorizePlayback(PlaybackRequestOrigin.skipNext);
     if (!access.allowed) return;
     if (currentMediaItem == null) return;
@@ -1556,6 +1698,7 @@ class NeomAudioHandler extends BaseAudioHandler
   @override
   Future<void> skipToPrevious() async {
     AppConfig.logger.d('skipToPrevious');
+    if (isAdMediaItem(currentMediaItem)) return;
     final access = await _authorizePlayback(PlaybackRequestOrigin.skipPrevious);
     if (!access.allowed) return;
     if (currentMediaItem == null) return;
@@ -1584,6 +1727,7 @@ class NeomAudioHandler extends BaseAudioHandler
 
   @override
   Future<void> skipToQueueItem(int index) async {
+    if (isAdMediaItem(currentMediaItem) && !canSkipCurrentAd) return;
     final access = await _authorizePlayback(
       PlaybackRequestOrigin.skipToQueueItem,
     );
@@ -1719,13 +1863,17 @@ class NeomAudioHandler extends BaseAudioHandler
   }
 
   @override
-  Future<void> seek(Duration position) => player.seek(position);
+  Future<void> seek(Duration position) async {
+    if (isAdMediaItem(currentMediaItem)) return;
+    await player.seek(position);
+  }
 
   @override
   Future<void> stop() async {
     AppConfig.logger.d('Stopping player');
     final grant = _ephemeralGrant;
-    if (grant != null || _isEphemeral(currentMediaItem)) {
+    if (grant != null ||
+        (_isEphemeral(currentMediaItem) && !isAdMediaItem(currentMediaItem))) {
       return _ephemeralStopping ??= _clearEphemeralAudio(grant).whenComplete(
         () {
           _ephemeralStopping = null;
@@ -1788,6 +1936,7 @@ class NeomAudioHandler extends BaseAudioHandler
               : 0,
         );
       case 'fastForward':
+        if (isAdMediaItem(currentMediaItem)) break;
         try {
           const stepInterval = Duration(seconds: 10);
           Duration newPosition = player.position + stepInterval;
@@ -1803,6 +1952,7 @@ class NeomAudioHandler extends BaseAudioHandler
           );
         }
       case 'rewind':
+        if (isAdMediaItem(currentMediaItem)) break;
         try {
           const stepInterval = Duration(
             seconds: AudioPlayerConstants.rewindSeconds,
@@ -1941,9 +2091,107 @@ class NeomAudioHandler extends BaseAudioHandler
     // Same item as before (a metadata refresh): its window stays open.
     if (closed == null && leaving != null && leaving.id == item.id) return;
 
+    if (leaving != null && isAdMediaItem(leaving) && leaving.id != item.id) {
+      if (!_skippedAdItemIds.remove(leaving.id)) {
+        final spec = AudioAdBreakSpec.fromMediaItemExtras(leaving.extras);
+        if (spec != null && _firedAdMilestones.add('${leaving.id}:complete')) {
+          NeomAdRegistry.onAudioAdTrackingEventFn?.call(spec, 'complete');
+        }
+      }
+      unawaited(_removeFinishedAdItem(leaving.id));
+    }
+
+    if (!_isEphemeral(item) && (leaving == null || leaving.id != item.id)) {
+      _nonAdTracksPlayedSinceAd++;
+      unawaited(_maybeScheduleAudioAdBreak(item));
+    }
+
     _windowPersistable = AppConfig.instance.canPersistUserActivity;
     if (closed != null && leavingPersistable && leaving?.id == closed.itemId) {
       unawaited(_persistCaseteWindow(closed, leaving!));
+    }
+  }
+
+  Future<void> _removeFinishedAdItem(String adItemId) async {
+    try {
+      final index = queue.value.indexWhere((e) => e.id == adItemId);
+      if (index >= 0) {
+        await removeQueueItemAt(index);
+      }
+    } catch (_) {}
+  }
+
+  Future<void> _maybeScheduleAudioAdBreak(MediaItem currentTrack) async {
+    if (_resolvingAudioAd ||
+        _ephemeralGrant != null ||
+        !NeomAdRegistry.shouldShowExternalAds ||
+        NeomAdRegistry.resolveAudioAdBreakFn == null) {
+      return;
+    }
+
+    final policy = AdMarketPolicy.current;
+    if (!policy.allowAudioMidRoll ||
+        policy.isActiveRouteBlocked(() => Sint.currentRoute)) {
+      return;
+    }
+    final tracksPerAd = policy.audioTracksPerAdBreak;
+    if (_nonAdTracksPlayedSinceAd < tracksPerAd) return;
+
+    final cooldownSec = policy.audioMinCooldownSeconds;
+    final now = DateTime.now();
+    if (_lastAudioAdInsertedAt != null &&
+        now.difference(_lastAudioAdInsertedAt!).inSeconds < cooldownSec) {
+      return;
+    }
+
+    _resolvingAudioAd = true;
+    try {
+      final spec = await NeomAdRegistry.resolveAudioAdBreakFn!(
+        placement: AdPlacement.playerAudioMidRoll,
+        contextKeywords: <String>[
+          if (currentTrack.title.trim().isNotEmpty) currentTrack.title.trim(),
+          if ((currentTrack.artist ?? '').trim().isNotEmpty)
+            currentTrack.artist!.trim(),
+          if ((currentTrack.album ?? '').trim().isNotEmpty)
+            currentTrack.album!.trim(),
+        ],
+      );
+      if (spec == null || !spec.hasPlayableAudio || _ephemeralGrant != null) {
+        return;
+      }
+
+      final currentIndex =
+          queue.value.indexWhere((e) => e.id == currentTrack.id);
+      if (currentIndex < 0) return;
+      if (currentIndex + 1 < queue.value.length &&
+          isAdMediaItem(queue.value[currentIndex + 1])) {
+        return;
+      }
+
+      final adItem = MediaItem(
+        id: 'neom_ad_${spec.id}_${DateTime.now().millisecondsSinceEpoch}',
+        title: spec.title,
+        artist: spec.advertiser,
+        album: 'Anuncio patrocinado',
+        duration: Duration(seconds: spec.durationSeconds),
+        artUri: spec.companionImgUrl.isNotEmpty
+            ? Uri.tryParse(spec.companionImgUrl)
+            : currentTrack.artUri,
+        extras: spec.toMediaItemExtras(),
+      );
+
+      await insertQueueItem(currentIndex + 1, adItem);
+      _nonAdTracksPlayedSinceAd = 0;
+      _lastAudioAdInsertedAt = DateTime.now();
+    } catch (e, st) {
+      NeomErrorLogger.recordErrorLight(
+        e,
+        st,
+        module: 'neom_audio_player',
+        operation: '_maybeScheduleAudioAdBreak',
+      );
+    } finally {
+      _resolvingAudioAd = false;
     }
   }
 
@@ -2069,7 +2317,7 @@ class NeomAudioHandler extends BaseAudioHandler
     _freeTrialTimer = Timer.periodic(
       const Duration(seconds: AudioPlayerConstants.minCaseteSeconds),
       (Timer timer) async {
-        if (!player.playing) return;
+        if (!player.playing || isAdMediaItem(currentMediaItem)) return;
 
         final access = await _authorizePlayback(
           PlaybackRequestOrigin.trialTimer,

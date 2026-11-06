@@ -3,8 +3,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:sint/sint.dart';
 import 'package:neom_commons/utils/constants/app_page_id_constants.dart';
+import 'package:neom_core/domain/model/audio_ad_break_spec.dart';
 import 'package:neom_core/utils/constants/app_route_constants.dart';
+import 'package:neom_core/utils/neom_ad_registry.dart';
 
+import '../../neom_audio_handler.dart';
 import '../../utils/mappers/media_item_mapper.dart';
 import 'miniplayer_controller.dart';
 import 'widgets/miniplayer_tile.dart';
@@ -28,6 +31,30 @@ class MiniPlayer extends StatelessWidget {
           return const SizedBox.shrink();
         }
 
+        final currentItem = controller.mediaItem.value;
+        final isAd = NeomAudioHandler.isAdMediaItem(currentItem);
+        final adSpec = isAd
+            ? AudioAdBreakSpec.fromMediaItemExtras(currentItem?.extras)
+            : null;
+        if (isAd &&
+            adSpec != null &&
+            NeomAdRegistry.buildAudioCompanionCardFn != null) {
+          return StreamBuilder<Duration>(
+            stream: controller.audioHandler?.player.positionStream,
+            builder: (context, snap) {
+              return NeomAdRegistry.buildAudioCompanionCardFn!(
+                spec: adSpec,
+                position: snap.data ?? Duration.zero,
+                duration:
+                    currentItem?.duration ??
+                    Duration(seconds: adSpec.durationSeconds),
+                onSkip: () => controller.audioHandler?.skipToNext(),
+                compact: true,
+              );
+            },
+          );
+        }
+
         return SizedBox(
           child: Dismissible(
               key: const Key(AppPageIdConstants.miniPlayer),
@@ -36,9 +63,8 @@ class MiniPlayer extends StatelessWidget {
                 if (controller.mediaItem.value != null) {
                   if (direction == DismissDirection.down || direction == DismissDirection.horizontal) {
                     controller.audioHandler?.stop();
-                  } else {
+                  } else if (!NeomAudioHandler.isAdMediaItem(controller.mediaItem.value)) {
                     Sint.toNamed(AppRouteConstants.audioPlayerMedia, arguments: [MediaItemMapper.toAppMediaItem(controller.mediaItem.value!), false]);
-                    // Navigator.push(context, MaterialPageRoute(builder: (context) => MediaPlayerPage(appMediaItem: MediaItemMapper.toAppMediaItem(controller.mediaItem!), reproduceItem: false),),);
                   }
                 }
                 return Future.value(false);
@@ -46,6 +72,10 @@ class MiniPlayer extends StatelessWidget {
               child: Dismissible(
                 key: Key(controller.mediaItem.value?.id ?? 'nothingPlaying'),
                 confirmDismiss: (DismissDirection direction) {
+                  if (NeomAudioHandler.isAdMediaItem(controller.mediaItem.value) &&
+                      !(controller.audioHandler?.canSkipCurrentAd ?? false)) {
+                    return Future.value(false);
+                  }
                   if(controller.isTimeline) {
                     controller.setShowInTimeline(value: false);
                   } else {

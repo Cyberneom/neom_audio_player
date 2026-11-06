@@ -9,9 +9,13 @@ import 'package:neom_commons/utils/auth_guard.dart';
 import 'package:neom_commons/utils/constants/app_page_id_constants.dart';
 import 'package:neom_commons/utils/constants/translations/app_translation_constants.dart';
 import 'package:neom_commons/utils/constants/translations/common_translation_constants.dart';
+import 'package:neom_core/domain/model/audio_ad_break_spec.dart';
 import 'package:neom_core/domain/model/playable_item.dart';
+import 'package:neom_core/utils/enums/ad_placement.dart';
+import 'package:neom_core/utils/neom_ad_registry.dart';
 import 'package:neom_sound/neom_sound.dart';
 
+import '../../neom_audio_handler.dart';
 import '../../utils/audio_item_source_availability.dart';
 import '../../utils/constants/audio_player_translation_constants.dart';
 import '../web/widgets/web_now_playing_full.dart';
@@ -137,24 +141,53 @@ class AudioPlayerPage extends StatelessWidget {
             decoration: AppTheme.appBoxDecoration,
             child: controller.isLoading.value
                 ? AppCircularProgressIndicator()
+                : NeomAudioHandler.isAdMediaItem(controller.mediaItem.value) &&
+                      NeomAdRegistry.buildAudioCompanionCardFn != null
+                ? _buildAdCompanionBody(context, controller)
                 : controller.isValidItem
                 ? Column(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      ArtWorkWidget(
-                        mediaPlayerController: controller,
-                        cardKey: controller.onlineCardKey,
-                        height: AppTheme.fullHeight(context) * 0.4,
-                        width: AppTheme.fullWidth(context),
-                        offline: controller.isOffline(),
-                        getLyricsOnline: controller.getLyricsOnline,
+                      Flexible(
+                        child: ArtWorkWidget(
+                          mediaPlayerController: controller,
+                          cardKey: controller.onlineCardKey,
+                          height: AppTheme.fullHeight(context) *
+                              (NeomAdRegistry.shouldShowExternalAds &&
+                                      NeomAdRegistry.buildAdSlotFn != null
+                                  ? 0.35
+                                  : 0.4),
+                          width: AppTheme.fullWidth(context),
+                          offline: controller.isOffline(),
+                          getLyricsOnline: controller.getLyricsOnline,
+                        ),
                       ),
-                      NameNControls(
-                        audioPlayerController: controller,
-                        height: AppTheme.fullHeight(context) * 0.49,
-                        width: AppTheme.fullWidth(context),
-                        isLoading: controller.isLoadingAudio.value,
+                      Flexible(
+                        child: NameNControls(
+                          audioPlayerController: controller,
+                          height: AppTheme.fullHeight(context) *
+                              (NeomAdRegistry.shouldShowExternalAds &&
+                                      NeomAdRegistry.buildAdSlotFn != null
+                                  ? 0.44
+                                  : 0.49),
+                          width: AppTheme.fullWidth(context),
+                          isLoading: controller.isLoadingAudio.value,
+                        ),
                       ),
+                      if (NeomAdRegistry.shouldShowExternalAds &&
+                          NeomAdRegistry.buildAdSlotFn != null)
+                        SafeArea(
+                          top: false,
+                          child: NeomAdRegistry.buildAdSlotFn!(
+                            placement: AdPlacement.playerBanner,
+                            contextKeywords: <String>[
+                              if (controller.mediaItemTitle.value.isNotEmpty)
+                                controller.mediaItemTitle.value,
+                              if (controller.mediaItemArtist.value.isNotEmpty)
+                                controller.mediaItemArtist.value,
+                            ],
+                          ),
+                        ),
                     ],
                   )
                 : SizedBox(
@@ -162,6 +195,45 @@ class AudioPlayerPage extends StatelessWidget {
                       CommonTranslationConstants.noAvailablePreviewUrl.tr,
                     ),
                   ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAdCompanionBody(
+    BuildContext context,
+    AudioPlayerController controller,
+  ) {
+    final spec = AudioAdBreakSpec.fromMediaItemExtras(
+      controller.mediaItem.value?.extras,
+    );
+    if (spec == null || NeomAdRegistry.buildAudioCompanionCardFn == null) {
+      return const SizedBox.shrink();
+    }
+    final Stream<Duration>? posStream =
+        controller.audioHandler?.player?.positionStream is Stream<Duration>
+        ? controller.audioHandler.player.positionStream as Stream<Duration>
+        : null;
+    return Center(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 460),
+          child: StreamBuilder<Duration>(
+            stream: posStream,
+            builder: (context, snap) {
+              final position = snap.data ?? Duration.zero;
+              final duration =
+                  controller.mediaItem.value?.duration ??
+                  Duration(seconds: spec.durationSeconds);
+              return NeomAdRegistry.buildAudioCompanionCardFn!(
+                spec: spec,
+                position: position,
+                duration: duration,
+                onSkip: () => controller.audioHandler?.skipToNext(),
+              );
+            },
           ),
         ),
       ),
