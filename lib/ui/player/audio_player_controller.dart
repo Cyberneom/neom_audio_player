@@ -5,7 +5,6 @@ import 'package:flip_card/flip_card.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_lyric/flutter_lyric.dart';
-import 'package:flutter_lyric/core/lyric_parse.dart';
 import 'package:sint/sint.dart';
 import 'package:neom_commons/utils/app_utilities.dart';
 import 'package:neom_commons/utils/constants/app_page_id_constants.dart';
@@ -205,6 +204,8 @@ class AudioPlayerController extends SintController
   void onClose() {
     _mediaItemSub?.cancel();
     _isLoadingAudioSub?.cancel();
+    lyricsReaderModel?.dispose();
+    lyricsReaderModel = null;
     super.onClose();
     appMediaItem.value = AppMediaItem();
     isLoading.value = true;
@@ -405,9 +406,12 @@ class AudioPlayerController extends SintController
 
   MediaLyrics mediaLyrics = MediaLyrics();
 
-  final lyricUI = LyricStyles.default1;
+  final LyricPreset lyricUI = LyricPresets.aurora;
   LyricController? lyricsReaderModel;
   bool flipped = false;
+
+  LyricController get ensureLyricsController =>
+      lyricsReaderModel ??= LyricController();
 
   @override
   Future<void> fetchLyrics() async {
@@ -433,10 +437,12 @@ class AudioPlayerController extends SintController
     }
 
     lyricsSource.value = mediaLyrics.source.name;
-    lyricsReaderModel = LyricController();
-    lyricsReaderModel?.lyricNotifier.value = LyricParse.parse(
-      mediaLyrics.lyrics,
-    );
+    final lyricController = ensureLyricsController;
+    if (mediaLyrics.lyrics.isEmpty) {
+      lyricController.clear();
+    } else {
+      lyricController.load(mediaLyrics.lyrics);
+    }
     done.value = true;
   }
 

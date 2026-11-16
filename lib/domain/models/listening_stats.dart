@@ -1,3 +1,122 @@
+const int _maxStatsEpochMs = 8640000000000000;
+final RegExp _unsafeStatsChars = RegExp(
+  r'[\x00-\x08\x0B\x0C\x0E-\x1F\x7F-\x9F\u0085\u061C\u200B-\u200F\u2028\u2029\u202A-\u202E\u2060\u2066-\u2069\uFEFF]',
+);
+final RegExp _reservedDunderStatsKey = RegExp(r'^__.*__$');
+
+String _cleanStatsText(dynamic raw, {int maxChars = 512}) {
+  if (raw == null) return '';
+  final cleaned = raw.toString().replaceAll(_unsafeStatsChars, '').trim();
+  return cleaned.length <= maxChars ? cleaned : cleaned.substring(0, maxChars);
+}
+
+String? _cleanNullableStatsUrl(dynamic raw) {
+  if (raw == null) return null;
+  final candidate = _cleanStatsText(raw, maxChars: 2048);
+  if (candidate.isEmpty) return null;
+  final lower = candidate.toLowerCase();
+  if (lower.startsWith('javascript:') ||
+      lower.startsWith('vbscript:') ||
+      lower.startsWith('data:text/html') ||
+      lower.startsWith('file:')) {
+    return null;
+  }
+  return candidate;
+}
+
+int _parseStatsNonNegInt(dynamic v, [int fallback = 0]) {
+  int? parsed;
+  if (v is num) {
+    if (v.isFinite) parsed = v is int ? v : v.toInt();
+  } else if (v is String) {
+    final t = v.trim();
+    parsed = int.tryParse(t);
+    if (parsed == null) {
+      final d = double.tryParse(t);
+      if (d != null && d.isFinite) parsed = d.toInt();
+    }
+  }
+  if (parsed == null || parsed < 0) return fallback;
+  return parsed;
+}
+
+double _parseStatsNonNegDouble(dynamic v, [double fallback = 0.0]) {
+  double? parsed;
+  if (v is num) {
+    parsed = v.toDouble();
+  } else if (v is String) {
+    parsed = double.tryParse(v.trim());
+  }
+  if (parsed == null || !parsed.isFinite || parsed < 0) return fallback;
+  return parsed;
+}
+
+DateTime? _tryParseStatsDate(dynamic raw) {
+  if (raw == null) return null;
+  if (raw is num && raw.isFinite) {
+    final ms = raw.toInt();
+    if (ms > 0 && ms <= _maxStatsEpochMs) {
+      return DateTime.fromMillisecondsSinceEpoch(ms);
+    }
+  }
+  return DateTime.tryParse(raw.toString().trim());
+}
+
+bool _isSafeMapKey(String key) =>
+    key.isNotEmpty &&
+    key.length <= 128 &&
+    !_unsafeStatsChars.hasMatch(key) &&
+    key != '__proto__' &&
+    key != 'constructor' &&
+    key != 'prototype' &&
+    !_reservedDunderStatsKey.hasMatch(key);
+
+Map<int, int> _parseStatsIntMap(
+  dynamic raw, {
+  required int minKey,
+  required int maxKey,
+}) {
+  if (raw is! Map) return const {};
+  final out = <int, int>{};
+  for (final entry in raw.entries.take(64)) {
+    final rawKey = entry.key;
+    int? key;
+    if (rawKey is num && rawKey.isFinite) {
+      key = rawKey.toInt();
+    } else if (rawKey != null) {
+      final str = rawKey.toString().trim();
+      if (!_isSafeMapKey(str)) continue;
+      key = int.tryParse(str);
+    }
+    if (key == null || key < minKey || key > maxKey) continue;
+    out[key] = _parseStatsNonNegInt(entry.value);
+  }
+  return out;
+}
+
+Map<String, double> _parseMoodDistribution(dynamic raw) {
+  if (raw is! Map) return const {};
+  final out = <String, double>{};
+  for (final entry in raw.entries.take(64)) {
+    final rawKey = entry.key?.toString() ?? '';
+    if (_unsafeStatsChars.hasMatch(rawKey)) continue;
+    final key = rawKey.trim();
+    if (!_isSafeMapKey(key)) continue;
+    double? value;
+    final rawVal = entry.value;
+    if (rawVal is num && rawVal.isFinite) {
+      value = rawVal.toDouble();
+    } else if (rawVal is String) {
+      final d = double.tryParse(rawVal.trim());
+      if (d != null && d.isFinite) value = d;
+    }
+    if (value != null && value >= 0) {
+      out[key] = value;
+    }
+  }
+  return out;
+}
+
 /// Comprehensive listening statistics for a user
 class ListeningStats {
   /// Total listening time in milliseconds
@@ -85,8 +204,9 @@ class ListeningStats {
 
   /// Format total listening time as human readable string
   String get formattedTotalTime {
-    final hours = totalListeningTimeMs ~/ (1000 * 60 * 60);
-    final minutes = (totalListeningTimeMs ~/ (1000 * 60)) % 60;
+    final safeMs = totalListeningTimeMs < 0 ? 0 : totalListeningTimeMs;
+    final hours = safeMs ~/ (1000 * 60 * 60);
+    final minutes = (safeMs ~/ (1000 * 60)) % 60;
     if (hours > 0) {
       return '${hours}h ${minutes}m';
     }
@@ -95,8 +215,9 @@ class ListeningStats {
 
   /// Format today's listening time
   String get formattedTodayTime {
-    final hours = todayListeningTimeMs ~/ (1000 * 60 * 60);
-    final minutes = (todayListeningTimeMs ~/ (1000 * 60)) % 60;
+    final safeMs = todayListeningTimeMs < 0 ? 0 : todayListeningTimeMs;
+    final hours = safeMs ~/ (1000 * 60 * 60);
+    final minutes = (safeMs ~/ (1000 * 60)) % 60;
     if (hours > 0) {
       return '${hours}h ${minutes}m';
     }
@@ -178,44 +299,63 @@ class ListeningStats {
   }
 
   factory ListeningStats.fromJson(Map<String, dynamic> json) {
+    final topArtists = <ArtistStat>[];
+    if (json['topArtists'] is Iterable) {
+      for (final e in (json['topArtists'] as Iterable).take(500)) {
+        if (e is Map) {
+          topArtists.add(ArtistStat.fromJson(Map<String, dynamic>.from(e)));
+        }
+      }
+    }
+    final topSongs = <SongStat>[];
+    if (json['topSongs'] is Iterable) {
+      for (final e in (json['topSongs'] as Iterable).take(500)) {
+        if (e is Map) {
+          topSongs.add(SongStat.fromJson(Map<String, dynamic>.from(e)));
+        }
+      }
+    }
+    final topGenres = <GenreStat>[];
+    if (json['topGenres'] is Iterable) {
+      for (final e in (json['topGenres'] as Iterable).take(500)) {
+        if (e is Map) {
+          topGenres.add(GenreStat.fromJson(Map<String, dynamic>.from(e)));
+        }
+      }
+    }
     return ListeningStats(
-      totalListeningTimeMs: json['totalListeningTimeMs'] as int? ?? 0,
-      todayListeningTimeMs: json['todayListeningTimeMs'] as int? ?? 0,
-      weekListeningTimeMs: json['weekListeningTimeMs'] as int? ?? 0,
-      monthListeningTimeMs: json['monthListeningTimeMs'] as int? ?? 0,
-      totalSongsPlayed: json['totalSongsPlayed'] as int? ?? 0,
-      uniqueSongsPlayed: json['uniqueSongsPlayed'] as int? ?? 0,
-      totalArtists: json['totalArtists'] as int? ?? 0,
-      totalGenres: json['totalGenres'] as int? ?? 0,
-      topArtists: (json['topArtists'] as List?)
-              ?.map((e) => ArtistStat.fromJson(e))
-              .toList() ??
-          [],
-      topSongs: (json['topSongs'] as List?)
-              ?.map((e) => SongStat.fromJson(e))
-              .toList() ??
-          [],
-      topGenres: (json['topGenres'] as List?)
-              ?.map((e) => GenreStat.fromJson(e))
-              .toList() ??
-          [],
-      listeningByHour: (json['listeningByHour'] as Map?)
-              ?.map((k, v) => MapEntry(int.parse(k), v as int)) ??
-          {},
-      listeningByDay: (json['listeningByDay'] as Map?)
-              ?.map((k, v) => MapEntry(int.parse(k), v as int)) ??
-          {},
-      currentStreak: json['currentStreak'] as int? ?? 0,
-      longestStreak: json['longestStreak'] as int? ?? 0,
-      lastUpdated: json['lastUpdated'] != null
-          ? DateTime.parse(json['lastUpdated'] as String)
-          : DateTime.now(),
-      moodDistribution:
-          Map<String, double>.from(json['moodDistribution'] ?? {}),
-      avgSessionLengthMs: json['avgSessionLengthMs'] as int? ?? 0,
-      favoriteListeningTime: json['favoriteListeningTime'] as String? ?? '',
+      totalListeningTimeMs: _parseStatsNonNegInt(json['totalListeningTimeMs']),
+      todayListeningTimeMs: _parseStatsNonNegInt(json['todayListeningTimeMs']),
+      weekListeningTimeMs: _parseStatsNonNegInt(json['weekListeningTimeMs']),
+      monthListeningTimeMs: _parseStatsNonNegInt(json['monthListeningTimeMs']),
+      totalSongsPlayed: _parseStatsNonNegInt(json['totalSongsPlayed']),
+      uniqueSongsPlayed: _parseStatsNonNegInt(json['uniqueSongsPlayed']),
+      totalArtists: _parseStatsNonNegInt(json['totalArtists']),
+      totalGenres: _parseStatsNonNegInt(json['totalGenres']),
+      topArtists: topArtists,
+      topSongs: topSongs,
+      topGenres: topGenres,
+      listeningByHour: _parseStatsIntMap(
+        json['listeningByHour'],
+        minKey: 0,
+        maxKey: 23,
+      ),
+      listeningByDay: _parseStatsIntMap(
+        json['listeningByDay'],
+        minKey: 0,
+        maxKey: 7,
+      ),
+      currentStreak: _parseStatsNonNegInt(json['currentStreak']),
+      longestStreak: _parseStatsNonNegInt(json['longestStreak']),
+      lastUpdated: _tryParseStatsDate(json['lastUpdated']) ?? DateTime.now(),
+      moodDistribution: _parseMoodDistribution(json['moodDistribution']),
+      avgSessionLengthMs: _parseStatsNonNegInt(json['avgSessionLengthMs']),
+      favoriteListeningTime: _cleanStatsText(
+        json['favoriteListeningTime'],
+        maxChars: 128,
+      ),
       estimatedYearlyWrappedSongs:
-          json['estimatedYearlyWrappedSongs'] as int? ?? 0,
+          _parseStatsNonNegInt(json['estimatedYearlyWrappedSongs']),
     );
   }
 
@@ -255,12 +395,12 @@ class ArtistStat {
 
   factory ArtistStat.fromJson(Map<String, dynamic> json) {
     return ArtistStat(
-      artistId: json['artistId'] as String,
-      artistName: json['artistName'] as String,
-      imageUrl: json['imageUrl'] as String?,
-      playCount: json['playCount'] as int? ?? 0,
-      listeningTimeMs: json['listeningTimeMs'] as int? ?? 0,
-      rank: json['rank'] as int? ?? 0,
+      artistId: _cleanStatsText(json['artistId'], maxChars: 256),
+      artistName: _cleanStatsText(json['artistName'], maxChars: 256),
+      imageUrl: _cleanNullableStatsUrl(json['imageUrl']),
+      playCount: _parseStatsNonNegInt(json['playCount']),
+      listeningTimeMs: _parseStatsNonNegInt(json['listeningTimeMs']),
+      rank: _parseStatsNonNegInt(json['rank']),
     );
   }
 }
@@ -302,16 +442,14 @@ class SongStat {
 
   factory SongStat.fromJson(Map<String, dynamic> json) {
     return SongStat(
-      songId: json['songId'] as String,
-      songTitle: json['songTitle'] as String,
-      artistName: json['artistName'] as String,
-      imageUrl: json['imageUrl'] as String?,
-      playCount: json['playCount'] as int? ?? 0,
-      listeningTimeMs: json['listeningTimeMs'] as int? ?? 0,
-      lastPlayedAt: json['lastPlayedAt'] != null
-          ? DateTime.parse(json['lastPlayedAt'] as String)
-          : null,
-      rank: json['rank'] as int? ?? 0,
+      songId: _cleanStatsText(json['songId'], maxChars: 256),
+      songTitle: _cleanStatsText(json['songTitle'], maxChars: 256),
+      artistName: _cleanStatsText(json['artistName'], maxChars: 256),
+      imageUrl: _cleanNullableStatsUrl(json['imageUrl']),
+      playCount: _parseStatsNonNegInt(json['playCount']),
+      listeningTimeMs: _parseStatsNonNegInt(json['listeningTimeMs']),
+      lastPlayedAt: _tryParseStatsDate(json['lastPlayedAt']),
+      rank: _parseStatsNonNegInt(json['rank']),
     );
   }
 }
@@ -337,18 +475,18 @@ class GenreStat {
       'genre': genre,
       'playCount': playCount,
       'listeningTimeMs': listeningTimeMs,
-      'percentage': percentage,
+      'percentage': percentage.isFinite ? percentage : 0.0,
       'rank': rank,
     };
   }
 
   factory GenreStat.fromJson(Map<String, dynamic> json) {
     return GenreStat(
-      genre: json['genre'] as String,
-      playCount: json['playCount'] as int? ?? 0,
-      listeningTimeMs: json['listeningTimeMs'] as int? ?? 0,
-      percentage: (json['percentage'] as num?)?.toDouble() ?? 0,
-      rank: json['rank'] as int? ?? 0,
+      genre: _cleanStatsText(json['genre'], maxChars: 128),
+      playCount: _parseStatsNonNegInt(json['playCount']),
+      listeningTimeMs: _parseStatsNonNegInt(json['listeningTimeMs']),
+      percentage: _parseStatsNonNegDouble(json['percentage']),
+      rank: _parseStatsNonNegInt(json['rank']),
     );
   }
 }
@@ -377,11 +515,18 @@ class DailyActivity {
   }
 
   factory DailyActivity.fromJson(Map<String, dynamic> json) {
+    final ids = <String>[];
+    if (json['topArtistIds'] is Iterable) {
+      for (final raw in (json['topArtistIds'] as Iterable).take(200)) {
+        final id = _cleanStatsText(raw, maxChars: 256);
+        if (id.isNotEmpty) ids.add(id);
+      }
+    }
     return DailyActivity(
-      date: DateTime.parse(json['date'] as String),
-      listeningTimeMs: json['listeningTimeMs'] as int? ?? 0,
-      songsPlayed: json['songsPlayed'] as int? ?? 0,
-      topArtistIds: List<String>.from(json['topArtistIds'] ?? []),
+      date: _tryParseStatsDate(json['date']) ?? DateTime.now(),
+      listeningTimeMs: _parseStatsNonNegInt(json['listeningTimeMs']),
+      songsPlayed: _parseStatsNonNegInt(json['songsPlayed']),
+      topArtistIds: ids,
     );
   }
 }

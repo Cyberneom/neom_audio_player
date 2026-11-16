@@ -28,7 +28,7 @@ class EnhancedPlaybackController extends SintController
   final _sleepTimerStreamController = StreamController<Duration>.broadcast();
 
   // Volume for fade out
-  double _originalVolume = 1.0;
+  final double _originalVolume = 1.0;
 
   NeomAudioHandler? _audioHandler;
 
@@ -38,14 +38,22 @@ class EnhancedPlaybackController extends SintController
     _initHive();
     try {
       _audioHandler = Sint.find<NeomAudioHandler>();
-    } catch (e, st) {
+    } catch (_) {
       AppConfig.logger.w('NeomAudioHandler not available yet for EnhancedPlaybackController');
     }
   }
 
   Future<void> _initHive() async {
-    _box = await Hive.openBox(_boxName);
-    await loadSettings();
+    try {
+      if (Hive.isBoxOpen(_boxName)) {
+        _box = Hive.box(_boxName);
+      } else {
+        _box = await Hive.openBox(_boxName);
+      }
+      await loadSettings();
+    } catch (e) {
+      AppConfig.logger.w('EnhancedPlaybackController Hive init skipped: $e');
+    }
   }
 
   // ============ Crossfade ============
@@ -180,6 +188,10 @@ class EnhancedPlaybackController extends SintController
 
   void _startSleepTimer(Duration duration, {bool fadeOut = true}) {
     _cancelSleepTimer();
+    if (duration <= Duration.zero) {
+      _onSleepTimerComplete();
+      return;
+    }
 
     _sleepTimerRemaining.value = duration;
     _isSleepTimerActive.value = true;
@@ -194,19 +206,25 @@ class EnhancedPlaybackController extends SintController
       }
 
       _sleepTimerRemaining.value = remaining;
-      _sleepTimerStreamController.add(remaining);
+      if (!_sleepTimerStreamController.isClosed) {
+        _sleepTimerStreamController.add(remaining);
+      }
 
       // Start fade out if enabled
-      if (fadeOut && remaining <= sleepTimerFadeOutDuration) {
+      if (fadeOut &&
+          sleepTimerFadeOutDuration > Duration.zero &&
+          remaining <= sleepTimerFadeOutDuration) {
         _startFadeOut(remaining);
       }
     });
   }
 
   void _startFadeOut(Duration remaining) {
+    final fadeMs = sleepTimerFadeOutDuration.inMilliseconds;
+    if (fadeMs <= 0) return;
     // Calculate volume based on remaining time
-    final progress = remaining.inMilliseconds / sleepTimerFadeOutDuration.inMilliseconds;
-    final targetVolume = _originalVolume * progress;
+    final progress = (remaining.inMilliseconds / fadeMs).clamp(0.0, 1.0);
+    final targetVolume = (_originalVolume * progress).clamp(0.0, 1.0);
 
     _audioHandler?.setVolume(targetVolume);
   }
@@ -240,8 +258,15 @@ class EnhancedPlaybackController extends SintController
   Future<void> extendSleepTimer(Duration extension) async {
     if (!_isSleepTimerActive.value) return;
 
-    _sleepTimerRemaining.value = _sleepTimerRemaining.value + extension;
-    _sleepTimerStreamController.add(_sleepTimerRemaining.value);
+    final updated = _sleepTimerRemaining.value + extension;
+    if (updated <= Duration.zero) {
+      _onSleepTimerComplete();
+      return;
+    }
+    _sleepTimerRemaining.value = updated;
+    if (!_sleepTimerStreamController.isClosed) {
+      _sleepTimerStreamController.add(_sleepTimerRemaining.value);
+    }
   }
 
   // ============ Car Mode ============
@@ -286,6 +311,7 @@ class EnhancedPlaybackController extends SintController
 
   @override
   Future<void> setPlaybackSpeed(double speed) async {
+    if (!speed.isFinite) return;
     final clampedSpeed = speed.clamp(0.5, 2.0);
     _settings.value = _settings.value.copyWith(playbackSpeed: clampedSpeed);
     await saveSettings();
@@ -308,6 +334,7 @@ class EnhancedPlaybackController extends SintController
 
   @override
   Future<void> setPitch(double pitch) async {
+    if (!pitch.isFinite) return;
     final clampedPitch = pitch.clamp(0.5, 2.0);
     _settings.value = _settings.value.copyWith(pitch: clampedPitch);
     await saveSettings();
@@ -380,7 +407,15 @@ class EnhancedPlaybackController extends SintController
   @override
   void onClose() {
     _cancelSleepTimer();
-    _sleepTimerStreamController.close();
+    if (!_sleepTimerStreamController.isClosed) {
+      _sleepTimerStreamController.close();
+    }
+    _settings.close();
+    _sleepTimerRemaining.close();
+    _isSleepTimerActive.close();
+    _isCarModeActive.close();
+    _currentLoudness.close();
+    _activeSleepTimerPreset.close();
     super.onClose();
   }
 }

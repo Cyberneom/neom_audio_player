@@ -57,7 +57,7 @@ class NowPlayingPageState extends State<NowPlayingPage> {
                 ? null
                 : SintAppBar(title: AudioPlayerTranslationConstants.nowPlaying.tr),
             body: processingState == AudioProcessingState.idle
-                ? TextButton(onPressed: () => Navigator.pushNamed(context, AudioPlayerRouteConstants.home),
+                ? TextButton(onPressed: () => Sint.toNamed(AudioPlayerRouteConstants.home),
               child: emptyScreen(
                 context, 3,
                 AudioPlayerTranslationConstants.nothingIs.tr, 14.0,

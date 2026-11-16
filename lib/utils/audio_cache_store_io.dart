@@ -25,6 +25,36 @@ class AudioCacheStore {
   @visibleForTesting
   static Directory? debugDir;
 
+  static final RegExp _controlOrBidiChars = RegExp(
+    r'[\x00-\x1F\x7F-\x9F\u0085\u061C\u200B-\u200F\u2028-\u202E\u2060-\u2069\uFEFF]',
+  );
+
+  /// Returns `true` when [targetPath] contains control/BiDi characters or any
+  /// directory component (excluding macOS root symlinks `/tmp`, `/var`, `/etc`)
+  /// is a symbolic link.
+  static bool hasSymlinkAncestor(String targetPath) {
+    if (targetPath.isEmpty || _controlOrBidiChars.hasMatch(targetPath)) {
+      return true;
+    }
+    try {
+      var current = File(targetPath).absolute.path;
+      for (var depth = 0; depth < 64; depth++) {
+        if (current != '/tmp' &&
+            current != '/var' &&
+            current != '/etc' &&
+            FileSystemEntity.isLinkSync(current)) {
+          return true;
+        }
+        final parent = Directory(current).parent.path;
+        if (parent == current) break;
+        current = parent;
+      }
+      return false;
+    } catch (_) {
+      return true;
+    }
+  }
+
   static Future<Directory> _dir() async =>
       debugDir ??
       Directory('${(await getTemporaryDirectory()).path}/just_audio_cache/remote');
@@ -33,9 +63,10 @@ class AudioCacheStore {
   static Future<int> sizeBytes() async {
     try {
       final dir = await _dir();
-      if (!dir.existsSync()) return 0;
+      if (hasSymlinkAncestor(dir.path) || !dir.existsSync()) return 0;
       var total = 0;
-      for (final f in dir.listSync().whereType<File>()) {
+      for (final f in dir.listSync(followLinks: false).whereType<File>()) {
+        if (FileSystemEntity.isLinkSync(f.path)) continue;
         total += f.lengthSync();
       }
       return total;
@@ -52,14 +83,18 @@ class AudioCacheStore {
   /// Deletes the songs played longest ago until the cache fits [maxBytes].
   /// Returns the bytes freed.
   static Future<int> enforceLimit({int maxBytes = defaultMaxBytes}) =>
-      _evictDownTo(maxBytes);
+      _evictDownTo(
+        !maxBytes.toDouble().isFinite || maxBytes < 0 ? 0 : maxBytes,
+      );
 
   /// Marks [file] as just played, so eviction keeps it longest. The cache
   /// stamps a song once, when it finishes downloading; without this, a
   /// favourite played every day would be the first to go.
   static Future<void> markPlayed(File file) async {
     try {
-      if (file.existsSync()) file.setLastModifiedSync(DateTime.now());
+      if (!hasSymlinkAncestor(file.path) && file.existsSync()) {
+        file.setLastModifiedSync(DateTime.now());
+      }
     } catch (_) {
       // Only an eviction-order hint; never worth failing playback over.
     }
@@ -71,8 +106,12 @@ class AudioCacheStore {
   static Future<int> _evictDownTo(int targetBytes) async {
     try {
       final dir = await _dir();
-      if (!dir.existsSync()) return 0;
-      final files = dir.listSync().whereType<File>().toList();
+      if (hasSymlinkAncestor(dir.path) || !dir.existsSync()) return 0;
+      final files = dir
+          .listSync(followLinks: false)
+          .whereType<File>()
+          .where((f) => !FileSystemEntity.isLinkSync(f.path))
+          .toList();
       var total = files.fold<int>(0, (sum, f) => sum + f.lengthSync());
       if (total <= targetBytes) return 0;
 
@@ -81,11 +120,13 @@ class AudioCacheStore {
       var freed = 0;
       for (final song in songs) {
         if (total <= targetBytes) break;
+        if (FileSystemEntity.isLinkSync(song.path)) continue;
         final mime = File('${song.path}.mime');
-        final bytes = song.lengthSync() +
-            (mime.existsSync() ? mime.lengthSync() : 0);
+        final hasSafeMime =
+            !FileSystemEntity.isLinkSync(mime.path) && mime.existsSync();
+        final bytes = song.lengthSync() + (hasSafeMime ? mime.lengthSync() : 0);
         song.deleteSync();
-        if (mime.existsSync()) mime.deleteSync();
+        if (hasSafeMime) mime.deleteSync();
         total -= bytes;
         freed += bytes;
       }

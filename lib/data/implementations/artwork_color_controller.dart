@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:neom_commons/ui/theme/app_color.dart';
-import 'package:palette_generator/palette_generator.dart';
 import 'package:sint/sint.dart';
 
 import '../../domain/use_cases/artwork_color_service.dart';
 
 /// Concrete [ArtworkColorService] that extracts dominant colors from artwork
-/// images using [PaletteGenerator] and caches them in memory.
+/// images using [ColorScheme.fromImageProvider] and caches them in memory.
 ///
 /// Concurrent requests for the same key are coalesced to avoid duplicate work.
 /// The [currentColor] reactive observable can be used with [Obx] to rebuild
@@ -53,15 +52,11 @@ class ArtworkColorController extends SintController
 
     _inFlight.add(cacheKey);
     try {
-      final palette = await PaletteGenerator.fromImageProvider(
-        NetworkImage(imageUrl),
-        size: const Size(80, 80),
-        maximumColorCount: 8,
+      final scheme = await ColorScheme.fromImageProvider(
+        provider: NetworkImage(imageUrl),
+        brightness: Brightness.dark,
       );
-      final color = palette.vibrantColor?.color
-          ?? palette.dominantColor?.color
-          ?? palette.mutedColor?.color
-          ?? fb;
+      final color = _selectSchemeColor(scheme, fb);
 
       _enforceCacheLimit();
       _cache[cacheKey] = color;
@@ -72,6 +67,25 @@ class ArtworkColorController extends SintController
     } finally {
       _inFlight.remove(cacheKey);
     }
+  }
+
+  static Color _selectSchemeColor(ColorScheme scheme, Color fallback) {
+    final candidates = <Color>[
+      scheme.primary,
+      scheme.primaryContainer,
+      scheme.secondary,
+      scheme.surface,
+    ];
+    for (final candidate in candidates) {
+      final hsl = HSLColor.fromColor(candidate);
+      if (candidate.a > 0 &&
+          hsl.saturation >= 0.12 &&
+          hsl.lightness >= 0.12 &&
+          hsl.lightness <= 0.88) {
+        return candidate;
+      }
+    }
+    return scheme.primary.a > 0 ? scheme.primary : fallback;
   }
 
   @override

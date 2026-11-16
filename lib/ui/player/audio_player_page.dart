@@ -11,6 +11,7 @@ import 'package:neom_commons/utils/constants/translations/app_translation_consta
 import 'package:neom_commons/utils/constants/translations/common_translation_constants.dart';
 import 'package:neom_core/domain/model/audio_ad_break_spec.dart';
 import 'package:neom_core/domain/model/playable_item.dart';
+import 'package:neom_core/utils/constants/app_route_constants.dart';
 import 'package:neom_core/utils/enums/ad_placement.dart';
 import 'package:neom_core/utils/neom_ad_registry.dart';
 import 'package:neom_sound/neom_sound.dart';
@@ -94,7 +95,15 @@ class AudioPlayerPage extends StatelessWidget {
               arguments[1] != false,
         );
       }
-      return WebNowPlayingFull(onClose: () => Navigator.of(context).maybePop());
+      return WebNowPlayingFull(
+        onClose: () {
+          if (Sint.canPop) {
+            Sint.maybePop();
+          } else {
+            Sint.offAllNamed(AppRouteConstants.audioPlayer);
+          }
+        },
+      );
     }
 
     return SintBuilder<AudioPlayerController>(

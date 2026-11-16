@@ -11,6 +11,7 @@ import 'package:neom_commons/utils/constants/app_page_id_constants.dart';
 import 'package:neom_commons/utils/constants/translations/app_translation_constants.dart';
 import 'package:neom_core/app_config.dart';
 import 'package:neom_core/app_properties.dart';
+import 'package:neom_core/domain/use_cases/release_upload_service.dart';
 import 'package:neom_core/utils/constants/app_route_constants.dart';
 import 'package:neom_core/utils/enums/app_in_use.dart';
 import 'package:neom_core/utils/enums/user_role.dart';
@@ -146,7 +147,7 @@ class AudioPlayerDrawer extends StatelessWidget {
         if(isEnabled) {
           switch(selectedMenu) {
             // case AudioPlayerDrawerMenu.nowPlaying:
-            //   Navigator.pushNamed(context, AudioPlayerRouteConstants.nowPlaying);
+            //   Sint.toNamed(AudioPlayerRouteConstants.nowPlaying);
             case AudioPlayerDrawerMenu.lastSession:
               Sint.toNamed(AudioPlayerRouteConstants.recent);
             case AudioPlayerDrawerMenu.favorites:
@@ -167,6 +168,14 @@ class AudioPlayerDrawer extends StatelessWidget {
               Sint.toNamed(AudioPlayerRouteConstants.stats);
             case AudioPlayerDrawerMenu.settings:
               Sint.toNamed(AudioPlayerRouteConstants.setting);
+            case AudioPlayerDrawerMenu.podcastUpload:
+            case AudioPlayerDrawerMenu.audiobookUpload:
+              if (kIsWeb && Sint.isRegistered<ReleaseUploadService>()) {
+                Scaffold.maybeOf(context)?.closeDrawer();
+                Sint.find<ReleaseUploadService>().showUploadModal(context);
+              } else {
+                Sint.toNamed(AppRouteConstants.releaseUpload);
+              }
             default:
               break;
           }

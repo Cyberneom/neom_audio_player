@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:collection';
 import 'dart:convert';
 
@@ -26,8 +27,87 @@ class LyricsController extends SintController implements LyricsService {
 
   static const String _boxName = 'lyrics_cache';
   static const int _maxCacheEntries = 200;
+  static const int maxCachedLyricsChars = 256 * 1024;
+  static final RegExp _controlOrBidi = RegExp(
+    r'[\x00-\x1F\x7F-\x9F\u0085\u061C\u200B-\u200F\u2028-\u202E\u2060\u2066-\u2069\uFEFF]',
+  );
+  static final RegExp _unsafeInlineControls = RegExp(
+    r'[\x00-\x08\x0B\x0C\x0E-\x1F\x7F-\x9F\u0085\u061C\u200B-\u200F\u2028-\u202E\u2060\u2066-\u2069\uFEFF]',
+  );
+  static final RegExp _gemmaThoughtBlock = RegExp(
+    r'<(?:(?:\|channel>|\|turn>)thought[\s\S]*?(?:<(?:channel|turn)\|>|$)|think>[\s\S]*?</think>)',
+    caseSensitive: false,
+  );
+  static final RegExp _internalControlTags = RegExp(
+    r'<\|/?(?:turn|channel)\|?>?|<\|eot\|>|\[MEMORY_RECALL\]|<memory_recall>[\s\S]*?</memory_recall>|<auto_memory>[\s\S]*?</auto_memory>|<system_context>[\s\S]*?</system_context>|\[BIOCHIP:[^\]]*\]',
+    caseSensitive: false,
+  );
+  static final RegExp _contentCloseTag = RegExp(
+    r'</\s*content\s*>',
+    caseSensitive: false,
+  );
 
   Box? _box;
+  Future<Box?>? _openingBox;
+
+  static bool isSafeMediaId(String raw) {
+    if (raw.isEmpty || raw.length > 128 || _controlOrBidi.hasMatch(raw)) {
+      return false;
+    }
+    final clean = raw.trim();
+    if (clean != raw ||
+        clean == '.' ||
+        clean == '..' ||
+        clean.contains('..') ||
+        clean.contains('/') ||
+        clean.contains(r'\') ||
+        clean.contains(':')) {
+      return false;
+    }
+    final lower = clean.toLowerCase();
+    if (lower == '__proto__' ||
+        lower == 'constructor' ||
+        lower == 'prototype' ||
+        (lower.startsWith('__') && lower.endsWith('__'))) {
+      return false;
+    }
+    return true;
+  }
+
+  static String sanitizeLyricsText(
+    String raw, {
+    int maxChars = maxCachedLyricsChars,
+  }) {
+    if (raw.isEmpty || maxChars <= 0) return '';
+    final cleaned = raw
+        .replaceAll('\r\n', '\n')
+        .replaceAll('\r', '\n')
+        .replaceAll(_gemmaThoughtBlock, '')
+        .replaceAll(_internalControlTags, '')
+        .replaceAll(_contentCloseTag, '[content_end]')
+        .replaceAll(_unsafeInlineControls, '')
+        .trim();
+    if (cleaned.length <= maxChars) return cleaned;
+    var end = maxChars;
+    final cu = cleaned.codeUnitAt(end - 1);
+    if (cu >= 0xD800 && cu <= 0xDBFF) end -= 1;
+    return end <= 0 ? '' : cleaned.substring(0, end);
+  }
+
+  static String _sanitizeQueryField(String raw, {int maxChars = 200}) {
+    if (raw.isEmpty || maxChars <= 0) return '';
+    final cleaned = raw
+        .replaceAll(_gemmaThoughtBlock, '')
+        .replaceAll(_internalControlTags, '')
+        .replaceAll(_contentCloseTag, '')
+        .replaceAll(_controlOrBidi, '')
+        .trim();
+    if (cleaned.length <= maxChars) return cleaned;
+    var end = maxChars;
+    final cu = cleaned.codeUnitAt(end - 1);
+    if (cu >= 0xD800 && cu <= 0xDBFF) end -= 1;
+    return end <= 0 ? '' : cleaned.substring(0, end);
+  }
 
   /// Parsed LRC entries for the current track.
   List<LrcEntry> _entries = const [];
@@ -41,12 +121,50 @@ class LyricsController extends SintController implements LyricsService {
     _initHive();
   }
 
-  Future<void> _initHive() async {
+  Future<Box?> _initHive() async {
+    if (_box != null && _box!.isOpen) return _box;
+    if (_openingBox != null) return _openingBox!;
+    final completer = Completer<Box?>();
+    _openingBox = completer.future;
     try {
-      _box = await Hive.openBox(_boxName);
+      Box? opened;
+      if (Hive.isBoxOpen(_boxName)) {
+        opened = Hive.box(_boxName);
+      } else {
+        Future<Box> tryOpen() {
+          final c = Completer<Box>();
+          runZonedGuarded(() async {
+            try {
+              final b = await Hive.openBox(_boxName);
+              if (!c.isCompleted) c.complete(b);
+            } catch (e, st) {
+              if (!c.isCompleted) c.completeError(e, st);
+            }
+          }, (e, st) {
+            if (!c.isCompleted) c.completeError(e, st);
+          });
+          return c.future;
+        }
+
+        try {
+          opened = await tryOpen();
+        } catch (_) {
+          try {
+            await Hive.deleteBoxFromDisk(_boxName);
+          } catch (_) {}
+          opened = await tryOpen();
+        }
+      }
+      _box = opened;
+      completer.complete(opened);
+      return opened;
     } catch (e, st) {
       NeomErrorLogger.recordError(e, st,
           module: 'neom_audio_player', operation: 'LyricsController._initHive');
+      completer.complete(null);
+      return null;
+    } finally {
+      _openingBox = null;
     }
   }
 
@@ -64,60 +182,79 @@ class LyricsController extends SintController implements LyricsService {
     required String title,
     required String artist,
   }) async {
+    final safeId = isSafeMediaId(mediaId) ? mediaId : '';
+    final cleanTitle = _sanitizeQueryField(title);
+    final cleanArtist = _sanitizeQueryField(artist);
+
     // 1. Check cache
-    final cached = _getCached(mediaId);
-    if (cached != null) {
-      AppConfig.logger.i('Lyrics cache hit for $mediaId');
-      _parseAndIndex(cached.lyrics);
-      return MediaLyrics(
-        mediaId: mediaId,
-        lyrics: cached.lyrics,
-        source: cached.source,
-        type: cached.type,
-      );
+    if (safeId.isNotEmpty) {
+      await _initHive();
+      final cached = _getCached(safeId);
+      if (cached != null) {
+        final safeCachedLyrics = sanitizeLyricsText(cached.lyrics);
+        if (safeCachedLyrics.isNotEmpty) {
+          AppConfig.logger.i('Lyrics cache hit for $safeId');
+          _parseAndIndex(safeCachedLyrics);
+          return MediaLyrics(
+            mediaId: safeId,
+            lyrics: safeCachedLyrics,
+            source: cached.source,
+            type: cached.type,
+          );
+        }
+      }
     }
 
-    AppConfig.logger.i('Fetching lyrics for "$title" by "$artist"');
+    AppConfig.logger.i('Fetching lyrics for "$cleanTitle" by "$cleanArtist"');
 
     // 2. Spotify (synced preferred)
     MediaLyrics result = await SpotifyLyricsHelper.fetchLyrics(
-      title: title,
-      artist: artist,
+      title: cleanTitle,
+      artist: cleanArtist,
     );
+    result.lyrics = sanitizeLyricsText(result.lyrics);
     if (result.lyrics.isNotEmpty) {
-      result.mediaId = mediaId;
+      result.mediaId = safeId;
       _parseAndIndex(result.lyrics);
-      await _putCache(mediaId, result);
+      if (safeId.isNotEmpty) await _putCache(safeId, result);
       return result;
     }
 
     // 3. Musixmatch
-    result = await Lyrics.getMusixMatchLyrics(title: title, artist: artist);
+    result = await Lyrics.getMusixMatchLyrics(
+      title: cleanTitle,
+      artist: cleanArtist,
+    );
+    result.lyrics = sanitizeLyricsText(result.lyrics);
     if (result.lyrics.isNotEmpty) {
-      result.mediaId = mediaId;
+      result.mediaId = safeId;
       _parseAndIndex(result.lyrics);
-      await _putCache(mediaId, result);
+      if (safeId.isNotEmpty) await _putCache(safeId, result);
       return result;
     }
 
     // 4. Google
-    result = await Lyrics.getGoogleLyrics(title: title, artist: artist);
+    result = await Lyrics.getGoogleLyrics(
+      title: cleanTitle,
+      artist: cleanArtist,
+    );
+    result.lyrics = sanitizeLyricsText(result.lyrics);
     if (result.lyrics.isNotEmpty) {
-      result.mediaId = mediaId;
+      result.mediaId = safeId;
       _parseAndIndex(result.lyrics);
-      await _putCache(mediaId, result);
+      if (safeId.isNotEmpty) await _putCache(safeId, result);
       return result;
     }
 
     // No lyrics found
     _entries = const [];
     _timestampIndex = SplayTreeMap<int, int>();
-    return MediaLyrics(mediaId: mediaId);
+    return MediaLyrics(mediaId: safeId);
   }
 
   @override
   List<LrcEntry> parseLrcEntries(String rawLrc) {
-    return parseLrc(rawLrc);
+    return parseLrc(sanitizeLyricsText(rawLrc));
   }
 
   @override
@@ -142,6 +279,7 @@ class LyricsController extends SintController implements LyricsService {
 
   @override
   Future<void> clearCache(String mediaId) async {
+    if (!isSafeMediaId(mediaId)) return;
     await _box?.delete(mediaId);
   }
 
@@ -158,12 +296,27 @@ class LyricsController extends SintController implements LyricsService {
   }
 
   LyricsCacheEntry? _getCached(String mediaId) {
+    if (!isSafeMediaId(mediaId)) return null;
     try {
       final raw = _box?.get(mediaId);
-      if (raw == null) return null;
-      final entry = LyricsCacheEntry.fromJSON(
-        Map<String, dynamic>.from(json.decode(raw as String) as Map),
-      );
+      if (raw is! String || raw.isEmpty || raw.length > maxCachedLyricsChars) {
+        return null;
+      }
+      final decoded = json.decode(raw);
+      if (decoded is! Map) return null;
+      final map = <String, dynamic>{};
+      for (final entry in decoded.entries) {
+        final k = entry.key?.toString() ?? '';
+        final lower = k.toLowerCase();
+        if (lower == '__proto__' ||
+            lower == 'constructor' ||
+            lower == 'prototype' ||
+            (lower.startsWith('__') && lower.endsWith('__'))) {
+          continue;
+        }
+        map[k] = entry.value;
+      }
+      final entry = LyricsCacheEntry.fromJSON(map);
       if (entry.isExpired) {
         _box?.delete(mediaId);
         return null;
@@ -175,7 +328,10 @@ class LyricsController extends SintController implements LyricsService {
   }
 
   Future<void> _putCache(String mediaId, MediaLyrics lyrics) async {
+    if (!isSafeMediaId(mediaId)) return;
     try {
+      final cleanLyrics = sanitizeLyricsText(lyrics.lyrics);
+      if (cleanLyrics.isEmpty) return;
       // Enforce cache size limit
       if ((_box?.length ?? 0) >= _maxCacheEntries) {
         final firstKey = _box?.keys.first;
@@ -184,11 +340,13 @@ class LyricsController extends SintController implements LyricsService {
 
       final entry = LyricsCacheEntry(
         mediaId: mediaId,
-        lyrics: lyrics.lyrics,
+        lyrics: cleanLyrics,
         source: lyrics.source,
         type: lyrics.type,
       );
-      await _box?.put(mediaId, json.encode(entry.toJSON()));
+      final encoded = json.encode(entry.toJSON());
+      if (encoded.length > maxCachedLyricsChars) return;
+      await _box?.put(mediaId, encoded);
     } catch (e, st) {
       NeomErrorLogger.recordError(e, st,
           module: 'neom_audio_player', operation: 'LyricsController._putCache');

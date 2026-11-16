@@ -139,6 +139,19 @@ class AudioPlayerRootPageState extends State<AudioPlayerRootPage> {
   void selectPageView(int index, {required BuildContext context}) async {
     AppConfig.logger.t("Changing page view to index: $index");
 
+    if (index == 0) {
+      try {
+        if (pageController.hasClients) {
+          pageController.jumpToPage(0);
+          currentIndex = 0;
+        }
+      } catch (e, st) {
+        NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: 'selectPageView');
+      }
+      setState(() {});
+      return;
+    }
+
     if(index > 0) {
       AuthGuard.protect(context, () {
         try {
