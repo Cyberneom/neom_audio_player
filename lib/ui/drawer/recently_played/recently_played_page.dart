@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:sint/sint.dart';
-import 'package:hive/hive.dart';
 import 'package:neom_commons/app_flavour.dart';
 import 'package:neom_commons/ui/theme/app_theme.dart';
 import 'package:neom_commons/ui/widgets/images/neom_image_card.dart';
 import 'package:neom_commons/utils/constants/translations/common_translation_constants.dart';
 import 'package:neom_core/app_config.dart';
+import 'package:neom_core/data/implementations/app_hive_controller.dart';
 import 'package:neom_core/domain/model/app_media_item.dart';
 import 'package:neom_core/utils/constants/app_hive_constants.dart';
 import 'package:neom_core/utils/enums/app_hive_box.dart';
@@ -34,19 +34,24 @@ class RecentlyPlayedPageState extends State<RecentlyPlayedPage> {
       return;
     }
 
-    List recentSongs =
-        await Hive.box(
-              AppHiveBox.player.name,
-            ).get(AppHiveConstants.recentSongs, defaultValue: [])
-            as List;
+    final playerBox = await AppHiveController().getBox(AppHiveBox.player.name);
+    final rawRecent = playerBox.get(
+      AppHiveConstants.recentSongs,
+      defaultValue: <dynamic>[],
+    );
+    final List recentSongs = rawRecent is List ? rawRecent : <dynamic>[];
     if (recentSongs.isNotEmpty) {
       for (final element in recentSongs) {
-        AppMediaItem recentMediaItem = AppMediaItem.fromJSON(element);
-        _songs[recentMediaItem.id] = recentMediaItem;
+        if (element is Map) {
+          try {
+            AppMediaItem recentMediaItem = AppMediaItem.fromJSON(element);
+            _songs[recentMediaItem.id] = recentMediaItem;
+          } catch (_) {}
+        }
       }
     }
     added = true;
-    setState(() {});
+    if (mounted) setState(() {});
   }
 
   @override
@@ -68,9 +73,12 @@ class RecentlyPlayedPageState extends State<RecentlyPlayedPage> {
         actions: canPersist
             ? [
                 IconButton(
-                  onPressed: () {
-                    Hive.box(AppHiveBox.player.name).put('recentSongs', []);
-                    setState(() => _songs = {});
+                  onPressed: () async {
+                    final box = await AppHiveController().getBox(
+                      AppHiveBox.player.name,
+                    );
+                    await box.put(AppHiveConstants.recentSongs, <dynamic>[]);
+                    if (mounted) setState(() => _songs = {});
                   },
                   tooltip: AudioPlayerTranslationConstants.clearAll.tr,
                   icon: const Icon(Icons.clear_all_rounded),
@@ -117,12 +125,18 @@ class RecentlyPlayedPageState extends State<RecentlyPlayedPage> {
                               ),
                             ),
                           ),
-                          onDismissed: (direction) {
+                          onDismissed: (direction) async {
                             _songs.remove(item.id);
                             setState(() {});
-                            Hive.box(
-                              AppHiveBox.player.name,
-                            ).put(AppHiveConstants.recentSongs, _songs);
+                            if (AppConfig.instance.canPersistUserActivity) {
+                              final box = await AppHiveController().getBox(
+                                AppHiveBox.player.name,
+                              );
+                              await box.put(
+                                AppHiveConstants.recentSongs,
+                                _songs.values.map((e) => e.toJSON()).toList(),
+                              );
+                            }
                           },
                           child: ListTile(
                             leading: NeomImageCard(imageUrl: item.imgUrl),

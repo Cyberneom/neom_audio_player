@@ -12,6 +12,8 @@ dependencies:
   flutter:
     sdk: flutter
 
+  sint: ^2.0.2
+
   neom_core:
     git:
       url: git@github.com:Open-Neom/neom_core.git
@@ -24,12 +26,16 @@ dependencies:
 
   audio_service: ^0.18.18
   audio_session: ^0.2.4
-  connectivity_plus: ^7.1.0
+
+  connectivity_plus: ">=7.1.0 <7.3.2"
+
+
 
   flip_card: ^0.7.0
   sliding_up_panel: ^2.0.0+1
-  flutter_lyric: ^3.0.7
-  palette_generator: ^0.3.3+6
+  flutter_lyric: ^4.1.0
+
+
 
   #This would be needed when adding offline mode downloading audio.
   #metadata_god: ^1.0.
@@ -38,5 +44,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
+
+
 
 flutter:

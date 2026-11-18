@@ -26,27 +26,32 @@ class WebImageResolver {
     BoxFit fit = BoxFit.cover,
     IconData placeholderIcon = Icons.music_note_rounded,
   }) {
+    final safeWidth = width.isFinite && width > 0 ? width : 48.0;
+    final safeHeight = height.isFinite && height > 0 ? height : 48.0;
+    final safeRadius =
+        borderRadius.isFinite && borderRadius >= 0 ? borderRadius : 6.0;
+
     final placeholder = _gradientPlaceholder(
       cacheKey: cacheKey,
-      width: width,
-      height: height,
-      borderRadius: borderRadius,
+      width: safeWidth,
+      height: safeHeight,
+      borderRadius: safeRadius,
       icon: placeholderIcon,
     );
 
-    if (imageUrl == null || imageUrl.isEmpty) {
+    if (!WebColorExtractor.isSafeWebArtworkUrl(imageUrl)) {
       return placeholder;
     }
 
     return ClipRRect(
-      borderRadius: BorderRadius.circular(borderRadius),
+      borderRadius: BorderRadius.circular(safeRadius),
       child: SizedBox(
-        width: width,
-        height: height,
+        width: safeWidth,
+        height: safeHeight,
         child: platformNetworkImage(
-          imageUrl: imageUrl,
-          width: width,
-          height: height,
+          imageUrl: imageUrl!.trim(),
+          width: safeWidth,
+          height: safeHeight,
           fit: fit,
           errorWidget: placeholder,
         ),

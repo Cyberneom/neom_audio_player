@@ -136,6 +136,91 @@ class _AudioPlayerWebLayoutState extends State<AudioPlayerWebLayout> {
     setState(() => _showQueue = !_showQueue);
   }
 
+  Widget _buildHostTopNavBar() {
+    if (widget.navigationSidebar == null || _selectedIndex > 2) {
+      return const SizedBox.shrink();
+    }
+
+    Widget buildChip({
+      required int index,
+      required IconData icon,
+      required String label,
+    }) {
+      final selected = _selectedIndex == index;
+      return Padding(
+        padding: const EdgeInsets.only(right: 10),
+        child: MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child: GestureDetector(
+            onTap: () => _onMenuSelected(index),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 180),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: selected
+                    ? AppColor.getMain()
+                    : Colors.white.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: selected
+                      ? AppColor.getMain()
+                      : Colors.white.withValues(alpha: 0.12),
+                ),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(icon, color: Colors.white, size: 18),
+                  const SizedBox(width: 8),
+                  Text(
+                    label,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 13,
+                      fontWeight: selected ? FontWeight.bold : FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(24, 16, 24, 8),
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(color: Colors.white.withValues(alpha: 0.07)),
+        ),
+      ),
+      child: Wrap(
+        crossAxisAlignment: WrapCrossAlignment.center,
+        runSpacing: 8,
+        children: [
+          buildChip(
+            index: 0,
+            icon: Icons.headphones_rounded,
+            label: AppFlavour.getAudioPlayerHomeTitle(),
+          ),
+          buildChip(
+            index: 1,
+            icon: Icons.search_rounded,
+            label: AppTranslationConstants.search.tr,
+          ),
+          if (widget.secondaryPage != null)
+            buildChip(
+              index: 2,
+              icon: Icons.library_music_rounded,
+              label: AppTranslationConstants.playlists.tr,
+            ),
+        ],
+      ),
+    );
+  }
+
   /// Placeholder shown when a builder for a platform-only view was not
   /// supplied. Tells the developer how to wire it up.
   Widget _platformPlaceholder(String viewName) {
@@ -325,7 +410,12 @@ class _AudioPlayerWebLayoutState extends State<AudioPlayerWebLayout> {
                               ),
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(8),
-                                child: _buildCenterPanel(),
+                                child: Column(
+                                  children: [
+                                    _buildHostTopNavBar(),
+                                    Expanded(child: _buildCenterPanel()),
+                                  ],
+                                ),
                               ),
                             ),
                           ),

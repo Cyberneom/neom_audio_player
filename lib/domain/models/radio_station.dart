@@ -2,6 +2,85 @@ import 'package:audio_service/audio_service.dart';
 
 import '../../utils/enums/radio_seed_type.dart';
 
+const int _maxRadioEpochMs = 8640000000000000;
+final RegExp _unsafeRadioTextChars = RegExp(
+  r'[\x00-\x08\x0B\x0C\x0E-\x1F\x7F-\x9F\u0085\u061C\u200B-\u200F\u2028\u2029\u202A-\u202E\u2060\u2066-\u2069\uFEFF]',
+);
+final RegExp _radioLlmArtifacts = RegExp(
+  r'<\|channel>\s*thought\b[\s\S]*?(?:<channel\|>|$)|<\|/?(?:turn|channel|eot)\|?>?|<\s*/?\s*(?:think|thought|memory_recall|system_context)\b[^>]*>|\[\s*/?\s*(?:MEMORY_RECALL|BIOCHIP)\b[^\]]*\]',
+  caseSensitive: false,
+);
+
+String _cleanRadioText(dynamic raw, {int maxChars = 512}) {
+  if (raw == null) return '';
+  final cleaned = raw
+      .toString()
+      .replaceAll(_radioLlmArtifacts, ' ')
+      .replaceAll(_unsafeRadioTextChars, '')
+      .trim();
+  return cleaned.length <= maxChars ? cleaned : cleaned.substring(0, maxChars);
+}
+
+String _cleanRadioUrl(dynamic raw) {
+  final candidate = _cleanRadioText(raw, maxChars: 2048);
+  if (candidate.isEmpty) return '';
+  final lower = candidate.toLowerCase();
+  if (lower.startsWith('javascript:') ||
+      lower.startsWith('vbscript:') ||
+      lower.startsWith('data:text/html') ||
+      lower.startsWith('file:')) {
+    return '';
+  }
+  return candidate;
+}
+
+int _parseRadioInt(dynamic v, int fallback) {
+  if (v is num) {
+    if (!v.isFinite) return fallback;
+    return v is int ? v : v.toInt();
+  }
+  if (v is String) {
+    final t = v.trim();
+    final asInt = int.tryParse(t);
+    if (asInt != null) return asInt;
+    final asDouble = double.tryParse(t);
+    if (asDouble != null && asDouble.isFinite) return asDouble.toInt();
+  }
+  return fallback;
+}
+
+bool _parseRadioBool(dynamic v, bool fallback) {
+  if (v is bool) return v;
+  if (v is String) {
+    final lower = v.trim().toLowerCase();
+    if (lower == 'true' || lower == '1') return true;
+    if (lower == 'false' || lower == '0') return false;
+  }
+  if (v is num && v.isFinite) return v != 0;
+  return fallback;
+}
+
+DateTime? _tryParseRadioDate(dynamic raw) {
+  if (raw == null) return null;
+  if (raw is num && raw.isFinite) {
+    final ms = raw.toInt();
+    if (ms > 0 && ms <= _maxRadioEpochMs) {
+      return DateTime.fromMillisecondsSinceEpoch(ms);
+    }
+  }
+  return DateTime.tryParse(raw.toString().trim());
+}
+
+List<String> _cleanRadioIds(dynamic raw) {
+  if (raw is! Iterable) return const [];
+  final out = <String>[];
+  for (final item in raw.take(2000)) {
+    final id = _cleanRadioText(item, maxChars: 256);
+    if (id.isNotEmpty) out.add(id);
+  }
+  return out;
+}
+
 /// Represents an auto-generated radio station
 class RadioStation {
   /// Unique identifier
@@ -118,19 +197,24 @@ class RadioStation {
   /// Check if queue needs refresh
   bool get needsRefresh {
     if (!autoRefresh) return false;
-    final remainingSongs = queue.length - currentIndex;
+    final safeIndex = currentIndex < 0 ? 0 : currentIndex;
+    final remainingSongs = queue.length - safeIndex;
     return remainingSongs <= minQueueSize;
   }
 
   /// Get remaining songs in queue
   List<MediaItem> get upcomingSongs {
-    if (currentIndex >= queue.length) return [];
+    if (queue.isEmpty || currentIndex < 0 || currentIndex >= queue.length - 1) {
+      return [];
+    }
     return queue.sublist(currentIndex + 1);
   }
 
   /// Get current song
   MediaItem? get currentSong {
-    if (queue.isEmpty || currentIndex >= queue.length) return null;
+    if (queue.isEmpty || currentIndex < 0 || currentIndex >= queue.length) {
+      return null;
+    }
     return queue[currentIndex];
   }
 
@@ -147,42 +231,41 @@ class RadioStation {
       'isPlaying': isPlaying,
       'createdAt': createdAt.toIso8601String(),
       'lastPlayedAt': lastPlayedAt?.toIso8601String(),
-      'playCount': playCount,
+      'playCount': playCount < 0 ? 0 : playCount,
       'skippedSongIds': skippedSongIds,
       'likedSongIds': likedSongIds,
       'autoRefresh': autoRefresh,
-      'minQueueSize': minQueueSize,
+      'minQueueSize': minQueueSize < 0 ? 0 : minQueueSize,
     };
   }
 
   factory RadioStation.fromJson(Map<String, dynamic> json) {
+    final rawMood = json['mood']?.toString().trim();
     return RadioStation(
-      id: json['id'] as String,
-      name: json['name'] as String,
-      description: json['description'] as String? ?? '',
-      imageUrl: json['imageUrl'] as String? ?? '',
+      id: _cleanRadioText(json['id'], maxChars: 256),
+      name: _cleanRadioText(json['name'], maxChars: 256),
+      description: _cleanRadioText(json['description'], maxChars: 2048),
+      imageUrl: _cleanRadioUrl(json['imageUrl']),
       seedType: RadioSeedType.values.firstWhere(
-        (e) => e.value == json['seedType'],
+        (e) => e.value == json['seedType']?.toString().trim(),
         orElse: () => RadioSeedType.song,
       ),
-      seedValue: json['seedValue'] as String,
-      mood: json['mood'] != null
+      seedValue: _cleanRadioText(json['seedValue'], maxChars: 512),
+      mood: rawMood != null && rawMood.isNotEmpty
           ? RadioMood.values.firstWhere(
-              (e) => e.value == json['mood'],
+              (e) => e.value == rawMood,
               orElse: () => RadioMood.chill,
             )
           : null,
-      currentIndex: json['currentIndex'] as int? ?? 0,
-      isPlaying: json['isPlaying'] as bool? ?? false,
-      createdAt: DateTime.parse(json['createdAt'] as String),
-      lastPlayedAt: json['lastPlayedAt'] != null
-          ? DateTime.parse(json['lastPlayedAt'] as String)
-          : null,
-      playCount: json['playCount'] as int? ?? 0,
-      skippedSongIds: List<String>.from(json['skippedSongIds'] ?? []),
-      likedSongIds: List<String>.from(json['likedSongIds'] ?? []),
-      autoRefresh: json['autoRefresh'] as bool? ?? true,
-      minQueueSize: json['minQueueSize'] as int? ?? 5,
+      currentIndex: _parseRadioInt(json['currentIndex'], 0),
+      isPlaying: _parseRadioBool(json['isPlaying'], false),
+      createdAt: _tryParseRadioDate(json['createdAt']) ?? DateTime.now(),
+      lastPlayedAt: _tryParseRadioDate(json['lastPlayedAt']),
+      playCount: _parseRadioInt(json['playCount'], 0).clamp(0, 1000000000),
+      skippedSongIds: _cleanRadioIds(json['skippedSongIds']),
+      likedSongIds: _cleanRadioIds(json['likedSongIds']),
+      autoRefresh: _parseRadioBool(json['autoRefresh'], true),
+      minQueueSize: _parseRadioInt(json['minQueueSize'], 5).clamp(0, 1000),
     );
   }
 }

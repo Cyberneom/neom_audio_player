@@ -3,6 +3,7 @@ import 'package:neom_commons/utils/constants/translations/app_translation_consta
 import 'package:neom_core/app_config.dart';
 import 'package:neom_core/domain/model/playable_item.dart';
 import 'package:neom_core/domain/use_cases/audio_player_invoker_service.dart';
+import 'package:neom_core/utils/constants/app_route_constants.dart';
 import 'package:sint/sint.dart';
 
 import '../../utils/audio_item_source_availability.dart';
@@ -70,6 +71,14 @@ class _WebAudioItemPageState extends State<WebAudioItemPage> {
         onRetry: _failed ? _load : null,
       );
     }
-    return WebNowPlayingFull(onClose: () => Navigator.of(context).maybePop());
+    return WebNowPlayingFull(
+      onClose: () {
+        if (Sint.canPop) {
+          Sint.maybePop();
+        } else {
+          Sint.offAllNamed(AppRouteConstants.audioPlayer);
+        }
+      },
+    );
   }
 }

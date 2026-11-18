@@ -235,7 +235,9 @@ class _OthersPageState extends State<OthersPage> {
                 width: 70.0,
                 child: Center(
                   child: FutureBuilder<int?>(
-                    future: platform_io.supportsLocalFiles
+                    future: platform_io.supportsLocalFiles &&
+                            Hive.isBoxOpen(AppHiveBox.player.name) &&
+                            Hive.box(AppHiveBox.player.name).path != null
                         ? platform_io.getFileLength(Hive.box(AppHiveBox.player.name).path!)
                         : Future.value(null),
                     builder: (
@@ -259,7 +261,9 @@ class _OthersPageState extends State<OthersPage> {
               dense: true,
               isThreeLine: true,
               onTap: () async {
-                Hive.box(AppHiveBox.player.name).clear();
+                if (Hive.isBoxOpen(AppHiveBox.player.name)) {
+                  await Hive.box(AppHiveBox.player.name).clear();
+                }
                 setState(
                   () {},
                 );

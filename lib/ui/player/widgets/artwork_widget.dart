@@ -23,7 +23,7 @@ import '../../../utils/enums/lyrics_type.dart';
 import '../../widgets/empty_screen.dart';
 import '../audio_player_controller.dart';
 
-class ArtWorkWidget extends StatelessWidget {
+class ArtWorkWidget extends StatefulWidget {
 
   final AudioPlayerController mediaPlayerController;
   final GlobalKey<FlipCardState>? cardKey;
@@ -43,8 +43,29 @@ class ArtWorkWidget extends StatelessWidget {
   });
 
   @override
+  State<ArtWorkWidget> createState() => _ArtWorkWidgetState();
+}
+
+class _ArtWorkWidgetState extends State<ArtWorkWidget> {
+  LyricController? _fallbackLyricController;
+
+  LyricController _resolveLyricController(AudioPlayerController controller) {
+    return controller.lyricsReaderModel ??
+        (_fallbackLyricController ??= controller.ensureLyricsController);
+  }
+
+  @override
+  void dispose() {
+    _fallbackLyricController = null;
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    AudioPlayerController controller = mediaPlayerController;
+    final AudioPlayerController controller = widget.mediaPlayerController;
+    final GlobalKey<FlipCardState>? cardKey = widget.cardKey;
+    final double height = widget.height;
+    final double width = widget.width;
     double flipCardWidth = width * 0.75;
     String artworkUrl = controller.mediaItem.value?.artUri.toString() ?? '';
     final bool enabled = PlayerHiveController().enableGesture;
@@ -58,8 +79,8 @@ class ArtWorkWidget extends StatelessWidget {
             controller.setFlipped(value);
           },
           back: GestureDetector(
-            onTap: () => cardKey?.currentState!.toggleCard(),
-            onDoubleTap: () => cardKey?.currentState!.toggleCard(),
+            onTap: () => cardKey?.currentState?.toggleCard(),
+            onDoubleTap: () => cardKey?.currentState?.toggleCard(),
             child: Stack(
               children: [
                 ShaderMask(
@@ -98,16 +119,12 @@ class ArtWorkWidget extends StatelessWidget {
                             style: const TextStyle(
                               fontSize: 16.0,
                             ),
-                          ) : StreamBuilder<Duration>(
-                            stream: AudioService.position,
-                            builder: (context, snapshot) {
-                              final position =
-                                  snapshot.data ?? Duration.zero;
-                              return LyricView(
-                                controller: controller.lyricsReaderModel ?? LyricController(),
-                                style: LyricStyles.default1,
-                              );
-                            },
+                          ) : _SyncedLyricView(
+                            controller: _resolveLyricController(controller),
+                            preset: controller.lyricUI,
+                            height: (height - 120).clamp(120.0, height),
+                            width: (flipCardWidth - 40).clamp(120.0, flipCardWidth),
+                            onSeek: (pos) => controller.audioHandler?.seek(pos),
                           ) : child!;
                         },
                       ),
@@ -171,7 +188,7 @@ class ArtWorkWidget extends StatelessWidget {
                   }
                   if (details.globalPosition.dx > width * 2 / 5 &&
                       details.globalPosition.dx < width * 3 / 5) {
-                    cardKey?.currentState!.toggleCard();
+                    cardKey?.currentState?.toggleCard();
                   }
                   if (details.globalPosition.dx >= width * 3 / 5) {
                     controller.audioHandler?.customAction('fastForward');
@@ -372,6 +389,61 @@ class ArtWorkWidget extends StatelessWidget {
               );
             },
           ),
+      ),
+    );
+  }
+}
+
+class _SyncedLyricView extends StatefulWidget {
+  final LyricController controller;
+  final LyricPreset preset;
+  final double height;
+  final double width;
+  final ValueChanged<Duration>? onSeek;
+
+  const _SyncedLyricView({
+    required this.controller,
+    required this.preset,
+    required this.height,
+    required this.width,
+    this.onSeek,
+  });
+
+  @override
+  State<_SyncedLyricView> createState() => _SyncedLyricViewState();
+}
+
+class _SyncedLyricViewState extends State<_SyncedLyricView> {
+  StreamSubscription<Duration>? _positionSub;
+
+  @override
+  void initState() {
+    super.initState();
+    _positionSub = AudioService.position.listen((pos) {
+      if (!mounted) return;
+      if (widget.controller.progressSource == null) {
+        try {
+          widget.controller.setPosition(pos);
+        } catch (_) {}
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _positionSub?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: widget.height,
+      width: widget.width,
+      child: LyricView(
+        controller: widget.controller,
+        preset: widget.preset,
+        onLineTap: (details) => widget.onSeek?.call(details.seekPosition),
       ),
     );
   }

@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:neom_core/app_config.dart';
 import 'package:neom_core/domain/model/app_media_item.dart';
@@ -16,11 +18,16 @@ class CatalogCacheController {
   CatalogCacheController._internal();
 
   Box? _catalogBox;
+  Future<Box>? _openingBox;
 
   // Cache limits
   static const int _maxCachedItemlists = 100;
   static const int _maxCachedMediaItems = 500;
   static const int _cacheExpirationHours = 72; // 3 days
+  static const int maxCatalogJsonChars = 4 * 1024 * 1024;
+  static final RegExp _controlOrBidi = RegExp(
+    r'[\x00-\x1F\x7F-\x9F\u0085\u061C\u200B-\u200F\u2028-\u202E\u2060\u2066-\u2069\uFEFF]',
+  );
 
   // Key constants
   static const String _publicItemlistsKey = 'public_itemlists';
@@ -30,9 +37,78 @@ class CatalogCacheController {
   static const String _cacheVersionKey = 'catalog_cache_version';
   static const int _currentCacheVersion = 1;
 
+  @visibleForTesting
+  void resetForTesting() {
+    _catalogBox = null;
+    _openingBox = null;
+  }
+
+  static bool isSafeCacheEntryKey(String raw) {
+    if (raw.isEmpty || raw.length > 256 || _controlOrBidi.hasMatch(raw)) {
+      return false;
+    }
+    final clean = raw.trim();
+    if (clean != raw) return false;
+    final lower = clean.toLowerCase();
+    if (lower == '__proto__' ||
+        lower == 'constructor' ||
+        lower == 'prototype' ||
+        (lower.startsWith('__') && lower.endsWith('__'))) {
+      return false;
+    }
+    return true;
+  }
+
+  static int? _readSafeInt(Object? raw) {
+    if (raw is int && raw.toDouble().isFinite) return raw;
+    if (raw is num && raw.isFinite) return raw.toInt();
+    return null;
+  }
+
   Future<Box> _getBox() async {
-    _catalogBox ??= await Hive.openBox('${AppHiveBox.player.name}_catalog');
-    return _catalogBox!;
+    if (_catalogBox != null && _catalogBox!.isOpen) return _catalogBox!;
+    if (_openingBox != null) return _openingBox!;
+    final boxName = '${AppHiveBox.player.name}_catalog';
+    final completer = Completer<Box>();
+    _openingBox = completer.future;
+    try {
+      final box = await _openBoxResilient(boxName);
+      _catalogBox = box;
+      completer.complete(box);
+      return box;
+    } catch (e, st) {
+      completer.completeError(e, st);
+      rethrow;
+    } finally {
+      _openingBox = null;
+    }
+  }
+
+  Future<Box> _openBoxResilient(String boxName) async {
+    if (Hive.isBoxOpen(boxName)) return Hive.box(boxName);
+    Future<Box> tryOpen() {
+      final c = Completer<Box>();
+      runZonedGuarded(() async {
+        try {
+          final b = await Hive.openBox(boxName);
+          if (!c.isCompleted) c.complete(b);
+        } catch (e, st) {
+          if (!c.isCompleted) c.completeError(e, st);
+        }
+      }, (e, st) {
+        if (!c.isCompleted) c.completeError(e, st);
+      });
+      return c.future;
+    }
+
+    try {
+      return await tryOpen();
+    } catch (_) {
+      try {
+        await Hive.deleteBoxFromDisk(boxName);
+      } catch (_) {}
+      return tryOpen();
+    }
   }
 
   // ==================== PUBLIC ITEMLISTS CACHE ====================
@@ -43,14 +119,17 @@ class CatalogCacheController {
       final box = await _getBox();
 
       // Limit cached itemlists
-      final entries = itemlists.entries.take(_maxCachedItemlists);
       final toCache = <String, dynamic>{};
 
-      for (final entry in entries) {
+      for (final entry in itemlists.entries) {
+        if (toCache.length >= _maxCachedItemlists) break;
+        if (!isSafeCacheEntryKey(entry.key)) continue;
         toCache[entry.key] = entry.value.toJSON();
       }
 
-      await box.put(_publicItemlistsKey, jsonEncode(toCache));
+      final encoded = jsonEncode(toCache);
+      if (encoded.length > maxCatalogJsonChars) return;
+      await box.put(_publicItemlistsKey, encoded);
       await _updateTimestamp();
 
       AppConfig.logger.d('Cached ${toCache.length} public itemlists');
@@ -68,14 +147,26 @@ class CatalogCacheController {
         return {};
       }
 
-      final json = box.get(_publicItemlistsKey) as String?;
-      if (json == null) return {};
+      final rawJson = box.get(_publicItemlistsKey);
+      if (rawJson is! String ||
+          rawJson.isEmpty ||
+          rawJson.length > maxCatalogJsonChars) {
+        return {};
+      }
 
-      final Map<String, dynamic> data = jsonDecode(json);
+      final decoded = jsonDecode(rawJson);
+      if (decoded is! Map) return {};
       final Map<String, Itemlist> result = {};
 
-      for (final entry in data.entries) {
-        result[entry.key] = Itemlist.fromJSON(entry.value as Map<String, dynamic>);
+      for (final entry in decoded.entries) {
+        if (result.length >= _maxCachedItemlists) break;
+        final key = entry.key?.toString() ?? '';
+        if (!isSafeCacheEntryKey(key) || entry.value is! Map) continue;
+        try {
+          result[key] = Itemlist.fromJSON(
+            Map<String, dynamic>.from(entry.value as Map),
+          );
+        } catch (_) {}
       }
 
       return result;
@@ -92,14 +183,17 @@ class CatalogCacheController {
     try {
       final box = await _getBox();
 
-      final entries = itemlists.entries.take(_maxCachedItemlists);
       final toCache = <String, dynamic>{};
 
-      for (final entry in entries) {
+      for (final entry in itemlists.entries) {
+        if (toCache.length >= _maxCachedItemlists) break;
+        if (!isSafeCacheEntryKey(entry.key)) continue;
         toCache[entry.key] = entry.value.toJSON();
       }
 
-      await box.put(_releaseItemlistsKey, jsonEncode(toCache));
+      final encoded = jsonEncode(toCache);
+      if (encoded.length > maxCatalogJsonChars) return;
+      await box.put(_releaseItemlistsKey, encoded);
       await _updateTimestamp();
 
       AppConfig.logger.d('Cached ${toCache.length} release itemlists');
@@ -117,14 +211,26 @@ class CatalogCacheController {
         return {};
       }
 
-      final json = box.get(_releaseItemlistsKey) as String?;
-      if (json == null) return {};
+      final rawJson = box.get(_releaseItemlistsKey);
+      if (rawJson is! String ||
+          rawJson.isEmpty ||
+          rawJson.length > maxCatalogJsonChars) {
+        return {};
+      }
 
-      final Map<String, dynamic> data = jsonDecode(json);
+      final decoded = jsonDecode(rawJson);
+      if (decoded is! Map) return {};
       final Map<String, Itemlist> result = {};
 
-      for (final entry in data.entries) {
-        result[entry.key] = Itemlist.fromJSON(entry.value as Map<String, dynamic>);
+      for (final entry in decoded.entries) {
+        if (result.length >= _maxCachedItemlists) break;
+        final key = entry.key?.toString() ?? '';
+        if (!isSafeCacheEntryKey(key) || entry.value is! Map) continue;
+        try {
+          result[key] = Itemlist.fromJSON(
+            Map<String, dynamic>.from(entry.value as Map),
+          );
+        } catch (_) {}
       }
 
       return result;
@@ -141,14 +247,17 @@ class CatalogCacheController {
     try {
       final box = await _getBox();
 
-      final entries = mediaItems.entries.take(_maxCachedMediaItems);
       final toCache = <String, dynamic>{};
 
-      for (final entry in entries) {
+      for (final entry in mediaItems.entries) {
+        if (toCache.length >= _maxCachedMediaItems) break;
+        if (!isSafeCacheEntryKey(entry.key)) continue;
         toCache[entry.key] = entry.value.toJSON();
       }
 
-      await box.put(_mediaItemsKey, jsonEncode(toCache));
+      final encoded = jsonEncode(toCache);
+      if (encoded.length > maxCatalogJsonChars) return;
+      await box.put(_mediaItemsKey, encoded);
       await _updateTimestamp();
 
       AppConfig.logger.d('Cached ${toCache.length} media items');
@@ -166,14 +275,26 @@ class CatalogCacheController {
         return {};
       }
 
-      final json = box.get(_mediaItemsKey) as String?;
-      if (json == null) return {};
+      final rawJson = box.get(_mediaItemsKey);
+      if (rawJson is! String ||
+          rawJson.isEmpty ||
+          rawJson.length > maxCatalogJsonChars) {
+        return {};
+      }
 
-      final Map<String, dynamic> data = jsonDecode(json);
+      final decoded = jsonDecode(rawJson);
+      if (decoded is! Map) return {};
       final Map<String, AppMediaItem> result = {};
 
-      for (final entry in data.entries) {
-        result[entry.key] = AppMediaItem.fromJSON(entry.value as Map<String, dynamic>);
+      for (final entry in decoded.entries) {
+        if (result.length >= _maxCachedMediaItems) break;
+        final key = entry.key?.toString() ?? '';
+        if (!isSafeCacheEntryKey(key) || entry.value is! Map) continue;
+        try {
+          result[key] = AppMediaItem.fromJSON(
+            Map<String, dynamic>.from(entry.value as Map),
+          );
+        } catch (_) {}
       }
 
       return result;
@@ -197,21 +318,21 @@ class CatalogCacheController {
       final box = await _getBox();
 
       // Check cache version
-      final version = box.get(_cacheVersionKey) as int?;
+      final version = _readSafeInt(box.get(_cacheVersionKey));
       if (version != _currentCacheVersion) {
         AppConfig.logger.d('Cache version mismatch, invalidating');
         return false;
       }
 
       // Check expiration
-      final lastUpdate = box.get(_lastUpdateKey) as int?;
-      if (lastUpdate == null) return false;
+      final lastUpdate = _readSafeInt(box.get(_lastUpdateKey));
+      if (lastUpdate == null || lastUpdate <= 0) return false;
 
       final cacheAge = DateTime.now().millisecondsSinceEpoch - lastUpdate;
       final maxAge = _cacheExpirationHours * 60 * 60 * 1000;
 
-      if (cacheAge > maxAge) {
-        AppConfig.logger.d('Cache expired');
+      if (cacheAge < 0 || cacheAge > maxAge) {
+        AppConfig.logger.d('Cache expired or clock skewed');
         return false;
       }
 
@@ -237,11 +358,12 @@ class CatalogCacheController {
   Future<String> getCacheAge() async {
     try {
       final box = await _getBox();
-      final lastUpdate = box.get(_lastUpdateKey) as int?;
+      final lastUpdate = _readSafeInt(box.get(_lastUpdateKey));
 
-      if (lastUpdate == null) return 'Never updated';
+      if (lastUpdate == null || lastUpdate <= 0) return 'Never updated';
 
-      final age = DateTime.now().millisecondsSinceEpoch - lastUpdate;
+      final rawAge = DateTime.now().millisecondsSinceEpoch - lastUpdate;
+      final age = rawAge < 0 ? 0 : rawAge;
       final hours = (age / (1000 * 60 * 60)).floor();
       final minutes = ((age / (1000 * 60)) % 60).floor();
 

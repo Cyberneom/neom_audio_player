@@ -159,12 +159,8 @@ class _AudioPlayerSettingsPageState extends State<AudioPlayerSettingsPage> {
                 AuthGuard.protect(context, () {
                   searchQuery.value = '';
                   controller.text = '';
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          settingsList[index]['onTap'] as Widget,
-                    ),
+                  Sint.to(
+                    () => settingsList[index]['onTap'] as Widget,
                   );
                 }, redirectRoute: AppRouteConstants.audioPlayerSetting);
               },
@@ -268,14 +264,9 @@ class _AudioPlayerSettingsPageState extends State<AudioPlayerSettingsPage> {
                 AuthGuard.protect(context, () {
                   searchQuery.value = '';
                   controller.text = '';
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => options[index]['route'] as Widget,
-                      settings: RouteSettings(
-                        arguments: options[index]['title'],
-                      ),
-                    ),
+                  Sint.to(
+                    () => options[index]['route'] as Widget,
+                    arguments: options[index]['title'],
                   );
                 }, redirectRoute: AppRouteConstants.audioPlayerSetting);
               },

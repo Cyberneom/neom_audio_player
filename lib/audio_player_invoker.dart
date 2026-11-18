@@ -232,13 +232,28 @@ class AudioPlayerInvoker
     bool fromDownloads = false,
     bool isOffline = false,
   }) async {
+    audioHandler ??= await getOrInitAudioHandler();
+    if (audioHandler == null) {
+      AppConfig.logger.e('Audio handler could not be initialized in updateNowPlaying.');
+      return;
+    }
     bool nowPlaying = audioHandler?.playbackState.value.playing ?? false;
     AppConfig.logger.d('Updating Now Playing info. Now Playing: $nowPlaying');
 
     List<MediaItem> queue = [];
 
     if (items?.isNotEmpty ?? false) {
-      currentMediaItems = items!;
+      final filtered = items!
+          .where((item) => isAudioPlaybackItem(item) && !hasNoAudioSource(item))
+          .toList();
+      if (filtered.isEmpty) {
+        AppConfig.logger.w('updateNowPlaying rejected items with no playable audio source.');
+        return;
+      }
+      final requested = items[index.clamp(0, items.length - 1)];
+      final mappedIndex = filtered.indexOf(requested);
+      index = mappedIndex >= 0 ? mappedIndex : 0;
+      currentMediaItems = filtered;
     }
 
     try {
