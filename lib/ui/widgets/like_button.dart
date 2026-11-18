@@ -5,7 +5,7 @@ import 'package:neom_commons/utils/auth_guard.dart';
 import 'package:neom_commons/utils/constants/translations/app_translation_constants.dart';
 import 'package:neom_commons/utils/constants/translations/common_translation_constants.dart';
 import 'package:neom_core/app_config.dart';
-import 'package:neom_core/data/firestore/profile_firestore.dart';
+import 'package:neom_core/data/api/app_accounts.dart';
 import 'package:neom_core/utils/neom_error_logger.dart';
 import 'package:neom_core/domain/model/app_profile.dart';
 
@@ -97,10 +97,10 @@ class LikeButtonState extends State<LikeButton>
             try {
               if (liked) {
                 profile.favoriteItems?.remove(itemId);
-                ProfileFirestore().removeFavoriteItem(profile.id, itemId);
+                AppProfiles.repository.removeFavoriteItem(profile.id, itemId);
               } else {
                 profile.favoriteItems?.add(itemId);
-                ProfileFirestore().addFavoriteItem(profile.id, itemId);
+                AppProfiles.repository.addFavoriteItem(profile.id, itemId);
               }
             } catch (e, st) {
               NeomErrorLogger.recordError(

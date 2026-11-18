@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:neom_commons/ui/theme/app_color.dart';
+import 'package:neom_commons/ui/widgets/paywall_sheet.dart';
 import 'package:neom_commons/utils/constants/translations/app_translation_constants.dart';
+import 'package:neom_core/app_config.dart';
+import 'package:neom_core/domain/use_cases/user_service.dart';
+import 'package:neom_core/utils/constants/app_route_constants.dart';
+import 'package:neom_core/utils/enums/app_in_use.dart';
+import 'package:neom_core/utils/enums/subscription_level.dart';
 import 'package:sint/sint.dart';
 import '../../../utils/constants/audio_player_translation_constants.dart';
 
@@ -29,6 +35,33 @@ class _WebUpgradeBannerState extends State<WebUpgradeBanner> {
   Widget build(BuildContext context) {
     if (_dismissed) return const SizedBox.shrink();
 
+    final isGigmeout = AppConfig.instance.appInUse == AppInUse.g;
+    if (isGigmeout && Sint.isRegistered<UserService>()) {
+      final userService = Sint.find<UserService>();
+      if (userService.subscriptionLevel.value > SubscriptionLevel.freemium.value ||
+          userService.user.subscriptionId.isNotEmpty) {
+        return const SizedBox.shrink();
+      }
+    }
+
+    final badgeTitle = isGigmeout
+        ? 'Gig Music · \$80 MXN/mes'
+        : AudioPlayerTranslationConstants.caseteBadge.tr;
+    final bannerMessage = isGigmeout
+        ? 'Escucha continua sin interrupción de tiempo e impulsa regalías directas CASETE (50% neto) a los artistas que escuchas.'
+        : widget.message;
+    final ctaLabel = isGigmeout
+        ? 'Activar Gig Music'
+        : (widget.buttonText ?? AppTranslationConstants.upgrade.tr);
+    final handleUpgrade = widget.onUpgrade ??
+        () {
+          if (isGigmeout) {
+            PaywallSheet.showGigMusic(context);
+          } else {
+            Sint.toNamed(AppRouteConstants.subscriptionPlans);
+          }
+        };
+
     return Container(
       margin: const EdgeInsets.only(bottom: 24),
       padding: const EdgeInsets.all(20),
@@ -50,7 +83,7 @@ class _WebUpgradeBannerState extends State<WebUpgradeBanner> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  AudioPlayerTranslationConstants.caseteBadge.tr,
+                  badgeTitle,
                   style: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
@@ -59,7 +92,7 @@ class _WebUpgradeBannerState extends State<WebUpgradeBanner> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  widget.message,
+                  bannerMessage,
                   style: TextStyle(color: Colors.grey[300], fontSize: 13),
                 ),
               ],
@@ -69,7 +102,7 @@ class _WebUpgradeBannerState extends State<WebUpgradeBanner> {
           MouseRegion(
             cursor: SystemMouseCursors.click,
             child: GestureDetector(
-              onTap: widget.onUpgrade,
+              onTap: handleUpgrade,
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                 decoration: BoxDecoration(
@@ -77,7 +110,7 @@ class _WebUpgradeBannerState extends State<WebUpgradeBanner> {
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
-                  widget.buttonText ?? AppTranslationConstants.upgrade.tr,
+                  ctaLabel,
                   style: const TextStyle(
                     color: Colors.black,
                     fontWeight: FontWeight.bold,

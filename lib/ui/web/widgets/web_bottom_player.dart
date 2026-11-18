@@ -8,7 +8,7 @@ import 'package:neom_commons/utils/deeplink_utilities.dart';
 import 'package:neom_commons/utils/device_utilities.dart';
 import 'package:neom_commons/utils/constants/translations/app_translation_constants.dart';
 import 'package:neom_core/app_config.dart';
-import 'package:neom_core/data/firestore/profile_firestore.dart';
+import 'package:neom_core/data/api/app_accounts.dart';
 import 'package:neom_core/utils/neom_error_logger.dart';
 import 'package:sint/sint.dart';
 import 'package:neom_audio_player/ui/player/miniplayer_controller.dart';
@@ -26,6 +26,7 @@ import '../utils/web_color_extractor.dart';
 import '../utils/web_image_resolver.dart';
 import '../utils/web_player_helpers.dart';
 import '../utils/web_track_transition.dart';
+import '../../widgets/gigmeout_player_actions_bar.dart';
 import 'web_pseudo_visualizer.dart';
 
 class WebBottomPlayer extends StatelessWidget {
@@ -221,12 +222,16 @@ class WebBottomPlayer extends StatelessWidget {
                                       color: Colors.white,
                                       shape: BoxShape.circle,
                                     ),
-                                    child: InkWell(
-                                      customBorder: const CircleBorder(),
-                                      onTap: () => playing
+                                    child: IconButton(
+                                      padding: EdgeInsets.zero,
+                                      tooltip: (playing
+                                              ? AppTranslationConstants.pause
+                                              : AppTranslationConstants.play)
+                                          .tr,
+                                      onPressed: () => playing
                                           ? controller.audioHandler?.pause()
                                           : controller.audioHandler?.play(),
-                                      child: Icon(
+                                      icon: Icon(
                                         playing
                                             ? Icons.pause_rounded
                                             : Icons.play_arrow_rounded,
@@ -572,12 +577,16 @@ class WebBottomPlayer extends StatelessWidget {
                                               ),
                                         ),
                                       )
-                                    : InkWell(
-                                        customBorder: const CircleBorder(),
-                                        onTap: () => playing
+                                    : IconButton(
+                                        padding: EdgeInsets.zero,
+                                        tooltip: (playing
+                                                ? AppTranslationConstants.pause
+                                                : AppTranslationConstants.play)
+                                            .tr,
+                                        onPressed: () => playing
                                             ? controller.audioHandler?.pause()
                                             : controller.audioHandler?.play(),
-                                        child: Icon(
+                                        icon: Icon(
                                           playing
                                               ? Icons.pause_rounded
                                               : Icons.play_arrow_rounded,
@@ -708,129 +717,142 @@ class WebBottomPlayer extends StatelessWidget {
                 ),
               ),
 
-              // ─── Right: Speed + Sleep Timer + Queue + Volume ───
+              // ─── Right: Gigmeout Actions + Speed + Sleep Timer + Queue + Volume ───
+              if (isCompact)
+                Padding(
+                  padding: const EdgeInsets.only(left: 8),
+                  child: GigmeoutPlayerActionsBar(
+                    mediaItem: mediaItem,
+                    positionStream: controller.audioHandler?.player.positionStream,
+                    compact: true,
+                  ),
+                ),
               if (!isCompact)
-                SizedBox(
-                  width: 390,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      // Playback speed
-                      _WebSpeedButton(controller: controller),
-                      const SizedBox(width: 4),
-                      // Crossfade
-                      const _WebCrossfadeButton(),
-                      const SizedBox(width: 4),
-                      // Sleep timer
-                      _WebSleepTimerButton(controller: controller),
-                      const SizedBox(width: 4),
-                      // Queue toggle button
-                      if (onQueueToggle != null)
-                        _WebControlButton(
-                          icon: Icons.queue_music_rounded,
-                          size: 20,
-                          color: Colors.white70,
-                          tooltip: AudioPlayerTranslationConstants.upNext.tr,
-                          onTap: onQueueToggle,
-                        ),
-                      const SizedBox(width: 4),
-                      // Share button
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    GigmeoutPlayerActionsBar(
+                      mediaItem: mediaItem,
+                      positionStream: controller.audioHandler?.player.positionStream,
+                      compact: true,
+                    ),
+                    const SizedBox(width: 8),
+                    // Playback speed
+                    _WebSpeedButton(controller: controller),
+                    const SizedBox(width: 4),
+                    // Crossfade
+                    const _WebCrossfadeButton(),
+                    const SizedBox(width: 4),
+                    // Sleep timer
+                    _WebSleepTimerButton(controller: controller),
+                    const SizedBox(width: 4),
+                    // Queue toggle button
+                    if (onQueueToggle != null)
                       _WebControlButton(
-                        icon: Icons.share_rounded,
+                        icon: Icons.queue_music_rounded,
                         size: 20,
                         color: Colors.white70,
-                        tooltip: AudioPlayerTranslationConstants.copyShareLink.tr,
-                        onTap: () {
-                          final mediaItem = controller.visibleMediaItem;
-                          if (mediaItem != null) {
-                            final slug =
-                                mediaItem.extras?['slug']?.toString() ?? '';
-                            final url = DeeplinkUtilities.generateVanityUrl(
-                              type: 'media',
-                              id: mediaItem.id,
-                              slug: slug,
-                            );
-                            DeviceUtilities.copyToClipboard(
-                              text: url,
-                              displayText:
-                                  'Link de la canción copiado al portapapeles',
-                            );
-                          }
-                        },
+                        tooltip: AudioPlayerTranslationConstants.upNext.tr,
+                        onTap: onQueueToggle,
                       ),
-                      const SizedBox(width: 8),
-                      // Volume
-                      StreamBuilder<double>(
-                        stream: controller.audioHandler?.volume,
-                        builder: (context, snapshot) {
-                          final volume = snapshot.data ?? 1.0;
-                          return Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Tooltip(
-                                message: volume == 0
-                                    ? AudioPlayerTranslationConstants.unmute.tr
-                                    : AudioPlayerTranslationConstants.mute.tr,
-                                waitDuration: const Duration(milliseconds: 500),
-                                child: MouseRegion(
-                                  cursor: SystemMouseCursors.click,
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      controller.audioHandler?.setVolume(
-                                        volume == 0 ? 1.0 : 0.0,
-                                      );
-                                    },
-                                    child: Icon(
-                                      volume == 0
-                                          ? Icons.volume_off_rounded
-                                          : volume < 0.5
-                                          ? Icons.volume_down_rounded
-                                          : Icons.volume_up_rounded,
-                                      color: Colors.white70,
-                                      size: 20,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              SizedBox(
-                                width: 100,
-                                child: SliderTheme(
-                                  data: SliderTheme.of(context).copyWith(
-                                    trackHeight: 4,
-                                    thumbShape: const RoundSliderThumbShape(
-                                      enabledThumbRadius: 6,
-                                    ),
-                                    overlayShape: const RoundSliderOverlayShape(
-                                      overlayRadius: 12,
-                                    ),
-                                    activeTrackColor: Colors.white,
-                                    inactiveTrackColor: Colors.white24,
-                                    thumbColor: Colors.white,
-                                  ),
-                                  child: Slider(
-                                    value: volume,
-                                    onChanged: (v) =>
-                                        controller.audioHandler?.setVolume(v),
-                                  ),
-                                ),
-                              ),
-                            ],
+                    const SizedBox(width: 4),
+                    // Share button
+                    _WebControlButton(
+                      icon: Icons.share_rounded,
+                      size: 20,
+                      color: Colors.white70,
+                      tooltip: AudioPlayerTranslationConstants.copyShareLink.tr,
+                      onTap: () {
+                        final mediaItem = controller.visibleMediaItem;
+                        if (mediaItem != null) {
+                          final slug =
+                              mediaItem.extras?['slug']?.toString() ?? '';
+                          final url = DeeplinkUtilities.generateVanityUrl(
+                            type: 'media',
+                            id: mediaItem.id,
+                            slug: slug,
                           );
-                        },
-                      ),
-                      const SizedBox(width: 8),
-                      _WebControlButton(
-                        icon: Icons.close_fullscreen_rounded,
-                        size: 18,
-                        color: Colors.white70,
-                        tooltip: AudioPlayerTranslationConstants.minimizePlayerRight.tr,
-                        onTap: () {
-                          controller.isWebPlayerRetracted.value = true;
-                          controller.update(['web_bottom_player']);
-                        },
-                      ),
-                    ],
-                  ),
+                          DeviceUtilities.copyToClipboard(
+                            text: url,
+                            displayText:
+                                'Link de la canción copiado al portapapeles',
+                          );
+                        }
+                      },
+                    ),
+                    const SizedBox(width: 8),
+                    // Volume
+                    StreamBuilder<double>(
+                      stream: controller.audioHandler?.volume,
+                      builder: (context, snapshot) {
+                        final volume = snapshot.data ?? 1.0;
+                        return Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Tooltip(
+                              message: volume == 0
+                                  ? AudioPlayerTranslationConstants.unmute.tr
+                                  : AudioPlayerTranslationConstants.mute.tr,
+                              waitDuration: const Duration(milliseconds: 500),
+                              child: MouseRegion(
+                                cursor: SystemMouseCursors.click,
+                                child: GestureDetector(
+                                  onTap: () {
+                                    controller.audioHandler?.setVolume(
+                                      volume == 0 ? 1.0 : 0.0,
+                                    );
+                                  },
+                                  child: Icon(
+                                    volume == 0
+                                        ? Icons.volume_off_rounded
+                                        : volume < 0.5
+                                        ? Icons.volume_down_rounded
+                                        : Icons.volume_up_rounded,
+                                    color: Colors.white70,
+                                    size: 20,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              width: 90,
+                              child: SliderTheme(
+                                data: SliderTheme.of(context).copyWith(
+                                  trackHeight: 4,
+                                  thumbShape: const RoundSliderThumbShape(
+                                    enabledThumbRadius: 6,
+                                  ),
+                                  overlayShape: const RoundSliderOverlayShape(
+                                    overlayRadius: 12,
+                                  ),
+                                  activeTrackColor: Colors.white,
+                                  inactiveTrackColor: Colors.white24,
+                                  thumbColor: Colors.white,
+                                ),
+                                child: Slider(
+                                  value: volume,
+                                  onChanged: (v) =>
+                                      controller.audioHandler?.setVolume(v),
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                    const SizedBox(width: 8),
+                    _WebControlButton(
+                      icon: Icons.close_fullscreen_rounded,
+                      size: 18,
+                      color: Colors.white70,
+                      tooltip: AudioPlayerTranslationConstants.minimizePlayerRight.tr,
+                      onTap: () {
+                        controller.isWebPlayerRetracted.value = true;
+                        controller.update(['web_bottom_player']);
+                      },
+                    ),
+                  ],
                 ),
             ],
           ),
@@ -1019,7 +1041,7 @@ class _WebLikeButtonState extends State<_WebLikeButton> {
           if (!profile.favoriteItems!.contains(itemId)) {
             profile.favoriteItems!.add(itemId);
           }
-          ProfileFirestore().addFavoriteItem(profile.id, itemId);
+          AppProfiles.repository.addFavoriteItem(profile.id, itemId);
         }
         AppUtilities.showSnackBar(
           title: widget.mediaItem.title,
@@ -1029,7 +1051,7 @@ class _WebLikeButtonState extends State<_WebLikeButton> {
         await PlaylistHiveController().removeLiked(itemId);
         if (profile.id.isNotEmpty) {
           profile.favoriteItems?.remove(itemId);
-          ProfileFirestore().removeFavoriteItem(profile.id, itemId);
+          AppProfiles.repository.removeFavoriteItem(profile.id, itemId);
         }
         AppUtilities.showSnackBar(
           title: widget.mediaItem.title,

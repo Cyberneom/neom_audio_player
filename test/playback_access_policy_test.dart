@@ -44,7 +44,7 @@ void main() {
 
   group('PlaybackAccessPolicy', () {
     test(
-      'Gigmeout public catalogue is unmetered after guest trial exhaustion',
+      'public catalogue read policy remains metered after trial exhaustion so Gig Music gate applies',
       () {
         for (final app in [AppInUse.g, AppInUse.e, AppInUse.c]) {
           for (final origin in PlaybackRequestOrigin.values) {
@@ -54,16 +54,13 @@ void main() {
                 isAuthenticated: false,
                 hasFullSubscription: false,
                 hasActiveTrial: false,
-                isPubliclyFree: PublicCatalogReadPolicy.usesPublicCatalog(
-                  app: app,
-                  canPersistUserActivity: false,
-                ),
+                isPubliclyFree: PublicCatalogReadPolicy.unmeteredPlayback,
               ),
               origin: origin,
             );
             expect(
               decision.allowed,
-              app == AppInUse.g,
+              isFalse,
               reason: '${app.name}/${origin.name}',
             );
           }
@@ -188,14 +185,14 @@ void main() {
       );
     });
 
-    test('public catalogue bypasses quota reads and the trial timer meter', () {
+    test('public catalogue read policy uses unmeteredPlayback flag and meters trial timer', () {
       final entitlement = between(
         'Future<PlaybackAccessDecision> _resolvePlaybackAccess(',
         'Future<PlaybackAccessDecision> _authorizePlayback(',
       );
       expect(
         entitlement,
-        contains('publicCatalogPlayback = PublicCatalogReadPolicy.enabled'),
+        contains('publicCatalogPlayback = PublicCatalogReadPolicy.unmeteredPlayback'),
       );
       expect(entitlement, contains('!publicCatalogPlayback'));
       expect(

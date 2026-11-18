@@ -6,11 +6,14 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:sint/sint.dart';
 import 'package:neom_sound/neom_sound.dart';
+import 'package:neom_commons/ui/widgets/paywall_sheet.dart';
 import 'package:neom_commons/utils/app_utilities.dart';
 import 'package:neom_commons/utils/auth_guard.dart';
 import 'package:neom_commons/utils/constants/translations/app_translation_constants.dart';
 import 'package:neom_core/app_config.dart';
+import 'package:neom_core/data/api/app_platform_api.dart';
 import 'package:neom_core/data/firestore/public_catalog_read_policy.dart';
+import 'package:neom_core/utils/enums/app_in_use.dart';
 import 'package:neom_core/data/implementations/app_hive_controller.dart';
 import 'package:neom_core/utils/neom_error_logger.dart';
 import 'package:neom_core/domain/model/casete/casete_session.dart';
@@ -446,9 +449,75 @@ class NeomAudioHandler extends BaseAudioHandler
   /// Volume to restore after a transient duck (e.g. a navigation prompt).
   double _volumeBeforeDuck = 1.0;
 
+  /// Voice coexistence state (Sesión Compartida WebRTC voice chat over music).
+  bool _voiceCoexistenceActive = false;
+  double _volumeBeforeVoiceCoexistence = 1.0;
+
   /// Whether playback was paused *by an interruption* (as opposed to the user),
   /// so it can be resumed when the interruption ends.
   bool _pausedByInterruption = false;
+
+  @override
+  Future<void> setVoiceCoexistenceMode(
+    bool active, {
+    double duckVolume = 0.35,
+  }) async {
+    if (active) {
+      if (!_voiceCoexistenceActive) {
+        _volumeBeforeVoiceCoexistence = player.volume > 0 ? player.volume : 1.0;
+      }
+      _voiceCoexistenceActive = true;
+      final clampedDuck = duckVolume.clamp(0.1, 1.0);
+      await player.setVolume(clampedDuck);
+      if (!kIsWeb) {
+        try {
+          final session = await AudioSession.instance;
+          await session.configure(
+            AudioSessionConfiguration(
+              avAudioSessionCategory: AVAudioSessionCategory.playAndRecord,
+              avAudioSessionCategoryOptions:
+                  AVAudioSessionCategoryOptions.mixWithOthers |
+                  AVAudioSessionCategoryOptions.allowBluetooth |
+                  AVAudioSessionCategoryOptions.defaultToSpeaker,
+              avAudioSessionMode: AVAudioSessionMode.voiceChat,
+              androidAudioAttributes: const AndroidAudioAttributes(
+                contentType: AndroidAudioContentType.music,
+                usage: AndroidAudioUsage.media,
+              ),
+              androidAudioFocusGainType:
+                  AndroidAudioFocusGainType.gainTransientMayDuck,
+              androidWillPauseWhenDucked: false,
+            ),
+          );
+        } catch (e, st) {
+          NeomErrorLogger.recordErrorLight(
+            e,
+            st,
+            module: 'neom_audio_player',
+            operation: 'setVoiceCoexistenceMode.enable',
+          );
+        }
+      }
+      return;
+    }
+
+    if (!_voiceCoexistenceActive) return;
+    _voiceCoexistenceActive = false;
+    await player.setVolume(_volumeBeforeVoiceCoexistence.clamp(0.0, 1.0));
+    if (!kIsWeb) {
+      try {
+        final session = await AudioSession.instance;
+        await session.configure(const AudioSessionConfiguration.music());
+      } catch (e, st) {
+        NeomErrorLogger.recordErrorLight(
+          e,
+          st,
+          module: 'neom_audio_player',
+          operation: 'setVoiceCoexistenceMode.disable',
+        );
+      }
+    }
+  }
 
   /// Reacts to the OS audio session: phone calls, other apps taking focus, and
   /// headphones being unplugged.
@@ -476,6 +545,9 @@ class NeomAudioHandler extends BaseAudioHandler
       // Calls / other apps grabbing focus.
       _subscriptions.add(
         session.interruptionEventStream.listen((event) {
+          if (_voiceCoexistenceActive) {
+            return;
+          }
           if (event.begin) {
             switch (event.type) {
               case AudioInterruptionType.duck:
@@ -549,14 +621,31 @@ class NeomAudioHandler extends BaseAudioHandler
     // is still loading. It must not be downgraded to a guest entitlement.
     final isSessionReady =
         isAuthenticated ||
-        (hasLoginService && authStatus == AuthStatus.notLoggedIn);
+        (hasLoginService && authStatus == AuthStatus.notLoggedIn) ||
+        (PublicCatalogReadPolicy.enabled && authStatus == AuthStatus.notLoggedIn);
 
     var hasFullSubscription = false;
+    var ownsCurrentTrack = false;
     if (isAuthenticated && Sint.isRegistered<UserService>()) {
       try {
+        final u = userServiceImpl.user;
         hasFullSubscription =
             userServiceImpl.subscriptionLevel.value >
-            SubscriptionLevel.freemium.value;
+                SubscriptionLevel.freemium.value ||
+            u.subscriptionId.isNotEmpty ||
+            u.userRole.value > UserRole.subscriber.value;
+        if (!hasFullSubscription && currentMediaItem != null) {
+          ownsCurrentTrack = CaseteSessionFields.listenerOwnsItem(
+            extras: currentMediaItem!.extras,
+            itemId: currentMediaItem!.id,
+            listenerEmail: u.email,
+            listenerProfileIds: [
+              userServiceImpl.profile.id,
+              ...u.profiles.map((p) => p.id),
+            ],
+            legacyReleaseItemIds: u.releaseItemIds,
+          );
+        }
       } catch (e, st) {
         NeomErrorLogger.recordErrorLight(
           e,
@@ -568,8 +657,9 @@ class NeomAudioHandler extends BaseAudioHandler
     }
 
     var hasActiveTrial = false;
-    final publicCatalogPlayback = PublicCatalogReadPolicy.enabled;
+    final publicCatalogPlayback = PublicCatalogReadPolicy.unmeteredPlayback;
     if (!isFree &&
+        !ownsCurrentTrack &&
         !publicCatalogPlayback &&
         isSessionReady &&
         !hasFullSubscription) {
@@ -591,14 +681,14 @@ class NeomAudioHandler extends BaseAudioHandler
       }
     }
 
-    allowFullAccess = hasFullSubscription || publicCatalogPlayback;
+    allowFullAccess = hasFullSubscription || ownsCurrentTrack || publicCatalogPlayback;
     allowFreeTrial = hasActiveTrial;
 
     return PlaybackAccessPolicy.evaluate(
       PlaybackAccessSnapshot(
         isSessionReady: isSessionReady,
         isAuthenticated: isAuthenticated,
-        hasFullSubscription: hasFullSubscription,
+        hasFullSubscription: hasFullSubscription || ownsCurrentTrack,
         hasActiveTrial: hasActiveTrial,
         isPubliclyFree: isFree || publicCatalogPlayback,
       ),
@@ -656,10 +746,14 @@ class NeomAudioHandler extends BaseAudioHandler
           AuthGuard.showGuestModal(Sint.context!);
         }
       case PlaybackAccessReason.freemiumTrialExhausted:
-        AppUtilities.showSnackBar(
-          title: AppTranslationConstants.trialEnded.tr,
-          message: AppTranslationConstants.trialEndedMessage.tr,
-        );
+        if (AppConfig.instance.appInUse == AppInUse.g && Sint.context != null) {
+          PaywallSheet.showGigMusic(Sint.context!);
+        } else {
+          AppUtilities.showSnackBar(
+            title: AppTranslationConstants.trialEnded.tr,
+            message: AppTranslationConstants.trialEndedMessage.tr,
+          );
+        }
       case PlaybackAccessReason.sessionNotReady:
         AppConfig.logger.d(
           'Playback blocked while authentication/entitlement is resolving.',
@@ -2033,11 +2127,17 @@ class NeomAudioHandler extends BaseAudioHandler
       itemId: itemId,
       itemName: item.title,
       ownerEmail: CaseteSessionFields.ownerEmail(item.extras),
+      ownerProfileId:
+          item.extras?['ownerProfileId']?.toString() ??
+          item.extras?['ownerId']?.toString() ??
+          '',
       listenerEmail: user.email,
       casete: secondsListened,
       totalDuration: item.duration?.inSeconds ?? 0,
       subscriptionLevel: userServiceImpl.subscriptionLevel,
-      isTest: kDebugMode || user.userRole != UserRole.subscriber,
+      isTest: AppPlatformApi.isEnabled
+          ? user.userRole.value > UserRole.subscriber.value
+          : (kDebugMode || user.userRole != UserRole.subscriber),
       audience: audience,
     );
 

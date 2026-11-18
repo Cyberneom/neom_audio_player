@@ -18,6 +18,7 @@ import '../../../utils/audio_player_utilities.dart';
 import '../../../utils/constants/audio_player_constants.dart';
 import '../../../utils/constants/audio_player_translation_constants.dart';
 import '../../widgets/add_to_playlist_button.dart';
+import '../../widgets/gigmeout_player_actions_bar.dart';
 import '../../widgets/like_button.dart';
 import '../audio_player_controller.dart';
 import 'control_buttons.dart';
@@ -128,6 +129,11 @@ class NameNControls extends StatelessWidget {
                               ),
                             ),
                           ) : const SizedBox.shrink()),
+                          const SizedBox(height: 8),
+                          Obx(() => GigmeoutPlayerActionsBar(
+                            mediaItem: controller.mediaItem.value,
+                            positionStream: controller.audioHandler?.player.positionStream,
+                          )),
                         ],
                       ),
                     ),

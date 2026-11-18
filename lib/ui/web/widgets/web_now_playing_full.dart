@@ -4,11 +4,11 @@ import 'package:neom_commons/ui/theme/app_color.dart';
 import 'package:neom_commons/ui/widgets/custom_image.dart';
 import 'package:neom_commons/utils/app_utilities.dart';
 import 'package:neom_commons/utils/auth_guard.dart';
+import 'package:neom_commons/utils/constants/translations/app_translation_constants.dart';
 import 'package:neom_commons/utils/constants/translations/common_translation_constants.dart';
 import 'package:neom_core/app_config.dart';
+import 'package:neom_core/data/api/app_accounts.dart';
 import 'package:neom_core/data/firestore/itemlist_firestore.dart';
-import 'package:neom_core/data/firestore/profile_firestore.dart';
-import 'package:neom_core/data/firestore/user_firestore.dart';
 import 'package:neom_core/domain/model/app_release_item.dart';
 import 'package:neom_core/domain/model/item_list.dart';
 import 'package:neom_core/utils/constants/app_route_constants.dart';
@@ -26,6 +26,7 @@ import '../utils/web_image_resolver.dart';
 import '../utils/web_player_helpers.dart';
 import 'web_lyrics_panel.dart';
 import 'web_pseudo_visualizer.dart';
+import '../../widgets/gigmeout_player_actions_bar.dart';
 import '../../../utils/constants/audio_player_translation_constants.dart';
 
 /// Full-screen Now Playing overlay for web.
@@ -77,9 +78,9 @@ class _WebNowPlayingFullState extends State<WebNowPlayingFull> {
     widget.onClose();
     try {
       if (Validator.isEmail(targetId)) {
-        final user = await UserFirestore().getByEmail(targetId);
+        final user = await AppUsers.repository.getByEmail(targetId);
         if (user != null) {
-          final profiles = await ProfileFirestore().retrieveByUserId(user.id);
+          final profiles = await AppProfiles.repository.retrieveByUserId(user.id);
           if (profiles.isNotEmpty) targetId = profiles.first.id;
         }
       }
@@ -276,14 +277,14 @@ class _WebNowPlayingFullState extends State<WebNowPlayingFull> {
     try {
       String targetId = ownerId;
       if (Validator.isEmail(ownerId)) {
-        final user = await UserFirestore().getByEmail(ownerId);
+        final user = await AppUsers.repository.getByEmail(ownerId);
         if (user != null) {
-          final profiles = await ProfileFirestore().retrieveByUserId(user.id);
+          final profiles = await AppProfiles.repository.retrieveByUserId(user.id);
           if (profiles.isNotEmpty) targetId = profiles.first.id;
         }
       }
 
-      final profile = await ProfileFirestore().retrieveSimple(targetId);
+      final profile = await AppProfiles.repository.retrieveSimple(targetId);
       if (profile != null && mounted && _currentOwnerId == ownerId) {
         setState(() {
           _artistPhotoUrl = profile.photoUrl.isNotEmpty
@@ -548,7 +549,14 @@ class _WebNowPlayingFullState extends State<WebNowPlayingFull> {
                 ],
               ),
 
-              const SizedBox(height: 18),
+              const SizedBox(height: 12),
+
+              GigmeoutPlayerActionsBar(
+                mediaItem: mediaItem,
+                positionStream: controller.audioHandler?.player.positionStream,
+              ),
+
+              const SizedBox(height: 14),
 
               // Scrubber
               _NowPlayingSeekSection(
@@ -605,6 +613,10 @@ class _WebNowPlayingFullState extends State<WebNowPlayingFull> {
                               color: Colors.black,
                               size: 32,
                             ),
+                            tooltip: (playing
+                                    ? AppTranslationConstants.pause
+                                    : AppTranslationConstants.play)
+                                .tr,
                             onPressed: () => playing
                                 ? controller.audioHandler?.pause()
                                 : controller.audioHandler?.play(),
@@ -783,7 +795,14 @@ class _WebNowPlayingFullState extends State<WebNowPlayingFull> {
             ],
           ),
 
-          const SizedBox(height: 24),
+          const SizedBox(height: 14),
+
+          GigmeoutPlayerActionsBar(
+            mediaItem: mediaItem,
+            positionStream: controller.audioHandler?.player.positionStream,
+          ),
+
+          const SizedBox(height: 18),
 
           // ─── Centered Scrubber & Visualizer ───
           ConstrainedBox(
@@ -846,6 +865,10 @@ class _WebNowPlayingFullState extends State<WebNowPlayingFull> {
                         color: Colors.black,
                         size: 38,
                       ),
+                      tooltip: (playing
+                              ? AppTranslationConstants.pause
+                              : AppTranslationConstants.play)
+                          .tr,
                       onPressed: () => playing
                           ? controller.audioHandler?.pause()
                           : controller.audioHandler?.play(),
@@ -950,7 +973,12 @@ class _WebNowPlayingFullState extends State<WebNowPlayingFull> {
             ),
             onTap: () => _navigateToArtist(ownerId),
           ),
-          const SizedBox(height: 18),
+          const SizedBox(height: 12),
+          GigmeoutPlayerActionsBar(
+            mediaItem: mediaItem,
+            positionStream: controller.audioHandler?.player.positionStream,
+          ),
+          const SizedBox(height: 14),
           _NowPlayingSeekSection(
             controller: controller,
             ambientColor: _ambientColor,
@@ -987,6 +1015,10 @@ class _WebNowPlayingFullState extends State<WebNowPlayingFull> {
                         color: Colors.black,
                         size: 30,
                       ),
+                      tooltip: (playing
+                              ? AppTranslationConstants.pause
+                              : AppTranslationConstants.play)
+                          .tr,
                       onPressed: () => playing
                           ? controller.audioHandler?.pause()
                           : controller.audioHandler?.play(),
@@ -1477,7 +1509,7 @@ class _FullScreenLikeButtonState extends State<_FullScreenLikeButton> {
           if (!profile.favoriteItems!.contains(itemId)) {
             profile.favoriteItems!.add(itemId);
           }
-          ProfileFirestore().addFavoriteItem(profile.id, itemId);
+          AppProfiles.repository.addFavoriteItem(profile.id, itemId);
         }
         AppUtilities.showSnackBar(
           title: widget.mediaItem.title,
@@ -1487,7 +1519,7 @@ class _FullScreenLikeButtonState extends State<_FullScreenLikeButton> {
         await PlaylistHiveController().removeLiked(itemId);
         if (profile.id.isNotEmpty) {
           profile.favoriteItems?.remove(itemId);
-          ProfileFirestore().removeFavoriteItem(profile.id, itemId);
+          AppProfiles.repository.removeFavoriteItem(profile.id, itemId);
         }
         AppUtilities.showSnackBar(
           title: widget.mediaItem.title,

@@ -69,6 +69,7 @@ class MediaItemMapper {
       genre: song['language']?.toString() ?? '',
       extras: {
         'ownerId': song['ownerId'] ?? '',
+        'ownerProfileId': song['ownerProfileId'] ?? song['ownerId'] ?? '',
         'ownerEmail': song['ownerEmail'] ?? '',
         'url': song['url'],
         'slug': song['slug'] ?? '',
@@ -197,6 +198,7 @@ class MediaItemMapper {
         'ownerId': item.ownerProfileId?.isNotEmpty == true
             ? item.ownerProfileId
             : item.ownerEmail,
+        'ownerProfileId': item.ownerProfileId ?? '',
         'ownerEmail': item.ownerEmail,
       },
     );
