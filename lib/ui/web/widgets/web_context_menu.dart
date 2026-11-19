@@ -4,6 +4,7 @@ import 'package:neom_commons/ui/theme/app_color.dart';
 import 'package:neom_commons/utils/constants/translations/app_translation_constants.dart';
 import 'package:neom_commons/utils/share_utilities.dart';
 import 'package:neom_core/domain/model/app_media_item.dart';
+import 'package:neom_core/utils/enums/app_media_source.dart';
 import 'package:sint/sint.dart';
 
 import '../../../utils/constants/audio_player_translation_constants.dart';
@@ -18,27 +19,35 @@ class WebContextMenu {
     Offset position,
     AppMediaItem item, {
     VoidCallback? onRemoveFromPlaylist,
+    bool allowPlaybackActions = true,
   }) {
     final MediaItem mediaItem = MediaItemMapper.fromAppMediaItem(item: item);
     final RenderBox? overlay = Overlay.of(context).context.findRenderObject() as RenderBox?;
     if (overlay == null) return;
 
+    final bool canStream = allowPlaybackActions &&
+        item.mediaSource != AppMediaSource.external &&
+        item.url.isNotEmpty;
+
     final items = <PopupMenuItem<int>>[
-      _buildMenuItem(
-        value: 0,
-        icon: Icons.playlist_play_rounded,
-        label: AudioPlayerTranslationConstants.playNext.tr,
-      ),
-      _buildMenuItem(
-        value: 1,
-        icon: Icons.queue_music_rounded,
-        label: AudioPlayerTranslationConstants.addToQueue.tr,
-      ),
-      _buildMenuItem(
-        value: 2,
-        icon: Icons.playlist_add_rounded,
-        label: AudioPlayerTranslationConstants.addToPlaylist.tr,
-      ),
+      if (canStream)
+        _buildMenuItem(
+          value: 0,
+          icon: Icons.playlist_play_rounded,
+          label: AudioPlayerTranslationConstants.playNext.tr,
+        ),
+      if (canStream)
+        _buildMenuItem(
+          value: 1,
+          icon: Icons.queue_music_rounded,
+          label: AudioPlayerTranslationConstants.addToQueue.tr,
+        ),
+      if (canStream)
+        _buildMenuItem(
+          value: 2,
+          icon: Icons.playlist_add_rounded,
+          label: AudioPlayerTranslationConstants.addToPlaylist.tr,
+        ),
       if (onRemoveFromPlaylist != null)
         _buildMenuItem(
           value: 4,

@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:sint/sint.dart';
 import 'package:neom_commons/ui/theme/app_theme.dart';
+import 'package:neom_commons/ui/widgets/giglist/giglist_preview_sheet.dart';
 import 'package:neom_commons/ui/widgets/images/neom_image_card.dart';
 import 'package:neom_commons/utils/auth_guard.dart';
 import 'package:neom_commons/utils/constants/app_assets.dart';
 import 'package:neom_commons/utils/text_utilities.dart';
 import 'package:neom_core/domain/model/app_media_item.dart';
+import 'package:neom_core/domain/model/external_item.dart';
 import 'package:neom_core/domain/model/item_list.dart';
 import 'package:neom_core/utils/constants/app_route_constants.dart';
 import 'package:neom_core/utils/enums/app_media_source.dart';
+import 'package:neom_core/utils/enums/external_media_source.dart';
+import 'package:neom_core/utils/enums/itemlist_type.dart';
 
 import '../../data/implementations/player_hive_controller.dart';
 import 'package:neom_core/domain/use_cases/audio_player_invoker_service.dart';
@@ -83,6 +87,29 @@ ListTile createCoolMediaItemTile(BuildContext context, AppMediaItem appMediaItem
     },
     onTap: () async {
       PlayerHiveController().addQuery(appMediaItem.name);
+
+      final isPreviewOnly =
+          appMediaItem.mediaSource == AppMediaSource.external ||
+          appMediaItem.url.isEmpty ||
+          itemlist?.type == ItemlistType.giglist;
+      if (isPreviewOnly) {
+        await GiglistPreviewSheet.show(
+          context,
+          item: ExternalItem(
+            id: appMediaItem.id,
+            name: appMediaItem.name,
+            ownerName: appMediaItem.ownerName,
+            ownerId: appMediaItem.ownerId,
+            album: appMediaItem.album,
+            duration: appMediaItem.duration,
+            imgUrl: appMediaItem.imgUrl,
+            permaUrl: appMediaItem.permaUrl,
+            state: appMediaItem.state,
+            source: ExternalSource.youtube,
+          ),
+        );
+        return;
+      }
 
       if(appMediaItem.mediaSource == AppMediaSource.internal || appMediaItem.mediaSource == AppMediaSource.offline) {
         if (Sint.isRegistered<AudioPlayerController>()) {

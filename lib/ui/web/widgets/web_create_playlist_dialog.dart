@@ -5,14 +5,18 @@ import 'package:neom_commons/utils/constants/translations/app_translation_consta
 import 'package:neom_core/app_config.dart';
 import 'package:neom_core/domain/use_cases/itemlist_service.dart';
 import 'package:neom_core/utils/constants/app_route_constants.dart';
+import 'package:neom_core/utils/enums/app_in_use.dart';
+import 'package:neom_core/utils/enums/itemlist_type.dart';
 import 'package:sint/sint.dart';
 
 import '../../../utils/constants/audio_player_translation_constants.dart';
 
 class WebCreatePlaylistDialog extends StatefulWidget {
-  const WebCreatePlaylistDialog({Key? key}) : super(key: key);
+  final ItemlistType? initialType;
 
-  static Future<void> show(BuildContext context) {
+  const WebCreatePlaylistDialog({Key? key, this.initialType}) : super(key: key);
+
+  static Future<void> show(BuildContext context, {ItemlistType? initialType}) {
     if (!AppConfig.instance.canPersistUserActivity) {
       AuthGuard.protect(
         context,
@@ -24,7 +28,7 @@ class WebCreatePlaylistDialog extends StatefulWidget {
 
     return showDialog(
       context: context,
-      builder: (_) => const WebCreatePlaylistDialog(),
+      builder: (_) => WebCreatePlaylistDialog(initialType: initialType),
     );
   }
 
@@ -34,31 +38,76 @@ class WebCreatePlaylistDialog extends StatefulWidget {
 }
 
 class _WebCreatePlaylistDialogState extends State<WebCreatePlaylistDialog> {
-  bool _isPublic = false;
+  late ItemlistType _selectedType;
+  late bool _isPublic;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedType = widget.initialType ?? ItemlistType.playlist;
+    _isPublic = _selectedType == ItemlistType.giglist;
+  }
 
   @override
   Widget build(BuildContext context) {
     final controller = Sint.find<ItemlistService>();
+    final isGigmeout = AppConfig.instance.appInUse == AppInUse.g;
+    final isGiglist = _selectedType == ItemlistType.giglist;
 
     return Dialog(
       backgroundColor: AppColor.surfaceElevated,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Container(
-        width: 420,
+        width: 440,
         padding: const EdgeInsets.all(24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              AudioPlayerTranslationConstants.createNewPlaylist.tr,
+              isGiglist
+                  ? 'Crear nueva Giglist (Repertorio)'
+                  : AudioPlayerTranslationConstants.createNewPlaylist.tr,
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 24),
+            if (isGigmeout) ...[
+              const SizedBox(height: 14),
+              SegmentedButton<ItemlistType>(
+                segments: const [
+                  ButtonSegment<ItemlistType>(
+                    value: ItemlistType.playlist,
+                    icon: Icon(Icons.library_music_outlined, size: 16),
+                    label: Text('Playlist (Streaming)'),
+                  ),
+                  ButtonSegment<ItemlistType>(
+                    value: ItemlistType.giglist,
+                    icon: Icon(Icons.queue_music_rounded, size: 16),
+                    label: Text('Giglist (Repertorio YT)'),
+                  ),
+                ],
+                selected: {_selectedType},
+                onSelectionChanged: (sel) {
+                  setState(() {
+                    _selectedType = sel.first;
+                    if (_selectedType == ItemlistType.giglist) {
+                      _isPublic = true;
+                    }
+                  });
+                },
+              ),
+              const SizedBox(height: 8),
+              Text(
+                isGiglist
+                    ? 'Solo preview de 30s con catálogo de YouTube Music para conectar con músicos y bandas.'
+                    : 'Playlist reproducible de canciones streameadas en Gigmeout.',
+                style: TextStyle(color: Colors.grey[400], fontSize: 12),
+              ),
+            ],
+            const SizedBox(height: 20),
             // Name field
             TextField(
               controller: controller.newItemlistNameController,
@@ -138,7 +187,7 @@ class _WebCreatePlaylistDialogState extends State<WebCreatePlaylistDialog> {
                   onPressed: () async {
                     if (!AppConfig.instance.canPersistUserActivity) return;
                     controller.isPublicNewItemlist = _isPublic;
-                    await controller.createItemlist();
+                    await controller.createItemlist(type: _selectedType);
                     if (context.mounted) Sint.back();
                   },
                   style: ElevatedButton.styleFrom(
