@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sint/sint.dart';
-import 'package:hive/hive.dart';
+import 'package:hive_ce/hive_ce.dart';
 import 'package:neom_commons/app_flavour.dart';
 import 'package:neom_commons/ui/theme/app_theme.dart';
 import 'package:neom_commons/utils/constants/translations/app_translation_constants.dart';

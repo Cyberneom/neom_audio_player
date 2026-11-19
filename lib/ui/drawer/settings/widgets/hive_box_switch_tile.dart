@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:hive_flutter/adapters.dart';
+import 'package:hive_ce_flutter/hive_ce_flutter.dart';
 import 'package:neom_commons/ui/theme/app_theme.dart';
 import 'package:neom_core/app_config.dart';
 import 'package:neom_core/utils/enums/app_hive_box.dart';

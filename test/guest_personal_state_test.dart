@@ -1,6 +1,6 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:hive/hive.dart';
+import 'package:hive_ce/hive_ce.dart';
 import 'package:neom_audio_player/data/implementations/player_hive_controller.dart';
 import 'package:neom_audio_player/utils/audio_player_stats.dart';
 import 'package:neom_core/app_config.dart';

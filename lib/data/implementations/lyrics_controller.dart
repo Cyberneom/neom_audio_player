@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:collection';
 import 'dart:convert';
 
-import 'package:hive/hive.dart';
+import 'package:hive_ce/hive_ce.dart';
 import 'package:neom_core/app_config.dart';
 import 'package:neom_core/utils/neom_error_logger.dart';
 import 'package:sint/sint.dart';

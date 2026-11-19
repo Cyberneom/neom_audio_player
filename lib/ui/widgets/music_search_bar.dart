@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
-import 'package:hive/hive.dart';
+import 'package:hive_ce/hive_ce.dart';
 import 'package:neom_commons/ui/theme/app_theme.dart';
 import 'package:neom_core/app_config.dart';
 import 'package:neom_core/data/implementations/app_hive_controller.dart';

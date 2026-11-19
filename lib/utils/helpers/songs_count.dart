@@ -1,4 +1,4 @@
-import 'package:hive/hive.dart';
+import 'package:hive_ce/hive_ce.dart';
 import 'package:neom_core/utils/enums/app_hive_box.dart';
 
 void addSongsCount(String playlistName, int len, List images) {

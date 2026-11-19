@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:hive/hive.dart';
+import 'package:hive_ce/hive_ce.dart';
 import 'package:neom_audio_player/audio_player_invoker.dart';
 import 'package:neom_audio_player/neom_audio_handler.dart';
 import 'package:neom_audio_player/ui/player/miniplayer_controller.dart';
