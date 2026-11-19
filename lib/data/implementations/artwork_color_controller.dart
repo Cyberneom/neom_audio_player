@@ -14,9 +14,11 @@ class ArtworkColorController extends SintController
     implements ArtworkColorService {
 
   static const int _maxCacheSize = 100;
+  static const Duration _extractTimeout = Duration(seconds: 6);
+  static const int _quantizeSizePx = 64;
 
   final Map<String, Color> _cache = <String, Color>{};
-  final Set<String> _inFlight = <String>{};
+  final Map<String, Future<Color>> _inFlight = <String, Future<Color>>{};
 
   /// Reactive observable for the currently playing track's dominant color.
   final Rx<Color> _currentColor = AppColor.getMain().obs;
@@ -48,25 +50,33 @@ class ArtworkColorController extends SintController
       return cached;
     }
     if (imageUrl == null || imageUrl.isEmpty) return fb;
-    if (_inFlight.contains(cacheKey)) return fb;
+    final existing = _inFlight[cacheKey];
+    if (existing != null) return existing;
 
-    _inFlight.add(cacheKey);
-    try {
-      final scheme = await ColorScheme.fromImageProvider(
-        provider: NetworkImage(imageUrl),
-        brightness: Brightness.dark,
-      );
-      final color = _selectSchemeColor(scheme, fb);
+    final future = () async {
+      try {
+        final scheme = await ColorScheme.fromImageProvider(
+          provider: ResizeImage.resizeIfNeeded(
+            _quantizeSizePx,
+            _quantizeSizePx,
+            NetworkImage(imageUrl),
+          ),
+          brightness: Brightness.dark,
+        ).timeout(_extractTimeout);
+        final color = _selectSchemeColor(scheme, fb);
 
-      _enforceCacheLimit();
-      _cache[cacheKey] = color;
-      _currentColor.value = color;
-      return color;
-    } catch (_) {
-      return fb;
-    } finally {
-      _inFlight.remove(cacheKey);
-    }
+        _enforceCacheLimit();
+        _cache[cacheKey] = color;
+        _currentColor.value = color;
+        return color;
+      } catch (_) {
+        return fb;
+      } finally {
+        _inFlight.remove(cacheKey);
+      }
+    }();
+    _inFlight[cacheKey] = future;
+    return future;
   }
 
   static Color _selectSchemeColor(ColorScheme scheme, Color fallback) {
@@ -79,9 +89,9 @@ class ArtworkColorController extends SintController
     for (final candidate in candidates) {
       final hsl = HSLColor.fromColor(candidate);
       if (candidate.a > 0 &&
-          hsl.saturation >= 0.12 &&
-          hsl.lightness >= 0.12 &&
-          hsl.lightness <= 0.88) {
+          hsl.saturation >= 0.14 &&
+          hsl.lightness >= 0.24 &&
+          hsl.lightness <= 0.85) {
         return candidate;
       }
     }

@@ -34,8 +34,11 @@ class WebColorExtractor {
     caseSensitive: false,
   );
 
+  static const Duration _extractTimeout = Duration(seconds: 6);
+  static const int _quantizeSizePx = 64;
+
   static final Map<String, Color> _cache = <String, Color>{};
-  static final Set<String> _inFlight = <String>{};
+  static final Map<String, Future<Color>> _inFlight = <String, Future<Color>>{};
 
   static bool isSafeCacheKey(String? rawKey) {
     if (rawKey == null ||
@@ -197,27 +200,47 @@ class WebColorExtractor {
       return cached;
     }
     if (!isSafeWebArtworkUrl(imageUrl)) return AppColor.getMain();
-    if (_inFlight.contains(cleanKey) || _inFlight.length >= 64) {
+    final existing = _inFlight[cleanKey];
+    if (existing != null) return existing;
+    if (_inFlight.length >= 64) {
       return AppColor.getMain();
     }
 
-    _inFlight.add(cleanKey);
-    try {
-      final scheme = await ColorScheme.fromImageProvider(
-        provider: NetworkImage(imageUrl!.trim()),
-        brightness: Brightness.dark,
-      );
-      final color = _selectSchemeColor(scheme, AppColor.getMain());
-      if (_cache.length >= maxCacheEntries && !_cache.containsKey(cleanKey)) {
-        _cache.remove(_cache.keys.first);
+    final future = () async {
+      try {
+        final scheme = await ColorScheme.fromImageProvider(
+          provider: ResizeImage.resizeIfNeeded(
+            _quantizeSizePx,
+            _quantizeSizePx,
+            NetworkImage(imageUrl!.trim()),
+          ),
+          brightness: Brightness.dark,
+        ).timeout(_extractTimeout);
+        final color = _selectSchemeColor(scheme, AppColor.getMain());
+        if (_cache.length >= maxCacheEntries && !_cache.containsKey(cleanKey)) {
+          _cache.remove(_cache.keys.first);
+        }
+        _cache[cleanKey] = color;
+        return color;
+      } catch (_) {
+        return AppColor.getMain();
+      } finally {
+        _inFlight.remove(cleanKey);
       }
-      _cache[cleanKey] = color;
-      return color;
-    } catch (_) {
-      return AppColor.getMain();
-    } finally {
-      _inFlight.remove(cleanKey);
-    }
+    }();
+    _inFlight[cleanKey] = future;
+    return future;
+  }
+
+  /// Ensures sufficient contrast when using an extracted accent as foreground
+  /// text/icon color over dark player surfaces (`#121212` / `#181818`).
+  static Color ensureReadableOnDark(Color color, {double minLightness = 0.56}) {
+    final hsl = HSLColor.fromColor(color);
+    if (hsl.lightness >= minLightness) return color;
+    return hsl
+        .withLightness(minLightness.clamp(0.0, 1.0))
+        .withSaturation(hsl.saturation < 0.25 ? 0.35 : hsl.saturation)
+        .toColor();
   }
 
   static Color _selectSchemeColor(ColorScheme scheme, Color fallback) {
@@ -230,9 +253,9 @@ class WebColorExtractor {
     for (final candidate in candidates) {
       final hsl = HSLColor.fromColor(candidate);
       if (candidate.a > 0 &&
-          hsl.saturation >= 0.12 &&
-          hsl.lightness >= 0.12 &&
-          hsl.lightness <= 0.88) {
+          hsl.saturation >= 0.14 &&
+          hsl.lightness >= 0.24 &&
+          hsl.lightness <= 0.85) {
         return candidate;
       }
     }

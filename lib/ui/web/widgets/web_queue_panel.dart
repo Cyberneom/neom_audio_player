@@ -92,7 +92,7 @@ class WebQueuePanel extends StatelessWidget {
                           Text(
                             AudioPlayerTranslationConstants.nowPlaying.tr,
                             style: TextStyle(
-                              color: tint,
+                              color: WebColorExtractor.ensureReadableOnDark(tint),
                               fontSize: 11,
                               fontWeight: FontWeight.w600,
                             ),

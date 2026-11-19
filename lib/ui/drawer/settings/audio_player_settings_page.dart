@@ -5,9 +5,9 @@ import 'package:neom_commons/ui/theme/app_theme.dart';
 import 'package:neom_commons/utils/auth_guard.dart';
 import 'package:neom_commons/utils/constants/translations/app_translation_constants.dart';
 import 'package:neom_core/app_config.dart';
-import 'package:neom_core/utils/constants/app_route_constants.dart';
 import 'package:neom_core/utils/enums/app_in_use.dart';
 
+import '../../../utils/constants/audio_player_route_constants.dart';
 import '../../../utils/constants/audio_player_translation_constants.dart';
 import 'widgets/music_playback_settings_page.dart';
 import 'widgets/music_player_interface_page.dart';
@@ -162,7 +162,7 @@ class _AudioPlayerSettingsPageState extends State<AudioPlayerSettingsPage> {
                   Sint.to(
                     () => settingsList[index]['onTap'] as Widget,
                   );
-                }, redirectRoute: AppRouteConstants.audioPlayerSetting);
+                }, redirectRoute: AudioPlayerRouteConstants.setting);
               },
             );
           },
@@ -268,7 +268,7 @@ class _AudioPlayerSettingsPageState extends State<AudioPlayerSettingsPage> {
                     () => options[index]['route'] as Widget,
                     arguments: options[index]['title'],
                   );
-                }, redirectRoute: AppRouteConstants.audioPlayerSetting);
+                }, redirectRoute: AudioPlayerRouteConstants.setting);
               },
             );
           },

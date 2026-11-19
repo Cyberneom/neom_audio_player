@@ -82,6 +82,10 @@ class _WebLyricsPanelState extends State<WebLyricsPanel> {
       }
     }
 
+    final audioUrl = (extras?['url'] as String?) ?? widget.mediaItem.id;
+    final lyricsLrc = extras?['lyricsLrc'] as String?;
+    final language = extras?['language'] as String?;
+
     if (embeddedLyrics.isNotEmpty) {
       _lyrics = MediaLyrics(
         mediaId: widget.mediaItem.id,
@@ -92,6 +96,9 @@ class _WebLyricsPanelState extends State<WebLyricsPanel> {
         id: widget.mediaItem.id,
         title: widget.mediaItem.title,
         artist: widget.mediaItem.artist ?? '',
+        lyricsLrc: lyricsLrc,
+        audioUrl: audioUrl.startsWith('http') ? audioUrl : null,
+        language: language,
       );
     }
 
@@ -161,15 +168,28 @@ class _WebLyricsPanelState extends State<WebLyricsPanel> {
   }
 
   void _scrollToActive(int index) {
-    if (!_scrollController.hasClients) return;
+    if (!_scrollController.hasClients || index < 0 || _entries.isEmpty) return;
     final key = _lineKeys[index];
     final ctx = key?.currentContext;
-    if (ctx == null) return;
-    Scrollable.ensureVisible(
-      ctx,
+    if (ctx != null) {
+      Scrollable.ensureVisible(
+        ctx,
+        duration: const Duration(milliseconds: 350),
+        curve: Curves.easeOutCubic,
+        alignment: 0.4,
+      );
+      return;
+    }
+    // Fallback for far seeks where the target line is outside ListView's
+    // currently built viewport window.
+    final maxExtent = _scrollController.position.maxScrollExtent;
+    if (maxExtent <= 0) return;
+    final fraction = _entries.length <= 1 ? 0.0 : index / (_entries.length - 1);
+    final targetOffset = (fraction * maxExtent).clamp(0.0, maxExtent);
+    _scrollController.animateTo(
+      targetOffset,
       duration: const Duration(milliseconds: 350),
       curve: Curves.easeOutCubic,
-      alignment: 0.4,
     );
   }
 
@@ -299,7 +319,7 @@ class _WebLyricsPanelState extends State<WebLyricsPanel> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    '${AudioPlayerTranslationConstants.poweredBy} ${_lyrics.source.name}',
+                    '${AudioPlayerTranslationConstants.poweredBy.tr} ${_lyrics.source.name}',
                     style: TextStyle(color: Colors.grey[500], fontSize: 11),
                   ),
                   if (_entries.isNotEmpty)

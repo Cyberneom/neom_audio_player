@@ -32,6 +32,8 @@ import '../../domain/models/media_lyrics.dart';
 import '../../domain/use_cases/audio_player_service.dart';
 import '../../utils/constants/audio_player_route_constants.dart';
 import '../../utils/audio_item_source_availability.dart';
+import '../../utils/enums/lyrics_source.dart';
+import '../../utils/enums/lyrics_type.dart';
 import '../../utils/mappers/media_item_mapper.dart';
 import 'lyrics/lyrics.dart';
 
@@ -202,10 +204,16 @@ class AudioPlayerController extends SintController
 
   @override
   void onClose() {
+    _lyricsRequestId++;
     _mediaItemSub?.cancel();
     _isLoadingAudioSub?.cancel();
     lyricsReaderModel?.dispose();
     lyricsReaderModel = null;
+    dragging.dispose();
+    tapped.dispose();
+    doubleTapped.dispose();
+    done.dispose();
+    lyricsSource.dispose();
     super.onClose();
     appMediaItem.value = AppMediaItem();
     isLoading.value = true;
@@ -293,6 +301,9 @@ class AudioPlayerController extends SintController
     }
 
     updateMediaItemValues();
+    if (flipped && mediaLyrics.mediaId != appMediaItem.value.id) {
+      unawaited(fetchLyrics());
+    }
     update();
   }
 
@@ -413,35 +424,75 @@ class AudioPlayerController extends SintController
   LyricController get ensureLyricsController =>
       lyricsReaderModel ??= LyricController();
 
+  static final RegExp _lrcTimestampRe = RegExp(
+    r'\[\d{1,3}:\d{2}(?:[.:]\d{1,3})?\]',
+  );
+
+  int _lyricsRequestId = 0;
+
   @override
   Future<void> fetchLyrics() async {
-    AppConfig.logger.i('Fetching lyrics for ${appMediaItem.value.name}');
+    if (isClosed) return;
+    final reqId = ++_lyricsRequestId;
+    final current = appMediaItem.value;
+    AppConfig.logger.i('Fetching lyrics for ${current.name}');
     done.value = false;
     lyricsSource.value = '';
-    String appMediaItemLyric =
-        appMediaItem.value.lyrics.isNotEmpty ||
-            (appMediaItem.value.description?.isNotEmpty ?? false)
-        ? (appMediaItem.value.lyrics.isNotEmpty
-              ? appMediaItem.value.lyrics
-              : appMediaItem.value.description ?? '')
+    final String appMediaItemLyric =
+        current.lyrics.isNotEmpty || (current.description?.isNotEmpty ?? false)
+        ? (current.lyrics.isNotEmpty
+              ? current.lyrics
+              : current.description ?? '')
         : '';
+
+    MediaLyrics resolved;
     if (appMediaItemLyric.isNotEmpty || offline) {
-      mediaLyrics.lyrics = appMediaItemLyric.replaceAll('&nbsp;', '');
-      mediaLyrics.mediaId = appMediaItem.value.id;
+      final cleanText = appMediaItemLyric.replaceAll('&nbsp;', '').trim();
+      final isSynced = _lrcTimestampRe.hasMatch(cleanText);
+      resolved = MediaLyrics(
+        mediaId: current.id,
+        lyrics: cleanText,
+        source: LyricsSource.internal,
+        type: isSynced ? LyricsType.lrc : LyricsType.text,
+      );
     } else {
-      mediaLyrics = await Lyrics.getLyrics(
-        id: appMediaItem.value.id,
-        title: appMediaItem.value.name,
-        artist: appMediaItem.value.ownerName.toString(),
+      final rawUrl = current.url.trim();
+      resolved = await Lyrics.getLyrics(
+        id: current.id,
+        title: current.name,
+        artist: current.ownerName.toString(),
+        audioUrl: rawUrl.startsWith('http') ? rawUrl : null,
+        language: (current.language?.isNotEmpty ?? false)
+            ? current.language
+            : null,
       );
     }
 
+    if (isClosed || reqId != _lyricsRequestId) return;
+
+    mediaLyrics = resolved;
     lyricsSource.value = mediaLyrics.source.name;
     final lyricController = ensureLyricsController;
-    if (mediaLyrics.lyrics.isEmpty) {
+    if (mediaLyrics.lyrics.isEmpty || mediaLyrics.type != LyricsType.lrc) {
       lyricController.clear();
     } else {
-      lyricController.load(mediaLyrics.lyrics);
+      try {
+        lyricController.load(mediaLyrics.lyrics);
+        if (lyricController.document == null ||
+            lyricController.document!.lines.isEmpty) {
+          mediaLyrics.type = LyricsType.text;
+          lyricController.clear();
+        }
+      } catch (e, st) {
+        NeomErrorLogger.recordError(
+          e,
+          st,
+          module: 'neom_audio_player',
+          operation: 'AudioPlayerController.fetchLyrics.loadLrc',
+        );
+        mediaLyrics.type = LyricsType.text;
+        lyricController.clear();
+      }
     }
     done.value = true;
   }

@@ -47,19 +47,6 @@ class ArtWorkWidget extends StatefulWidget {
 }
 
 class _ArtWorkWidgetState extends State<ArtWorkWidget> {
-  LyricController? _fallbackLyricController;
-
-  LyricController _resolveLyricController(AudioPlayerController controller) {
-    return controller.lyricsReaderModel ??
-        (_fallbackLyricController ??= controller.ensureLyricsController);
-  }
-
-  @override
-  void dispose() {
-    _fallbackLyricController = null;
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     final AudioPlayerController controller = widget.mediaPlayerController;
@@ -78,59 +65,89 @@ class _ArtWorkWidgetState extends State<ArtWorkWidget> {
           onFlipDone: (value) {
             controller.setFlipped(value);
           },
-          back: GestureDetector(
-            onTap: () => cardKey?.currentState?.toggleCard(),
-            onDoubleTap: () => cardKey?.currentState?.toggleCard(),
-            child: Stack(
-              children: [
-                ShaderMask(
-                  shaderCallback: (rect) {
-                    return const LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        Colors.transparent, Colors.black,
-                        Colors.black, Colors.black,
-                        Colors.transparent,
-                      ],
-                    ).createShader(Rect.fromLTRB(0, 0, rect.width, rect.height),);
-                  },
-                  blendMode: BlendMode.dstIn,
-                  child: Center(
-                    child: SingleChildScrollView(
-                      physics: const BouncingScrollPhysics(),
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 60,
-                        horizontal: 20,
-                      ),
-                      child: ValueListenableBuilder(
-                        valueListenable: controller.done,
-                        child: const CircularProgressIndicator(),
-                        builder: (BuildContext context, bool value, Widget? child,) {
-                          return value ? controller.mediaLyrics.lyrics.isEmpty ? emptyScreen(
+          back: Stack(
+            children: [
+              ShaderMask(
+                shaderCallback: (rect) {
+                  return const LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.transparent, Colors.black,
+                      Colors.black, Colors.black,
+                      Colors.transparent,
+                    ],
+                  ).createShader(Rect.fromLTRB(0, 0, rect.width, rect.height),);
+                },
+                blendMode: BlendMode.dstIn,
+                child: ValueListenableBuilder(
+                  valueListenable: controller.done,
+                  child: const Center(child: CircularProgressIndicator()),
+                  builder: (BuildContext context, bool value, Widget? child,) {
+                    if (!value) return child!;
+                    if (controller.mediaLyrics.lyrics.isEmpty) {
+                      return GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () => cardKey?.currentState?.toggleCard(),
+                        child: Center(
+                          child: emptyScreen(
                             context, 0,
                             ':( ', 80.0,
                             AudioPlayerTranslationConstants.lyrics.tr, 40.0,
                             CommonTranslationConstants.notAvailable.tr, 20.0,
                             useWhite: true,
-                          ) : controller.mediaLyrics.type == LyricsType.text
-                              ? SelectableText(controller.mediaLyrics.lyrics,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              fontSize: 16.0,
+                          ),
+                        ),
+                      );
+                    }
+                    if (controller.mediaLyrics.type == LyricsType.text) {
+                      return GestureDetector(
+                        onDoubleTap: () => cardKey?.currentState?.toggleCard(),
+                        child: Center(
+                          child: SingleChildScrollView(
+                            physics: const BouncingScrollPhysics(),
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 60,
+                              horizontal: 20,
                             ),
-                          ) : _SyncedLyricView(
-                            controller: _resolveLyricController(controller),
-                            preset: controller.lyricUI,
-                            height: (height - 120).clamp(120.0, height),
-                            width: (flipCardWidth - 40).clamp(120.0, flipCardWidth),
-                            onSeek: (pos) => controller.audioHandler?.seek(pos),
-                          ) : child!;
-                        },
+                            child: SelectableText(
+                              controller.mediaLyrics.lyrics,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(fontSize: 16.0),
+                            ),
+                          ),
+                        ),
+                      );
+                    }
+                    if (controller.isClosed) return const SizedBox.shrink();
+                    final lyricCtrl = controller.ensureLyricsController;
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 48,
+                        horizontal: 16,
                       ),
-                    ),
-                  ),
+                      child: GestureDetector(
+                        onDoubleTap: () => cardKey?.currentState?.toggleCard(),
+                        child: _SyncedLyricView(
+                          controller: lyricCtrl,
+                          preset: controller.lyricUI,
+                          isActive: controller.flipped,
+                          height: (height - 96).clamp(120.0, height),
+                          width: (flipCardWidth - 32).clamp(120.0, flipCardWidth),
+                          onSeek: (pos) {
+                            try {
+                              if (lyricCtrl.progressSource == null) {
+                                lyricCtrl.setPosition(pos);
+                              }
+                            } catch (_) {}
+                            controller.audioHandler?.seek(pos);
+                          },
+                        ),
+                      ),
+                    );
+                  },
                 ),
+              ),
                 if(controller.mediaLyrics.lyrics.isNotEmpty) ValueListenableBuilder(
                   valueListenable: controller.lyricsSource,
                   child: const CircularProgressIndicator(),
@@ -169,8 +186,7 @@ class _ArtWorkWidgetState extends State<ArtWorkWidget> {
                     ),
                   ),
                 ),
-              ],
-            ),
+            ],
           ),
           front: StreamBuilder<QueueState>(
             stream: controller.audioHandler?.queueState,
@@ -397,6 +413,7 @@ class _ArtWorkWidgetState extends State<ArtWorkWidget> {
 class _SyncedLyricView extends StatefulWidget {
   final LyricController controller;
   final LyricPreset preset;
+  final bool isActive;
   final double height;
   final double width;
   final ValueChanged<Duration>? onSeek;
@@ -404,6 +421,7 @@ class _SyncedLyricView extends StatefulWidget {
   const _SyncedLyricView({
     required this.controller,
     required this.preset,
+    required this.isActive,
     required this.height,
     required this.width,
     this.onSeek,
@@ -415,12 +433,37 @@ class _SyncedLyricView extends StatefulWidget {
 
 class _SyncedLyricViewState extends State<_SyncedLyricView> {
   StreamSubscription<Duration>? _positionSub;
+  Duration? _lastPushedPosition;
 
   @override
   void initState() {
     super.initState();
-    _positionSub = AudioService.position.listen((pos) {
-      if (!mounted) return;
+    _syncSubscription();
+  }
+
+  @override
+  void didUpdateWidget(covariant _SyncedLyricView oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.isActive != widget.isActive ||
+        !identical(oldWidget.controller, widget.controller)) {
+      _lastPushedPosition = null;
+      _syncSubscription();
+    }
+  }
+
+  void _syncSubscription() {
+    if (!widget.isActive) {
+      _positionSub?.cancel();
+      _positionSub = null;
+      return;
+    }
+    _positionSub ??= AudioService.position.listen((pos) {
+      if (!mounted || !widget.isActive) return;
+      if (_lastPushedPosition != null &&
+          (pos - _lastPushedPosition!).abs() < const Duration(milliseconds: 50)) {
+        return;
+      }
+      _lastPushedPosition = pos;
       if (widget.controller.progressSource == null) {
         try {
           widget.controller.setPosition(pos);
