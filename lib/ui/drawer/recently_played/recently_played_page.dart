@@ -9,6 +9,7 @@ import 'package:neom_core/data/implementations/app_hive_controller.dart';
 import 'package:neom_core/domain/model/app_media_item.dart';
 import 'package:neom_core/utils/constants/app_hive_constants.dart';
 import 'package:neom_core/utils/enums/app_hive_box.dart';
+import 'package:neom_core/utils/release_catalog_visibility.dart';
 
 import 'package:neom_core/domain/use_cases/audio_player_invoker_service.dart';
 import '../../../utils/constants/audio_player_translation_constants.dart';
@@ -45,7 +46,12 @@ class RecentlyPlayedPageState extends State<RecentlyPlayedPage> {
         if (element is Map) {
           try {
             AppMediaItem recentMediaItem = AppMediaItem.fromJSON(element);
-            _songs[recentMediaItem.id] = recentMediaItem;
+            if (ReleaseCatalogVisibility.isMediaItemVisible(
+              recentMediaItem,
+              app: AppConfig.instance.appInUse,
+            )) {
+              _songs[recentMediaItem.id] = recentMediaItem;
+            }
           } catch (_) {}
         }
       }

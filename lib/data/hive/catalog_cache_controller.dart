@@ -9,6 +9,7 @@ import 'package:neom_core/domain/model/app_media_item.dart';
 import 'package:neom_core/domain/model/item_list.dart';
 import 'package:neom_core/utils/enums/app_hive_box.dart';
 import 'package:neom_core/utils/neom_error_logger.dart';
+import 'package:neom_core/utils/release_catalog_visibility.dart';
 
 /// Controller for managing catalog offline cache using Hive.
 /// Caches public itemlists, releases, and media items for offline access.
@@ -291,9 +292,15 @@ class CatalogCacheController {
         final key = entry.key?.toString() ?? '';
         if (!isSafeCacheEntryKey(key) || entry.value is! Map) continue;
         try {
-          result[key] = AppMediaItem.fromJSON(
+          final item = AppMediaItem.fromJSON(
             Map<String, dynamic>.from(entry.value as Map),
           );
+          if (ReleaseCatalogVisibility.isMediaItemVisible(
+            item,
+            app: AppConfig.instance.appInUse,
+          )) {
+            result[key] = item;
+          }
         } catch (_) {}
       }
 

@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:neom_core/app_config.dart';
 import 'package:neom_core/data/firestore/constants/app_firestore_collection_constants.dart';
 import 'package:neom_core/data/firestore/public_catalog_read_policy.dart';
 import 'package:neom_core/domain/model/app_release_item.dart';
+import 'package:neom_core/utils/release_catalog_visibility.dart';
 
 /// Album lookup follows the same public projection boundary as the catalogue.
 Future<List<AppReleaseItem>> loadCatalogAlbumItems({
@@ -30,5 +32,11 @@ Future<List<AppReleaseItem>> loadCatalogAlbumItems({
             ? item.toPublicProjection()
             : item;
       })
+      .where(
+        (item) => ReleaseCatalogVisibility.isVisible(
+          item,
+          app: AppConfig.instance.appInUse,
+        ),
+      )
       .toList();
 }
