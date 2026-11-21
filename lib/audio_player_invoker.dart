@@ -18,6 +18,7 @@ import 'package:neom_core/domain/model/app_release_item.dart';
 import 'package:neom_core/domain/model/playable_item.dart';
 import 'package:neom_core/domain/use_cases/audio_player_invoker_service.dart';
 import 'package:neom_core/domain/use_cases/media_player_service.dart';
+import 'package:neom_core/utils/enums/app_media_source.dart';
 
 import 'data/implementations/player_hive_controller.dart';
 import 'data/providers/neom_audio_provider.dart';
@@ -193,17 +194,20 @@ class AudioPlayerInvoker
     AppConfig.logger.t('Settings Values for index $index');
 
     try {
-      // Guests may play public catalog entries, but playback must not create
-      // or mutate catalog documents as a side effect.
+      // Guests may play public catalog entries, and Public Domain catalog items
+      // live statically in `neom_public_domain` — neither may create or mutate
+      // Firestore independent-catalog documents as a side effect.
       if (AppConfig.instance.canPersistUserActivity) {
         final selectedItem = currentMediaItems[index];
-        final releaseItem = currentReleaseItems.firstWhereOrNull(
-          (item) => item.id == selectedItem.id,
-        );
-        if (releaseItem != null) {
-          AppReleaseItemFirestore().existsOrInsert(releaseItem);
-        } else {
-          AppMediaItemFirestore().existsOrInsert(selectedItem);
+        if (selectedItem.mediaSource != AppMediaSource.publicDomain) {
+          final releaseItem = currentReleaseItems.firstWhereOrNull(
+            (item) => item.id == selectedItem.id,
+          );
+          if (releaseItem != null) {
+            AppReleaseItemFirestore().existsOrInsert(releaseItem);
+          } else {
+            AppMediaItemFirestore().existsOrInsert(selectedItem);
+          }
         }
       }
 

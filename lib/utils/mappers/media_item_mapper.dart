@@ -125,6 +125,8 @@ class MediaItemMapper {
         'autoplay': autoplay,
         'playlistBox': playlistBox,
         'source': item.mediaSource.name,
+        'isPublicDomain': item.mediaSource == AppMediaSource.publicDomain,
+        'casete': item.mediaSource != AppMediaSource.publicDomain,
         'description': item.description,
       },
     );
@@ -156,7 +158,13 @@ class MediaItemMapper {
       ownerId: item.extras?['ownerId']?.toString() ?? '',
       ownerEmail: item.extras?['ownerEmail']?.toString(),
       mediaSource:
-          CoreUtilities.isInternal(item.extras?['url']?.toString() ?? '')
+          (item.extras?['source']?.toString() ==
+                  AppMediaSource.publicDomain.name ||
+              item.extras?['isPublicDomain'] == true)
+          ? AppMediaSource.publicDomain
+          : (item.extras?['source']?.toString() ==
+                    AppMediaSource.internal.name ||
+                CoreUtilities.isInternal(item.extras?['url']?.toString() ?? ''))
           ? AppMediaSource.internal
           : AppMediaSource.external,
     );

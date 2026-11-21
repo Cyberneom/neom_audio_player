@@ -31,6 +31,7 @@ import 'package:neom_core/domain/use_cases/user_service.dart';
 import 'package:neom_core/utils/constants/core_constants.dart';
 import 'package:neom_core/utils/core_utilities.dart';
 import 'package:neom_core/utils/enums/app_hive_box.dart';
+import 'package:neom_core/utils/enums/app_media_source.dart';
 import 'package:neom_core/utils/enums/auth_status.dart';
 import 'package:neom_core/utils/enums/subscription_level.dart';
 import 'package:neom_core/utils/enums/user_role.dart';
@@ -120,6 +121,18 @@ class NeomAudioHandler extends BaseAudioHandler
 
   static bool isAdMediaItem(MediaItem? item) =>
       item?.extras?[AudioAdBreakSpec.extraIsAdKey] == true;
+
+  /// Public-domain & open-licensed tracks play freely without consuming trial
+  /// quota and are strictly excluded from Casete royalty pool calculations so
+  /// 100% of member payouts stay with independent artists.
+  static bool isPublicDomainMediaItem(MediaItem? item) {
+    if (item == null) return false;
+    final extras = item.extras;
+    if (extras == null) return false;
+    if (extras['isPublicDomain'] == true) return true;
+    final source = extras['source']?.toString() ?? '';
+    return source == AppMediaSource.publicDomain.name;
+  }
 
   AudioAdBreakSpec? get currentAdBreakSpec =>
       AudioAdBreakSpec.fromMediaItemExtras(
@@ -690,8 +703,10 @@ class NeomAudioHandler extends BaseAudioHandler
     }
 
     var hasActiveTrial = false;
+    final isPublicDomainItem = isPublicDomainMediaItem(currentMediaItem);
     final publicCatalogPlayback = PublicCatalogReadPolicy.unmeteredPlayback;
     if (!isFree &&
+        !isPublicDomainItem &&
         !ownsCurrentTrack &&
         !publicCatalogPlayback &&
         isSessionReady &&
@@ -723,7 +738,7 @@ class NeomAudioHandler extends BaseAudioHandler
         isAuthenticated: isAuthenticated,
         hasFullSubscription: hasFullSubscription || ownsCurrentTrack,
         hasActiveTrial: hasActiveTrial,
-        isPubliclyFree: isFree || publicCatalogPlayback,
+        isPubliclyFree: isFree || publicCatalogPlayback || isPublicDomainItem,
       ),
       origin: origin,
     );
@@ -2309,7 +2324,7 @@ class NeomAudioHandler extends BaseAudioHandler
     CaseteListenWindow window,
     MediaItem item,
   ) async {
-    if (_isEphemeral(item)) return;
+    if (_isEphemeral(item) || isPublicDomainMediaItem(item)) return;
     AppConfig.logger.t("CASETE ALG: Tracking casete session.");
 
     // Signed out while the window was open: the account that heard it is

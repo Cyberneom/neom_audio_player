@@ -122,7 +122,9 @@ class MiniPlayerController extends SintController implements MiniPlayerService {
         ) ??
         AppMediaSource.internal;
     isInternal =
-        source == AppMediaSource.internal || source == AppMediaSource.offline;
+        source == AppMediaSource.internal ||
+        source == AppMediaSource.offline ||
+        source == AppMediaSource.publicDomain;
     isWebPlayerClosed.value = false;
 
     update([AppPageIdConstants.miniPlayer, 'web_bottom_player']);
@@ -142,7 +144,9 @@ class MiniPlayerController extends SintController implements MiniPlayerService {
         ) ??
         AppMediaSource.internal;
     isInternal =
-        source == AppMediaSource.internal || source == AppMediaSource.offline;
+        source == AppMediaSource.internal ||
+        source == AppMediaSource.offline ||
+        source == AppMediaSource.publicDomain;
     isWebPlayerClosed.value = false;
 
     update([
