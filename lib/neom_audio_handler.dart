@@ -131,8 +131,11 @@ class NeomAudioHandler extends BaseAudioHandler
     if (extras == null) return false;
     if (extras['isPublicDomain'] == true) return true;
     final source = extras['source']?.toString() ?? '';
-    return source == AppMediaSource.publicDomain.name ||
-        source == AppMediaSource.jamendo.name;
+    if (source == AppMediaSource.publicDomain.name ||
+        source == AppMediaSource.jamendo.name) {
+      return true;
+    }
+    return extras['ownerId']?.toString() == 'neom_public_domain';
   }
 
   AudioAdBreakSpec? get currentAdBreakSpec =>
