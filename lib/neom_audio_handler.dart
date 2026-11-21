@@ -310,13 +310,13 @@ class NeomAudioHandler extends BaseAudioHandler
           );
 
   NeomAudioHandler({this.restoreLastQueue = true}) {
-    if (defaultTargetPlatform == TargetPlatform.android && !kIsWeb) {
-      _androidEqualizer = AndroidEqualizer();
-      final pipeline = AudioPipeline(androidAudioEffects: [_androidEqualizer!]);
-      player = AudioPlayer(audioPipeline: pipeline);
-    } else {
-      player = AudioPlayer();
-    }
+    // Do NOT attach just_audio's AndroidEqualizer to AudioPipeline when
+    // Media3 1.10+ is on the classpath: Media3 lazily assigns audioSessionId
+    // (returning C.AUDIO_SESSION_ID_UNSET=0 during ExoPlayer.Builder.build()),
+    // causing just_audio's AudioPlayer.equalizerAudioEffectGetParameters() to
+    // throw NullPointerException on Equalizer.getNumberOfBands() inside
+    // _setPlatformActive(true) and abort every setAudioSources() call on Android.
+    player = AudioPlayer();
     _startup = _init();
   }
 
