@@ -1413,7 +1413,35 @@ class NeomAudioHandler extends BaseAudioHandler
         bool offlineResolved = false;
         final canUsePersonalPlaybackState =
             AppConfig.instance.canPersistUserActivity;
-        if (canUsePersonalPlaybackState && playerHiveController.useDownload) {
+        final isPublicDomain = isPublicDomainMediaItem(mediaItem);
+
+        // Direct local-file resolution (e.g. offline downloaded Public Domain
+        // tracks on mobile/desktop). Safe for both guests and signed-in users.
+        if (!kIsWeb) {
+          final rawLocalPath =
+              mediaItem.extras?['localPath']?.toString().trim() ?? '';
+          final rawUrl = mediaItem.extras?['url']?.toString().trim() ?? '';
+          final candidatePath = rawLocalPath.isNotEmpty
+              ? rawLocalPath
+              : (rawUrl.startsWith('file://')
+                    ? Uri.tryParse(rawUrl)?.toFilePath() ?? ''
+                    : '');
+          if (candidatePath.isNotEmpty) {
+            final localFile = File(candidatePath);
+            if (localFile.existsSync() && localFile.lengthSync() > 0) {
+              audioSource = AudioSource.uri(
+                Uri.file(candidatePath),
+                tag: mediaItem.id,
+              );
+              offlineResolved = true;
+            }
+          }
+        }
+
+        if (!offlineResolved &&
+            !kIsWeb &&
+            ((canUsePersonalPlaybackState && playerHiveController.useDownload) ||
+                isPublicDomain)) {
           AppConfig.logger.d("Looking for files from downloads");
           final downloadsBox = await AppHiveController().getBox(
             AppHiveBox.downloads.name,
@@ -1440,8 +1468,14 @@ class NeomAudioHandler extends BaseAudioHandler
             audioUrl = mediaItem.extras!['url'].toString();
             // The quality rewrite may point to a variant that does not exist
             // server-side; the recovery flow sets noQualitySwap on the item
-            // to retry the original baseline file.
-            if (mediaItem.extras?[AudioQualitySwap.noSwapFlag] != true) {
+            // to retry the original baseline file. Never rewrite public-domain
+            // or local/blob URLs.
+            final skipQualitySwap =
+                isPublicDomain ||
+                audioUrl.startsWith('blob:') ||
+                audioUrl.startsWith('file:') ||
+                mediaItem.extras?[AudioQualitySwap.noSwapFlag] == true;
+            if (!skipQualitySwap) {
               audioUrl = AudioQualitySwap.apply(
                 audioUrl,
                 canUsePersonalPlaybackState
@@ -1451,20 +1485,21 @@ class NeomAudioHandler extends BaseAudioHandler
             }
           }
 
-          if (AudioCachePolicy.canCacheFully(
-            isWeb: kIsWeb,
-            canPersistUserActivity: canUsePersonalPlaybackState,
-            subscriptionLevel: _currentSubscriptionLevel(),
-            cacheSetting: playerHiveController.cacheSong,
-            isInternalUrl: CoreUtilities.isInternal(audioUrl),
-          )) {
+          if (!audioUrl.startsWith('blob:') &&
+              AudioCachePolicy.canCacheFully(
+                isWeb: kIsWeb,
+                canPersistUserActivity: canUsePersonalPlaybackState,
+                subscriptionLevel: _currentSubscriptionLevel(),
+                cacheSetting: playerHiveController.cacheSong,
+                isInternalUrl: CoreUtilities.isInternal(audioUrl),
+              )) {
             final cached = LockCachingAudioSource(Uri.parse(audioUrl));
             // Keeps songs the listener actually plays at the back of the
             // eviction line (AudioCacheStore.enforceLimit).
             unawaited(cached.cacheFile.then(AudioCacheStore.markPlayed));
             audioSource = cached;
           } else {
-            audioSource = AudioSource.uri(Uri.parse(audioUrl));
+            audioSource = AudioSource.uri(Uri.parse(audioUrl), tag: mediaItem.id);
           }
         }
       }

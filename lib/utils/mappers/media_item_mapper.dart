@@ -113,6 +113,8 @@ class MediaItemMapper {
         'ownerId': item.ownerId,
         'ownerEmail': item.ownerEmail,
         'url': item.url,
+        if (item.path != null && item.path!.trim().isNotEmpty)
+          'localPath': item.path!.trim(),
         'slug': item.slug,
         'publishedYear': item.publishedYear,
         'language': item.language,
@@ -153,6 +155,7 @@ class MediaItemMapper {
       imgUrl: item.artUri?.toString() ?? '',
       categories: item.genre != null ? [item.genre!] : [],
       url: item.extras?['url']?.toString() ?? '',
+      path: item.extras?['localPath']?.toString(),
       description: item.extras?['description']?.toString() ?? '',
       lyrics: item.extras?['lyrics']?.toString() ?? '',
       ownerId: item.extras?['ownerId']?.toString() ?? '',

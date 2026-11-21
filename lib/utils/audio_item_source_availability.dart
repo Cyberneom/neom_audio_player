@@ -19,6 +19,14 @@ bool isRemoteAudioSource(String source) {
       uri.host.isNotEmpty;
 }
 
+/// True for browser in-memory/Cache-Storage `blob:` audio URLs (e.g. offline
+/// downloaded Public Domain tracks on Flutter Web / Wasm).
+bool isBlobAudioSource(String source) {
+  final trimmed = source.trim();
+  final uri = Uri.tryParse(trimmed);
+  return uri != null && uri.scheme == 'blob' && trimmed.length > 'blob:'.length;
+}
+
 bool isAudioPlaybackItem(PlayableItem item) {
   if (item.isAudioContent) return true;
   if (item.mediaType != null || item.isBookContent) return false;
@@ -40,7 +48,7 @@ bool isAudioPlaybackItem(PlayableItem item) {
 /// path intact when the download box has not been opened yet.
 bool hasNoAudioSource(PlayableItem item) {
   final source = audioItemSource(item);
-  if (kIsWeb) return !isRemoteAudioSource(source);
+  if (kIsWeb) return !(isRemoteAudioSource(source) || isBlobAudioSource(source));
   if (source.isNotEmpty) return false;
 
   if (item is AppReleaseItem &&
