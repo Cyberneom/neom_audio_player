@@ -131,7 +131,8 @@ class NeomAudioHandler extends BaseAudioHandler
     if (extras == null) return false;
     if (extras['isPublicDomain'] == true) return true;
     final source = extras['source']?.toString() ?? '';
-    return source == AppMediaSource.publicDomain.name;
+    return source == AppMediaSource.publicDomain.name ||
+        source == AppMediaSource.jamendo.name;
   }
 
   AudioAdBreakSpec? get currentAdBreakSpec =>
@@ -379,6 +380,9 @@ class NeomAudioHandler extends BaseAudioHandler
         }
 
         currentMediaItem = item;
+        final isPublicDomain = isPublicDomainMediaItem(item);
+        isFree = isPublicDomain;
+        isCaseteElegible = !isPublicDomain;
         // Every item change passes through here — skips, queue changes and,
         // above all, items that advance on their own, which no transport
         // method sees. The previous item's window closes now or never.
@@ -705,6 +709,10 @@ class NeomAudioHandler extends BaseAudioHandler
     var hasActiveTrial = false;
     final isPublicDomainItem = isPublicDomainMediaItem(currentMediaItem);
     final publicCatalogPlayback = PublicCatalogReadPolicy.unmeteredPlayback;
+    if (isPublicDomainItem) {
+      isFree = true;
+      isCaseteElegible = false;
+    }
     if (!isFree &&
         !isPublicDomainItem &&
         !ownsCurrentTrack &&
@@ -729,7 +737,11 @@ class NeomAudioHandler extends BaseAudioHandler
       }
     }
 
-    allowFullAccess = hasFullSubscription || ownsCurrentTrack || publicCatalogPlayback;
+    allowFullAccess =
+        hasFullSubscription ||
+        ownsCurrentTrack ||
+        publicCatalogPlayback ||
+        isFree;
     allowFreeTrial = hasActiveTrial;
 
     return PlaybackAccessPolicy.evaluate(

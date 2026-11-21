@@ -194,12 +194,15 @@ class AudioPlayerInvoker
     AppConfig.logger.t('Settings Values for index $index');
 
     try {
-      // Guests may play public catalog entries, and Public Domain catalog items
-      // live statically in `neom_public_domain` — neither may create or mutate
-      // Firestore independent-catalog documents as a side effect.
+      // Guests may play public catalog entries, and Public Domain / open-licensed
+      // catalog items (`neom_public_domain`, `neom_audiobooks`, Jamendo) must
+      // never create or mutate Firestore independent-catalog documents.
       if (AppConfig.instance.canPersistUserActivity) {
         final selectedItem = currentMediaItems[index];
-        if (selectedItem.mediaSource != AppMediaSource.publicDomain) {
+        final isPublicDomain =
+            selectedItem.mediaSource == AppMediaSource.publicDomain ||
+            selectedItem.mediaSource == AppMediaSource.jamendo;
+        if (!isPublicDomain) {
           final releaseItem = currentReleaseItems.firstWhereOrNull(
             (item) => item.id == selectedItem.id,
           );
