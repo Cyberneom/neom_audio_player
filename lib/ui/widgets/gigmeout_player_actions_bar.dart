@@ -13,12 +13,16 @@ import 'package:neom_core/utils/enums/app_hive_box.dart';
 import 'package:neom_core/utils/enums/app_in_use.dart';
 import 'package:sint/sint.dart';
 
+import '../../neom_audio_handler.dart';
+
 /// Compact Gigmeout action pills for Mobile & Web audio players:
 /// 1. `🪙 {balance} · Apoyar` -> opens `TipSheet` via [TipService.showTipModal]
 ///    (plus a one-time 8-second educational coachmark on a signed-in user's first track).
 /// 2. `🎧 Sesión Compartida` -> opens optional shared song room via [SharedListeningService].
 ///
-/// Renders `SizedBox.shrink()` on non-Gigmeout apps (`AppInUse.e`, etc.).
+/// Renders `SizedBox.shrink()` on non-Gigmeout apps (`AppInUse.e`, etc.) and
+/// for Public Domain / ad tracks so GigCoins tipping and Shared Listening stay
+/// exclusive to Gigmeout's independent artist community.
 class GigmeoutPlayerActionsBar extends StatefulWidget {
   final MediaItem? mediaItem;
   final Stream<Duration>? positionStream;
@@ -48,10 +52,18 @@ class _GigmeoutPlayerActionsBarState extends State<GigmeoutPlayerActionsBar> {
 
   bool get _isGigmeout => AppConfig.instance.appInUse == AppInUse.g;
 
+  bool get _isCommunityArtistTrack {
+    final item = widget.mediaItem;
+    if (item == null || item.id.isEmpty) return false;
+    if (NeomAudioHandler.isPublicDomainMediaItem(item)) return false;
+    if (NeomAudioHandler.isAdMediaItem(item)) return false;
+    return true;
+  }
+
   @override
   void initState() {
     super.initState();
-    if (_isGigmeout) {
+    if (_isGigmeout && _isCommunityArtistTrack) {
       _refreshBalance();
       _attachCoachmarkWatcher();
     }
@@ -61,10 +73,17 @@ class _GigmeoutPlayerActionsBarState extends State<GigmeoutPlayerActionsBar> {
   void didUpdateWidget(covariant GigmeoutPlayerActionsBar oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (!_isGigmeout) return;
+    if (!_isCommunityArtistTrack) {
+      _posSub?.cancel();
+      _posSub = null;
+      _coachmarkDismissTimer?.cancel();
+      _dismissCoachmark();
+      return;
+    }
     if (oldWidget.mediaItem?.id != widget.mediaItem?.id) {
       _refreshBalance();
     }
-    if (oldWidget.positionStream != widget.positionStream) {
+    if (oldWidget.positionStream != widget.positionStream || _posSub == null) {
       _posSub?.cancel();
       _attachCoachmarkWatcher();
     }
@@ -125,10 +144,11 @@ class _GigmeoutPlayerActionsBarState extends State<GigmeoutPlayerActionsBar> {
   }
 
   void _attachCoachmarkWatcher() {
+    if (!_isCommunityArtistTrack) return;
     final stream = widget.positionStream;
     if (stream == null) return;
     _posSub = stream.listen((pos) {
-      if (!mounted || _showCoachmark) return;
+      if (!mounted || _showCoachmark || !_isCommunityArtistTrack) return;
       if (!AppConfig.instance.canPersistUserActivity) return;
       if (pos.inSeconds < 8) return;
       try {
@@ -155,7 +175,7 @@ class _GigmeoutPlayerActionsBarState extends State<GigmeoutPlayerActionsBar> {
 
   void _handleSupportTap(BuildContext context) {
     final item = widget.mediaItem;
-    if (item == null || item.id.isEmpty) return;
+    if (!_isCommunityArtistTrack || item == null || item.id.isEmpty) return;
 
     AuthGuard.protect(context, () async {
       if (!Sint.isRegistered<TipService>()) return;
@@ -182,7 +202,7 @@ class _GigmeoutPlayerActionsBarState extends State<GigmeoutPlayerActionsBar> {
 
   void _handleSharedSessionTap(BuildContext context) {
     final item = widget.mediaItem;
-    if (item == null || item.id.isEmpty) return;
+    if (!_isCommunityArtistTrack || item == null || item.id.isEmpty) return;
 
     AuthGuard.protect(context, () async {
       if (!Sint.isRegistered<SharedListeningService>()) return;
@@ -251,7 +271,7 @@ class _GigmeoutPlayerActionsBarState extends State<GigmeoutPlayerActionsBar> {
 
   @override
   Widget build(BuildContext context) {
-    if (!_isGigmeout) return const SizedBox.shrink();
+    if (!_isGigmeout || !_isCommunityArtistTrack) return const SizedBox.shrink();
     final item = widget.mediaItem;
     if (item == null || item.id.isEmpty) return const SizedBox.shrink();
 

@@ -37,6 +37,12 @@ class MediaItemMapper {
       'permaUrl': item.extras!['permaUrl']?.toString(),
       'quality': item.extras?['quality'],
       'is320kbps': item.extras?['is320kbps'],
+      if (item.extras?['localPath'] != null)
+        'localPath': item.extras?['localPath'],
+      if (item.extras?['source'] != null) 'source': item.extras?['source'],
+      if (item.extras?['isPublicDomain'] != null)
+        'isPublicDomain': item.extras?['isPublicDomain'],
+      if (item.extras?['casete'] != null) 'casete': item.extras?['casete'],
     };
   }
 
@@ -47,11 +53,16 @@ class MediaItemMapper {
     String? playlistBox,
   }) {
     final idVal = song['id']?.toString() ?? '';
-    final titleVal = song['title']?.toString().trim() ?? '';
+    final titleVal = (song['title'] ?? song['name'])?.toString().trim() ?? '';
     final albumVal = song['album']?.toString().trim() ?? '';
     final artistVal =
         (song['ownerName'] ?? song['artist'])?.toString().trim() ?? '';
     final durationVal = song['duration']?.toString().trim() ?? '';
+    final isPublicDomain =
+        song['isPublicDomain'] == true ||
+        song['source']?.toString() == AppMediaSource.publicDomain.name ||
+        song['ownerId']?.toString() == 'neom_public_domain';
+    final rawLocalPath = song['localPath']?.toString().trim() ?? '';
 
     return MediaItem(
       id: idVal,
@@ -65,13 +76,14 @@ class MediaItemMapper {
       title: (titleVal.isEmpty || titleVal == 'null')
           ? 'Lanzamiento'
           : titleVal,
-      artUri: Uri.parse(song['image']?.toString() ?? ''),
+      artUri: Uri.parse((song['image'] ?? song['imgUrl'])?.toString() ?? ''),
       genre: song['language']?.toString() ?? '',
       extras: {
         'ownerId': song['ownerId'] ?? '',
         'ownerProfileId': song['ownerProfileId'] ?? song['ownerId'] ?? '',
         'ownerEmail': song['ownerEmail'] ?? '',
         'url': song['url'],
+        if (rawLocalPath.isNotEmpty) 'localPath': rawLocalPath,
         'slug': song['slug'] ?? '',
         'publishedYear': song['publishedYear'],
         'language': song['language'],
@@ -84,7 +96,10 @@ class MediaItemMapper {
         'addedByAutoplay': addedByAutoplay,
         'autoplay': autoplay,
         'playlistBox': playlistBox,
-        'source': song['source'],
+        'source': song['source'] ??
+            (isPublicDomain ? AppMediaSource.publicDomain.name : null),
+        'isPublicDomain': isPublicDomain,
+        'casete': song['casete'] ?? !isPublicDomain,
       },
     );
   }
@@ -163,7 +178,8 @@ class MediaItemMapper {
       mediaSource:
           (item.extras?['source']?.toString() ==
                   AppMediaSource.publicDomain.name ||
-              item.extras?['isPublicDomain'] == true)
+              item.extras?['isPublicDomain'] == true ||
+              item.extras?['ownerId']?.toString() == 'neom_public_domain')
           ? AppMediaSource.publicDomain
           : (item.extras?['source']?.toString() ==
                     AppMediaSource.internal.name ||
