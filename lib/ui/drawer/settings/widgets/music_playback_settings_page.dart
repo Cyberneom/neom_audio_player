@@ -121,7 +121,7 @@ class _MusicPlaybackSettingsPageState extends State<MusicPlaybackSettingsPage> {
                                 children: [
                                   TextButton(
                                     style: TextButton.styleFrom(foregroundColor: Theme.of(context).colorScheme.secondary,),
-                                    onPressed: () => Sint.back(),
+                                    onPressed: () => Sint.pop(),
                                     child: Text(AppTranslationConstants.cancel.tr,),
                                   ),
                                   TextButton(
@@ -129,7 +129,7 @@ class _MusicPlaybackSettingsPageState extends State<MusicPlaybackSettingsPage> {
                                     onPressed: () {
                                       setState(() {
                                         preferredLanguage = checked;
-                                        Sint.back();
+                                        Sint.pop();
                                         Hive.box(AppHiveBox.settings.name).put('preferredLanguage', checked,);
                                         widget.callback!();
                                         },

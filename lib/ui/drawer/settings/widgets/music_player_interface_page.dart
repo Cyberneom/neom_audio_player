@@ -145,7 +145,7 @@ class _MusicPlayerInterfacePageState extends State<MusicPlayerInterfacePage> {
                             ),
                             actions: [
                               TextButton(
-                                onPressed: () => Sint.back(),
+                                onPressed: () => Sint.pop(),
                                 child: Text(AppTranslationConstants.cancel.tr,),
                               ),
                               TextButton(
@@ -163,7 +163,7 @@ class _MusicPlayerInterfacePageState extends State<MusicPlayerInterfacePage> {
                                       }
                                       preferredMiniButtons = temp;
                                       miniButtonsOrder = order;
-                                      Sint.back();
+                                      Sint.pop();
                                       Hive.box(AppHiveBox.settings.name).put(
                                         'preferredMiniButtons',
                                         preferredMiniButtons,
@@ -284,7 +284,7 @@ class _MusicPlayerInterfacePageState extends State<MusicPlayerInterfacePage> {
                             ),
                             actions: [
                               TextButton(
-                                onPressed: () => Sint.back(),
+                                onPressed: () => Sint.pop(),
                                 child: Text(AppTranslationConstants.cancel.tr,),
                               ),
                               TextButton(
@@ -300,7 +300,7 @@ class _MusicPlayerInterfacePageState extends State<MusicPlayerInterfacePage> {
                                         );
                                       }
                                       preferredCompactNotificationButtons = checked.toList()..sort();
-                                      Sint.back();
+                                      Sint.pop();
                                       Hive.box(AppHiveBox.settings.name).put('preferredCompactNotificationButtons', preferredCompactNotificationButtons,
                                       );
                                     },

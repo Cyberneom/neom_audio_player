@@ -107,7 +107,7 @@ class AudioPlayerUtilities {
           backgroundColor: AppColor.surfaceElevated,
           content: Stack(
             children: [
-              GestureDetector(onTap: () => Sint.back()),
+              GestureDetector(onTap: () => Sint.pop()),
               Padding(
                 padding: const EdgeInsets.all(15.0),
                 child: Card(
@@ -129,7 +129,7 @@ class AudioPlayerUtilities {
                   ),
                   clipBehavior: Clip.antiAlias,
                   child: IconButton(
-                    onPressed: () => Sint.back(),
+                    onPressed: () => Sint.pop(),
                     icon: const Icon(Icons.close_rounded),
                   ),
                 ),

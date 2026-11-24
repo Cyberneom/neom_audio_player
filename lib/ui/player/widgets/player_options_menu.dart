@@ -267,7 +267,7 @@ class PlayerOptionsMenu extends StatelessWidget {
         ),
         actions: [
           TextButton(
-            onPressed: () => Sint.back(),
+            onPressed: () => Sint.pop(),
             child: Text(AppTranslationConstants.close.tr),
           ),
         ],
@@ -292,7 +292,7 @@ class PlayerOptionsMenu extends StatelessWidget {
               trailing: isSelected ? const Icon(Icons.check, color: Colors.green) : null,
               onTap: () {
                 controller.audioHandler?.player.setSpeed(speed);
-                Sint.back();
+                Sint.pop();
               },
             );
           }).toList(),
@@ -309,12 +309,12 @@ class PlayerOptionsMenu extends StatelessWidget {
         content: Text('${AudioPlayerTranslationConstants.reportIssue.tr}?'),
         actions: [
           TextButton(
-            onPressed: () => Sint.back(),
+            onPressed: () => Sint.pop(),
             child: Text(AppTranslationConstants.cancel.tr),
           ),
           TextButton(
             onPressed: () {
-              Sint.back();
+              Sint.pop();
               // Would open report form
             },
             child: Text(AppTranslationConstants.report.tr),

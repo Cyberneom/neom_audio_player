@@ -54,6 +54,7 @@ class AudioPlayerBottomAppBarState extends State<AudioPlayerBottomAppBar> {
 
     return BottomAppBar(
       height: widget.height,
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
       shape: widget.notchedShape,
       color: widget.backgroundColor,
       notchMargin: 0,
@@ -72,6 +73,7 @@ class AudioPlayerBottomAppBarState extends State<AudioPlayerBottomAppBar> {
     Color color = _selectedIndex == index ? widget.selectedColor : widget.color;
     return Expanded(
       child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
         onTap: () => onPressed!(index),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -79,7 +81,21 @@ class AudioPlayerBottomAppBarState extends State<AudioPlayerBottomAppBar> {
           children: <Widget>[
             if(item?.animation != null) item!.animation!,
             Icon(item!.iconData, color: color, size: widget.iconSize),
-            Text(item.text, style: TextStyle(color: color, fontSize: widget.fontSize),),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 2),
+              child: Text(
+                item.text,
+                maxLines: 1,
+                softWrap: false,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: color,
+                  fontSize: widget.fontSize,
+                  height: 1.15,
+                ),
+              ),
+            ),
           ],
         ),
       ),

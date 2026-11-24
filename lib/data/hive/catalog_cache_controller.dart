@@ -36,7 +36,7 @@ class CatalogCacheController {
   static const String _mediaItemsKey = 'media_items';
   static const String _lastUpdateKey = 'catalog_last_update';
   static const String _cacheVersionKey = 'catalog_cache_version';
-  static const int _currentCacheVersion = 1;
+  static const int _currentCacheVersion = 2;
 
   @visibleForTesting
   void resetForTesting() {
@@ -164,9 +164,12 @@ class CatalogCacheController {
         final key = entry.key?.toString() ?? '';
         if (!isSafeCacheEntryKey(key) || entry.value is! Map) continue;
         try {
-          result[key] = Itemlist.fromJSON(
-            Map<String, dynamic>.from(entry.value as Map),
+          final list = _sanitizeCachedItemlist(
+            Itemlist.fromJSON(Map<String, dynamic>.from(entry.value as Map)),
           );
+          if (list.getTotalItems() > 0) {
+            result[key] = list;
+          }
         } catch (_) {}
       }
 
@@ -175,6 +178,26 @@ class CatalogCacheController {
       NeomErrorLogger.recordError(e, st, module: 'neom_audio_player', operation: 'getCachedPublicItemlists');
       return {};
     }
+  }
+
+  Itemlist _sanitizeCachedItemlist(Itemlist list) {
+    final app = AppConfig.instance.appInUse;
+    if (list.appMediaItems != null) {
+      list.appMediaItems = list.appMediaItems!
+          .where((item) => ReleaseCatalogVisibility.isMediaItemVisible(item, app: app))
+          .toList();
+    }
+    if (list.appReleaseItems != null) {
+      list.appReleaseItems = list.appReleaseItems!
+          .where((item) => ReleaseCatalogVisibility.isVisible(item, app: app))
+          .toList();
+    }
+    if (list.externalItems != null) {
+      list.externalItems = list.externalItems!
+          .where((item) => ReleaseCatalogVisibility.isExternalItemVisible(item, app: app))
+          .toList();
+    }
+    return list;
   }
 
   // ==================== RELEASE ITEMLISTS CACHE ====================
@@ -228,9 +251,12 @@ class CatalogCacheController {
         final key = entry.key?.toString() ?? '';
         if (!isSafeCacheEntryKey(key) || entry.value is! Map) continue;
         try {
-          result[key] = Itemlist.fromJSON(
-            Map<String, dynamic>.from(entry.value as Map),
+          final list = _sanitizeCachedItemlist(
+            Itemlist.fromJSON(Map<String, dynamic>.from(entry.value as Map)),
           );
+          if (list.getTotalItems() > 0) {
+            result[key] = list;
+          }
         } catch (_) {}
       }
 
