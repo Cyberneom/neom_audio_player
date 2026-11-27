@@ -54,6 +54,75 @@ class AudioPlayerInvoker
   bool _isInitProcessing = false;
   bool _initializingEphemeral = false;
   EphemeralAudioGrant? _ephemeralGrant;
+  final Map<String, Future<void> Function()> _playbackStartedListeners = {};
+
+  NeomAudioHandler? get _existingHandler {
+    if (audioHandler != null) return audioHandler;
+    if (Sint.isRegistered<NeomAudioHandler>()) {
+      return Sint.find<NeomAudioHandler>();
+    }
+    return null;
+  }
+
+  void _attachListenersToHandler(NeomAudioHandler? handler) {
+    if (handler == null) return;
+    for (final entry in _playbackStartedListeners.entries) {
+      handler.registerPlaybackStartedListener(entry.key, entry.value);
+    }
+  }
+
+  Future<void> _notifyPlaybackStartedListeners() async {
+    if (_playbackStartedListeners.isEmpty) return;
+    final listeners = List<Future<void> Function()>.from(
+      _playbackStartedListeners.values,
+    );
+    for (final listener in listeners) {
+      try {
+        await listener();
+      } catch (e, st) {
+        NeomErrorLogger.recordErrorLight(
+          e,
+          st,
+          module: 'neom_audio_player',
+          operation: '_notifyPlaybackStartedListeners',
+        );
+      }
+    }
+  }
+
+  @override
+  bool get isAudioPlaying {
+    final handler = _existingHandler;
+    if (handler != null &&
+        (handler.isPlaying || handler.isLoadingAudio.value)) {
+      return true;
+    }
+    return _isInitProcessing;
+  }
+
+  @override
+  Future<void> pauseIfPlaying() async {
+    final handler = _existingHandler;
+    if (handler == null) return;
+    if (handler.isPlaying || handler.isLoadingAudio.value) {
+      await handler.pause();
+    }
+  }
+
+  @override
+  void registerPlaybackStartedListener(
+    String owner,
+    Future<void> Function() onPlaybackStarted,
+  ) {
+    _playbackStartedListeners[owner] = onPlaybackStarted;
+    _existingHandler?.registerPlaybackStartedListener(owner, onPlaybackStarted);
+  }
+
+  @override
+  void unregisterPlaybackStartedListener(String owner) {
+    _playbackStartedListeners.remove(owner);
+    _existingHandler?.unregisterPlaybackStartedListener(owner);
+  }
 
   @override
   Future<void> beginEphemeralAudio(EphemeralAudioGrant grant) async {
@@ -91,8 +160,11 @@ class AudioPlayerInvoker
     _ephemeralGrant = null;
 
     try {
-      if (playItem && Sint.isRegistered<MediaPlayerService>()) {
-        Sint.find<MediaPlayerService>().pauseAllVideos();
+      if (playItem) {
+        if (Sint.isRegistered<MediaPlayerService>()) {
+          Sint.find<MediaPlayerService>().pauseAllVideos();
+        }
+        await _notifyPlaybackStartedListeners();
       }
       audioHandler = await getOrInitAudioHandler();
       if (audioHandler == null) {
@@ -143,6 +215,7 @@ class AudioPlayerInvoker
             index: globalIndex,
             fromDownloads: fromDownloads,
             isOffline: isOffline,
+            playItem: playItem,
           );
         } else {
           await setValues(
@@ -450,6 +523,7 @@ class AudioPlayerInvoker
     }
 
     audioHandler = handler;
+    _attachListenersToHandler(handler);
     await audioHandler?.enforcePersonalStateBoundary();
   }
 
@@ -487,6 +561,7 @@ class AudioPlayerInvoker
       );
     }
 
+    _attachListenersToHandler(handler);
     await handler?.enforcePersonalStateBoundary();
     return handler;
   }

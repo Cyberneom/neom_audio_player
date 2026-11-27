@@ -209,6 +209,8 @@ class MediaItemMapper {
       genre: item.categories.isNotEmpty ? item.categories.first : null,
       extras: {
         'url': audioItemSource(item),
+        if (item.localPath != null && item.localPath!.trim().isNotEmpty)
+          'localPath': item.localPath!.trim(),
         'allUrl': [],
         'publishedYear': item.publishedYear,
         'language': item.language,

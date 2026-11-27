@@ -256,6 +256,14 @@ class NeomAudioHandler extends BaseAudioHandler
   final MediaUrlResolverRegistry urlResolverRegistry =
       MediaUrlResolverRegistry();
 
+  /// Listeners notified right before audio playback starts so competing local
+  /// audio surfaces (such as Read-Aloud narration) can pause cleanly.
+  final Map<String, Future<void> Function()> _playbackStartedListeners = {};
+
+  /// Monotonically incremented on play/pause/stop to cancel in-flight async
+  /// play preparations when pause/stop arrives mid-load.
+  int _playEpoch = 0;
+
   @override
   void registerUrlResolver(String owner, MediaUrlResolver resolver) =>
       urlResolverRegistry.register(owner, resolver);
@@ -263,6 +271,77 @@ class NeomAudioHandler extends BaseAudioHandler
   @override
   void unregisterUrlResolver(String owner) =>
       urlResolverRegistry.unregister(owner);
+
+  @override
+  void registerPlaybackStartedListener(
+    String owner,
+    Future<void> Function() onPlaybackStarted,
+  ) {
+    _playbackStartedListeners[owner] = onPlaybackStarted;
+  }
+
+  @override
+  void unregisterPlaybackStartedListener(String owner) {
+    _playbackStartedListeners.remove(owner);
+  }
+
+  Future<void> _notifyPlaybackStartedListeners() async {
+    if (_playbackStartedListeners.isEmpty) return;
+    final listeners = List<Future<void> Function()>.from(
+      _playbackStartedListeners.values,
+    );
+    for (final listener in listeners) {
+      try {
+        await listener();
+      } catch (e, st) {
+        NeomErrorLogger.recordErrorLight(
+          e,
+          st,
+          module: 'neom_audio_player',
+          operation: '_notifyPlaybackStartedListeners',
+        );
+      }
+    }
+  }
+
+  Future<void> _startAudioPlayback(int playEpoch) async {
+    if (playEpoch != _playEpoch) {
+      isLoadingAudio.value = false;
+      return;
+    }
+    await _notifyPlaybackStartedListeners();
+    if (playEpoch != _playEpoch) {
+      isLoadingAudio.value = false;
+      return;
+    }
+    await player.play();
+  }
+
+  /// Resolves a local file path from either a `file://` URI or a bare absolute
+  /// filesystem path (`/…` on POSIX, `C:\…` on Windows). Returns `''` for
+  /// remote (`http`/`https`), `blob:`, or `asset:` sources.
+  static String _extractLocalFilePath(String raw) {
+    final trimmed = raw.trim();
+    if (trimmed.isEmpty) return '';
+    if (trimmed.startsWith('file://')) {
+      try {
+        return Uri.parse(trimmed).toFilePath();
+      } catch (_) {
+        return trimmed.substring('file://'.length);
+      }
+    }
+    if (trimmed.startsWith('http://') ||
+        trimmed.startsWith('https://') ||
+        trimmed.startsWith('blob:') ||
+        trimmed.startsWith('asset:')) {
+      return '';
+    }
+    if (trimmed.startsWith('/') ||
+        RegExp(r'^[a-zA-Z]:[\\/]').hasMatch(trimmed)) {
+      return trimmed;
+    }
+    return '';
+  }
 
   Stream<List<IndexedAudioSource>> get _effectiveSequence =>
       rx.Rx.combineLatest3<
@@ -1067,7 +1146,7 @@ class NeomAudioHandler extends BaseAudioHandler
           showFeedback: false,
         );
         if (!access.allowed) return false;
-        await player.play();
+        await _startAudioPlayback(_playEpoch);
         return true;
       }
       if (currentMediaItem?.id == itemId) {
@@ -1078,7 +1157,7 @@ class NeomAudioHandler extends BaseAudioHandler
           showFeedback: false,
         );
         if (!access.allowed) return false;
-        await player.play();
+        await _startAudioPlayback(_playEpoch);
         return true;
       }
       return false;
@@ -1119,7 +1198,7 @@ class NeomAudioHandler extends BaseAudioHandler
           showFeedback: false,
         );
         if (!access.allowed) return false;
-        await player.play();
+        await _startAudioPlayback(_playEpoch);
         return true;
       }
 
@@ -1129,7 +1208,7 @@ class NeomAudioHandler extends BaseAudioHandler
         showFeedback: false,
       );
       if (!access.allowed) return false;
-      await player.play();
+      await _startAudioPlayback(_playEpoch);
       return true;
     } catch (e, st) {
       NeomErrorLogger.recordErrorLight(
@@ -1416,8 +1495,11 @@ class NeomAudioHandler extends BaseAudioHandler
         return audioSource;
       }
       if (mediaItem.artUri.toString().startsWith('file:')) {
+        final rawUrl = mediaItem.extras?['url']?.toString() ?? '';
+        final localPath = _extractLocalFilePath(rawUrl);
         audioSource = AudioSource.uri(
-          Uri.file(mediaItem.extras!['url'].toString()),
+          localPath.isNotEmpty ? Uri.file(localPath) : Uri.file(rawUrl),
+          tag: mediaItem.id,
         );
       } else {
         // Offline-first resolution: a valid downloaded file wins. When the
@@ -1430,17 +1512,16 @@ class NeomAudioHandler extends BaseAudioHandler
             AppConfig.instance.canPersistUserActivity;
         final isPublicDomain = isPublicDomainMediaItem(mediaItem);
 
-        // Direct local-file resolution (e.g. offline downloaded Public Domain
-        // tracks on mobile/desktop). Safe for both guests and signed-in users.
+        // Direct local-file resolution (e.g. local audiobooks or offline
+        // downloaded tracks on mobile/desktop). Safe for both guests and
+        // signed-in users.
         if (!kIsWeb) {
           final rawLocalPath =
               mediaItem.extras?['localPath']?.toString().trim() ?? '';
           final rawUrl = mediaItem.extras?['url']?.toString().trim() ?? '';
-          final candidatePath = rawLocalPath.isNotEmpty
-              ? rawLocalPath
-              : (rawUrl.startsWith('file://')
-                    ? Uri.tryParse(rawUrl)?.toFilePath() ?? ''
-                    : '');
+          final candidatePath = _extractLocalFilePath(rawLocalPath).isNotEmpty
+              ? _extractLocalFilePath(rawLocalPath)
+              : _extractLocalFilePath(rawUrl);
           if (candidatePath.isNotEmpty) {
             final localFile = File(candidatePath);
             if (localFile.existsSync() && localFile.lengthSync() > 0) {
@@ -1901,6 +1982,7 @@ class NeomAudioHandler extends BaseAudioHandler
     int index, {
     required PlaybackRequestOrigin origin,
   }) async {
+    final playEpoch = ++_playEpoch;
     final playlistLength = player.audioSource?.sequence.length ?? 0;
     if (index < 0 || index >= playlistLength) return;
     await player.seek(
@@ -1912,7 +1994,7 @@ class NeomAudioHandler extends BaseAudioHandler
     if (Sint.isRegistered<MediaPlayerService>()) {
       Sint.find<MediaPlayerService>().pauseAllVideos();
     }
-    await player.play();
+    await _startAudioPlayback(playEpoch);
   }
 
   /// Loads [mediaItem] and starts playback, appending it to the queue when
@@ -1947,12 +2029,13 @@ class NeomAudioHandler extends BaseAudioHandler
   @override
   Future<void> play() async {
     AppConfig.logger.d('NeomAudioHandler Dispose and Play');
+    final playEpoch = ++_playEpoch;
 
     try {
       final initialAccess = await _authorizePlayback(
         PlaybackRequestOrigin.play,
       );
-      if (!initialAccess.allowed) return;
+      if (!initialAccess.allowed || playEpoch != _playEpoch) return;
 
       if (currentMediaItem != null) {
         isLoadingAudio.value = true;
@@ -1961,6 +2044,10 @@ class NeomAudioHandler extends BaseAudioHandler
           AudioSource? audioSource = await _itemToSourceWithRetry(
             currentMediaItem!,
           );
+          if (playEpoch != _playEpoch) {
+            isLoadingAudio.value = false;
+            return;
+          }
           if (audioSource != null) {
             await player.setAudioSource(audioSource);
           } else {
@@ -1979,6 +2066,7 @@ class NeomAudioHandler extends BaseAudioHandler
 
         setItemInMediaPlayers();
         isLoadingAudio.value = false;
+        if (playEpoch != _playEpoch) return;
         if (Sint.isRegistered<MediaPlayerService>()) {
           Sint.find<MediaPlayerService>().pauseAllVideos();
         }
@@ -1988,10 +2076,11 @@ class NeomAudioHandler extends BaseAudioHandler
           PlaybackRequestOrigin.play,
           showFeedback: false,
         );
-        if (!access.allowed) return;
-        await player.play();
+        if (!access.allowed || playEpoch != _playEpoch) return;
+        await _startAudioPlayback(playEpoch);
       }
     } catch (e, st) {
+      isLoadingAudio.value = false;
       NeomErrorLogger.recordErrorLight(
         e,
         st,
@@ -2004,6 +2093,8 @@ class NeomAudioHandler extends BaseAudioHandler
   @override
   Future<void> pause() async {
     AppConfig.logger.d('Pause');
+    _playEpoch++;
+    isLoadingAudio.value = false;
     await player.pause();
     _listenClock.setAudible(false);
     if (_ephemeralGrant != null || _isEphemeral(currentMediaItem)) return;
@@ -2030,6 +2121,8 @@ class NeomAudioHandler extends BaseAudioHandler
   @override
   Future<void> stop() async {
     AppConfig.logger.d('Stopping player');
+    _playEpoch++;
+    isLoadingAudio.value = false;
     final grant = _ephemeralGrant;
     if (grant != null ||
         (_isEphemeral(currentMediaItem) && !isAdMediaItem(currentMediaItem))) {
